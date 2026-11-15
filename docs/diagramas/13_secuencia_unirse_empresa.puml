@@ -1,0 +1,39 @@
+@startuml secuencia_unirse_empresa
+!include estilo.iuml
+title Secuencia: Unirse a la empresa con un código de invitación
+autoactivate on
+actor "Persona registrada" as A
+participant "c:CodigoInvitacion" as CO
+participant "emp:Empresa" as EM
+participant "inv:Invitacion" as I
+participant "nuevo:Empleado" as N
+participant "cta:Cuenta" as C
+
+A -> CO : CodigoInvitacion.de(" ct-rq7k-4m2p ")
+CO --> A : c (normalizado CT-RQ7K-4M2P)
+A -> EM : buscarInvitacion(c)
+EM --> A : inv
+A -> I : canjear(cta, emp, ahora)
+I -> I : estadoEn(ahora)
+I --> I : estado
+alt usada, cancelada o vencida
+  I --> A : OperacionInvalidaException("Pide a tu jefe un código nuevo")
+else vigente
+  create N
+  I -> N : <<create>> Usuario.crear(rol, documento, nombre, …)
+  N --> I
+  I -> N : vincularCuenta(cta)
+  N -> C : vincular(nuevo)
+  C --> N
+  N --> I
+  opt la invitación indica supervisor
+    I -> N : setSupervisor(ana)
+    N --> I
+  end
+  I -> EM : agregarUsuario(nuevo)
+  EM --> I
+  I -> I : estado = USADA
+  I --> I
+  I --> A : nuevo
+end
+@enduml

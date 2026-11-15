@@ -1,0 +1,26 @@
+@startuml secuencia_marcar_entrada
+!include estilo.iuml
+title Secuencia: Marcar entrada (Empleado)
+autoactivate on
+actor Empleado as A
+participant "jose:Empleado" as E
+participant "h:Horario" as H
+participant "r:RegistroAsistencia" as R
+participant "hist:Historial" as HI
+
+A -> E : marcarEntrada(ahora)
+alt jose ya está presente
+  E --> A : OperacionInvalidaException("ya registró su entrada")
+else no está presente
+  E -> H : esLlegadaTarde(hora)
+  H --> E : tarde : boolean
+  create R
+  E -> R : <<create>> RegistroAsistencia(fecha, hora, tarde)
+  R --> E : r
+  E -> HI : agregarAsistencia(r)
+  HI --> E
+  E -> E : presente = true
+  E --> E
+  E --> A : r (hora de entrada y si llegó tarde)
+end
+@enduml

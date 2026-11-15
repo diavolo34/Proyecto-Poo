@@ -1,0 +1,54 @@
+@startuml clases_dominio
+!include estilo.iuml
+title Diagrama de Clases · Modelo de Dominio
+hide members
+hide circle
+
+class Empresa
+class Obra
+class Cuenta
+class Invitacion
+abstract class "Usuario {abstract}" as Usuario
+class Empleado
+class Supervisor
+class Jefe
+class Horario
+class Historial
+class RegistroAsistencia
+abstract class "Incidencia {abstract}" as Incidencia
+class ReposoMedico
+class PermisoPersonal
+class Retardo
+class AccidenteLaboral
+class Ausencia
+interface Justificable
+interface RevisorIncidencias
+
+Empresa "1" o-- "0..*" Usuario : registra >
+Empresa "1" *-- "0..*" Obra : ejecuta >
+Empresa "1" o-- "0..*" Cuenta : conoce >
+Empresa "1" *-- "0..*" Invitacion : guarda >
+Usuario <|-- Empleado
+Usuario <|-- Supervisor
+Usuario <|-- Jefe
+Usuario "1" *-- "1" Horario : tiene >
+Usuario "1" *-- "1" Historial : tiene >
+Historial "1" *-- "0..*" RegistroAsistencia : jornadas >
+Historial "1" o-- "0..*" Incidencia : novedades >
+Usuario "0..*" -- "0..1" Obra : trabaja en >
+Supervisor "0..1" -- "0..*" Empleado : supervisa >
+Cuenta "1" -- "0..1" Usuario : vinculada a >
+Jefe "1" -- "0..*" Invitacion : crea >
+Invitacion "0..*" -- "0..1" Cuenta : usada por >
+Incidencia "0..*" -- "1" Usuario : afecta a >
+Incidencia <|-- ReposoMedico
+Incidencia <|-- PermisoPersonal
+Incidencia <|-- Retardo
+Incidencia <|-- AccidenteLaboral
+Incidencia <|-- Ausencia
+Justificable <|.. ReposoMedico
+Justificable <|.. PermisoPersonal
+Justificable <|.. AccidenteLaboral
+RevisorIncidencias <|.. Supervisor
+RevisorIncidencias <|.. Jefe
+@enduml

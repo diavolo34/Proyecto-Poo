@@ -1,0 +1,44 @@
+' Estilo común de los diagramas de ConstruTrack (misma paleta que la aplicación)
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam backgroundColor white
+skinparam roundCorner 6
+skinparam ArrowColor #44546F
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #0C66E4
+  HeaderBackgroundColor #E9F2FF
+  AttributeFontColor #172B4D
+}
+skinparam interface {
+  BackgroundColor #FFF7D6
+  BorderColor #7F5F01
+}
+skinparam enum {
+  BackgroundColor #F3F0FF
+  BorderColor #5E4DB2
+}
+skinparam package {
+  BackgroundColor #F7F8F9
+  BorderColor #8590A2
+}
+skinparam usecase {
+  BackgroundColor #E9F2FF
+  BorderColor #0C66E4
+}
+skinparam actor {
+  BorderColor #172B4D
+  BackgroundColor #FFFFFF
+}
+skinparam sequence {
+  LifeLineBorderColor #8590A2
+  ParticipantBackgroundColor #E9F2FF
+  ParticipantBorderColor #0C66E4
+  ActorBorderColor #172B4D
+  GroupBackgroundColor #F1F2F4
+}
+skinparam note {
+  BackgroundColor #FFF7D6
+  BorderColor #E2B203
+}

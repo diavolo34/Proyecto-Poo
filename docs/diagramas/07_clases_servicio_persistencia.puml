@@ -1,0 +1,81 @@
+@startuml clases_servicio_persistencia
+!include estilo.iuml
+title Diagrama de Clases Detallado (4/4) · Servicios y persistencia
+
+abstract class ServicioBase {
+  # empresa : Empresa
+  # escritor : EscritorDatos
+  # reloj : Clock
+  # leer(consulta : Supplier<T>) : T
+  # modificar(cambio : Supplier<T>) : T
+}
+class Servicios {
+  + autenticacion() : ServicioAutenticacion
+  + asistencia() : ServicioAsistencia
+  + personal() : ServicioPersonal
+  + incidencias() : ServicioIncidencias
+  + supervision() : ServicioSupervision
+  + registro() : ServicioRegistro
+  + invitaciones() : ServicioInvitaciones
+}
+class ServicioAutenticacion {
+  + ingresar(identificador : String, clave : String) : Ingreso
+}
+class ServicioAsistencia
+class ServicioPersonal
+class ServicioIncidencias {
+  - fabrica : FabricaIncidencias
+  + reportar(...) : Incidencia
+  + revisar(revisor : Usuario, id : int, nuevo : EstadoIncidencia, comentario : String) : void
+}
+class ServicioSupervision {
+  - monitor : MonitorSupervision
+  - reportes : Map<String,Reporte>
+  - formatos : Map<String,FormateadorReporte>
+  + exportar(actual : Usuario, tipo : String, formato : String, periodo : String) : Exportacion
+}
+class ServicioRegistro {
+  + registrar(datos : Map<String,String>) : Cuenta
+  + unirse(c : Cuenta, codigo : String) : Usuario
+}
+class ServicioInvitaciones {
+  - notificador : Notificador
+}
+interface Notificador {
+  + enviarInvitacion(i : Invitacion, correo : String) : void
+}
+class NotificadorConsola
+interface LectorDatos {
+  + cargar() : Empresa
+}
+interface EscritorDatos {
+  + guardar(e : Empresa) : void
+}
+class RepositorioArchivo {
+  - archivo : Path
+  + RepositorioArchivo(archivo : Path, datosIniciales : Supplier<Empresa>, fabrica : FabricaIncidencias)
+}
+class RepositorioMemoria
+class GeneradorDatosPrueba
+
+ServicioBase <|-- ServicioAutenticacion
+ServicioBase <|-- ServicioAsistencia
+ServicioBase <|-- ServicioPersonal
+ServicioBase <|-- ServicioIncidencias
+ServicioBase <|-- ServicioSupervision
+ServicioBase <|-- ServicioRegistro
+ServicioBase <|-- ServicioInvitaciones
+Servicios *-- ServicioAutenticacion
+Servicios *-- ServicioIncidencias
+Servicios *-- ServicioSupervision
+Servicios *-- ServicioRegistro
+Servicios *-- ServicioInvitaciones
+ServicioBase --> EscritorDatos : depende de la abstracción
+ServicioInvitaciones --> Notificador
+Notificador <|.. NotificadorConsola
+LectorDatos <|.. RepositorioArchivo
+EscritorDatos <|.. RepositorioArchivo
+LectorDatos <|.. RepositorioMemoria
+EscritorDatos <|.. RepositorioMemoria
+RepositorioArchivo ..> GeneradorDatosPrueba : si no existe el archivo
+@enduml

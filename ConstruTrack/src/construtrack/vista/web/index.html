@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ConstruTrack · Gestión de personal en obra</title>
+  <meta name="description" content="Asistencia, incidencias, alertas y reportes del personal de obra en un solo lugar.">
+  <link rel="icon" href="img/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+  <a class="saltar" href="#principal">Saltar al contenido</a>
+
+  <header class="cabecera-publica">
+    <div class="contenedor">
+      <a class="marca" href="index.html" aria-label="ConstruTrack, inicio"><span id="logo-cabecera"></span>ConstruTrack</a>
+      <nav class="nav-publica" aria-label="Secciones">
+        <a href="#funciones">Funciones</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#obras">Obras</a>
+        <a href="#ayuda">Ayuda</a>
+      </nav>
+      <div class="cabecera-acciones">
+        <a class="btn btn-enlace" href="app.html#login">Iniciar sesión</a>
+        <a class="btn btn-primario" href="app.html#registro">Crear cuenta</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="principal">
+    <section class="hero">
+      <div class="contenedor">
+        <div>
+          <h1>Controla tu obra, no el papeleo</h1>
+          <p class="bajada">Asistencia, incidencias, alertas y reportes de tu personal en un solo lugar.
+            Hecho para jefes, supervisores y trabajadores de la construcción.</p>
+          <p class="suave pequeno" id="estado-servidor" aria-live="polite"></p>
+        </div>
+        <form class="hero-formulario" id="form-empezar" novalidate>
+          <div class="campo">
+            <label for="correo-empezar">Correo electrónico</label>
+            <input id="correo-empezar" name="correo" type="email" autocomplete="email" placeholder="tunombre@empresa.com">
+            <span class="ayuda">Con tu correo creas tu cuenta; luego tu jefe te da un código para unirte a la empresa.</span>
+          </div>
+          <button class="btn btn-primario btn-bloque btn-grande" type="submit">Crear cuenta</button>
+          <div class="separador">o</div>
+          <a class="btn btn-contorno btn-bloque" href="app.html#login">Ya tengo cuenta: iniciar sesión</a>
+        </form>
+      </div>
+    </section>
+
+    <section class="vista-previa" aria-label="Vista previa del tablero">
+      <div class="contenedor">
+        <div class="lienzo">
+          <div class="bloque-azul" aria-hidden="true"></div>
+          <div class="bloque-naranja" aria-hidden="true"></div>
+          <div class="tarjeta" style="position:relative;max-width:900px;margin:0 auto;box-shadow:var(--sombra-alta)">
+            <div class="titulo-vista" style="margin-bottom:12px">
+              <div><div class="migas">Torre Residencial Este /</div><h2 style="margin:0">Tablero de incidencias</h2></div>
+              <span class="chip chip-azul">Semana actual</span>
+            </div>
+            <div class="kanban" style="grid-template-columns:repeat(4,1fr)">
+              <div class="kanban-columna"><h3>Pendiente <span>2</span></h3>
+                <div class="tarjeta-kanban gravedad-media"><h4>Reposo médico</h4><p>José García · 2 días</p><span class="chip chip-amarillo">Gravedad media</span></div>
+                <div class="tarjeta-kanban"><h4>Retardo</h4><p>Pedro Ramírez · 35 min</p><span class="chip chip-azul">Gravedad baja</span></div>
+              </div>
+              <div class="kanban-columna"><h3>En revisión <span>1</span></h3>
+                <div class="tarjeta-kanban"><h4>Permiso personal</h4><p>María López · 1 día</p><span class="chip chip-azul">Gravedad baja</span></div>
+              </div>
+              <div class="kanban-columna"><h3>Aprobada <span>1</span></h3>
+                <div class="tarjeta-kanban gravedad-alta"><h4>Accidente laboral</h4><p>Luis Pérez · Andamio 3</p><span class="chip chip-rojo">Gravedad alta</span></div>
+              </div>
+              <div class="kanban-columna"><h3>Rechazada <span>0</span></h3></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion" id="funciones">
+      <div class="contenedor">
+        <h2>Todo lo que tu obra necesita</h2>
+        <p class="intro">Menos planillas y llamadas: cada persona ve lo que le corresponde según su rol.</p>
+        <div class="rejilla-4">
+          <article class="funcion"><div class="icono" style="background:var(--azul-suave);color:var(--azul-oscuro)" aria-hidden="true">⏱</div>
+            <h3>Asistencia en un clic</h3><p>Marca entrada y salida; la puntualidad se calcula sola con 10 minutos de tolerancia.</p></article>
+          <article class="funcion"><div class="icono" style="background:var(--amarillo-suave);color:var(--amarillo)" aria-hidden="true">✚</div>
+            <h3>Incidencias con soporte</h3><p>Reposos médicos, permisos, retardos y accidentes con su revisión y aprobación.</p></article>
+          <article class="funcion"><div class="icono" style="background:var(--rojo-suave);color:var(--rojo)" aria-hidden="true">!</div>
+            <h3>Alertas automáticas</h3><p>El supervisor recibe avisos de retardos repetidos, faltas sin justificar e incidencias sin resolver.</p></article>
+          <article class="funcion"><div class="icono" style="background:var(--verde-suave);color:var(--verde)" aria-hidden="true">▤</div>
+            <h3>Reportes listos</h3><p>Estadísticas de asistencia y puntualidad, y reportes en Excel (CSV) o texto en segundos.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion seccion-alterna" id="como-funciona">
+      <div class="contenedor">
+        <h2>Cómo funciona</h2>
+        <p class="intro">Tres pasos y ya estás dentro.</p>
+        <div class="rejilla-3">
+          <div class="paso"><span class="numero">1</span><div><h3>Crea tu cuenta</h3>
+            <p class="suave">Con tu correo, nombre, cédula o DNI y teléfono.</p></div></div>
+          <div class="paso"><span class="numero">2</span><div><h3>Únete con un código</h3>
+            <p class="suave">Tu jefe te da un código de invitación (CT-XXXX-XXXX) con tu rol y tu obra.</p></div></div>
+          <div class="paso"><span class="numero">3</span><div><h3>Trabaja</h3>
+            <p class="suave">Marca tu asistencia, reporta novedades y sigue a tu equipo desde cualquier dispositivo.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="seccion" id="obras">
+      <div class="contenedor">
+        <h2>Obras en curso</h2>
+        <p class="intro">Datos en vivo desde el sistema.</p>
+        <div class="cifras" id="cifras" style="margin-bottom:18px"></div>
+        <div class="rejilla-3" id="lista-obras"><p class="suave"><span class="girando"></span> Cargando obras…</p></div>
+      </div>
+    </section>
+
+    <section class="seccion" id="ayuda" style="padding-top:0">
+      <div class="contenedor">
+        <div class="franja-cta">
+          <div><h2>¿Listo para ordenar tu obra?</h2>
+            <p style="margin:0">Crea tu cuenta o pregúntale al asistente «Ayuda RRHH» (abajo a la derecha).</p></div>
+          <div class="acciones" style="margin:0">
+            <a class="btn btn-contorno btn-grande" href="app.html#login">Iniciar sesión</a>
+            <a class="btn btn-secundario btn-grande" href="app.html#registro">Crear cuenta</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <div><strong style="color:#fff">ConstruTrack</strong><br>Proyecto académico · Programación Orientada a Objetos · UCAB</div>
+      <div><a href="app.html#login">Iniciar sesión</a> · <a href="app.html#registro">Crear cuenta</a> ·
+        <a href="https://github.com/diavolo34/Proyecto-Poo">Código en GitHub</a></div>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/portada.js"></script>
+</body>
+</html>

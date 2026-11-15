@@ -1,0 +1,32 @@
+@startuml secuencia_generar_reporte
+!include estilo.iuml
+title Secuencia: Generar reporte de asistencia en CSV
+autoactivate on
+actor Supervisor as A
+participant "rep:ReporteAsistencia" as R
+participant "doc:Documento" as D
+participant "est:Estadisticas" as E
+participant "hist:Historial" as HI
+participant "csv:FormateadorCSV" as C
+
+A -> R : generar(equipo, semana, hoy)
+create D
+R -> D : <<create>> Documento(titulo)
+D --> R
+R -> D : definirColumnas(columnas())
+D --> R
+loop por cada persona del equipo
+  R -> R : agregarFilas(persona, semana, hoy, doc)
+  create E
+  R -> E : <<create>> Estadisticas([persona], semana, hoy)
+  E -> HI : asistenciasEn(semana) / ausenciasSinJustificar(...)
+  HI --> E
+  E --> R : resumen
+  R -> D : agregarFila(cédula, nombre, …, % asistencia)
+  D --> R
+  R --> R
+end
+R --> A : doc
+A -> C : formatear(doc)
+C --> A : texto CSV (separador ;, BOM UTF-8)
+@enduml

@@ -1,0 +1,54 @@
+@startuml casos_de_uso
+!include estilo.iuml
+title Diagrama de Casos de Uso · ConstruTrack
+left to right direction
+
+actor "Visitante" as Visitante
+actor "Empleado" as Empleado
+actor "Supervisor" as Supervisor
+actor "Jefe" as Jefe
+Empleado -|> Visitante
+Supervisor -|> Empleado
+Jefe -|> Supervisor
+
+rectangle "Sistema ConstruTrack · Gestión de personal en obra" {
+  usecase "Consultar portada\ny chatbot" as UC_Portada
+  usecase "Crear cuenta\ncon correo" as UC_Registro
+  usecase "Unirse a la empresa\ncon código" as UC_Unirse
+  usecase "Validar invitación" as UC_Validar
+  usecase "Iniciar sesión\n(correo o cédula)" as UC_Login
+  usecase "Marcar entrada / salida" as UC_Marcar
+  usecase "Verificar puntualidad" as UC_Puntual
+  usecase "Consultar mi historial" as UC_Historial
+  usecase "Reportar incidencia" as UC_Reportar
+  usecase "Adjuntar datos del\nreposo médico" as UC_Certificado
+  usecase "Revisar incidencia\n(aprobar / rechazar)" as UC_Revisar
+  usecase "Indicar motivo\ndel rechazo" as UC_Motivo
+  usecase "Consultar alertas\nautomáticas" as UC_Alertas
+  usecase "Consultar estadísticas" as UC_Estadisticas
+  usecase "Exportar reporte\n(CSV / TXT)" as UC_Exportar
+  usecase "Gestionar personal" as UC_Personal
+  usecase "Crear / cancelar\ninvitación" as UC_Invitar
+}
+
+Visitante -- UC_Portada
+Visitante -- UC_Registro
+Visitante -- UC_Unirse
+Empleado -- UC_Marcar
+Empleado -- UC_Historial
+Empleado -- UC_Reportar
+Supervisor -- UC_Revisar
+Supervisor -- UC_Alertas
+Supervisor -- UC_Estadisticas
+Supervisor -- UC_Exportar
+Jefe -- UC_Personal
+Jefe -- UC_Invitar
+
+UC_Unirse ..> UC_Validar : <<include>>
+UC_Marcar ..> UC_Login : <<include>>
+UC_Marcar ..> UC_Puntual : <<include>>
+UC_Reportar ..> UC_Login : <<include>>
+UC_Revisar ..> UC_Login : <<include>>
+UC_Certificado ..> UC_Reportar : <<extend>>\n{tipo = Reposo médico}
+UC_Motivo ..> UC_Revisar : <<extend>>\n{decisión = rechazar}
+@enduml

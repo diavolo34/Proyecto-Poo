@@ -1,0 +1,84 @@
+@startuml clases_supervision
+!include estilo.iuml
+title Diagrama de Clases Detallado (3/4) · Alertas, estadísticas y reportes
+
+interface ReglaAlerta {
+  + evaluar(empleado : Usuario, p : Periodo, hoy : LocalDate, ahora : LocalDateTime) : List<Alerta>
+}
+class RetardosReiterados {
+  - umbral : int
+}
+class AusenciaSinJustificar
+class IncidenciaPendienteVencida {
+  - horasLimite : long
+}
+class MonitorSupervision {
+  - reglas : List<ReglaAlerta>
+  + MonitorSupervision(reglas : List<ReglaAlerta>)
+  + {static} porDefecto() : MonitorSupervision
+  + evaluar(personas : List<Usuario>, p : Periodo, hoy : LocalDate, ahora : LocalDateTime) : List<Alerta>
+}
+class Alerta <<inmutable>> {
+  - nivel : Nivel
+  - cedula : String
+  - nombre : String
+  - mensaje : String
+  + {static} de(n : Nivel, u : Usuario, mensaje : String, ahora : LocalDateTime) : Alerta
+}
+enum Nivel {
+  ALTA
+  MEDIA
+  BAJA
+}
+class Estadisticas {
+  + Estadisticas(personas : List<Usuario>, p : Periodo, hoy : LocalDate)
+  + tasaAsistencia() : double
+  + porcentajePuntualidad() : double
+  + minutosTrabajados() : long
+  + ranking() : List<Resumen>
+  + incidenciasPorTipo() : Map<String,Integer>
+}
+abstract class Reporte {
+  + generar(personas : List<Usuario>, p : Periodo, hoy : LocalDate) : Documento {leaf}
+  # {abstract} titulo() : String
+  # {abstract} columnas() : List<String>
+  # {abstract} agregarFilas(u : Usuario, p : Periodo, hoy : LocalDate, d : Documento) : void
+  # resumen(u : Usuario, p : Periodo, hoy : LocalDate) : Resumen
+}
+class ReporteAsistencia
+class ReportePuntualidad
+class ReporteIncidencias
+class Documento {
+  - titulo : String
+  - columnas : List<String>
+  - filas : List<List<String>>
+  + agregarFila(celdas : Object...) : void
+}
+interface FormateadorReporte {
+  + formatear(d : Documento) : String
+  + mime() : String
+  + extension() : String
+}
+class FormateadorCSV
+class FormateadorTexto
+
+ReglaAlerta <|.. RetardosReiterados
+ReglaAlerta <|.. AusenciaSinJustificar
+ReglaAlerta <|.. IncidenciaPendienteVencida
+MonitorSupervision o-- "1..*" ReglaAlerta
+ReglaAlerta ..> Alerta : <<create>>
+Alerta --> Nivel
+Reporte <|-- ReporteAsistencia
+Reporte <|-- ReportePuntualidad
+Reporte <|-- ReporteIncidencias
+Reporte ..> Documento : <<create>>
+Reporte ..> Estadisticas
+FormateadorReporte <|.. FormateadorCSV
+FormateadorReporte <|.. FormateadorTexto
+FormateadorReporte ..> Documento
+note right of Reporte
+  Template Method: generar() fija los pasos
+  (título → columnas → filas por persona);
+  cada subclase define solo su contenido.
+end note
+@enduml
