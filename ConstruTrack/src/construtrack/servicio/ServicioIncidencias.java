@@ -43,6 +43,24 @@ public class ServicioIncidencias extends ServicioBase {
         });
     }
 
+    /** Tipos de incidencia disponibles (código → nombre), para llenar listas desplegables. */
+    public Map<String, String> tipos() {
+        return fabrica.tipos();
+    }
+
+    /** Personas para las que el usuario puede reportar: él mismo, su equipo (supervisor) o todos (jefe). */
+    public List<Usuario> personasReportables(Usuario actual) {
+        return leer(() -> {
+            List<Usuario> personas = new ArrayList<>();
+            for (Usuario u : empresa.listarUsuarios()) {
+                if (actual.puedeReportarPara(u)) {
+                    personas.add(u);
+                }
+            }
+            return personas;
+        });
+    }
+
     /** Incidencias que el usuario puede ver: las suyas, las de su equipo (supervisor) o todas (jefe). */
     public List<Incidencia> listarVisibles(Usuario actual) {
         return leer(() -> {

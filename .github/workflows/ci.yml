@@ -23,7 +23,7 @@ jobs:
 
       - name: Prueba de humo de la API
         run: |
-          java -cp out construtrack.App &
+          java -cp out construtrack.App --sin-ventana &
           for i in $(seq 1 20); do curl -sf http://localhost:8080/api/estado && break; sleep 0.5; done
           echo
           curl -sf http://localhost:8080/ -o /dev/null

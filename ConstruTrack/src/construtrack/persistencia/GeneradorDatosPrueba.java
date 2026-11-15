@@ -58,6 +58,18 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         empresa.agregarObra(puente);
         ana.setObra(torre);
         luis.setObra(puente);
+        // Los supervisores también marcan asistencia (son personal de la obra)
+        for (Supervisor s : new Supervisor[] {ana, luis}) {
+            for (LocalDate dia : hoy.minusDays(14).datesUntil(hoy).toList()) {
+                if (s.trabajaEl(dia)) {
+                    s.agregarAsistencia(registro(dia, "06:45", "16:10", false));
+                }
+            }
+            if (s.trabajaEl(hoy)) {
+                s.agregarAsistencia(registro(hoy, "06:40", null, false));
+                s.setPresente(true);
+            }
+        }
 
         for (int i = 0; i < empleados.length; i++) {
             Empleado e = new Empleado(empleados[i][0], empleados[i][1], "emp123", i < 3 ? obra : sabados);
@@ -73,7 +85,9 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                 boolean retardo = i == 2
                         ? !dia.isBefore(hoy.with(DayOfWeek.MONDAY)) && dia.getDayOfWeek().getValue() <= 3
                         : (dia.getDayOfMonth() + i) % 5 == 0;
-                boolean falta = (dia.getDayOfMonth() * 3 + i) % 11 == 0;
+                // José (primer empleado) estuvo de reposo médico hace 3 y 4 días: no asistió esos días
+                boolean deReposo = i == 0 && (dia.equals(hoy.minusDays(4)) || dia.equals(hoy.minusDays(3)));
+                boolean falta = deReposo || (dia.getDayOfMonth() * 3 + i) % 11 == 0;
                 if (!falta) {
                     String entrada = retardo ? "07:25" : "06:5" + (i % 10);
                     e.agregarAsistencia(registro(dia, entrada, "16:0" + (i % 9), retardo));
