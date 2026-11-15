@@ -1,0 +1,10 @@
+# Normaliza finales de línea (el proyecto se edita en Windows con NetBeans)
+* text=auto eol=lf
+
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+*.png  binary
+*.jpg  binary
+*.pdf  binary
+*.jar  binary

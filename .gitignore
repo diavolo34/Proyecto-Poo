@@ -1,0 +1,35 @@
+# ── NetBeans / Ant ───────────────────────────────
+**/nbproject/private/
+**/build/
+**/dist/
+nbbuild/
+nbdist/
+.nb-gradle/
+
+# ── Java ─────────────────────────────────────────
+*.class
+*.jar
+*.war
+*.log
+hs_err_pid*
+
+# ── Datos generados en tiempo de ejecución ───────
+# El servidor crea este archivo con datos de prueba si no existe.
+datos_obra.txt
+
+# ── Documentación generada (tools/generador) ─────
+salida/
+
+# ── Python ───────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ── IDE / Sistema operativo ──────────────────────
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
