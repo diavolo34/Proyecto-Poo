@@ -6,7 +6,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 RAIZ = Path(__file__).resolve().parents[2]
-WEB = RAIZ / "ServidorObra" / "src" / "servidorobra" / "web"
+WEB = RAIZ / "ConstruTrack" / "src" / "construtrack" / "vista" / "web"
 SALIDA = RAIZ / "docs" / "capturas"
 
 manejador = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(WEB))

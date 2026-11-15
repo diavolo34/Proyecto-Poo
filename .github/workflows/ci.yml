@@ -6,7 +6,7 @@ on:
 
 jobs:
   java:
-    name: Compilar y probar ServidorObra
+    name: Compilar y probar ConstruTrack
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,12 +18,12 @@ jobs:
 
       - name: Compilar (warnings como errores)
         run: |
-          javac -encoding UTF-8 -Xlint:all -Werror -d out ServidorObra/src/servidorobra/*.java
-          cp -r ServidorObra/src/servidorobra/web out/servidorobra/
+          javac --release 17 -encoding UTF-8 -Xlint:all -Werror -d out $(find ConstruTrack/src -name "*.java")
+          (cd ConstruTrack/src && find . -type f ! -name "*.java" -exec cp --parents {} ../../out/ \;)
 
       - name: Prueba de humo de la API
         run: |
-          java -cp out servidorobra.ServidorObra &
+          java -cp out construtrack.App &
           for i in $(seq 1 20); do curl -sf http://localhost:8080/api/estado && break; sleep 0.5; done
           echo
           curl -sf http://localhost:8080/ -o /dev/null

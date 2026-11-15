@@ -8,7 +8,7 @@
 
 Sistema web para una empresa de construcción que **registra al personal de obra, controla su asistencia y ofrece un panel distinto para cada rol** (Empleado, Supervisor y Jefe), con un chatbot de Recursos Humanos integrado.
 
-Proyecto de **Programación Orientada a Objetos** (Algoritmos y Programación III, UCAB). El backend es un servidor HTTP escrito en **Java puro, sin librerías externas**, diseñado con herencia, polimorfismo, encapsulamiento y separación por capas.
+Proyecto de **Programación Orientada a Objetos** (Programación Orientada a Objetos, UCAB). El backend es un servidor HTTP escrito en **Java puro, sin librerías externas**, diseñado con herencia, polimorfismo, encapsulamiento y separación por capas.
 
 ![Panel del Jefe](docs/capturas/02_jefe.png)
 
@@ -36,7 +36,7 @@ Proyecto de **Programación Orientada a Objetos** (Algoritmos y Programación II
 
 - **Permisos validados en el servidor**, no solo en la interfaz (`401`, `403`, `404`, `409`).
 - **Chatbot contextual**: responde preguntas de nómina, permisos y horarios; con sesión iniciada responde según el rol («¿quién llegó tarde hoy?», «marcar entrada»…).
-- **Persistencia** en archivo de texto (`datos_obra.txt`), con datos de prueba que se crean automáticamente.
+- **Persistencia** en archivo de texto (`datos_construtrack.txt`), con datos de prueba que se crean automáticamente.
 - **Modo demostración**: sin el servidor Java (por ejemplo en GitHub Pages) la página reproduce en el navegador las mismas rutas y reglas del servidor.
 - Interfaz **responsive** y en español.
 
@@ -50,21 +50,21 @@ flowchart LR
         API -. sin servidor .-> DEMO[servidorLocal.js<br/>modo demostración<br/>localStorage]
     end
     API -- HTTP / JSON --> CTRL
-    subgraph "ServidorObra (Java, puerto 8080)"
+    subgraph "ConstruTrack (Java, puerto 8080)"
         CTRL[ControladorApi<br/>rutas y permisos] --> SES[GestorSesiones]
         CTRL --> EMP[Empresa]
         EMP --> USR[Usuario y subclases<br/>Horario · RegistroAsistencia]
         CTRL --> BD[BaseDatos]
         EST[ArchivosEstaticos] -. sirve .-> UI
     end
-    BD --> TXT[(datos_obra.txt)]
+    BD --> TXT[(datos_construtrack.txt)]
 ```
 
 | Capa | Clases |
 |------|--------|
 | Dominio | `Usuario` *(abstracta)*, `Empleado`, `Supervisor`, `Jefe`, `Horario`, `RegistroAsistencia`, `Empresa` |
 | Aplicación / API | `ControladorApi`, `GestorSesiones` |
-| Infraestructura | `ServidorObra` (punto de entrada), `BaseDatos`, `Json`, `ArchivosEstaticos` |
+| Infraestructura | `ConstruTrack` (punto de entrada), `BaseDatos`, `Json`, `ArchivosEstaticos` |
 | Presentación | `web/index.html`, `js/app.js`, `js/api.js`, `js/chatbot.js`, `js/servidorLocal.js` |
 
 ## Diseño orientado a objetos
@@ -90,16 +90,16 @@ Todos los diagramas (casos de uso, clases y secuencia) están en [`docs/diagrama
 
 ### Con NetBeans
 
-1. `File → Open Project…` y seleccionar la carpeta **`ServidorObra`**.
+1. `File → Open Project…` y seleccionar la carpeta **`ConstruTrack`**.
 2. Ejecutar con **Run** (`F6`).
 3. Abrir **http://localhost:8080**.
 
 ### Desde la terminal
 
 ```bash
-javac -encoding UTF-8 -d out ServidorObra/src/servidorobra/*.java
-cp -r ServidorObra/src/servidorobra/web out/servidorobra/
-java -cp out servidorobra.ServidorObra
+javac --release 17 -encoding UTF-8 -d out $(find ConstruTrack/src -name "*.java")
+(cd ConstruTrack/src && find . -type f ! -name "*.java" -exec cp --parents {} ../../out/ \;)
+java -cp out construtrack.App
 ```
 
 ### Usuarios de prueba
@@ -111,7 +111,7 @@ java -cp out servidorobra.ServidorObra
 | Supervisor | Luis Pérez | `20000002` | `super123` |
 | Empleado | José García (+5: `30000002`…`30000006`) | `30000001` | `emp123` |
 
-> Para volver a los datos iniciales, borra `datos_obra.txt` y reinicia el servidor. En modo demostración usa el botón «Restablecer datos de prueba».
+> Para volver a los datos iniciales, borra `datos_construtrack.txt` y reinicia el servidor. En modo demostración usa el botón «Restablecer datos de prueba».
 
 ## API REST
 
@@ -132,8 +132,8 @@ Autenticación con cabecera `Authorization: Bearer <token>`. Las respuestas son 
 
 ```
 .
-├── ServidorObra/                 Proyecto NetBeans (Ant)
-│   ├── src/servidorobra/         Código Java (paquete servidorobra)
+├── ConstruTrack/                 Proyecto NetBeans (Ant)
+│   ├── src/construtrack/         Código Java (paquete construtrack)
 │   │   └── web/                  Interfaz web servida por el servidor
 │   ├── nbproject/  build.xml
 │   └── README.md
@@ -166,4 +166,4 @@ Autenticación con cabecera `Authorization: Bearer <token>`. Las respuestas son 
 ## Autor
 
 **Francisco Manzano** · [@diavolo34](https://github.com/diavolo34)
-Universidad Católica Andrés Bello, Algoritmos y Programación III
+Universidad Católica Andrés Bello, Programación Orientada a Objetos

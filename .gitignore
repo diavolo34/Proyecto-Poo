@@ -15,7 +15,8 @@ hs_err_pid*
 
 # ── Datos generados en tiempo de ejecución ───────
 # El servidor crea este archivo con datos de prueba si no existe.
-datos_obra.txt
+datos_construtrack.txt
+reportes/
 
 # ── Documentación generada (tools/generador) ─────
 salida/
