@@ -5,6 +5,10 @@
 ![Pruebas](https://img.shields.io/badge/JUnit%205-26%20pruebas-brightgreen)
 ![Arquitectura](https://img.shields.io/badge/arquitectura-MVC%20%2B%20SOLID-blue)
 ![Dependencias](https://img.shields.io/badge/dependencias-0-brightgreen)
+[![Demo en vivo](https://img.shields.io/badge/demo-en%20vivo-0052CC?logo=netlify)](https://startling-toffee-914e34.netlify.app)
+
+> **Pruébalo en línea:** https://startling-toffee-914e34.netlify.app (usuarios de prueba [más abajo](#usuarios-de-prueba)).
+> El servidor usa el plan gratuito de Render: si nadie lo usó en un rato, la primera carga tarda unos 50 segundos.
 
 Sistema para una empresa de construcción que **controla la asistencia del personal de obra, gestiona sus incidencias
 (reposos médicos, permisos, retardos, accidentes) y apoya al supervisor con alertas automáticas, estadísticas y reportes**.
@@ -92,8 +96,13 @@ java -cp out construtrack.App            # servidor + ventana (usa --sin-ventana
 
 ### En internet
 
-El servidor Java se publica en **Render** (`Dockerfile` + `render.yaml`) y la página en **Netlify** (`netlify.toml`).
-Pasos en [docs/despliegue.md](docs/despliegue.md).
+| Parte | Dirección |
+|-------|-----------|
+| Página web (Netlify) | https://startling-toffee-914e34.netlify.app |
+| Servidor Java / API (Render) | https://construtrack-api.onrender.com/api/estado |
+
+El servidor Java se publica en **Render** (`Dockerfile` + `render.yaml`) y se vuelve a desplegar solo con cada cambio en `main`.
+La página se sirve desde **Netlify** (`netlify.toml`). Pasos en [docs/despliegue.md](docs/despliegue.md).
 
 ## Usuarios de prueba
 

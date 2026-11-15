@@ -12,6 +12,16 @@ Por eso la página publicada mostraba antes el «modo demostración». Ahora el 
 Navegador ──► Netlify (index.html, app.html, js/…) ──fetch──► Render (Java: /api/...)
 ```
 
+## Estado actual
+
+| Parte | Dirección | Cómo se actualiza |
+|-------|-----------|-------------------|
+| Servidor Java | https://construtrack-api.onrender.com | Automático: Render vuelve a desplegar con cada push a `main` |
+| Página web | https://startling-toffee-914e34.netlify.app | Manual: se subió arrastrando la carpeta `vista/web` en **Deploys**. Para que sea automático, conecta el repositorio en Netlify (*Site configuration → Build & deploy → Link repository*) y Netlify usará `netlify.toml` |
+
+La primera visita tras un rato sin uso tarda unos 50 s: el plan gratuito de Render apaga el servidor cuando está inactivo
+y la página muestra un aviso mientras arranca. Los datos vuelven a los de prueba cuando Render reinicia el servidor.
+
 ## 1. Publicar el servidor Java en Render
 
 1. Entra a https://render.com e inicia sesión con tu cuenta de GitHub.
