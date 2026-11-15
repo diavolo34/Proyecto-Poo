@@ -23,6 +23,7 @@ public abstract class Usuario {
     private Horario horario;
     private boolean presente;
     private Obra obra;
+    private Cuenta cuenta;
     private final Historial historial = new Historial();
 
     protected Usuario(String cedula, String nombre, String clave, Horario horario) {
@@ -137,6 +138,31 @@ public abstract class Usuario {
         presente = otro.presente;
         obra = otro.obra;
         claveResumen = otro.claveResumen;
+        if (otro.cuenta != null) {
+            vincularCuenta(otro.cuenta);
+        }
+    }
+
+    /** Une la ficha con la cuenta personal: ambas comparten el resumen de la clave. */
+    public void vincularCuenta(Cuenta cuenta) {
+        if (!cuenta.getDocumento().equals(cedula)) {
+            throw new DatoInvalidoException("El documento de la cuenta no coincide con la cédula de la ficha.");
+        }
+        this.cuenta = cuenta;
+        this.claveResumen = cuenta.getClaveResumen();
+        cuenta.vincular(this);
+    }
+
+    /** Lo usa la empresa al eliminar la ficha: la cuenta queda sin empresa. */
+    void desvincularCuenta() {
+        if (cuenta != null) {
+            cuenta.desvincular();
+            cuenta = null;
+        }
+    }
+
+    public Cuenta getCuenta() {
+        return cuenta;
     }
 
     // ------------------------------------------------------------------ datos personales
@@ -150,10 +176,16 @@ public abstract class Usuario {
     }
 
     private void setCedula(String cedula) {
-        if (cedula == null || !cedula.matches("\\d{6,9}")) {
-            throw new DatoInvalidoException("La cédula debe tener entre 6 y 9 dígitos, sin puntos ni letras.");
+        this.cedula = validarDocumento(cedula);
+    }
+
+    /** Cédula o DNI: entre 6 y 12 letras o números, sin puntos ni guiones (se guarda en mayúsculas). */
+    public static String validarDocumento(String documento) {
+        String limpio = documento == null ? "" : documento.trim().toUpperCase();
+        if (!limpio.matches("[0-9A-Z]{6,12}")) {
+            throw new DatoInvalidoException("La cédula o DNI debe tener entre 6 y 12 caracteres (letras y números, sin puntos).");
         }
-        this.cedula = cedula;
+        return limpio;
     }
 
     public String getNombre() {
@@ -176,6 +208,9 @@ public abstract class Usuario {
     public final void setClave(String clave) {
         validarClave(clave);
         this.claveResumen = CifradoClave.resumir(cedula, clave);
+        if (cuenta != null) {
+            cuenta.sincronizarClave(claveResumen);
+        }
     }
 
     public static void validarClave(String clave) {

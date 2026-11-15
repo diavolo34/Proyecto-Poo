@@ -23,6 +23,8 @@ public class Servicios {
     private final ServicioPersonal personal;
     private final ServicioIncidencias incidencias;
     private final ServicioSupervision supervision;
+    private final ServicioRegistro registro;
+    private final ServicioInvitaciones invitaciones;
 
     public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia) {
         this.autenticacion = new ServicioAutenticacion(empresa, escritor, reloj);
@@ -34,6 +36,16 @@ public class Servicios {
                 Map.of("asistencia", new ReporteAsistencia(), "puntualidad", new ReportePuntualidad(),
                         "incidencias", new ReporteIncidencias()),
                 Map.of("txt", new FormateadorTexto(), "csv", new FormateadorCSV()));
+        this.registro = new ServicioRegistro(empresa, escritor, reloj);
+        this.invitaciones = new ServicioInvitaciones(empresa, escritor, reloj, new NotificadorConsola());
+    }
+
+    public ServicioRegistro registro() {
+        return registro;
+    }
+
+    public ServicioInvitaciones invitaciones() {
+        return invitaciones;
     }
 
     public ServicioSupervision supervision() {

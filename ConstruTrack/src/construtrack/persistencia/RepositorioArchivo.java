@@ -1,6 +1,11 @@
 package construtrack.persistencia;
 
+import construtrack.modelo.CodigoInvitacion;
+import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empleado;
+import construtrack.modelo.EstadoInvitacion;
+import construtrack.modelo.Invitacion;
+import construtrack.modelo.Jefe;
 import construtrack.modelo.Obra;
 import construtrack.modelo.incidencias.DatosIncidencia;
 import construtrack.modelo.incidencias.EstadoIncidencia;
@@ -35,6 +40,8 @@ import java.util.function.Supplier;
  *   O|codigo|nombre|ubicacion|fechaInicio|fechaFinEstimada
  *   Y|cedulaEmpleado|cedulaObra
  *   I|id|tipo|cedulaAfectado|cedulaReporta|desde|hasta|descripcion|fechaReporte|estado|cedulaRevisor|comentario|fechaRevision|extras
+ *   C|correo|resumenClave|nombre|apellido|documento|telefono|registrada|cedulaUsuario(o -)
+ *   V|codigo|rol|cedulaSupervisor(o -)|codigoObra(o -)|cedulaJefe|creada|vence|estado|correoUsadaPor(o -)|usada(o -)
  * </pre>
  *
  * Los campos de texto libre se escapan (\\p, \\n, \\\\) para que el separador | y los saltos de línea no rompan el archivo.
@@ -80,6 +87,8 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
                     case "O" -> empresa.agregarObra(leerObra(c));
                     case "Y" -> leerAsignacionObra(empresa, c);
                     case "I" -> leerIncidencia(empresa, c);
+                    case "C" -> leerCuenta(empresa, c);
+                    case "V" -> leerInvitacion(empresa, c);
                     default -> {
                         // Líneas vacías o de versiones futuras: se ignoran
                     }
@@ -119,6 +128,16 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
             for (Incidencia i : u.getHistorial().getIncidencias()) {
                 lineas.add(escribirIncidencia(i));
             }
+        }
+        for (Cuenta c : empresa.listarCuentas()) {
+            lineas.add(unir("C", c.getCorreo(), c.getClaveResumen(), c.getNombre(), c.getApellido(), c.getDocumento(),
+                    c.getTelefono(), c.getRegistrada(), c.getUsuario() == null ? "-" : c.getUsuario().getCedula()));
+        }
+        for (Invitacion v : empresa.listarInvitaciones()) {
+            lineas.add(unir("V", v.getCodigo(), v.getRol(), v.getSupervisor() == null ? "-" : v.getSupervisor().getCedula(),
+                    v.getObra() == null ? "-" : v.getObra().getCodigo(), v.getCreadaPor().getCedula(), v.getCreada(),
+                    v.getVence(), v.getEstadoGuardado().name(), v.getUsadaPor() == null ? "-" : v.getUsadaPor().getCorreo(),
+                    v.getUsada() == null ? "-" : v.getUsada()));
         }
         try {
             Files.write(archivo, lineas, StandardCharsets.UTF_8);
@@ -188,6 +207,27 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
                 Campos.escapar(i.getComentarioRevision()),
                 i.getFechaRevision() == null ? "" : i.getFechaRevision(),
                 Campos.extrasATexto(i.getExtras()));
+    }
+
+    private void leerCuenta(Empresa empresa, String[] c) {
+        Cuenta cuenta = new Cuenta(c[1], "temporal", c[3], c[4], c[5], c[6], LocalDateTime.parse(c[7]));
+        cuenta.restaurarClaveResumen(c[2]);
+        empresa.agregarCuenta(cuenta);
+        Usuario usuario = "-".equals(c[8]) ? null : empresa.buscarUsuario(c[8]);
+        if (usuario != null) {
+            usuario.vincularCuenta(cuenta);
+        }
+    }
+
+    private void leerInvitacion(Empresa empresa, String[] c) {
+        Supervisor supervisor = "-".equals(c[3]) ? null : (Supervisor) empresa.buscarUsuario(c[3]);
+        Obra obra = "-".equals(c[4]) ? null : empresa.buscarObra(c[4]);
+        Jefe jefe = (Jefe) empresa.buscarUsuario(c[5]);
+        Invitacion invitacion = new Invitacion(CodigoInvitacion.de(c[1]), c[2], supervisor, obra, jefe,
+                LocalDateTime.parse(c[6]), LocalDateTime.parse(c[7]));
+        invitacion.restaurar(EstadoInvitacion.valueOf(c[8]), "-".equals(c[9]) ? null : empresa.buscarCuenta(c[9]),
+                "-".equals(c[10]) ? null : LocalDateTime.parse(c[10]));
+        empresa.agregarInvitacion(invitacion);
     }
 
     private static String unir(Object... campos) {

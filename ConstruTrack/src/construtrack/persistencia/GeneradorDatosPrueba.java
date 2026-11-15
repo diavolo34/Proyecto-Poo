@@ -3,6 +3,9 @@ package construtrack.persistencia;
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.Horario;
+import construtrack.modelo.CodigoInvitacion;
+import construtrack.modelo.Cuenta;
+import construtrack.modelo.Invitacion;
 import construtrack.modelo.Jefe;
 import construtrack.modelo.Obra;
 import construtrack.modelo.RegistroAsistencia;
@@ -99,7 +102,39 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             }
         }
         agregarIncidenciasDemo(empresa, fabrica, hoy);
+        agregarCuentasDemo(empresa, hoy);
         return empresa;
+    }
+
+    /** Código fijo de la invitación de demostración (documentado en el README). */
+    public static final String CODIGO_DEMO = "CT-RQ7K-4M2P";
+
+    /**
+     * Cada usuario de prueba tiene una cuenta con correo (nombre.apellido@construtrack.demo) y la misma clave.
+     * Además hay una persona registrada que aún no se une a la empresa y una invitación vigente para ella.
+     */
+    private void agregarCuentasDemo(Empresa empresa, LocalDate hoy) {
+        LocalDateTime registro = hoy.minusMonths(2).atTime(9, 0);
+        for (Usuario u : empresa.listarUsuarios()) {
+            String[] partes = u.getNombre().split(" ", 2);
+            String correo = (sinTildes(partes[0]) + "." + sinTildes(partes[1])).toLowerCase() + "@construtrack.demo";
+            Cuenta cuenta = new Cuenta(correo, "temporal", partes[0], partes[1], u.getCedula(), "+58 412 555" + u.getCedula().substring(4),
+                    registro);
+            cuenta.restaurarClaveResumen(u.getClaveResumen());
+            empresa.agregarCuenta(cuenta);
+            u.vincularCuenta(cuenta);
+        }
+        empresa.agregarCuenta(new Cuenta("rosa.gutierrez@correo.com", "rosa1234", "Rosa", "Gutiérrez", "25123456",
+                "+58 414 7654321", hoy.atTime(8, 0)));
+        Jefe jefe = (Jefe) empresa.buscarUsuario("10000001");
+        Invitacion invitacion = new Invitacion(CodigoInvitacion.de(CODIGO_DEMO), Empleado.ROL,
+                (Supervisor) empresa.buscarUsuario("20000001"), empresa.buscarObra("OB-01"), jefe,
+                LocalDateTime.now(reloj).minusHours(1), LocalDateTime.now(reloj).plusDays(30));
+        empresa.agregarInvitacion(invitacion);
+    }
+
+    private static String sinTildes(String texto) {
+        return java.text.Normalizer.normalize(texto, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
     }
 
     /** Incidencias de ejemplo: un reposo aprobado, un permiso pendiente, un retardo y una ausencia sin justificar. */

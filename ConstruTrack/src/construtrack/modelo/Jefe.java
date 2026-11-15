@@ -155,6 +155,46 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         }
     }
 
+    /**
+     * Genera una invitación personal de un solo uso para que alguien con cuenta se una a la empresa.
+     * El supervisor (solo para empleados) y la obra son opcionales; la invitación vence en {@code dias} días.
+     */
+    public Invitacion crearInvitacion(String rol, String cedulaSupervisor, String codigoObra, int dias,
+            LocalDateTime ahora, java.util.random.RandomGenerator azar) {
+        if (dias < 1 || dias > 30) {
+            throw new DatoInvalidoException("La invitación debe durar entre 1 y 30 días.");
+        }
+        Supervisor supervisor = null;
+        if (cedulaSupervisor != null && !cedulaSupervisor.isBlank()) {
+            if (!(empresa.buscarUsuario(cedulaSupervisor) instanceof Supervisor s)) {
+                throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor.");
+            }
+            supervisor = s;
+        }
+        Obra obra = null;
+        if (codigoObra != null && !codigoObra.isBlank()) {
+            obra = empresa.buscarObra(codigoObra);
+            if (obra == null) {
+                throw new DatoInvalidoException("No existe la obra " + codigoObra + ".");
+            }
+        }
+        CodigoInvitacion codigo;
+        do {
+            codigo = CodigoInvitacion.generar(azar);
+        } while (empresa.existeInvitacion(codigo));
+        Invitacion invitacion = new Invitacion(codigo, rol, supervisor, obra, this, ahora, ahora.plusDays(dias));
+        empresa.agregarInvitacion(invitacion);
+        return invitacion;
+    }
+
+    public void cancelarInvitacion(CodigoInvitacion codigo, LocalDateTime ahora) {
+        Invitacion invitacion = empresa.buscarInvitacion(codigo);
+        if (invitacion == null) {
+            throw new DatoInvalidoException("No existe la invitación " + codigo + ".");
+        }
+        invitacion.cancelar(ahora);
+    }
+
     @Override
     public boolean puedeReportarPara(Usuario afectado) {
         return true;

@@ -72,10 +72,23 @@ public class Peticion {
         return cabecera != null && cabecera.startsWith("Bearer ") ? cabecera.substring(7) : null;
     }
 
-    /** Usuario con sesión iniciada; lanza 401 si no hay sesión. */
+    /** Cuenta personal con sesión iniciada (haya o no canjeado una invitación); lanza 401 si no hay. */
+    public construtrack.modelo.Cuenta cuenta() {
+        construtrack.modelo.Cuenta cuenta = sesiones.obtenerCuenta(token());
+        if (cuenta == null) {
+            throw new SesionRequeridaException();
+        }
+        return cuenta;
+    }
+
+    /** Persona de la empresa con sesión iniciada; lanza 401 si no hay sesión. */
     public Usuario usuario() {
         Usuario usuario = sesiones.obtenerUsuario(token());
         if (usuario == null) {
+            if (sesiones.obtenerCuenta(token()) != null) {
+                throw new construtrack.modelo.excepciones.PermisoDenegadoException(
+                        "Aún no perteneces a la empresa. Ingresa el código de invitación que te dio tu jefe.");
+            }
             throw new SesionRequeridaException();
         }
         return usuario;

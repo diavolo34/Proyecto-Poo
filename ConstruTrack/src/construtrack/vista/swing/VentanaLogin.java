@@ -25,10 +25,11 @@ public final class VentanaLogin extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
-    private final JTextField txtCedula = new JTextField(18);
+    private final JTextField txtIdentificador = new JTextField(18);
     private final JPasswordField txtClave = new JPasswordField(18);
     private final JButton btnEntrar = Tema.botonPrimario("Iniciar sesión");
     private final JButton btnWeb = Tema.botonSecundario("Abrir la versión web");
+    private final JButton btnCrearCuenta = Tema.botonSecundario("Crear una cuenta");
     private final JLabel lblError = Tema.textoSuave(" ");
 
     public VentanaLogin(String nombreEmpresa) {
@@ -58,10 +59,10 @@ public final class VentanaLogin extends JFrame {
         marca.setForeground(Tema.AZUL);
         form.add(marca, c);
         form.add(Tema.subtitulo("Inicia sesión para continuar"), c);
-        form.add(Tema.textoSuave("<html><div style='width:300px'>Usa tu cédula (solo números) y la clave "
-                + "que te dio tu jefe.</div></html>"), c);
+        form.add(Tema.textoSuave("<html><div style='width:300px'>Entra con tu correo o tu cédula. "
+                + "¿Eres nuevo? Crea tu cuenta y únete con el código que te dé tu jefe.</div></html>"), c);
         c.insets = new Insets(18, 0, 4, 0);
-        form.add(campo("Cédula *", txtCedula, "Por ejemplo: 30000001"), c);
+        form.add(campo("Correo o cédula *", txtIdentificador, "Por ejemplo: tu@correo.com o 30000001"), c);
         c.insets = new Insets(4, 0, 4, 0);
         form.add(campo("Clave *", txtClave, "Mínimo 4 caracteres"), c);
         lblError.setForeground(Tema.ROJO);
@@ -70,8 +71,10 @@ public final class VentanaLogin extends JFrame {
         btnEntrar.setMnemonic('I');
         form.add(btnEntrar, c);
         c.insets = new Insets(14, 0, 4, 0);
-        form.add(separador("o también puedes"), c);
+        form.add(separador("¿Primera vez en ConstruTrack?"), c);
         c.insets = new Insets(4, 0, 4, 0);
+        btnCrearCuenta.setToolTipText("Regístrate con tu correo; luego te unes a la empresa con un código");
+        form.add(btnCrearCuenta, c);
         btnWeb.setToolTipText("Abre la página web de ConstruTrack en tu navegador");
         form.add(btnWeb, c);
         c.insets = new Insets(18, 0, 0, 0);
@@ -107,8 +110,12 @@ public final class VentanaLogin extends JFrame {
         return lbl;
     }
 
-    public JTextField getTxtCedula() {
-        return txtCedula;
+    public JTextField getTxtIdentificador() {
+        return txtIdentificador;
+    }
+
+    public JButton getBtnCrearCuenta() {
+        return btnCrearCuenta;
     }
 
     public JPasswordField getTxtClave() {

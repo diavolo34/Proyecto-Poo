@@ -1,19 +1,25 @@
 package construtrack.controlador.swing;
 
+import construtrack.modelo.Cuenta;
 import construtrack.modelo.Jefe;
 import construtrack.modelo.RevisorIncidencias;
 import construtrack.modelo.Usuario;
 import construtrack.servicio.Servicios;
+import construtrack.vista.swing.DialogoRegistro;
+import construtrack.vista.swing.DialogoUnirse;
 import construtrack.vista.swing.PanelAsistencia;
 import construtrack.vista.swing.PanelIncidencias;
+import construtrack.vista.swing.PanelInvitaciones;
 import construtrack.vista.swing.PanelPersonal;
 import construtrack.vista.swing.PanelSupervision;
 import construtrack.vista.swing.PanelTablero;
 import construtrack.vista.swing.Tema;
 import construtrack.vista.swing.VentanaLogin;
 import construtrack.vista.swing.VentanaPrincipal;
+import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Coordina la vista de escritorio: muestra el inicio de sesión y, al entrar, arma la ventana
@@ -36,11 +42,28 @@ public final class AplicacionSwing {
 
     private void mostrarLogin() {
         VentanaLogin login = new VentanaLogin(servicios.autenticacion().getNombreEmpresa());
-        new ControladoraLogin(login, servicios.autenticacion(), usuario -> {
+        Consumer<Usuario> entrar = usuario -> {
             login.dispose();
             mostrarPrincipal(usuario);
-        }, urlWeb);
+        };
+        new ControladoraLogin(login, servicios.autenticacion(), entrar,
+                cuenta -> mostrarUnirse(login, cuenta, entrar),
+                () -> mostrarRegistro(login, entrar), urlWeb);
         login.setVisible(true);
+    }
+
+    /** Registro de una cuenta nueva; al terminar se pide el código para unirse. */
+    private void mostrarRegistro(Window dueno, Consumer<Usuario> entrar) {
+        DialogoRegistro registro = new DialogoRegistro(dueno);
+        new ControladoraRegistro(registro, servicios.registro(), cuenta -> mostrarUnirse(dueno, cuenta, entrar));
+        registro.setVisible(true);
+    }
+
+    /** Pide el código de invitación; si la persona elige "Más tarde", vuelve al inicio de sesión. */
+    private void mostrarUnirse(Window dueno, Cuenta cuenta, Consumer<Usuario> entrar) {
+        DialogoUnirse unirse = new DialogoUnirse(dueno, cuenta.getNombre());
+        new ControladoraUnirse(unirse, servicios.registro(), cuenta, entrar);
+        unirse.setVisible(true);
     }
 
     /** Arma la ventana principal. Lo que cada rol ve depende de las interfaces que implementa. */
@@ -73,6 +96,13 @@ public final class AplicacionSwing {
             PanelPersonal personal = new PanelPersonal(esJefe ? "Personal" : "Mi equipo", esJefe);
             refrescos.add(new ControladoraPersonal(personal, servicios.personal(), usuario, refrescarTodo)::refrescar);
             ventana.agregarPestana(esJefe ? "Personal" : "Mi equipo", "Personas y su estado", personal);
+        }
+
+        if (usuario instanceof Jefe) {
+            PanelInvitaciones invitaciones = new PanelInvitaciones();
+            refrescos.add(new ControladoraInvitaciones(invitaciones, servicios.invitaciones(), servicios.personal(),
+                    usuario)::refrescar);
+            ventana.agregarPestana("Invitaciones", "Códigos para que nuevas personas se unan", invitaciones);
         }
 
         ventana.getBtnSalir().addActionListener(e -> {

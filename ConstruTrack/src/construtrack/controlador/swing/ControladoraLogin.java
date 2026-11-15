@@ -1,7 +1,9 @@
 package construtrack.controlador.swing;
 
+import construtrack.modelo.Cuenta;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.ConstruTrackException;
+import construtrack.servicio.Ingreso;
 import construtrack.servicio.ServicioAutenticacion;
 import construtrack.vista.swing.VentanaLogin;
 import java.awt.Desktop;
@@ -12,36 +14,44 @@ import javax.swing.JOptionPane;
 /**
  * Controladora del inicio de sesión: recibe la vista por constructor, registra sus eventos
  * y delega la validación de credenciales en el servicio (la vista no conoce reglas de negocio).
+ * Si la persona aún no pertenece a la empresa, la envía a unirse con un código.
  */
 public final class ControladoraLogin {
 
     private final VentanaLogin vista;
     private final ServicioAutenticacion autenticacion;
     private final Consumer<Usuario> alEntrar;
+    private final Consumer<Cuenta> alFaltarEmpresa;
     private final String urlWeb;
 
-    public ControladoraLogin(VentanaLogin vista, ServicioAutenticacion autenticacion,
-            Consumer<Usuario> alEntrar, String urlWeb) {
+    public ControladoraLogin(VentanaLogin vista, ServicioAutenticacion autenticacion, Consumer<Usuario> alEntrar,
+            Consumer<Cuenta> alFaltarEmpresa, Runnable alCrearCuenta, String urlWeb) {
         this.vista = vista;
         this.autenticacion = autenticacion;
         this.alEntrar = alEntrar;
+        this.alFaltarEmpresa = alFaltarEmpresa;
         this.urlWeb = urlWeb;
         vista.getBtnEntrar().addActionListener(e -> entrar());
+        vista.getBtnCrearCuenta().addActionListener(e -> alCrearCuenta.run());
         vista.getBtnWeb().addActionListener(e -> abrirWeb());
     }
 
     private void entrar() {
-        String cedula = vista.getTxtCedula().getText().trim();
+        String identificador = vista.getTxtIdentificador().getText().trim();
         String clave = new String(vista.getTxtClave().getPassword());
-        if (cedula.isEmpty() || clave.isEmpty()) {
-            mostrarError("Escribe tu cédula y tu clave.");
-            (cedula.isEmpty() ? vista.getTxtCedula() : vista.getTxtClave()).requestFocusInWindow();
+        if (identificador.isEmpty() || clave.isEmpty()) {
+            mostrarError("Escribe tu correo o cédula y tu clave.");
+            (identificador.isEmpty() ? vista.getTxtIdentificador() : vista.getTxtClave()).requestFocusInWindow();
             return;
         }
         try {
-            Usuario usuario = autenticacion.autenticar(cedula, clave);
+            Ingreso ingreso = autenticacion.ingresar(identificador, clave);
             vista.getLblError().setText(" ");
-            alEntrar.accept(usuario);
+            if (ingreso.pendienteDeUnirse()) {
+                alFaltarEmpresa.accept(ingreso.cuenta());
+            } else {
+                alEntrar.accept(ingreso.usuario());
+            }
         } catch (ConstruTrackException e) {
             mostrarError(e.getMessage());
             vista.getTxtClave().selectAll();
@@ -50,7 +60,7 @@ public final class ControladoraLogin {
     }
 
     private void mostrarError(String mensaje) {
-        vista.getLblError().setText("<html>" + mensaje + "</html>");
+        vista.getLblError().setText("<html><div style='width:300px'>" + mensaje + "</div></html>");
     }
 
     private void abrirWeb() {

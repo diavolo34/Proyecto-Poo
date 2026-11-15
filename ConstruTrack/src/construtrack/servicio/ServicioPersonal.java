@@ -3,6 +3,7 @@ package construtrack.servicio;
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.Jefe;
+import construtrack.modelo.Obra;
 import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.NoEncontradoException;
@@ -56,6 +57,10 @@ public class ServicioPersonal extends ServicioBase {
             }
             return supervisores;
         });
+    }
+
+    public List<Obra> listarObras() {
+        return leer(empresa::listarObras);
     }
 
     public Usuario registrar(Usuario actual, Map<String, String> datos) {

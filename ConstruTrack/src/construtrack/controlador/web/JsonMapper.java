@@ -41,6 +41,12 @@ public final class JsonMapper {
         if (u instanceof Supervisor s) {
             json.numero("empleadosACargo", s.verEmpleadosACargo().size());
         }
+        if (u.getCuenta() != null) {
+            json.texto("correo", u.getCuenta().getCorreo()).texto("telefono", u.getCuenta().getTelefono());
+        }
+        if (u.getObra() != null) {
+            json.texto("obra", u.getObra().getNombre());
+        }
         if (detalle) {
             List<RegistroAsistencia> recientes = new ArrayList<>(u.getAsistencias());
             Collections.reverse(recientes);
@@ -64,6 +70,40 @@ public final class JsonMapper {
                 .texto("horaEntrada", r.getHoraEntrada())
                 .texto("horaSalida", r.getHoraSalida())
                 .logico("tarde", r.isTarde())
+                .toString();
+    }
+
+    /** Respuesta de inicio de sesión o registro: token, si falta unirse, cuenta y ficha (si existe). */
+    public static String sesion(String token, construtrack.servicio.Ingreso ingreso) {
+        return new JsonObjeto()
+                .texto("token", token)
+                .logico("pendiente", ingreso.pendienteDeUnirse())
+                .crudo("cuenta", ingreso.cuenta() == null ? "null" : cuenta(ingreso.cuenta()))
+                .crudo("usuario", ingreso.usuario() == null ? "null" : usuario(ingreso.usuario(), true))
+                .toString();
+    }
+
+    public static String cuenta(construtrack.modelo.Cuenta c) {
+        return new JsonObjeto()
+                .texto("correo", c.getCorreo())
+                .texto("nombre", c.getNombre())
+                .texto("apellido", c.getApellido())
+                .texto("documento", c.getDocumento())
+                .texto("telefono", c.getTelefono())
+                .logico("perteneceAEmpresa", c.perteneceAEmpresa())
+                .toString();
+    }
+
+    public static String invitacion(construtrack.modelo.Invitacion v, java.time.LocalDateTime ahora) {
+        return new JsonObjeto()
+                .texto("codigo", v.getCodigo())
+                .texto("rol", v.getRol())
+                .texto("supervisor", v.getSupervisor() == null ? null : v.getSupervisor().getNombre())
+                .texto("obra", v.getObra() == null ? null : v.getObra().getNombre())
+                .texto("estado", v.estadoEn(ahora).getNombre())
+                .texto("creada", v.getCreada().toLocalDate())
+                .texto("vence", v.getVence().toLocalDate())
+                .texto("usadaPor", v.getUsadaPor() == null ? null : v.getUsadaPor().getNombreCompleto())
                 .toString();
     }
 

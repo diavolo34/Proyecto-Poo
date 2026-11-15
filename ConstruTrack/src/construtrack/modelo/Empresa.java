@@ -14,6 +14,8 @@ public class Empresa {
     private final String nombre;
     private final Map<String, Usuario> usuarios = new LinkedHashMap<>();
     private final Map<String, Obra> obras = new LinkedHashMap<>();
+    private final Map<String, Cuenta> cuentas = new LinkedHashMap<>();
+    private final Map<CodigoInvitacion, Invitacion> invitaciones = new LinkedHashMap<>();
 
     public Empresa(String nombre) {
         this.nombre = nombre;
@@ -30,16 +32,19 @@ public class Empresa {
     }
 
     public Usuario buscarUsuario(String cedula) {
-        return cedula == null ? null : usuarios.get(cedula);
+        return cedula == null ? null : usuarios.get(cedula.trim().toUpperCase());
     }
 
     public boolean existeCedula(String cedula) {
-        return cedula != null && usuarios.containsKey(cedula);
+        return cedula != null && usuarios.containsKey(cedula.trim().toUpperCase());
     }
 
     /** Quita al usuario y deshace sus relaciones de supervisión. */
     public void eliminarUsuario(String cedula) {
         Usuario usuario = usuarios.remove(cedula);
+        if (usuario != null) {
+            usuario.desvincularCuenta();
+        }
         if (usuario instanceof Empleado) {
             ((Empleado) usuario).setSupervisor(null);
         } else if (usuario instanceof Supervisor) {
@@ -64,6 +69,48 @@ public class Empresa {
         return new ArrayList<>(obras.values());
     }
 
+    // ------------------------------------------------------------------ cuentas e invitaciones
+
+    /** Registra una cuenta nueva: el correo y el documento no pueden repetirse. */
+    public void agregarCuenta(Cuenta cuenta) {
+        if (cuentas.containsKey(cuenta.getCorreo())) {
+            throw new OperacionInvalidaException("Ya existe una cuenta con el correo " + cuenta.getCorreo() + ". Inicia sesión.");
+        }
+        for (Cuenta c : cuentas.values()) {
+            if (c.getDocumento().equals(cuenta.getDocumento())) {
+                throw new OperacionInvalidaException("Ya existe una cuenta con el documento " + cuenta.getDocumento() + ".");
+            }
+        }
+        cuentas.put(cuenta.getCorreo(), cuenta);
+    }
+
+    public Cuenta buscarCuenta(String correo) {
+        return correo == null ? null : cuentas.get(correo.trim().toLowerCase());
+    }
+
+    public List<Cuenta> listarCuentas() {
+        return new ArrayList<>(cuentas.values());
+    }
+
+    public void agregarInvitacion(Invitacion invitacion) {
+        if (invitaciones.containsKey(invitacion.getCodigo())) {
+            throw new OperacionInvalidaException("Ya existe una invitación con el código " + invitacion.getCodigo() + ".");
+        }
+        invitaciones.put(invitacion.getCodigo(), invitacion);
+    }
+
+    public Invitacion buscarInvitacion(CodigoInvitacion codigo) {
+        return invitaciones.get(codigo);
+    }
+
+    public boolean existeInvitacion(CodigoInvitacion codigo) {
+        return invitaciones.containsKey(codigo);
+    }
+
+    public List<Invitacion> listarInvitaciones() {
+        return new ArrayList<>(invitaciones.values());
+    }
+
     public List<Usuario> listarUsuarios() {
         return new ArrayList<>(usuarios.values());
     }
@@ -71,7 +118,7 @@ public class Empresa {
     /** Devuelve el usuario si la cédula y la clave coinciden; si no, null. */
     public Usuario autenticar(String cedula, String clave) {
         Usuario usuario = buscarUsuario(cedula);
-        return usuario != null && clave != null && usuario.verificarClave(clave) ? usuario : null;
+        return usuario != null && usuario.verificarClave(clave) ? usuario : null;
     }
 
     public int contarPresentes() {
