@@ -2,6 +2,7 @@ package construtrack;
 
 import construtrack.controlador.web.ServidorWeb;
 import construtrack.modelo.Empresa;
+import construtrack.modelo.incidencias.FabricaIncidencias;
 import construtrack.persistencia.GeneradorDatosPrueba;
 import construtrack.persistencia.RepositorioArchivo;
 import construtrack.servicio.Servicios;
@@ -26,10 +27,11 @@ public final class App {
         int puerto = Integer.parseInt(entorno("PORT", "8080"));
         Clock reloj = Clock.systemDefaultZone();
 
+        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
         RepositorioArchivo repositorio = new RepositorioArchivo(
-                Path.of(entorno("DATOS", "datos_construtrack.txt")), new GeneradorDatosPrueba(reloj));
+                Path.of(entorno("DATOS", "datos_construtrack.txt")), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
         Empresa empresa = repositorio.cargar();
-        Servicios servicios = new Servicios(empresa, repositorio, reloj);
+        Servicios servicios = new Servicios(empresa, repositorio, reloj, repositorio.siguienteIdIncidencia());
 
         ServidorWeb web = new ServidorWeb(servicios, puerto, entorno("CORS_ORIGEN", "*"));
         web.iniciar();

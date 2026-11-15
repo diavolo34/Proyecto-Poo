@@ -19,7 +19,8 @@ public class ServidorWeb {
         List<ControladorWeb> controladores = List.of(
                 new ControladorSesion(servicios.autenticacion(), sesiones),
                 new ControladorAsistencia(servicios.asistencia()),
-                new ControladorUsuarios(servicios.personal()));
+                new ControladorUsuarios(servicios.personal()),
+                new ControladorIncidencias(servicios.incidencias()));
         servidor = HttpServer.create(new InetSocketAddress(puerto), 0);
         servidor.createContext("/api/", new ManejadorApi(sesiones, controladores, origenPermitido));
         servidor.createContext("/", new ArchivosEstaticos());

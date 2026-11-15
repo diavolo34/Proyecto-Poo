@@ -5,6 +5,8 @@ package construtrack.modelo;
  */
 public class Empleado extends Usuario {
 
+    public static final String ROL = "Empleado";
+
     private Supervisor supervisor;
 
     public Empleado(String cedula, String nombre, String clave, Horario horario) {
@@ -13,7 +15,7 @@ public class Empleado extends Usuario {
 
     @Override
     public String getRol() {
-        return "Empleado";
+        return ROL;
     }
 
     public Supervisor getSupervisor() {

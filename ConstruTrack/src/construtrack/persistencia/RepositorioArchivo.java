@@ -1,6 +1,11 @@
 package construtrack.persistencia;
 
 import construtrack.modelo.Empleado;
+import construtrack.modelo.Obra;
+import construtrack.modelo.incidencias.DatosIncidencia;
+import construtrack.modelo.incidencias.EstadoIncidencia;
+import construtrack.modelo.incidencias.FabricaIncidencias;
+import construtrack.modelo.incidencias.Incidencia;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.Horario;
 import construtrack.modelo.RegistroAsistencia;
@@ -12,9 +17,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -25,7 +32,12 @@ import java.util.function.Supplier;
  *   U|rol|cedula|nombre|resumenClave|dias|horaEntrada|horaSalida|presente
  *   S|cedulaEmpleado|cedulaSupervisor
  *   A|cedula|fecha|horaEntrada|horaSalida(o -)|tarde
+ *   O|codigo|nombre|ubicacion|fechaInicio|fechaFinEstimada
+ *   Y|cedulaEmpleado|cedulaObra
+ *   I|id|tipo|cedulaAfectado|cedulaReporta|desde|hasta|descripcion|fechaReporte|estado|cedulaRevisor|comentario|fechaRevision|extras
  * </pre>
+ *
+ * Los campos de texto libre se escapan (\\p, \\n, \\\\) para que el separador | y los saltos de línea no rompan el archivo.
  *
  * Si el archivo no existe, pide los datos iniciales a un proveedor externo (por ejemplo, GeneradorDatosPrueba).
  */
@@ -35,10 +47,18 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
 
     private final Path archivo;
     private final Supplier<Empresa> datosIniciales;
+    private final FabricaIncidencias fabrica;
+    private int contadorIds = 1;
 
-    public RepositorioArchivo(Path archivo, Supplier<Empresa> datosIniciales) {
+    public RepositorioArchivo(Path archivo, Supplier<Empresa> datosIniciales, FabricaIncidencias fabrica) {
         this.archivo = archivo;
         this.datosIniciales = datosIniciales;
+        this.fabrica = fabrica;
+    }
+
+    /** Siguiente número de incidencia libre según lo cargado (evita repetir ids al reiniciar). */
+    public int siguienteIdIncidencia() {
+        return contadorIds;
     }
 
     @Override
@@ -57,6 +77,9 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
                     case "U" -> empresa.agregarUsuario(leerUsuario(c));
                     case "S" -> leerSupervision(empresa, c);
                     case "A" -> empresa.buscarUsuario(c[1]).agregarAsistencia(leerAsistencia(c));
+                    case "O" -> empresa.agregarObra(leerObra(c));
+                    case "Y" -> leerAsignacionObra(empresa, c);
+                    case "I" -> leerIncidencia(empresa, c);
                     default -> {
                         // Líneas vacías o de versiones futuras: se ignoran
                     }
@@ -77,13 +100,24 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
             lineas.add(unir("U", u.getRol(), u.getCedula(), u.getNombre(), u.getClaveResumen(),
                     h.getDias(), h.getHoraEntrada(), h.getHoraSalida(), u.estaPresente()));
         }
+        for (Obra o : empresa.listarObras()) {
+            lineas.add(unir("O", o.getCodigo(), o.getNombre(), o.getUbicacion(), o.getFechaInicio(), o.getFechaFinEstimada()));
+        }
         for (Usuario u : empresa.listarUsuarios()) {
+            if (u.getObra() != null) {
+                lineas.add(unir("Y", u.getCedula(), u.getObra().getCodigo()));
+            }
             if (u instanceof Empleado e && e.getSupervisor() != null) {
                 lineas.add(unir("S", u.getCedula(), e.getSupervisor().getCedula()));
             }
             for (RegistroAsistencia a : u.getAsistencias()) {
                 lineas.add(unir("A", u.getCedula(), a.getFecha(), a.getHoraEntrada(),
                         a.getHoraSalida() == null ? "-" : a.getHoraSalida(), a.isTarde()));
+            }
+        }
+        for (Usuario u : empresa.listarUsuarios()) {
+            for (Incidencia i : u.getHistorial().getIncidencias()) {
+                lineas.add(escribirIncidencia(i));
             }
         }
         try {
@@ -114,6 +148,46 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
             registro.registrarSalida(LocalTime.parse(c[4]));
         }
         return registro;
+    }
+
+    private Obra leerObra(String[] c) {
+        return new Obra(c[1], c[2], c[3], LocalDate.parse(c[4]), LocalDate.parse(c[5]));
+    }
+
+    private void leerAsignacionObra(Empresa empresa, String[] c) {
+        Usuario usuario = empresa.buscarUsuario(c[1]);
+        Obra obra = empresa.buscarObra(c[2]);
+        if (usuario != null && obra != null) {
+            usuario.setObra(obra);
+        }
+    }
+
+    private void leerIncidencia(Empresa empresa, String[] c) {
+        Usuario afectado = empresa.buscarUsuario(c[3]);
+        Usuario reporta = empresa.buscarUsuario(c[4]);
+        Map<String, String> extras = Campos.extras(c[13]);
+        DatosIncidencia datos = new DatosIncidencia(Integer.parseInt(c[1]), afectado, reporta,
+                LocalDate.parse(c[5]), LocalDate.parse(c[6]), Campos.desescapar(c[7]),
+                LocalDateTime.parse(c[8]), extras);
+        Incidencia incidencia = fabrica.crear(c[2], datos);
+        EstadoIncidencia estado = EstadoIncidencia.valueOf(c[9]);
+        if (estado != EstadoIncidencia.PENDIENTE) {
+            Usuario revisor = empresa.buscarUsuario(c[10]);
+            LocalDateTime fecha = c[12].isEmpty() ? null : LocalDateTime.parse(c[12]);
+            incidencia.restaurarRevision(estado, revisor, Campos.desescapar(c[11]), fecha);
+        }
+        afectado.getHistorial().agregarIncidencia(incidencia);
+        contadorIds = Math.max(contadorIds, incidencia.getId() + 1);
+    }
+
+    private String escribirIncidencia(Incidencia i) {
+        Usuario revisor = i.getRevisor();
+        return unir("I", i.getId(), i.getCodigoTipo(), i.getAfectado().getCedula(), i.getReportadoPor().getCedula(),
+                i.getDesde(), i.getHasta(), Campos.escapar(i.getDescripcion()), i.getFechaReporte(),
+                i.getEstado().name(), revisor == null ? "" : revisor.getCedula(),
+                Campos.escapar(i.getComentarioRevision()),
+                i.getFechaRevision() == null ? "" : i.getFechaRevision(),
+                Campos.extrasATexto(i.getExtras()));
     }
 
     private static String unir(Object... campos) {

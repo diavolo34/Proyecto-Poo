@@ -5,6 +5,7 @@ import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Usuario;
 import construtrack.persistencia.EscritorDatos;
 import java.time.Clock;
+import java.time.LocalDateTime;
 
 /** Casos de uso: marcar entrada y salida de la obra. */
 public class ServicioAsistencia extends ServicioBase {
@@ -14,10 +15,10 @@ public class ServicioAsistencia extends ServicioBase {
     }
 
     public RegistroAsistencia marcarEntrada(Usuario usuario) {
-        return modificar(usuario::marcarEntrada);
+        return modificar(() -> usuario.marcarEntrada(LocalDateTime.now(reloj)));
     }
 
     public RegistroAsistencia marcarSalida(Usuario usuario) {
-        return modificar(usuario::marcarSalida);
+        return modificar(() -> usuario.marcarSalida(LocalDateTime.now(reloj)));
     }
 }

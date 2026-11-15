@@ -1,6 +1,7 @@
 package construtrack.controlador.web;
 
 import construtrack.modelo.Empleado;
+import construtrack.modelo.incidencias.Incidencia;
 import construtrack.modelo.Horario;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
@@ -23,13 +24,13 @@ public final class JsonMapper {
     }
 
     public static String usuario(Usuario u, boolean detalle) {
-        RegistroAsistencia hoy = u.getAsistenciaDeHoy();
+        RegistroAsistencia hoy = u.getAsistenciaDel(java.time.LocalDate.now());
         JsonObjeto json = new JsonObjeto()
                 .texto("cedula", u.getCedula())
                 .texto("nombre", u.getNombre())
                 .texto("rol", u.getRol())
                 .logico("presente", u.estaPresente())
-                .logico("trabajaHoy", u.trabajaHoy())
+                .logico("trabajaHoy", u.trabajaEl(java.time.LocalDate.now()))
                 .crudo("horario", horario(u.getHorario()))
                 .crudo("asistenciaHoy", hoy == null ? "null" : registro(hoy));
         if (u instanceof Empleado e) {
@@ -72,6 +73,29 @@ public final class JsonMapper {
 
     public static String mensaje(String mensaje, String datosJson) {
         return new JsonObjeto().texto("mensaje", mensaje).crudo("usuario", datosJson).toString();
+    }
+
+    public static String incidencia(Incidencia i) {
+        Usuario revisor = i.getRevisor();
+        return new JsonObjeto()
+                .numero("id", i.getId())
+                .texto("tipo", i.getCodigoTipo())
+                .texto("nombreTipo", i.getNombreTipo())
+                .texto("gravedad", i.getGravedad().getNombre())
+                .texto("cedulaAfectado", i.getAfectado().getCedula())
+                .texto("nombreAfectado", i.getAfectado().getNombre())
+                .texto("reportadaPor", i.getReportadoPor().getNombre())
+                .texto("desde", i.getDesde())
+                .texto("hasta", i.getHasta())
+                .numero("dias", i.getDias())
+                .texto("descripcion", i.getDescripcion())
+                .texto("detalle", i.getDetalle())
+                .texto("estado", i.getEstado().name())
+                .texto("estadoNombre", i.getEstado().getNombre())
+                .texto("revisor", revisor == null ? null : revisor.getNombre())
+                .texto("comentarioRevision", i.getComentarioRevision())
+                .texto("fechaReporte", i.getFechaReporte())
+                .toString();
     }
 
     public static String ok() {

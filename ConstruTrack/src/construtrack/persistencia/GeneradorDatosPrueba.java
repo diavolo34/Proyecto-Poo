@@ -4,9 +4,15 @@ import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.Horario;
 import construtrack.modelo.Jefe;
+import construtrack.modelo.Obra;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
 import java.time.Clock;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.util.Map;
+import construtrack.modelo.Usuario;
+import construtrack.modelo.incidencias.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.function.Supplier;
@@ -19,8 +25,11 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
 
     private final Clock reloj;
 
-    public GeneradorDatosPrueba(Clock reloj) {
+    private final FabricaIncidencias fabrica;
+
+    public GeneradorDatosPrueba(Clock reloj, FabricaIncidencias fabrica) {
         this.reloj = reloj;
+        this.fabrica = fabrica;
     }
 
     @Override
@@ -41,17 +50,69 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             {"30000004", "Laura Torres"}, {"30000005", "Miguel Herrera"}, {"30000006", "Sofía Castillo"}
         };
         LocalDate hoy = LocalDate.now(reloj);
+        Obra torre = new Obra("OB-01", "Torre Residencial Este", "Av. Principal, Caracas",
+                hoy.minusMonths(2), hoy.plusMonths(6));
+        Obra puente = new Obra("OB-02", "Puente Vial del Sur", "Autopista Sur, Los Teques",
+                hoy.minusWeeks(3), hoy.plusMonths(9));
+        empresa.agregarObra(torre);
+        empresa.agregarObra(puente);
+        ana.setObra(torre);
+        luis.setObra(puente);
+
         for (int i = 0; i < empleados.length; i++) {
             Empleado e = new Empleado(empleados[i][0], empleados[i][1], "emp123", i < 3 ? obra : sabados);
             e.setSupervisor(i < 3 ? ana : luis);
+            e.setObra(i < 3 ? torre : puente);
             empresa.agregarUsuario(e);
-            e.agregarAsistencia(registro(hoy.minusDays(1), "06:55", "16:02", false));
+            // Historial de dos semanas laborables: asistencia puntual con algunos retardos y faltas
+            for (LocalDate dia : hoy.minusDays(14).datesUntil(hoy).toList()) {
+                if (!e.trabajaEl(dia) || dia.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                    continue;
+                }
+                boolean retardo = (dia.getDayOfMonth() + i) % 5 == 0;
+                boolean falta = (dia.getDayOfMonth() * 3 + i) % 11 == 0;
+                if (!falta) {
+                    String entrada = retardo ? "07:25" : "06:5" + (i % 10);
+                    e.agregarAsistencia(registro(dia, entrada, "16:0" + (i % 9), retardo));
+                }
+            }
             if (i % 2 == 0) {
                 e.agregarAsistencia(registro(hoy, i == 4 ? "07:25" : "06:58", null, i == 4));
                 e.setPresente(true);
             }
         }
+        agregarIncidenciasDemo(empresa, fabrica, hoy);
         return empresa;
+    }
+
+    /** Incidencias de ejemplo: un reposo aprobado, un permiso pendiente, un retardo y una ausencia sin justificar. */
+    private static void agregarIncidenciasDemo(Empresa empresa, FabricaIncidencias fabrica, LocalDate hoy) {
+        Usuario jose = empresa.buscarUsuario("30000001");
+        Usuario maria = empresa.buscarUsuario("30000002");
+        Usuario pedro = empresa.buscarUsuario("30000003");
+        Usuario ana = empresa.buscarUsuario("20000001");
+        Usuario luis = empresa.buscarUsuario("20000002");
+        Usuario laura = empresa.buscarUsuario("30000004");
+
+        LocalDateTime ahora = LocalDateTime.now();
+        ReposoMedico reposo = (ReposoMedico) fabrica.crear(ReposoMedico.CODIGO, new DatosIncidencia(1, jose, ana,
+                hoy.minusDays(4), hoy.minusDays(3), "Gripe con fiebre, reposo indicado por el médico",
+                ahora.minusDays(5), Map.of("centroMedico", "Clínica Santa Sofía", "certificado", "CM-4471")));
+        reposo.restaurarRevision(EstadoIncidencia.APROBADA, ana, "Certificado válido", ahora.minusDays(4));
+        jose.getHistorial().agregarIncidencia(reposo);
+
+        Incidencia permiso = fabrica.crear(PermisoPersonal.CODIGO, new DatosIncidencia(2, maria, maria,
+                hoy.plusDays(2), hoy.plusDays(2), "Trámite en el registro civil", ahora.minusHours(6), Map.of()));
+        maria.getHistorial().agregarIncidencia(permiso);
+
+        Incidencia retardo = fabrica.crear(Retardo.CODIGO, new DatosIncidencia(3, pedro, pedro,
+                hoy.minusDays(1), null, "Accidente vial en la autopista, se detuvo el tráfico",
+                ahora.minusDays(1), Map.of("minutos", "35")));
+        pedro.getHistorial().agregarIncidencia(retardo);
+
+        Incidencia ausencia = fabrica.crear(Ausencia.CODIGO, new DatosIncidencia(4, laura, luis,
+                hoy.minusDays(2), null, "No se presentó ni avisó al supervisor", ahora.minusDays(2), Map.of()));
+        laura.getHistorial().agregarIncidencia(ausencia);
     }
 
     private RegistroAsistencia registro(LocalDate fecha, String entrada, String salida, boolean tarde) {

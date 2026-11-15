@@ -2,68 +2,73 @@ package construtrack.modelo;
 
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
+import construtrack.modelo.excepciones.PermisoDenegadoException;
+import construtrack.modelo.incidencias.EstadoIncidencia;
+import construtrack.modelo.incidencias.Incidencia;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Persona registrada en la obra. Es abstracta: cada usuario es un Empleado, un Supervisor o un Jefe.
+ * Persona registrada en la empresa. Es abstracta: cada usuario es un Empleado, un Supervisor o un Jefe.
+ * Las subclases amplían lo que puede hacer, sin romper lo que promete la clase base
+ * (cualquiera puede marcar asistencia y reportar sus propias incidencias).
  */
 public abstract class Usuario {
 
-    protected String cedula;
-    protected String nombre;
+    private String cedula;
+    private String nombre;
     private String claveResumen;
-    protected Horario horario;
-    protected boolean presente;
-    protected final List<RegistroAsistencia> asistencias = new ArrayList<>();
+    private Horario horario;
+    private boolean presente;
+    private Obra obra;
+    private final Historial historial = new Historial();
 
-    public Usuario(String cedula, String nombre, String clave, Horario horario) {
+    protected Usuario(String cedula, String nombre, String clave, Horario horario) {
         setCedula(cedula);
         setNombre(nombre);
         setClave(clave);
         setHorario(horario);
-        this.presente = false;
     }
 
     /** Fábrica: crea el tipo de usuario que corresponde al rol indicado. */
     public static Usuario crear(String rol, String cedula, String nombre, String clave, Horario horario) {
-        if ("Empleado".equals(rol)) {
-            return new Empleado(cedula, nombre, clave, horario);
+        if (rol == null) {
+            throw new DatoInvalidoException("Selecciona un rol.");
         }
-        if ("Supervisor".equals(rol)) {
-            return new Supervisor(cedula, nombre, clave, horario);
-        }
-        if ("Jefe".equals(rol)) {
-            return new Jefe(cedula, nombre, clave, horario);
-        }
-        throw new DatoInvalidoException("Rol no válido: " + rol);
+        return switch (rol) {
+            case Empleado.ROL -> new Empleado(cedula, nombre, clave, horario);
+            case Supervisor.ROL -> new Supervisor(cedula, nombre, clave, horario);
+            case Jefe.ROL -> new Jefe(cedula, nombre, clave, horario);
+            default -> throw new DatoInvalidoException("Rol no válido: " + rol);
+        };
     }
 
     /** Nombre del rol que desempeña en la empresa. */
     public abstract String getRol();
 
+    // ------------------------------------------------------------------ asistencia
+
     /** Registra la llegada a la obra y marca al usuario como presente. */
-    public RegistroAsistencia marcarEntrada() {
+    public RegistroAsistencia marcarEntrada(LocalDateTime ahora) {
         if (presente) {
             throw new OperacionInvalidaException(nombre + " ya registró su entrada y sigue en la obra.");
         }
-        LocalTime ahora = LocalTime.now().withSecond(0).withNano(0);
-        RegistroAsistencia registro = new RegistroAsistencia(LocalDate.now(), ahora, horario.esLlegadaTarde(ahora));
-        asistencias.add(registro);
+        LocalTime hora = ahora.toLocalTime().withSecond(0).withNano(0);
+        RegistroAsistencia registro = new RegistroAsistencia(ahora.toLocalDate(), hora, horario.esLlegadaTarde(hora));
+        historial.agregarAsistencia(registro);
         presente = true;
         return registro;
     }
 
     /** Registra la salida de la obra y marca al usuario como ausente. */
-    public RegistroAsistencia marcarSalida() {
-        RegistroAsistencia ultima = getUltimaAsistencia();
+    public RegistroAsistencia marcarSalida(LocalDateTime ahora) {
+        RegistroAsistencia ultima = historial.ultimaAsistencia();
         if (!presente || ultima == null || !ultima.estaAbierto()) {
             throw new OperacionInvalidaException(nombre + " no tiene una entrada abierta.");
         }
-        ultima.registrarSalida(LocalTime.now().withSecond(0).withNano(0));
+        ultima.registrarSalida(ahora.toLocalTime().withSecond(0).withNano(0));
         presente = false;
         return ultima;
     }
@@ -72,47 +77,79 @@ public abstract class Usuario {
         return presente;
     }
 
-    /** Devuelve la jornada del día de hoy, o null si hoy no ha entrado. */
-    public RegistroAsistencia getAsistenciaDeHoy() {
-        RegistroAsistencia ultima = getUltimaAsistencia();
-        return ultima != null && ultima.getFecha().equals(LocalDate.now()) ? ultima : null;
+    /** Solo la usan la persistencia y los datos de prueba para restaurar el estado guardado. */
+    public void setPresente(boolean presente) {
+        this.presente = presente;
     }
 
-    public RegistroAsistencia getUltimaAsistencia() {
-        return asistencias.isEmpty() ? null : asistencias.get(asistencias.size() - 1);
+    /** Jornada de la fecha indicada, o null si ese día no entró. */
+    public RegistroAsistencia getAsistenciaDel(LocalDate fecha) {
+        return historial.asistenciaDel(fecha);
     }
 
-    /** Indica si hoy es un día laborable según su horario. */
-    public boolean trabajaHoy() {
-        return horario.incluyeDia(LocalDate.now().getDayOfWeek());
+    /** Indica si la fecha es un día laborable según su horario. */
+    public boolean trabajaEl(LocalDate fecha) {
+        return horario.incluyeDia(fecha.getDayOfWeek());
     }
 
-    /** Compara la clave escrita con el resumen guardado; la clave original nunca se almacena. */
-    public boolean verificarClave(String clave) {
-        return clave != null && claveResumen.equals(CifradoClave.resumir(cedula, clave));
-    }
-
-    /** Copia el estado de asistencia de otro usuario (se usa cuando el Jefe le cambia el rol). */
-    public void copiarAsistenciaDe(Usuario otro) {
-        asistencias.clear();
-        asistencias.addAll(otro.asistencias);
-        presente = otro.presente;
-    }
-
-    /** Agrega una jornada guardada en la base de datos. */
     public void agregarAsistencia(RegistroAsistencia registro) {
-        asistencias.add(registro);
+        historial.agregarAsistencia(registro);
     }
 
     public List<RegistroAsistencia> getAsistencias() {
-        return Collections.unmodifiableList(asistencias);
+        return historial.getAsistencias();
+    }
+
+    // ------------------------------------------------------------------ incidencias
+
+    /**
+     * Indica si puede reportar una incidencia que afecta a otra persona.
+     * Por defecto cada quien solo reporta las suyas; Supervisor y Jefe amplían este permiso.
+     */
+    public boolean puedeReportarPara(Usuario afectado) {
+        return afectado == this;
+    }
+
+    /** Reporta una incidencia y la agrega al historial de la persona afectada. */
+    public void reportar(Incidencia incidencia) {
+        if (incidencia.getReportadoPor() != this || !puedeReportarPara(incidencia.getAfectado())) {
+            throw new PermisoDenegadoException("No puedes reportar incidencias de " + incidencia.getAfectado().getNombre() + ".");
+        }
+        incidencia.getAfectado().historial.agregarIncidencia(incidencia);
+    }
+
+    /** Implementación común para los revisores (Supervisor y Jefe). */
+    protected void revisarComo(RevisorIncidencias revisor, Incidencia incidencia, EstadoIncidencia nuevo,
+            String comentario, LocalDateTime ahora) {
+        if (!revisor.puedeRevisar(incidencia)) {
+            throw new PermisoDenegadoException("No tienes autoridad para revisar la incidencia #" + incidencia.getId() + ".");
+        }
+        incidencia.registrarRevision(nuevo, this, comentario, ahora);
+    }
+
+    public Historial getHistorial() {
+        return historial;
+    }
+
+    /** Copia historial y presencia de otro usuario (se usa cuando el Jefe le cambia el rol). */
+    void copiarEstadoDe(Usuario otro) {
+        historial.copiarDe(otro.historial);
+        presente = otro.presente;
+        obra = otro.obra;
+        claveResumen = otro.claveResumen;
+    }
+
+    // ------------------------------------------------------------------ datos personales
+
+    public boolean verificarClave(String clave) {
+        return clave != null && claveResumen.equals(CifradoClave.resumir(cedula, clave));
     }
 
     public String getCedula() {
         return cedula;
     }
 
-    public final void setCedula(String cedula) {
+    private void setCedula(String cedula) {
         if (cedula == null || !cedula.matches("\\d{6,9}")) {
             throw new DatoInvalidoException("La cédula debe tener entre 6 y 9 dígitos, sin puntos ni letras.");
         }
@@ -152,7 +189,7 @@ public abstract class Usuario {
         return claveResumen;
     }
 
-    /** Restaura un resumen ya calculado (al cargar desde el archivo o al cambiar de rol). */
+    /** Restaura un resumen ya calculado (al cargar desde el archivo). */
     public void restaurarClaveResumen(String resumen) {
         if (resumen == null || !resumen.matches("[0-9a-f]{64}")) {
             throw new DatoInvalidoException("Resumen de clave inválido.");
@@ -171,7 +208,16 @@ public abstract class Usuario {
         this.horario = horario;
     }
 
-    public void setPresente(boolean presente) {
-        this.presente = presente;
+    public Obra getObra() {
+        return obra;
+    }
+
+    public void setObra(Obra obra) {
+        this.obra = obra;
+    }
+
+    @Override
+    public String toString() {
+        return nombre + " (" + getRol() + ")";
     }
 }

@@ -13,6 +13,7 @@ public class Empresa {
 
     private final String nombre;
     private final Map<String, Usuario> usuarios = new LinkedHashMap<>();
+    private final Map<String, Obra> obras = new LinkedHashMap<>();
 
     public Empresa(String nombre) {
         this.nombre = nombre;
@@ -46,6 +47,21 @@ public class Empresa {
                 empleado.setSupervisor(null);
             }
         }
+    }
+
+    public void agregarObra(Obra obra) {
+        if (obras.containsKey(obra.getCodigo())) {
+            throw new OperacionInvalidaException("Ya existe una obra con el código " + obra.getCodigo() + ".");
+        }
+        obras.put(obra.getCodigo(), obra);
+    }
+
+    public Obra buscarObra(String codigo) {
+        return codigo == null ? null : obras.get(codigo);
+    }
+
+    public List<Obra> listarObras() {
+        return new ArrayList<>(obras.values());
     }
 
     public List<Usuario> listarUsuarios() {

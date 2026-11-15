@@ -1,18 +1,25 @@
 package construtrack.modelo;
 
 import construtrack.modelo.excepciones.DatoInvalidoException;
+import construtrack.modelo.incidencias.EstadoIncidencia;
+import construtrack.modelo.incidencias.Incidencia;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Editor del sistema: registra, modifica y elimina empleados y supervisores, y les asigna supervisor.
  */
-public class Jefe extends Usuario {
+public class Jefe extends Usuario implements RevisorIncidencias {
+
+    public static final String ROL = "Jefe";
 
     /** Clave de paso al recrear un usuario con otro rol; se reemplaza enseguida por su resumen real. */
     private static final String CLAVE_TEMPORAL = "temporal";
 
     private Empresa empresa;
+    private java.time.Clock reloj = java.time.Clock.systemDefaultZone();
 
     public Jefe(String cedula, String nombre, String clave, Horario horario) {
         super(cedula, nombre, clave, horario);
@@ -20,7 +27,7 @@ public class Jefe extends Usuario {
 
     @Override
     public String getRol() {
-        return "Jefe";
+        return ROL;
     }
 
     /** La empresa la asigna al agregar al jefe con Empresa.agregarUsuario. */
@@ -45,7 +52,7 @@ public class Jefe extends Usuario {
         }
         empresa.agregarUsuario(nuevo);
         if ("true".equals(datos.get("presente"))) {
-            nuevo.marcarEntrada();
+            nuevo.marcarEntrada(LocalDateTime.now(reloj));
         }
         return nuevo;
     }
@@ -96,9 +103,9 @@ public class Jefe extends Usuario {
         if (datos.containsKey("presente")) {
             boolean presente = "true".equals(datos.get("presente"));
             if (presente && !usuario.estaPresente()) {
-                usuario.marcarEntrada();
+                usuario.marcarEntrada(LocalDateTime.now(reloj));
             } else if (!presente && usuario.estaPresente()) {
-                usuario.marcarSalida();
+                usuario.marcarSalida(LocalDateTime.now(reloj));
             }
         }
         return usuario;
@@ -126,8 +133,7 @@ public class Jefe extends Usuario {
     private Usuario cambiarRol(Usuario anterior, String rol) {
         verificarRolGestionable(rol);
         Usuario nuevo = Usuario.crear(rol, anterior.getCedula(), anterior.getNombre(), CLAVE_TEMPORAL, anterior.getHorario());
-        nuevo.restaurarClaveResumen(anterior.getClaveResumen());
-        nuevo.copiarAsistenciaDe(anterior);
+        nuevo.copiarEstadoDe(anterior);
         empresa.eliminarUsuario(anterior.getCedula());
         empresa.agregarUsuario(nuevo);
         return nuevo;
@@ -144,8 +150,23 @@ public class Jefe extends Usuario {
     }
 
     private void verificarRolGestionable(String rol) {
-        if (!"Empleado".equals(rol) && !"Supervisor".equals(rol)) {
+        if (!Empleado.ROL.equals(rol) && !Supervisor.ROL.equals(rol)) {
             throw new DatoInvalidoException("El jefe solo puede gestionar usuarios con rol Empleado o Supervisor.");
         }
+    }
+
+    @Override
+    public boolean puedeReportarPara(Usuario afectado) {
+        return true;
+    }
+
+    @Override
+    public boolean puedeRevisar(Incidencia incidencia) {
+        return !(incidencia.getAfectado() instanceof Jefe);
+    }
+
+    @Override
+    public void revisar(Incidencia incidencia, EstadoIncidencia nuevo, String comentario, LocalDateTime ahora) {
+        revisarComo(this, incidencia, nuevo, comentario, ahora);
     }
 }
