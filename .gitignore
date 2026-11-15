@@ -16,7 +16,8 @@ hs_err_pid*
 # ── Datos generados en tiempo de ejecución ───────
 # El servidor crea este archivo con datos de prueba si no existe.
 datos_construtrack.txt
-reportes/
+/reportes/
+/ConstruTrack/reportes/
 
 # ── Documentación generada (tools/generador) ─────
 salida/
