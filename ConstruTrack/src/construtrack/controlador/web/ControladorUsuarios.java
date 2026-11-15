@@ -13,7 +13,15 @@ public class ControladorUsuarios implements ControladorWeb {
 
     @Override
     public void registrarRutas(Enrutador enrutador) {
-        enrutador.get("/api/usuarios", p -> Respuesta.json(JsonMapper.usuarios(personal.listarVisibles(p.usuario()))))
+        enrutador.get("/api/personal/opciones", p -> {
+                    p.usuario();
+                    String supervisores = Json.lista(personal.listarSupervisores(), s -> new JsonObjeto()
+                            .texto("cedula", s.getCedula()).texto("nombre", s.getNombre()).toString());
+                    String obras = Json.lista(personal.listarObras(), o -> new JsonObjeto()
+                            .texto("codigo", o.getCodigo()).texto("nombre", o.getNombre()).toString());
+                    return Respuesta.json(new JsonObjeto().crudo("supervisores", supervisores).crudo("obras", obras).toString());
+                })
+                .get("/api/usuarios", p -> Respuesta.json(JsonMapper.usuarios(personal.listarVisibles(p.usuario()))))
                 .post("/api/usuarios", p -> Respuesta.creado(
                         JsonMapper.usuario(personal.registrar(p.usuario(), p.cuerpo()), false)))
                 .get("/api/usuarios/{cedula}", p -> Respuesta.json(

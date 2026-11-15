@@ -61,6 +61,12 @@ public class ServicioIncidencias extends ServicioBase {
         });
     }
 
+    /** Indica si el usuario tiene autoridad para revisar esa incidencia (y si todavía se puede revisar). */
+    public boolean puedeRevisar(Usuario actual, Incidencia incidencia) {
+        return actual instanceof construtrack.modelo.RevisorIncidencias r && r.puedeRevisar(incidencia)
+                && !incidencia.getEstado().esFinal();
+    }
+
     /** Incidencias que el usuario puede ver: las suyas, las de su equipo (supervisor) o todas (jefe). */
     public List<Incidencia> listarVisibles(Usuario actual) {
         return leer(() -> {

@@ -59,6 +59,15 @@ public class ServicioPersonal extends ServicioBase {
         });
     }
 
+    /** Cifras públicas para la portada: total de personas y cuántas están ahora en la obra. */
+    public int[] contarPersonalYPresentes() {
+        return leer(() -> new int[] {empresa.listarUsuarios().size(), empresa.contarPresentes()});
+    }
+
+    public java.time.LocalDate hoy() {
+        return java.time.LocalDate.now(reloj);
+    }
+
     public List<Obra> listarObras() {
         return leer(empresa::listarObras);
     }

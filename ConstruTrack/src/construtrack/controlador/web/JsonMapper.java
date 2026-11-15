@@ -115,9 +115,10 @@ public final class JsonMapper {
         return new JsonObjeto().texto("mensaje", mensaje).crudo("usuario", datosJson).toString();
     }
 
-    public static String incidencia(Incidencia i) {
+    public static String incidencia(Incidencia i, boolean puedoRevisar) {
         Usuario revisor = i.getRevisor();
         return new JsonObjeto()
+                .logico("puedoRevisar", puedoRevisar)
                 .numero("id", i.getId())
                 .texto("tipo", i.getCodigoTipo())
                 .texto("nombreTipo", i.getNombreTipo())

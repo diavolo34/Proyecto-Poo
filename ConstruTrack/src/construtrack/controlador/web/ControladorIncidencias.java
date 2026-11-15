@@ -20,14 +20,29 @@ public class ControladorIncidencias implements ControladorWeb {
 
     @Override
     public void registrarRutas(Enrutador enrutador) {
-        enrutador.get("/api/incidencias", this::listar)
+        enrutador.get("/api/incidencias/opciones", this::opciones)
+                .get("/api/incidencias", this::listar)
                 .post("/api/incidencias", this::reportar)
                 .put("/api/incidencias/{id}/revision", this::revisar);
     }
 
     private Respuesta listar(Peticion p) {
-        List<Incidencia> lista = incidencias.listarVisibles(p.usuario());
-        return Respuesta.json(Json.lista(lista, JsonMapper::incidencia));
+        Usuario actual = p.usuario();
+        List<Incidencia> lista = incidencias.listarVisibles(actual);
+        lista.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
+        return Respuesta.json(Json.lista(lista, i -> JsonMapper.incidencia(i, incidencias.puedeRevisar(actual, i))));
+    }
+
+    /** Tipos de incidencia y personas para las que el usuario puede reportar (llenan los selectores). */
+    private Respuesta opciones(Peticion p) {
+        Usuario actual = p.usuario();
+        JsonObjeto tipos = new JsonObjeto();
+        incidencias.tipos().forEach(tipos::texto);
+        String personas = Json.lista(incidencias.personasReportables(actual), u -> new JsonObjeto()
+                .texto("cedula", u.getCedula())
+                .texto("nombre", u == actual ? u.getNombre() + " (yo)" : u.getNombre() + " · " + u.getRol())
+                .toString());
+        return Respuesta.json(new JsonObjeto().crudo("tipos", tipos.toString()).crudo("personas", personas).toString());
     }
 
     private Respuesta reportar(Peticion p) {
@@ -39,7 +54,7 @@ public class ControladorIncidencias implements ControladorWeb {
         }
         Incidencia nueva = incidencias.reportar(actual, datos.get("codigoTipo"), datos.get("cedula"),
                 fecha(datos.get("desde")), fecha(datos.get("hasta")), datos.get("descripcion"), extras);
-        return Respuesta.creado(JsonMapper.incidencia(nueva));
+        return Respuesta.creado(JsonMapper.incidencia(nueva, false));
     }
 
     private Respuesta revisar(Peticion p) {

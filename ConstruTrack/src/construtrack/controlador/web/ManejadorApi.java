@@ -37,7 +37,8 @@ public class ManejadorApi implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         // CORS: permite que la página publicada en otro dominio (Netlify) use esta API
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", origenPermitido);
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", origenPara(exchange));
+        exchange.getResponseHeaders().add("Vary", "Origin");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
         exchange.getResponseHeaders().add("Access-Control-Expose-Headers", "Content-Disposition");
@@ -47,6 +48,23 @@ public class ManejadorApi implements HttpHandler {
             return;
         }
         enviar(exchange, atender(new Peticion(exchange, sesiones)));
+    }
+
+    /**
+     * Origen autorizado para esta petición: "*" si se permite cualquiera, o el mismo origen del navegador
+     * si está en la lista configurada (CORS_ORIGEN admite varios separados por coma).
+     */
+    private String origenPara(HttpExchange exchange) {
+        if ("*".equals(origenPermitido)) {
+            return "*";
+        }
+        String origen = exchange.getRequestHeaders().getFirst("Origin");
+        for (String permitido : origenPermitido.split(",")) {
+            if (permitido.trim().equals(origen)) {
+                return origen;
+            }
+        }
+        return origenPermitido.split(",")[0].trim();
     }
 
     private Respuesta atender(Peticion peticion) {
