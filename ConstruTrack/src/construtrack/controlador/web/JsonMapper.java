@@ -98,6 +98,49 @@ public final class JsonMapper {
                 .toString();
     }
 
+    public static String alerta(construtrack.modelo.alertas.Alerta a) {
+        return new JsonObjeto()
+                .texto("nivel", a.getNivel().getNombre())
+                .texto("cedula", a.getCedula())
+                .texto("nombre", a.getNombre())
+                .texto("mensaje", a.getMensaje())
+                .texto("generada", a.getGenerada())
+                .toString();
+    }
+
+    public static String estadisticas(construtrack.modelo.Estadisticas e) {
+        JsonObjeto incidencias = new JsonObjeto();
+        e.incidenciasPorTipo().forEach(incidencias::numero);
+        return new JsonObjeto()
+                .texto("periodo", e.getPeriodo())
+                .numero("tasaAsistencia", redondear(e.tasaAsistencia()))
+                .numero("porcentajePuntualidad", redondear(e.porcentajePuntualidad()))
+                .numero("minutosTrabajados", e.minutosTrabajados())
+                .crudo("incidenciasPorTipo", incidencias.toString())
+                .crudo("personas", Json.lista(e.ranking(), JsonMapper::resumen))
+                .toString();
+    }
+
+    private static String resumen(construtrack.modelo.Estadisticas.Resumen r) {
+        return new JsonObjeto()
+                .texto("cedula", r.cedula())
+                .texto("nombre", r.nombre())
+                .texto("rol", r.rol())
+                .numero("laborables", r.laborables())
+                .numero("asistencias", r.asistencias())
+                .numero("tasaAsistencia", redondear(r.tasaAsistencia()))
+                .numero("retardos", r.retardos())
+                .numero("ausencias", r.ausencias())
+                .numero("justificadas", r.justificadas())
+                .numero("puntualidad", redondear(r.puntualidad()))
+                .numero("minutos", r.minutos())
+                .toString();
+    }
+
+    private static double redondear(double valor) {
+        return Math.round(valor * 10) / 10.0;
+    }
+
     public static String ok() {
         return "{\"status\":\"ok\"}";
     }

@@ -20,7 +20,9 @@ public class ServidorWeb {
                 new ControladorSesion(servicios.autenticacion(), sesiones),
                 new ControladorAsistencia(servicios.asistencia()),
                 new ControladorUsuarios(servicios.personal()),
-                new ControladorIncidencias(servicios.incidencias()));
+                new ControladorIncidencias(servicios.incidencias()),
+                new ControladorSupervision(servicios.supervision()),
+                new ControladorReportes(servicios.supervision()));
         servidor = HttpServer.create(new InetSocketAddress(puerto), 0);
         servidor.createContext("/api/", new ManejadorApi(sesiones, controladores, origenPermitido));
         servidor.createContext("/", new ArchivosEstaticos());

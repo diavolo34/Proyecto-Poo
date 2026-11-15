@@ -69,7 +69,10 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                 if (!e.trabajaEl(dia) || dia.getDayOfWeek() == DayOfWeek.SUNDAY) {
                     continue;
                 }
-                boolean retardo = (dia.getDayOfMonth() + i) % 5 == 0;
+                // Pedro (tercer empleado) llega tarde tres veces esta semana: caso de demostración de la alerta
+                boolean retardo = i == 2
+                        ? !dia.isBefore(hoy.with(DayOfWeek.MONDAY)) && dia.getDayOfWeek().getValue() <= 3
+                        : (dia.getDayOfMonth() + i) % 5 == 0;
                 boolean falta = (dia.getDayOfMonth() * 3 + i) % 11 == 0;
                 if (!falta) {
                     String entrada = retardo ? "07:25" : "06:5" + (i % 10);
