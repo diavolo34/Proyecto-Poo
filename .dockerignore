@@ -1,0 +1,7 @@
+.git
+docs
+tools
+**/build
+**/dist
+**/nbproject/private
+datos_construtrack.txt

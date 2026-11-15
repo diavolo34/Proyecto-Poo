@@ -1,0 +1,13 @@
+# Blueprint de Render: publica el servidor Java (API + páginas) desde este repositorio.
+# En Render: New + → Blueprint → elige este repositorio → Apply.
+services:
+  - type: web
+    name: construtrack-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/estado
+    envVars:
+      # Sitios que pueden usar la API desde el navegador (separados por coma)
+      - key: CORS_ORIGEN
+        value: https://startling-toffee-914e34.netlify.app,https://diavolo34.github.io

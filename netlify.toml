@@ -1,0 +1,10 @@
+# Netlify publica solo la vista web (HTML, CSS y JavaScript); el servidor Java está en Render.
+[build]
+  publish = "ConstruTrack/src/construtrack/vista/web"
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
