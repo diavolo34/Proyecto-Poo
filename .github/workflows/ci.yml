@@ -21,6 +21,12 @@ jobs:
           javac --release 17 -encoding UTF-8 -Xlint:all -Werror -d out $(find ConstruTrack/src -name "*.java")
           (cd ConstruTrack/src && find . -type f ! -name "*.java" -exec cp --parents {} ../../out/ \;)
 
+      - name: Pruebas unitarias (JUnit 5)
+        run: |
+          curl -sSfLo junit.jar https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar
+          javac --release 17 -encoding UTF-8 -Xlint:all -Werror -cp out:junit.jar -d out-test $(find ConstruTrack/test -name "*.java")
+          java -jar junit.jar execute -cp out:out-test --scan-class-path --disable-banner --details=tree --fail-if-no-tests
+
       - name: Prueba de humo de la API
         run: |
           java -cp out construtrack.App --sin-ventana &
