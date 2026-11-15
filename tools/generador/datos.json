@@ -1,0 +1,13 @@
+{
+  "universidad": "Universidad Católica Andrés Bello",
+  "materia": "Algoritmos y Programación III",
+  "titulo": "ConstruTrack: Sistema de Gestión de Personal en Obra",
+  "subtitulo": "Página web con chatbot, registro de empleados y control de asistencia por roles",
+  "integrantes": [
+    "Francisco Javier Manzano Valero"
+  ],
+  "profesora": "",
+  "fecha": "Noviembre 2026",
+  "url_publicacion": "",
+  "herramienta_ia": "Claude (Anthropic), modelo Claude Opus 5.5, usado a través de Claude Code (aplicación de escritorio)"
+}
