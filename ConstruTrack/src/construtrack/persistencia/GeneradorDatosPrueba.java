@@ -96,7 +96,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                     e.agregarAsistencia(registro(dia, entrada, "16:0" + (i % 9), retardo));
                 }
             }
-            if (i % 2 == 0) {
+            if (i % 2 == 0 && e.trabajaEl(hoy)) {
                 e.agregarAsistencia(registro(hoy, i == 4 ? "07:25" : "06:58", null, i == 4));
                 e.setPresente(true);
             }

@@ -56,9 +56,9 @@ function dibujarApp(vista) {
       <header class="barra-superior">
         <a class="marca" href="index.html">${LOGO} ConstruTrack</a>
         <span class="espacio"></span>
-        <span class="ocultar-movil">${esc(u.nombre)}</span>${chipRol(u.rol)}
+        <span class="ocultar-movil">${esc(u.nombre)}</span><span class="ocultar-movil">${chipRol(u.rol)}</span>
         <span class="avatar" aria-hidden="true">${esc(iniciales(u.nombre))}</span>
-        <button class="btn btn-secundario btn-chico" id="cerrar-sesion">Cerrar sesión</button>
+        <button class="btn btn-secundario btn-chico" id="cerrar-sesion" aria-label="Cerrar sesión">Salir</button>
       </header>
       <nav class="lateral" aria-label="Menú principal">
         ${grupos.map((g) => `<div class="titulo-lateral">${esc(g)}</div>` + disponibles.filter((v) => v.grupo === g).map((v) =>

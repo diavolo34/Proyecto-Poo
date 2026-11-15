@@ -129,6 +129,7 @@ tbody tr:hover { background: #fafbfc; }
 .vacio { text-align: center; color: var(--texto-suave); padding: 28px; }
 
 .cifras { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.cifras-3 { grid-template-columns: repeat(3, 1fr); }
 .cifra { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 16px; }
 .cifra .valor { font-size: 30px; font-weight: 700; line-height: 1.1; }
 .cifra .descripcion { color: var(--texto-suave); font-size: 13px; }
@@ -155,7 +156,7 @@ tbody tr:hover { background: #fafbfc; }
 }
 .cabecera-publica .contenedor { display: flex; align-items: center; gap: 24px; height: 64px; }
 .marca { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; color: var(--texto); text-decoration: none; }
-.marca .logo { width: 30px; height: 30px; }
+.marca .logo { width: 30px; height: 30px; flex: none; }
 .nav-publica { display: flex; gap: 4px; flex: 1; }
 .nav-publica a { color: var(--texto); text-decoration: none; font-weight: 600; font-size: 14px; padding: 8px 10px; border-radius: 6px; }
 .nav-publica a:hover { background: var(--gris-suave); }
@@ -311,6 +312,10 @@ tbody tr:hover { background: #fafbfc; }
   .rejilla-3, .rejilla-4, .cifras, .fila { grid-template-columns: 1fr; }
   .franja-cta { flex-direction: column; align-items: flex-start; }
   .barra-superior .ocultar-movil { display: none; }
+  .barra-superior { gap: 8px; padding: 0 10px; }
+  .barra-superior .marca { font-size: 16px; }
+  .cifras-3 { grid-template-columns: repeat(3, 1fr); }
+  .cifra .valor { font-size: 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

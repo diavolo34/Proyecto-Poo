@@ -50,7 +50,7 @@ async function vistaAsistencia() {
       </section>
       <section class="tarjeta" aria-labelledby="t-semana">
         <h2 id="t-semana">Esta semana</h2>
-        <div class="cifras" style="grid-template-columns:repeat(3,1fr)">
+        <div class="cifras cifras-3">
           <div class="cifra"><div class="valor">${semana.length}</div><div class="descripcion">Jornadas</div></div>
           <div class="cifra"><div class="valor">${tardes}</div><div class="descripcion">Llegadas tarde</div></div>
           <div class="cifra"><div class="valor">${puntualidad}%</div><div class="descripcion">Puntualidad</div></div>
