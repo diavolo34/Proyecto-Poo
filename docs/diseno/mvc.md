@@ -1,0 +1,60 @@
+# Arquitectura MVC de ConstruTrack
+
+ConstruTrack separa el sistema en **Modelo, Vista y Controlador**. La prueba de que la separación es real es que
+**existen dos vistas distintas —escritorio (Swing) y web— que usan exactamente el mismo modelo y los mismos
+servicios**, en el mismo proceso: lo que el Jefe aprueba en la ventana Swing aparece al instante en el navegador.
+
+![Paquetes MVC](../diagramas/img/paquetes_mvc.svg)
+
+## Las capas
+
+| Capa | Paquete | Responsabilidad | Ejemplos |
+|------|---------|-----------------|----------|
+| **Modelo · dominio** | `construtrack.modelo` (+ `incidencias`, `alertas`, `reportes`, `excepciones`) | Reglas del negocio. No conoce Swing, HTTP ni JSON. | `Usuario`, `Historial`, `Incidencia`, `Invitacion`, `MonitorSupervision` |
+| **Modelo · casos de uso** | `construtrack.servicio` | Orquesta el dominio, aplica permisos, sincroniza y guarda. | `ServicioIncidencias`, `ServicioSupervision`, `ServicioRegistro` |
+| **Modelo · persistencia** | `construtrack.persistencia` | Lee y escribe los datos detrás de interfaces. | `EscritorDatos`, `RepositorioArchivo` |
+| **Controlador** (escritorio) | `construtrack.controlador.swing` | Recibe la vista, registra sus eventos y llama a los servicios. | `ControladoraIncidencias`, `ControladoraTablero` |
+| **Controlador** (web) | `construtrack.controlador.web` | Traduce peticiones HTTP en llamadas a servicios y respuestas JSON. | `Enrutador`, `ControladorIncidencias`, `JsonMapper` |
+| **Vista** (escritorio) | `construtrack.vista.swing` | Construye y expone los componentes; sin lógica de negocio. | `VentanaLogin`, `PanelTablero`, `Tema` |
+| **Vista** (web) | `construtrack/vista/web` | HTML, CSS y JavaScript que consumen la API. | `index.html`, `app.html`, `js/vistas.js` |
+
+## Cómo fluye una acción (aprobar una incidencia)
+
+```
+[Vista]        PanelTablero: el supervisor pulsa «Aprobar»
+                   │ evento (ActionListener)
+[Controlador]  ControladoraTablero.accion(...) → incidencias.revisar(usuario, id, APROBADA, comentario)
+                   │
+[Modelo]       ServicioIncidencias.revisar → Supervisor.revisar → Incidencia.registrarRevision → EstadoIncidencia.puedePasarA
+                   │ guarda con EscritorDatos
+[Controlador]  alCambiar.run() → cada controladora vuelve a pedir datos al modelo
+[Vista]        las tarjetas se redibujan en su nueva columna
+```
+
+En la web el recorrido es el mismo, cambiando solo los extremos: `js/vistas.js` → `PUT /api/incidencias/{id}/revision`
+→ `ControladorIncidencias` → **el mismo** `ServicioIncidencias.revisar`.
+
+## El patrón de la materia: Vista → Controladora
+
+Siguiendo el ejemplo `VentanaCombo` / `Controladora` visto en clase, cada pantalla Swing tiene su controladora,
+que **recibe la vista por constructor** y maneja su comportamiento:
+
+```java
+// controlador/swing/ControladoraIncidencias.java
+public ControladoraIncidencias(PanelIncidencias vista, ServicioIncidencias incidencias, Usuario usuario, Runnable alCambiar) {
+    this.vista = vista;
+    ...
+    llenarCombos();                                                   // como llenar_combo() del ejemplo
+    vista.getCboTipo().addActionListener(e -> mostrarCamposDelTipo()); // combo dependiente
+    vista.getBtnReportar().addActionListener(e -> reportar());
+}
+```
+
+La vista (`PanelIncidencias`) solo crea los componentes y ofrece *getters*; nunca valida fechas ni decide permisos.
+
+## Por qué sirve
+
+- **Independencia:** se reescribió por completo la vista web (Sprint 5) sin tocar una línea del modelo.
+- **Reutilización:** las reglas (por ejemplo, «solo el supervisor del empleado puede aprobar») están una sola vez,
+  en `Supervisor.puedeRevisar`, y las dos vistas las respetan.
+- **Pruebas:** el modelo y los servicios se prueban sin interfaz gráfica (`ConstruTrack/test`, 26 pruebas JUnit).
