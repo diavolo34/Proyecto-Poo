@@ -1,60 +1,41 @@
-# ConstruTrack · ConstruTrack
+# ConstruTrack · proyecto NetBeans
 
-Página web de gestión de personal en obra con chatbot, registro de empleados y control de asistencia por roles.
+Proyecto Java SE (Ant) sin dependencias externas. La clase principal es `construtrack.App`.
 
-## Ejecutar (NetBeans)
+## Ejecutar
 
-1. Abrir esta carpeta como proyecto en NetBeans y ejecutar (Run / F6).
-2. Abrir **http://localhost:8080** en el navegador.
-3. Los datos se guardan en `datos_construtrack.txt` (en la carpeta del proyecto). Si se borra, al iniciar se crean de nuevo los datos de prueba.
+1. Abrir esta carpeta en NetBeans (`File → Open Project…`).
+2. **Run** (F6). Se abre la ventana de escritorio y el servidor queda en http://localhost:8080
+   (portada en `/`, sistema en `/app.html`).
+3. Los datos se guardan en `datos_construtrack.txt` (en esta carpeta). Si lo borras, se regeneran los datos de prueba.
 
-## Usuarios de prueba
+Variables de entorno opcionales: `PORT` (puerto, 8080), `DATOS` (archivo de datos) y `CORS_ORIGEN` (dominios autorizados,
+separados por coma). Argumento `--sin-ventana` para levantar solo el servidor.
 
-| Rol        | Nombre        | Cédula   | Clave    |
-|------------|---------------|----------|----------|
-| Jefe       | Carlos Méndez | 10000001 | jefe123  |
-| Supervisor | Ana Rodríguez | 20000001 | super123 |
-| Supervisor | Luis Pérez    | 20000002 | super123 |
-| Empleado   | José García   | 30000001 | emp123   |
+## Pruebas
 
-Hay 6 empleados (cédulas 30000001 a 30000006, clave `emp123`).
+`test/construtrack/` contiene 26 pruebas JUnit 5. En NetBeans: *Test Project* (Alt+F6) con la biblioteca **JUnit 5**.
+Por terminal:
 
-## Publicar la página (URL pública)
-
-Subir la carpeta `src/construtrack/vista/web` a **Netlify Drop** (app.netlify.com/drop) o a un repositorio de **GitHub Pages**.
-Sin el servidor Java la página funciona en *modo demostración*: `js/servidorLocal.js` aplica las mismas reglas del servidor
-y guarda los datos en el navegador.
-
-## Estructura
-
-```
-src/construtrack/
-  ConstruTrack.java        Punto de entrada: levanta el servidor en el puerto 8080
-  ControladorApi.java      Rutas /api/... y permisos por rol
-  ArchivosEstaticos.java   Sirve la página web
-  GestorSesiones.java      Sesiones (token)
-  BaseDatos.java           Lectura/escritura de datos_construtrack.txt y datos de prueba
-  Json.java                Lectura/escritura de JSON sin librerías
-  Usuario.java (abstracta), Empleado.java, Supervisor.java, Jefe.java
-  Horario.java, RegistroAsistencia.java, Empresa.java
-  web/
-    index.html
-    js/app.js              Interfaz (paneles de Empleado, Supervisor y Jefe)
-    js/api.js              Acceso a datos (servidor Java o modo demostración)
-    js/chatbot.js          Chatbot de RRHH
-    js/servidorLocal.js    Modo demostración
+```bash
+javac --release 17 -encoding UTF-8 -d out $(find src -name "*.java")
+javac --release 17 -encoding UTF-8 -cp out:junit-platform-console-standalone.jar -d out-test $(find test -name "*.java")
+java -jar junit-platform-console-standalone.jar execute -cp out:out-test --scan-class-path
 ```
 
-## API
+## Paquetes
 
-| Método | Ruta | Quién |
-|--------|------|-------|
-| GET | /api/estado | público |
-| POST | /api/login · /api/logout | público / con sesión |
-| GET | /api/yo | con sesión |
-| POST | /api/asistencia/entrada (también /api/obra/checkin) · /api/asistencia/salida | con sesión |
-| GET | /api/usuarios | Jefe (todos) · Supervisor (sus empleados) |
-| GET | /api/usuarios/{cedula} | Jefe · Supervisor (sus empleados) · el propio usuario |
-| POST · PUT · DELETE | /api/usuarios[/{cedula}] | Jefe |
-
-> Las claves se guardan en texto plano porque es un proyecto académico de demostración.
+| Paquete | Contenido |
+|---------|-----------|
+| `construtrack` | `App`: arma las dependencias y arranca las dos vistas |
+| `modelo` | `Usuario` (abstracta), `Empleado`, `Supervisor`, `Jefe`, `Horario`, `Historial`, `RegistroAsistencia`, `Empresa`, `Obra`, `Periodo`, `Cuenta`, `Invitacion`, `CodigoInvitacion`, `Estadisticas` |
+| `modelo.incidencias` | `Incidencia` (abstracta) y 5 tipos, `EstadoIncidencia`, `Gravedad`, `Justificable`, `FabricaIncidencias` |
+| `modelo.alertas` | `ReglaAlerta` y 3 reglas, `Alerta`, `MonitorSupervision` |
+| `modelo.reportes` | `Reporte` (Template Method) y 3 reportes, `Documento`, `FormateadorReporte` (CSV y texto) |
+| `modelo.excepciones` | Errores del negocio (dato inválido, permiso denegado, no encontrado, operación inválida…) |
+| `servicio` | Casos de uso: autenticación, asistencia, personal, incidencias, supervisión, registro, invitaciones |
+| `persistencia` | `LectorDatos`, `EscritorDatos`, `RepositorioArchivo`, `RepositorioMemoria`, `GeneradorDatosPrueba` |
+| `controlador.swing` | Una `Controladora` por pantalla y `AplicacionSwing` |
+| `controlador.web` | `ServidorWeb`, `ManejadorApi`, `Enrutador`, controladores por recurso, `JsonMapper` |
+| `vista.swing` | `Tema`, ventanas, paneles, diálogos y gráfico de barras |
+| `vista/web` | `index.html` (portada), `app.html` (sistema), `css/estilos.css`, `js/` |

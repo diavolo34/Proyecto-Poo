@@ -1,169 +1,179 @@
 # ConstruTrack · Gestión de personal en obra
 
 [![CI](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml/badge.svg)](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml)
-![Java](https://img.shields.io/badge/Java-21%2B-orange?logo=openjdk)
-![NetBeans](https://img.shields.io/badge/IDE-NetBeans-1B6AC6?logo=apachenetbeanside)
-![Sin dependencias](https://img.shields.io/badge/dependencias-0-brightgreen)
-![UML](https://img.shields.io/badge/UML-PlantUML-blueviolet)
+![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=openjdk)
+![Pruebas](https://img.shields.io/badge/JUnit%205-26%20pruebas-brightgreen)
+![Arquitectura](https://img.shields.io/badge/arquitectura-MVC%20%2B%20SOLID-blue)
+![Dependencias](https://img.shields.io/badge/dependencias-0-brightgreen)
 
-Sistema web para una empresa de construcción que **registra al personal de obra, controla su asistencia y ofrece un panel distinto para cada rol** (Empleado, Supervisor y Jefe), con un chatbot de Recursos Humanos integrado.
+Sistema para una empresa de construcción que **controla la asistencia del personal de obra, gestiona sus incidencias
+(reposos médicos, permisos, retardos, accidentes) y apoya al supervisor con alertas automáticas, estadísticas y reportes**.
+Tiene **dos vistas sobre el mismo modelo**: una aplicación de escritorio (Swing) y una aplicación web.
 
-Proyecto de **Programación Orientada a Objetos** (Programación Orientada a Objetos, UCAB). El backend es un servidor HTTP escrito en **Java puro, sin librerías externas**, diseñado con herencia, polimorfismo, encapsulamiento y separación por capas.
+Proyecto de **Programación Orientada a Objetos** (UCAB). Backend en **Java puro, sin librerías externas**, diseñado con
+herencia, polimorfismo, interfaces, composición y los principios **SOLID**, en una arquitectura **MVC por capas**.
 
-![Panel del Jefe](docs/capturas/02_jefe.png)
-
----
+![Portada web](docs/capturas/web_01_portada.png)
 
 ## Contenido
 
 - [Funcionalidades](#funcionalidades)
 - [Arquitectura](#arquitectura)
-- [Diseño orientado a objetos](#diseño-orientado-a-objetos)
 - [Cómo ejecutarlo](#cómo-ejecutarlo)
-- [API REST](#api-rest)
-- [Estructura del repositorio](#estructura-del-repositorio)
+- [Usuarios de prueba](#usuarios-de-prueba)
 - [Capturas](#capturas)
-- [Hoja de ruta](#hoja-de-ruta)
+- [Documentación](#documentación)
+- [API REST](#api-rest)
+- [Calidad](#calidad)
 
 ## Funcionalidades
 
 | Rol | Qué puede hacer |
 |-----|-----------------|
-| **Empleado** | Ver sus datos, horario e historial; marcar **entrada** y **salida** (se calcula la puntualidad con 10 min de tolerancia). |
-| **Supervisor** | Todo lo anterior + supervisar a **sus** empleados: presencia, hora de entrada de hoy, puntualidad, filtros e historial. |
-| **Jefe** | Administrar al personal: **registrar, editar, eliminar**, cambiar rol y horario, y asignar supervisor. |
-| **Visitante** | Información de la empresa y chatbot «Ayuda RRHH». |
+| **Visitante** | Ver la portada, consultar al asistente «Ayuda RRHH» y **crear su cuenta** con correo, nombre, apellido, cédula o DNI y teléfono. |
+| **Empleado** | Unirse a la empresa con un **código de invitación**, marcar entrada y salida (puntualidad con 10 min de tolerancia), ver su historial y **reportar incidencias**. |
+| **Supervisor** | Todo lo anterior + **tablero Kanban** para aprobar o rechazar las incidencias de su equipo, **alertas automáticas**, **estadísticas** y **reportes** en CSV o texto. |
+| **Jefe** | Todo lo anterior para toda la empresa + **gestionar al personal** y **crear invitaciones** de un solo uso con rol, supervisor y obra. |
 
-- **Permisos validados en el servidor**, no solo en la interfaz (`401`, `403`, `404`, `409`).
-- **Chatbot contextual**: responde preguntas de nómina, permisos y horarios; con sesión iniciada responde según el rol («¿quién llegó tarde hoy?», «marcar entrada»…).
-- **Persistencia** en archivo de texto (`datos_construtrack.txt`), con datos de prueba que se crean automáticamente.
-- **Modo demostración**: sin el servidor Java (por ejemplo en GitHub Pages) la página reproduce en el navegador las mismas rutas y reglas del servidor.
-- Interfaz **responsive** y en español.
+Reglas destacadas:
+- Un **reposo médico aprobado** justifica la falta; si está pendiente o rechazado, el día cuenta como ausencia.
+- Las **alertas** se generan solas: 3 o más retardos en la semana, faltas sin justificar e incidencias sin resolver por más de 48 h.
+- Los **permisos se validan en el servidor**: un supervisor solo ve y revisa a su equipo.
+- Las claves se guardan como **resumen SHA-256 con sal**, nunca en texto plano.
 
 ## Arquitectura
 
 ```mermaid
 flowchart LR
-    subgraph Navegador
-        UI[app.js<br/>vistas por rol] --> API[api.js<br/>acceso a datos]
-        BOT[chatbot.js] --> API
-        API -. sin servidor .-> DEMO[servidorLocal.js<br/>modo demostración<br/>localStorage]
+    subgraph Vista
+        SW[vista.swing<br/>VentanaLogin · Panel*]
+        WEB[vista/web<br/>index.html · app.html]
     end
-    API -- HTTP / JSON --> CTRL
-    subgraph "ConstruTrack (Java, puerto 8080)"
-        CTRL[ControladorApi<br/>rutas y permisos] --> SES[GestorSesiones]
-        CTRL --> EMP[Empresa]
-        EMP --> USR[Usuario y subclases<br/>Horario · RegistroAsistencia]
-        CTRL --> BD[BaseDatos]
-        EST[ArchivosEstaticos] -. sirve .-> UI
+    subgraph Controlador
+        CS[controlador.swing<br/>Controladora*]
+        CW[controlador.web<br/>Enrutador · Controlador* · JsonMapper]
     end
-    BD --> TXT[(datos_construtrack.txt)]
+    subgraph Modelo
+        SV[servicio<br/>casos de uso]
+        MD[modelo<br/>Usuario · Historial · Incidencia<br/>Invitacion · Alertas · Reportes]
+        PE[persistencia<br/>EscritorDatos · RepositorioArchivo]
+    end
+    SW -- eventos --> CS
+    WEB -- HTTP / JSON --> CW
+    CS --> SV
+    CW --> SV
+    SV --> MD
+    SV --> PE
 ```
 
-| Capa | Clases |
-|------|--------|
-| Dominio | `Usuario` *(abstracta)*, `Empleado`, `Supervisor`, `Jefe`, `Horario`, `RegistroAsistencia`, `Empresa` |
-| Aplicación / API | `ControladorApi`, `GestorSesiones` |
-| Infraestructura | `ConstruTrack` (punto de entrada), `BaseDatos`, `Json`, `ArchivosEstaticos` |
-| Presentación | `web/index.html`, `js/app.js`, `js/api.js`, `js/chatbot.js`, `js/servidorLocal.js` |
+- **Modelo** sin dependencias de la vista: las dos interfaces reutilizan exactamente las mismas reglas. Ver [docs/diseno/mvc.md](docs/diseno/mvc.md).
+- **SOLID** con ejemplos reales y su antes/después: [docs/diseno/solid.md](docs/diseno/solid.md).
+- **UX/UI**: las 10 heurísticas de Nielsen, leyes de Hick, Gestalt y Von Restorff, y WCAG con contrastes medidos: [docs/diseno/ux-ui.md](docs/diseno/ux-ui.md).
 
-## Diseño orientado a objetos
-
-<p align="center">
-  <img src="docs/diagramas/img/clases_dominio.svg" alt="Modelo de dominio" width="560">
-</p>
-
-- **Herencia y polimorfismo**: `Usuario` es abstracta y cada subclase implementa `getRol()` y sus propias responsabilidades (`Supervisor.verEmpleadosACargo()`, `Jefe.registrarUsuario()`…).
-- **Método fábrica**: `Usuario.crear(rol, …)` instancia la subclase correcta a partir del rol.
-- **Composición**: `Horario` y `RegistroAsistencia` no existen sin su `Usuario`.
-- **Agregación**: `Empresa` agrupa a los usuarios.
-- **Encapsulamiento**: validación en los *setters* (cédula de 6 a 9 dígitos, horas válidas, etc.).
-
-Todos los diagramas (casos de uso, clases y secuencia) están en [`docs/diagramas`](docs/diagramas), con su fuente PlantUML.
+<p align="center"><img src="docs/diagramas/img/clases_dominio.svg" alt="Modelo de dominio" width="760"></p>
 
 ## Cómo ejecutarlo
 
-### Requisitos
+### Con NetBeans (recomendado)
 
-- JDK 21 o superior. El proyecto de NetBeans está configurado con la versión de JDK del IDE.
-- Apache NetBeans (opcional).
+1. `File → Open Project…` → carpeta **`ConstruTrack`**.
+2. **Run** (F6): se abre la **ventana de escritorio** y el **servidor web** queda en http://localhost:8080
+   (portada en `/`, sistema en `/app.html`). No hace falta internet.
 
-### Con NetBeans
-
-1. `File → Open Project…` y seleccionar la carpeta **`ConstruTrack`**.
-2. Ejecutar con **Run** (`F6`).
-3. Abrir **http://localhost:8080**.
+Requisitos: JDK 17 o superior. Para correr las pruebas (*Test Project*), agrega la biblioteca JUnit 5 que trae NetBeans.
 
 ### Desde la terminal
 
 ```bash
 javac --release 17 -encoding UTF-8 -d out $(find ConstruTrack/src -name "*.java")
 (cd ConstruTrack/src && find . -type f ! -name "*.java" -exec cp --parents {} ../../out/ \;)
-java -cp out construtrack.App
+java -cp out construtrack.App            # servidor + ventana (usa --sin-ventana para solo el servidor)
 ```
 
-### Usuarios de prueba
+### En internet
 
-| Rol | Nombre | Cédula | Clave |
+El servidor Java se publica en **Render** (`Dockerfile` + `render.yaml`) y la página en **Netlify** (`netlify.toml`).
+Pasos en [docs/despliegue.md](docs/despliegue.md).
+
+## Usuarios de prueba
+
+| Rol | Correo | Cédula | Clave |
 |-----|--------|--------|-------|
-| Jefe | Carlos Méndez | `10000001` | `jefe123` |
-| Supervisor | Ana Rodríguez | `20000001` | `super123` |
-| Supervisor | Luis Pérez | `20000002` | `super123` |
-| Empleado | José García (+5: `30000002`…`30000006`) | `30000001` | `emp123` |
+| Jefe | `carlos.mendez@construtrack.demo` | `10000001` | `jefe123` |
+| Supervisora | `ana.rodriguez@construtrack.demo` | `20000001` | `super123` |
+| Supervisor | `luis.perez@construtrack.demo` | `20000002` | `super123` |
+| Empleado | `jose.garcia@construtrack.demo` (+5 más) | `30000001` … `30000006` | `emp123` |
+| Registrada sin empresa | `rosa.gutierrez@correo.com` | — | `rosa1234` |
 
-> Para volver a los datos iniciales, borra `datos_construtrack.txt` y reinicia el servidor. En modo demostración usa el botón «Restablecer datos de prueba».
+Código de invitación de prueba: **`CT-RQ7K-4M2P`** (Empleado, supervisora Ana, obra Torre Residencial Este).
+Para volver a los datos iniciales, borra `datos_construtrack.txt` y reinicia.
+
+## Capturas
+
+| Inicio de sesión | Tablero de incidencias |
+|---|---|
+| ![](docs/capturas/web_02_login_error.png) | ![](docs/capturas/web_07_tablero.png) |
+| **Supervisión: alertas y estadísticas** | **Invitaciones (Jefe)** |
+| ![](docs/capturas/web_08_supervision.png) | ![](docs/capturas/web_11_invitaciones.png) |
+| **Escritorio (Swing): supervisión** | **Escritorio (Swing): tablero** |
+| ![](docs/capturas/swing_02_supervision.png) | ![](docs/capturas/swing_03_tablero.png) |
+
+Más capturas en [docs/capturas](docs/capturas).
+
+## Documentación
+
+| Tema | Documento |
+|------|-----------|
+| Arquitectura MVC | [docs/diseno/mvc.md](docs/diseno/mvc.md) |
+| Principios SOLID | [docs/diseno/solid.md](docs/diseno/solid.md) |
+| Principios UX/UI | [docs/diseno/ux-ui.md](docs/diseno/ux-ui.md) |
+| Diagramas UML (casos de uso, clases, paquetes, secuencia) | [docs/diagramas](docs/diagramas) |
+| Scrum: backlog y sprints | [docs/scrum](docs/scrum) |
+| Despliegue (Render + Netlify) | [docs/despliegue.md](docs/despliegue.md) |
+| Herramienta de IA y prompts | [docs/prompts.md](docs/prompts.md) |
 
 ## API REST
 
+Autenticación con la cabecera `Authorization: Bearer <token>`; respuestas en JSON y errores como `{"error": "mensaje"}`
+con códigos 400, 401, 403, 404 o 409.
+
 | Método | Ruta | Acceso |
 |--------|------|--------|
-| `GET` | `/api/estado` | Público |
-| `POST` | `/api/login` | Público |
-| `POST` | `/api/logout` | Con sesión |
-| `GET` | `/api/yo` | Con sesión |
+| `GET` | `/api/estado` · `/api/publico` | Público |
+| `POST` | `/api/login` (correo o cédula) · `/api/registro` | Público |
+| `POST` | `/api/unirse` | Cuenta registrada |
+| `POST` | `/api/logout` · `GET /api/yo` | Con sesión |
 | `POST` | `/api/asistencia/entrada` · `/api/asistencia/salida` | Con sesión |
-| `GET` | `/api/usuarios` | Jefe (todos) · Supervisor (sus empleados) |
-| `GET` | `/api/usuarios/{cedula}` | Jefe · Supervisor (sus empleados) · el propio usuario |
-| `POST` `PUT` `DELETE` | `/api/usuarios[/{cedula}]` | Jefe |
+| `GET` `POST` | `/api/incidencias` · `GET /api/incidencias/opciones` | Con sesión (cada uno ve lo suyo o su equipo) |
+| `PUT` | `/api/incidencias/{id}/revision` | Supervisor del afectado · Jefe |
+| `GET` | `/api/estadisticas` · `/api/supervision/alertas` · `/api/reportes/{tipo}` | Supervisor (su equipo) · Jefe |
+| `GET` `POST` `PUT` `DELETE` | `/api/usuarios[/{cedula}]` · `GET /api/personal/opciones` | Jefe (Supervisor: solo lectura de su equipo) |
+| `GET` `POST` `DELETE` | `/api/invitaciones[/{codigo}]` | Jefe |
 
-Autenticación con cabecera `Authorization: Bearer <token>`. Las respuestas son JSON y los errores usan `{"error": "mensaje"}`.
+## Calidad
+
+- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **26 pruebas JUnit 5** y una prueba de humo de la API.
+- **Pruebas** del modelo, la persistencia y los servicios con reloj fijo; se comprobó que detectan errores introducidos a propósito.
+- Verificado en la interfaz real: recorridos de la web con Playwright, de Swing en pantalla virtual, y despliegue con Docker y CORS.
 
 ## Estructura del repositorio
 
 ```
-.
-├── ConstruTrack/                 Proyecto NetBeans (Ant)
-│   ├── src/construtrack/         Código Java (paquete construtrack)
-│   │   └── web/                  Interfaz web servida por el servidor
-│   ├── nbproject/  build.xml
-│   └── README.md
-├── docs/
-│   ├── diagramas/                UML en PlantUML + SVG/PNG
-│   ├── capturas/                 Capturas de la aplicación
-│   └── prompts.md                Prompts de IA utilizados
-├── tools/generador/              Scripts (Python + Playwright) del informe PDF
-└── .github/workflows/            CI (compilación + prueba de API) y GitHub Pages
+ConstruTrack/                 Proyecto NetBeans (Ant)
+  src/construtrack/
+    App.java                  Punto de entrada (composición de dependencias)
+    modelo/                   Dominio: usuarios, historial, incidencias, alertas, reportes, excepciones
+    servicio/                 Casos de uso
+    persistencia/             Repositorios y datos de prueba
+    controlador/swing|web/    Controladores de cada vista
+    vista/swing/              Ventanas y paneles Swing
+    vista/web/                Portada, aplicación web, CSS y JavaScript
+  test/construtrack/          Pruebas JUnit 5
+docs/                         Diseño, UML, Scrum, capturas, despliegue
+tools/generador/              Genera el PDF de entrega
+Dockerfile · render.yaml · netlify.toml
 ```
-
-## Capturas
-
-| Inicio | Supervisor |
-|--------|------------|
-| ![Inicio](docs/capturas/01_inicio.png) | ![Supervisor](docs/capturas/04_supervisor.png) |
-| **Registro de usuario (Jefe)** | **Chatbot** |
-| ![Registro](docs/capturas/03_registro.png) | ![Chatbot](docs/capturas/05_chatbot.png) |
-
-## Hoja de ruta
-
-- [x] **Entrega 1**: registro de usuarios, roles y permisos, asistencia, chatbot y diagramas UML.
-- [ ] Próximas entregas: nuevos temas de la materia.
-
-## Notas
-
-- Proyecto académico: las claves se guardan en texto plano a propósito, para simplificar la demostración. En producción se usaría un *hash* con sal (por ejemplo, bcrypt).
-- La documentación de la entrega incluye los prompts de IA usados ([`docs/prompts.md`](docs/prompts.md)), por transparencia.
 
 ## Autor
 
-**Francisco Manzano** · [@diavolo34](https://github.com/diavolo34)
-Universidad Católica Andrés Bello, Programación Orientada a Objetos
+**Francisco Manzano** · [@diavolo34](https://github.com/diavolo34) · Universidad Católica Andrés Bello · Programación Orientada a Objetos
