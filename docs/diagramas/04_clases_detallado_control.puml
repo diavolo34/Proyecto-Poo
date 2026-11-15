@@ -1,0 +1,145 @@
+@startuml clases_detallado_control
+' Diagrama de Clases - Modelo Detallado (2/2): servidor, persistencia, interfaz web y chatbot
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F4F8FF
+  BorderColor #1E40AF
+  ArrowColor #334155
+}
+skinparam stereotypeCBackgroundColor #DBEAFE
+hide circle
+hide <<ver modelo 1/2>> members
+left to right direction
+
+package "Servidor Java (paquete servidorobra)" {
+  class ServidorObra {
+    +{static} main(args: String[]): void
+  }
+
+  class ControladorApi <<HttpHandler>> {
+    -empresa: Empresa
+    -baseDatos: BaseDatos
+    -sesiones: GestorSesiones
+    --
+    +ControladorApi(empresa: Empresa, baseDatos: BaseDatos, sesiones: GestorSesiones)
+    +handle(exchange: HttpExchange): void
+    -enrutar(exchange: HttpExchange): String
+    -listarUsuarios(actual: Usuario): String
+    -verUsuario(actual: Usuario, cedula: String): String
+    -comoJefe(actual: Usuario): Jefe
+    -token(exchange: HttpExchange): String
+    -leerCuerpo(exchange: HttpExchange): String
+    -enviar(exchange: HttpExchange, codigo: int, json: String): void
+  }
+
+  class ArchivosEstaticos <<HttpHandler>> {
+    -{static} CARPETA: String = "/servidorobra/web"
+    --
+    +handle(exchange: HttpExchange): void
+    -tipoContenido(ruta: String): String
+  }
+
+  class GestorSesiones {
+    -sesiones: Map<String, String>
+    --
+    +iniciarSesion(usuario: Usuario): String
+    +obtenerUsuario(token: String, empresa: Empresa): Usuario
+    +cerrarSesion(token: String): void
+  }
+
+  class BaseDatos {
+    -archivo: Path
+    --
+    +BaseDatos(rutaArchivo: String)
+    +cargar(): Empresa
+    +guardar(empresa: Empresa): void
+    -crearDatosIniciales(): Empresa
+  }
+
+  class Json <<utilidad>> {
+    +{static} texto(valor: String): String
+    +{static} leerObjeto(json: String): Map<String, String>
+  }
+
+  class "Empresa" as Empresa <<ver modelo 1/2>>
+  class "Usuario" as Usuario <<ver modelo 1/2>>
+  class "Jefe" as Jefe <<ver modelo 1/2>>
+}
+
+package "Página web (carpeta web/js)" {
+  class InterfazWeb <<app.js>> {
+    -estado: Estado
+    --
+    +iniciarSesion(cedula: String, clave: String): void
+    +marcar(tipo: String): void
+    +recargar(): void
+    +dibujar(): void
+    +panelEmpleado(u: Usuario): String
+    +panelSupervisor(u: Usuario): String
+    +panelJefe(u: Usuario): String
+    +abrirFormulario(u: Usuario): void
+    +guardarFormulario(form: Formulario): void
+    +mostrarHistorial(cedula: String): void
+    +confirmarEliminacion(cedula: String): void
+    +aviso(mensaje: String, tipo: String): void
+  }
+
+  class Api <<api.js>> {
+    -modo: String
+    -base: String
+    -token: String
+    --
+    +iniciar(): void
+    +pedir(metodo: String, ruta: String, cuerpo: Objeto): Objeto
+    +iniciarSesion(cedula: String, clave: String): Usuario
+    +cerrarSesion(): void
+    +yo(): Usuario
+    +marcarEntrada(): Respuesta
+    +marcarSalida(): Respuesta
+    +listarUsuarios(): Usuario [0..*]
+    +verUsuario(cedula: String): Usuario
+    +registrarUsuario(datos: Objeto): Usuario
+    +modificarUsuario(cedula: String, datos: Objeto): Usuario
+    +eliminarUsuario(cedula: String): void
+  }
+
+  class ServidorLocal <<servidorLocal.js>> {
+    -datos: Objeto
+    --
+    +iniciar(): void
+    +atender(metodo: String, ruta: String, cuerpo: Objeto, token: String): Respuesta
+    +reiniciar(): void
+  }
+
+  class Chatbot <<chatbot.js>> {
+    -contexto: Objeto
+    --
+    +Chatbot(contexto: Objeto)
+    +sugerencias(): String [0..*]
+    +responder(mensaje: String): String
+    +marcar(tipo: String): String
+    +consultarPersonal(consulta: String): String
+  }
+}
+
+ServidorObra ..> ControladorApi : <<create>>
+ServidorObra ..> ArchivosEstaticos : <<create>>
+ServidorObra ..> BaseDatos : <<create>>
+ControladorApi "1" --> "1" Empresa : atiende >
+ControladorApi "1" --> "1" BaseDatos : guarda en >
+ControladorApi "1" --> "1" GestorSesiones : valida con >
+ControladorApi ..> Json
+ControladorApi ..> Jefe
+GestorSesiones ..> Usuario
+BaseDatos ..> Empresa : carga / guarda
+
+InterfazWeb "1" --> "1" Api : usa >
+InterfazWeb "1" *-- "1" Chatbot : contiene >
+Chatbot ..> Api
+Api ..> ControladorApi : HTTP /api/...\n(servidor Java)
+Api ..> ServidorLocal : modo demostración\n(sin servidor)
+@enduml

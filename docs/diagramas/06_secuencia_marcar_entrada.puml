@@ -1,0 +1,75 @@
+@startuml secuencia_marcar_entrada
+title Caso de uso: Marcar entrada (actor: Empleado) — incluye Verificar puntualidad
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam backgroundColor white
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam sequence {
+  LifeLineBorderColor #64748B
+  ParticipantBackgroundColor #F4F8FF
+  ParticipantBorderColor #1E40AF
+  ActorBackgroundColor #DBEAFE
+  ActorBorderColor #1E3A8A
+  GroupBorderColor #1E40AF
+}
+
+actor Empleado as Actor
+participant ":InterfazWeb" as UI
+participant ":Api" as API
+participant ":ControladorApi" as CTRL
+participant ":GestorSesiones" as SES
+participant "e:Empleado" as E
+participant "h:Horario" as H
+participant ":BaseDatos" as BD
+
+Actor -> UI : marcar("entrada")
+activate UI
+UI -> API : marcarEntrada()
+activate API
+API -> CTRL : handle(POST /api/asistencia/entrada)
+activate CTRL
+CTRL -> SES : obtenerUsuario(token, empresa)
+activate SES
+SES --> CTRL : e
+deactivate SES
+
+alt e = null (sesión no válida)
+  CTRL --> API : 401 {error: "Debes iniciar sesión."}
+  API --> UI : Error(mensaje)
+  UI --> Actor : aviso de error y vuelve al inicio de sesión
+else sesión válida
+  CTRL -> E : marcarEntrada()
+  activate E
+  alt presente = true
+    E --> CTRL : IllegalStateException("ya registró su entrada")
+    CTRL --> API : 409 {error}
+    API --> UI : Error(mensaje)
+    UI --> Actor : aviso de error
+  else presente = false
+    E -> H : esLlegadaTarde(horaActual)
+    activate H
+    H --> E : tarde
+    deactivate H
+    create participant "r:RegistroAsistencia" as R
+    E -> R : <<create>> RegistroAsistencia(hoy, horaActual, tarde)
+    E -> E : presente = true
+    E --> CTRL : r
+    deactivate E
+    CTRL -> BD : guardar(empresa)
+    activate BD
+    deactivate BD
+    CTRL -> R : getHoraEntrada()
+    R --> CTRL : hora
+    CTRL --> API : 200 {mensaje, usuario}
+    deactivate CTRL
+    API --> UI : respuesta
+    deactivate API
+    UI -> UI : aviso(mensaje)
+    UI -> UI : recargar()
+    UI --> Actor : estado "Presente" y hora de entrada
+  end
+end
+deactivate UI
+@enduml
