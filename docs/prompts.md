@@ -2,8 +2,44 @@
 
 Herramienta: **Claude (Anthropic)** a través de **Claude Code**.
 
-Este archivo documenta, de forma transparente, los prompts empleados en la entrega.
-`tools/generador/generar_pdf.py` lee los bloques ` ```text ` de este archivo para incluirlos en el PDF.
+Este archivo documenta, de forma transparente, cómo se usó la IA en cada entrega.
+`tools/generador/generar_pdf.py` incluye en el PDF la sección de la entrega 2.
+
+# Entrega 2
+
+El trabajo se hizo en sesiones de conversación con Claude Code sobre el repositorio, sprint por sprint. Estas fueron las
+**solicitudes principales** (resumidas) y el material de la materia que se entregó como contexto:
+
+```text
+1. Organizar el proyecto en GitHub de forma profesional, con commits ordenados, como lo haría un ingeniero en sistemas.
+2. Atender la corrección de la entrega 1:
+   - Es Programación Orientada a Objetos (no Algoritmos III).
+   - Darle profundidad al proyecto.
+   - En los diagramas de secuencia modelar solo clases del diagrama de clases (sin gestores ni APIs).
+   - La página debe ser operativa (no solo modo demostración).
+   - Falta la clase Historial y el registro de incidencias (por ejemplo, una falta por enfermedad).
+   - Apoyar la labor del supervisor con reportes, estadísticas e incidencias.
+3. Incluir en la entrega MVC (Modelo, Vista, Controlador), principios UX/UI (explicando por qué se aplican)
+   y principios SOLID (analizando y justificando su uso).
+4. Tomar como referencia visual la página de Jira (portada, inicio de sesión y tablero) y mejorar la interfaz.
+5. Registro de usuarios con correo, nombre, apellido, cédula o DNI y teléfono; unirse a la empresa con un código
+   de invitación; la cédula se usa dentro de la empresa.
+6. Quitar el modo demostración de la página publicada en Netlify.
+7. Continuar con el sprint de documentación (pruebas, UML, MVC, SOLID, UX/UI, Scrum) y dejar todo en GitHub.
+```
+
+```text
+Material de la materia usado como referencia:
+- Scrum: roles, sprints, artefactos y eventos (Product Backlog, Sprint Backlog, Review, Retrospectiva).
+- Componentes Swing y arquitectura MVC; ejemplo "ManejoDeCombosConControladora" (Vista → Controladora).
+- UX/UI 2026: 10 heurísticas de Nielsen, psicología cognitiva (Gestalt, Hick, Von Restorff), microinteracciones,
+  accesibilidad WCAG y UX en entornos ágiles; ejemplos de malos y buenos diseños.
+- Principios SOLID: SRP, OCP, LSP, ISP, DIP y el contrapeso del arquitecto pragmático (YAGNI).
+```
+
+Cada cambio quedó registrado como un commit con su explicación en el historial del repositorio.
+
+# Entrega 1
 
 ## Prompt 1 — Modificación de la página web (chatbot y registro de empleados)
 

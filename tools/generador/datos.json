@@ -2,12 +2,13 @@
   "universidad": "Universidad Católica Andrés Bello",
   "materia": "Programación Orientada a Objetos",
   "titulo": "ConstruTrack: Sistema de Gestión de Personal en Obra",
-  "subtitulo": "Página web con chatbot, registro de empleados y control de asistencia por roles",
+  "subtitulo": "Entrega 2 · MVC, SOLID, UX/UI y Scrum: asistencia, incidencias, alertas y reportes del personal de obra",
   "integrantes": [
     "Francisco Javier Manzano Valero"
   ],
   "profesora": "",
   "fecha": "Noviembre 2026",
-  "url_publicacion": "",
-  "herramienta_ia": "Claude (Anthropic), modelo Claude Opus 5.5, usado a través de Claude Code (aplicación de escritorio)"
+  "url_publicacion": "https://startling-toffee-914e34.netlify.app",
+  "herramienta_ia": "Claude (Anthropic), a través de Claude Code",
+  "repositorio": "https://github.com/diavolo34/Proyecto-Poo"
 }
