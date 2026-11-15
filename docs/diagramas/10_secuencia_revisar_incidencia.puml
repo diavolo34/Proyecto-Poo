@@ -1,0 +1,38 @@
+@startuml secuencia_revisar_incidencia
+!include estilo.iuml
+title Secuencia: Revisar incidencia (Supervisor aprueba o rechaza)
+autoactivate on
+actor Supervisor as A
+participant "ana:Supervisor" as S
+participant "rm:ReposoMedico" as RM
+participant "estado:EstadoIncidencia" as ES
+participant "hist:Historial" as HI
+
+A -> S : revisar(rm, APROBADA, comentario, ahora)
+S -> S : puedeRevisar(rm)
+S -> S : supervisa(rm.afectado)
+S --> S : boolean
+S --> S : boolean
+alt no supervisa al afectado
+  S --> A : PermisoDenegadoException
+else tiene autoridad
+  S -> RM : registrarRevision(APROBADA, ana, comentario, ahora)
+  RM -> ES : puedePasarA(APROBADA)
+  ES --> RM : boolean
+  alt transición no permitida (ya aprobada o rechazada)
+    RM --> S : OperacionInvalidaException
+  else permitida
+    opt nuevo = RECHAZADA y sin motivo
+      RM --> S : DatoInvalidoException("Indica el motivo")
+    end
+    RM -> RM : estado = APROBADA, revisor = ana
+    RM --> RM
+    RM --> S
+  end
+  S --> A
+end
+note over HI
+  Después, hist.estaJustificado(fecha) devuelve true
+  para los días del reposo aprobado.
+end note
+@enduml

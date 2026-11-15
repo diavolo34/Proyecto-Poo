@@ -1,0 +1,49 @@
+@startuml paquetes_mvc
+!include estilo.iuml
+title Arquitectura MVC por capas · Paquetes de ConstruTrack
+skinparam packageStyle rectangle
+
+package "VISTA" as V #E9F2FF {
+  package "vista.swing" as VS {
+    [VentanaLogin] as VL
+    [VentanaPrincipal\nPanel*] as VP
+  }
+  package "vista.web (HTML + JS)" as VW {
+    [index.html\napp.html] as HT
+  }
+}
+package "CONTROLADOR" as C #FFF7D6 {
+  package "controlador.swing" as CS {
+    [Controladora*\nAplicacionSwing] as CSW
+  }
+  package "controlador.web" as CW {
+    [ManejadorApi · Enrutador\nControlador* · JsonMapper] as CWE
+  }
+}
+package "MODELO" as M #DCFFF1 {
+  package "servicio (casos de uso)" as SV {
+    [Servicio*\nServicios] as SVC
+  }
+  package "modelo (dominio)" as MD {
+    [Usuario · Historial\nIncidencia · Invitacion\nAlertas · Reportes] as DOM
+  }
+  package "persistencia" as PE {
+    [EscritorDatos «interface»\nLectorDatos «interface»] as PI
+    [RepositorioArchivo\nRepositorioMemoria] as PR
+  }
+}
+
+VL ..> CSW : eventos
+VP ..> CSW : eventos
+HT ..> CWE : HTTP / JSON
+CSW --> SVC
+CWE --> SVC
+SVC --> DOM
+SVC --> PI
+PR ..|> PI
+PR --> DOM
+note bottom of DOM
+  El dominio no conoce Swing, HTTP ni JSON:
+  las dos vistas reutilizan el mismo modelo.
+end note
+@enduml

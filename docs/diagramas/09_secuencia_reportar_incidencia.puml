@@ -1,0 +1,27 @@
+@startuml secuencia_reportar_incidencia
+!include estilo.iuml
+title Secuencia: Reportar incidencia (reposo médico)
+autoactivate on
+actor Empleado as A
+participant "f:FabricaIncidencias" as F
+participant "rm:ReposoMedico" as RM
+participant "jose:Empleado" as E
+participant "hist:Historial" as HI
+
+A -> F : crear("REPOSO_MEDICO", datos)
+create RM
+F -> RM : <<create>> ReposoMedico(datos)
+alt falta el centro médico o la descripción
+  RM --> F : DatoInvalidoException
+  F --> A : DatoInvalidoException("Indica el centro médico…")
+else datos válidos
+  RM --> F : rm (estado = PENDIENTE)
+  F --> A : rm
+  A -> E : reportar(rm)
+  E -> E : puedeReportarPara(afectado)
+  E --> E : true (es su propia incidencia)
+  E -> HI : agregarIncidencia(rm)
+  HI --> E
+  E --> A
+end
+@enduml

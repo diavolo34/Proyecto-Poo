@@ -1,40 +1,54 @@
 @startuml clases_dominio
-' Diagrama de Clases - Modelo de Dominio (solo nombres, relaciones, roles y cardinalidad)
-skinparam shadowing false
-skinparam defaultFontName Arial
-skinparam defaultFontSize 14
-skinparam backgroundColor white
-skinparam class {
-  BackgroundColor #F4F8FF
-  BorderColor #1E40AF
-  ArrowColor #334155
-}
+!include estilo.iuml
+title Diagrama de Clases · Modelo de Dominio
 hide members
 hide circle
 
 class Empresa
-abstract class "Usuario\n{abstract}" as Usuario
+class Obra
+class Cuenta
+class Invitacion
+abstract class "Usuario {abstract}" as Usuario
 class Empleado
 class Supervisor
 class Jefe
 class Horario
+class Historial
 class RegistroAsistencia
-class Chatbot
+abstract class "Incidencia {abstract}" as Incidencia
+class ReposoMedico
+class PermisoPersonal
+class Retardo
+class AccidenteLaboral
+class Ausencia
+interface Justificable
+interface RevisorIncidencias
 
-' Agregación: los usuarios existen aunque se elimine la empresa
 Empresa "1" o-- "0..*" Usuario : registra >
-
-' Composición: el horario y la asistencia no existen sin su usuario
-Usuario "1" *-- "1" Horario : tiene >
-Usuario "1" *-- "0..*" RegistroAsistencia : registra >
-
-' Generalización / Especialización ("es un")
+Empresa "1" *-- "0..*" Obra : ejecuta >
+Empresa "1" o-- "0..*" Cuenta : conoce >
+Empresa "1" *-- "0..*" Invitacion : guarda >
 Usuario <|-- Empleado
 Usuario <|-- Supervisor
 Usuario <|-- Jefe
-
-' Asociaciones
+Usuario "1" *-- "1" Horario : tiene >
+Usuario "1" *-- "1" Historial : tiene >
+Historial "1" *-- "0..*" RegistroAsistencia : jornadas >
+Historial "1" o-- "0..*" Incidencia : novedades >
+Usuario "0..*" -- "0..1" Obra : trabaja en >
 Supervisor "0..1" -- "0..*" Empleado : supervisa >
-Jefe "1..*" -- "1" Empresa : administra >
-Chatbot "0..*" -- "0..1" Usuario : atiende >
+Cuenta "1" -- "0..1" Usuario : vinculada a >
+Jefe "1" -- "0..*" Invitacion : crea >
+Invitacion "0..*" -- "0..1" Cuenta : usada por >
+Incidencia "0..*" -- "1" Usuario : afecta a >
+Incidencia <|-- ReposoMedico
+Incidencia <|-- PermisoPersonal
+Incidencia <|-- Retardo
+Incidencia <|-- AccidenteLaboral
+Incidencia <|-- Ausencia
+Justificable <|.. ReposoMedico
+Justificable <|.. PermisoPersonal
+Justificable <|.. AccidenteLaboral
+RevisorIncidencias <|.. Supervisor
+RevisorIncidencias <|.. Jefe
 @enduml

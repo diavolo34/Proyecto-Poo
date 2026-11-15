@@ -1,0 +1,39 @@
+@startuml secuencia_evaluar_alertas
+!include estilo.iuml
+title Secuencia: Evaluar alertas automáticas
+autoactivate on
+actor Supervisor as A
+participant "m:MonitorSupervision" as M
+participant "rr:RetardosReiterados" as RR
+participant "as:AusenciaSinJustificar" as AS
+participant "hist:Historial" as HI
+participant "a:Alerta" as AL
+
+A -> M : evaluar(equipo, semana, hoy, ahora)
+loop por cada empleado del equipo
+  M -> RR : evaluar(empleado, semana, hoy, ahora)
+  RR -> HI : contarRetardos(semana)
+  HI --> RR : retardos
+  opt retardos >= umbral (3)
+    create AL
+    RR -> AL : <<create>> Alerta.de(MEDIA, empleado, mensaje, ahora)
+    AL --> RR
+  end
+  RR --> M : alertas
+  M -> AS : evaluar(empleado, semana, hoy, ahora)
+  AS -> HI : ausenciasSinJustificar(horario, semana, hoy)
+  loop por cada día laborable sin jornada
+    HI -> HI : estaJustificado(fecha)
+    HI --> HI : boolean
+  end
+  HI --> AS : fechas
+  opt hay fechas sin justificar
+    AS -> AL : <<create>> Alerta.de(MEDIA o ALTA, empleado, fechas, ahora)
+    AL --> AS
+  end
+  AS --> M : alertas
+end
+M -> M : ordenar por nivel (ALTA primero)
+M --> M
+M --> A : List<Alerta>
+@enduml

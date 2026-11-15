@@ -1,0 +1,151 @@
+@startuml clases_nucleo
+!include estilo.iuml
+title Diagrama de Clases Detallado (1/4) · Núcleo del modelo
+
+abstract class Usuario {
+  - cedula : String
+  - nombre : String
+  - claveResumen : String
+  - presente : boolean = false
+  # Usuario(cedula : String, nombre : String, clave : String, horario : Horario)
+  + {static} crear(rol : String, cedula : String, nombre : String, clave : String, horario : Horario) : Usuario
+  + {abstract} getRol() : String
+  + marcarEntrada(ahora : LocalDateTime) : RegistroAsistencia
+  + marcarSalida(ahora : LocalDateTime) : RegistroAsistencia
+  + trabajaEl(fecha : LocalDate) : boolean
+  + puedeReportarPara(afectado : Usuario) : boolean
+  + reportar(incidencia : Incidencia) : void
+  # revisarComo(revisor : RevisorIncidencias, i : Incidencia, nuevo : EstadoIncidencia, comentario : String, ahora : LocalDateTime) : void
+  + verificarClave(clave : String) : boolean
+  + vincularCuenta(cuenta : Cuenta) : void
+  + {static} validarDocumento(documento : String) : String
+}
+class Empleado {
+  + {static} ROL : String = "Empleado"
+  + getSupervisor() : Supervisor
+  + setSupervisor(nuevo : Supervisor) : void
+}
+class Supervisor {
+  + {static} ROL : String = "Supervisor"
+  + verEmpleadosACargo() : List<Empleado>
+  + supervisa(u : Usuario) : boolean
+  + consultarAsistencia(e : Empleado) : List<RegistroAsistencia>
+  + puedeRevisar(i : Incidencia) : boolean
+  + revisar(i : Incidencia, nuevo : EstadoIncidencia, comentario : String, ahora : LocalDateTime) : void
+}
+class Jefe {
+  + {static} ROL : String = "Jefe"
+  + registrarUsuario(datos : Map<String,String>) : Usuario
+  + modificarUsuario(cedula : String, datos : Map<String,String>) : Usuario
+  + eliminarUsuario(cedula : String) : void
+  + asignarSupervisor(e : Empleado, cedulaSupervisor : String) : void
+  + crearInvitacion(rol : String, cedulaSupervisor : String, codigoObra : String, dias : int, ahora : LocalDateTime, azar : RandomGenerator) : Invitacion
+  + cancelarInvitacion(codigo : CodigoInvitacion, ahora : LocalDateTime) : void
+}
+interface RevisorIncidencias {
+  + puedeRevisar(i : Incidencia) : boolean
+  + revisar(i : Incidencia, nuevo : EstadoIncidencia, comentario : String, ahora : LocalDateTime) : void
+}
+class Horario {
+  + {static} TOLERANCIA_MINUTOS : int = 10
+  - dias : String
+  - horaEntrada : LocalTime
+  - horaSalida : LocalTime
+  + {static} desdeTexto(dias : String, entrada : String, salida : String) : Horario
+  + incluyeDia(dia : DayOfWeek) : boolean
+  + esLlegadaTarde(hora : LocalTime) : boolean
+}
+class Historial {
+  + agregarAsistencia(r : RegistroAsistencia) : void
+  + agregarIncidencia(i : Incidencia) : void
+  + asistenciasEn(p : Periodo) : List<RegistroAsistencia>
+  + contarRetardos(p : Periodo) : int
+  + estaJustificado(fecha : LocalDate) : boolean
+  + ausenciasSinJustificar(h : Horario, p : Periodo, hoy : LocalDate) : List<LocalDate>
+  + porcentajePuntualidad(p : Periodo) : double
+  + minutosTrabajados(p : Periodo) : long
+}
+class RegistroAsistencia {
+  - fecha : LocalDate
+  - horaEntrada : LocalTime
+  - horaSalida : LocalTime [0..1]
+  - tarde : boolean
+  + registrarSalida(hora : LocalTime) : void
+  + estaAbierto() : boolean
+  + minutosTrabajados() : long
+  + minutosRetraso(h : Horario) : long
+}
+class Cuenta {
+  - correo : String
+  - documento : String
+  - nombre : String
+  - apellido : String
+  - telefono : String
+  - claveResumen : String
+  + verificarClave(clave : String) : boolean
+  + perteneceAEmpresa() : boolean
+  + {static} validarCorreo(correo : String) : String
+}
+class Invitacion {
+  - rol : String
+  - creada : LocalDateTime
+  - vence : LocalDateTime
+  - estado : EstadoInvitacion = VIGENTE
+  + estadoEn(ahora : LocalDateTime) : EstadoInvitacion
+  + canjear(c : Cuenta, e : Empresa, ahora : LocalDateTime) : Usuario
+  + cancelar(ahora : LocalDateTime) : void
+}
+class CodigoInvitacion <<valor>> {
+  - valor : String
+  + {static} generar(azar : RandomGenerator) : CodigoInvitacion
+  + {static} de(texto : String) : CodigoInvitacion
+}
+enum EstadoInvitacion {
+  VIGENTE
+  USADA
+  CANCELADA
+  VENCIDA
+}
+class Empresa {
+  - nombre : String
+  + agregarUsuario(u : Usuario) : void
+  + buscarUsuario(cedula : String) : Usuario
+  + autenticar(cedula : String, clave : String) : Usuario
+  + agregarCuenta(c : Cuenta) : void
+  + buscarInvitacion(c : CodigoInvitacion) : Invitacion
+  + listarObras() : List<Obra>
+}
+class Obra {
+  - codigo : String
+  - nombre : String
+  - ubicacion : String
+  + porcentajeTranscurrido(hoy : LocalDate) : int
+}
+class Periodo <<valor>> {
+  - desde : LocalDate
+  - hasta : LocalDate
+  + {static} semanaDe(f : LocalDate) : Periodo
+  + {static} mesDe(f : LocalDate) : Periodo
+  + contiene(f : LocalDate) : boolean
+}
+
+Usuario <|-- Empleado
+Usuario <|-- Supervisor
+Usuario <|-- Jefe
+RevisorIncidencias <|.. Supervisor
+RevisorIncidencias <|.. Jefe
+Usuario "1" *-- "1" Horario
+Usuario "1" *-- "1" Historial
+Historial "1" *-- "0..*" RegistroAsistencia
+Supervisor "0..1" -- "0..*" Empleado : supervisa
+Usuario "0..*" --> "0..1" Obra
+Cuenta "1" -- "0..1" Usuario
+Invitacion "1" *-- "1" CodigoInvitacion
+Invitacion --> EstadoInvitacion
+Invitacion "0..*" --> "1" Jefe : creadaPor
+Empresa "1" o-- "0..*" Usuario
+Empresa "1" *-- "0..*" Obra
+Empresa "1" o-- "0..*" Cuenta
+Empresa "1" *-- "0..*" Invitacion
+Historial ..> Periodo
+@enduml
