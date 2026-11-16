@@ -28,7 +28,9 @@ public final class Estadisticas {
         this.periodo = periodo;
         for (Usuario u : personas) {
             Historial h = u.getHistorial();
-            int laborables = h.diasLaborables(u.getHorario(), periodo, hoy).size();
+            // Hoy todavía no cuenta como falta, pero si ya marcó entrada se suma a los días esperados (evita "11 / 10")
+            boolean vinoHoy = periodo.contiene(hoy) && h.asistenciaDel(hoy) != null;
+            int laborables = h.diasLaborables(u.getHorario(), periodo, hoy).size() + (vinoHoy ? 1 : 0);
             int asistencias = h.asistenciasEn(periodo).size();
             double tasa = laborables == 0 ? 100.0 : Math.min(100.0, 100.0 * asistencias / laborables);
             resumenes.add(new Resumen(u.getCedula(), u.getNombre(), u.getRol(), laborables, asistencias, tasa,
