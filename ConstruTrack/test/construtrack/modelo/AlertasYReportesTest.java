@@ -73,8 +73,9 @@ class AlertasYReportesTest {
     void reporteAsistencia() {
         tardeLunesYMartes(d.jose);
         Documento doc = new ReporteAsistencia().generar(List.of(d.jose, d.laura), semana, HOY);
-        assertEquals(8, doc.getColumnas().size());
-        assertEquals(List.of("30000001", "José García", "Empleado", "2", "2", "100.0", "0", "0"),
+        assertEquals(13, doc.getColumnas().size(), "8 de asistencia + 5 de horas trabajadas y extra");
+        // Jornadas abiertas (sin salida): 0 h trabajadas de 18 h esperadas (lunes y martes de 9 h)
+        assertEquals(List.of("30000001", "José García", "Empleado", "2", "2", "100.0", "0", "0", "0.0", "18.0", "0.0", "0.0", "0.0"),
                 doc.getFilas().get(0).stream().map(c -> c.replace(',', '.')).toList());
         assertEquals("2", doc.getFilas().get(1).get(6), "Laura tiene 2 ausencias sin justificar");
     }

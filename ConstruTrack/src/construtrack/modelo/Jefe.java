@@ -204,6 +204,11 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     }
 
     @Override
+    public boolean puedeAprobarHorasDe(Usuario otro) {
+        return !(otro instanceof Jefe);
+    }
+
+    @Override
     public boolean puedeRevisar(Incidencia incidencia) {
         return !(incidencia.getAfectado() instanceof Jefe);
     }

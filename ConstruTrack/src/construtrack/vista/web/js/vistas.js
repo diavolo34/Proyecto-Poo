@@ -29,12 +29,11 @@ async function vistaAsistencia() {
   const tardes = semana.filter((a) => a.tarde).length;
   const puntualidad = semana.length ? Math.round(100 * (semana.length - tardes) / semana.length) : 100;
   const hoy = u.asistenciaHoy;
-  const horas = (a) => {
-    if (!a.horaSalida) return '—';
-    const [h1, m1] = a.horaEntrada.split(':').map(Number);
-    const [h2, m2] = a.horaSalida.split(':').map(Number);
-    return (((h2 * 60 + m2) - (h1 * 60 + m1)) / 60).toFixed(1) + ' h';
-  };
+  const horas = (a) => (a.horaSalida ? formatoHoras(a.minutos) : '—');
+  const extra = (a) => (a.minutosExtra
+    ? chip('+' + formatoHoras(a.minutosExtra), a.estadoExtra === 'Aprobadas' ? 'verde' : a.estadoExtra === 'Rechazadas' ? 'gris' : 'amarillo')
+      + `<br><span class="pequeno suave">${esc(a.estadoExtra)}</span>`
+    : '—');
   contenido().innerHTML = encabezado('Mi trabajo /', 'Mi asistencia') + `
     <div class="rejilla-2">
       <section class="tarjeta" aria-labelledby="t-hoy">
@@ -59,11 +58,11 @@ async function vistaAsistencia() {
     </div>
     <section class="tarjeta" style="margin-top:16px"><h2>Mi historial reciente</h2>
       <div class="tabla-contenedor"><table>
-        <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th><th>Horas</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th><th>Horas</th><th>Extra</th></tr></thead>
         <tbody>${u.asistencias.map((a) => `<tr><td>${fecha(a.fecha)}</td><td>${esc(a.horaEntrada)}</td>
           <td>${a.horaSalida ? esc(a.horaSalida) : chip('En curso', 'azul')}</td>
-          <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td><td>${horas(a)}</td></tr>`).join('')
-          || '<tr><td colspan="5" class="vacio">Aún no tienes jornadas registradas. Marca tu primera entrada.</td></tr>'}</tbody>
+          <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td><td>${horas(a)}</td><td>${extra(a)}</td></tr>`).join('')
+          || '<tr><td colspan="6" class="vacio">Aún no tienes jornadas registradas. Marca tu primera entrada.</td></tr>'}</tbody>
       </table></div></section>`;
   const marcar = async (accion) => {
     try {
@@ -194,7 +193,7 @@ async function revisarIncidencia(id, nuevoEstado) {
 // ------------------------------------------------------------------ Supervisión
 async function vistaSupervision() {
   const periodo = estado.periodo || 'ultimos7';
-  const [est, alertas] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo)]);
+  const [est, alertas, extras] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo), Api.horasExtra()]);
   const color = (v) => (v >= 90 ? '#22a06b' : v >= 75 ? '#e2b203' : '#c9372c');
   contenido().innerHTML = encabezado('Equipo /', 'Supervisión', `
     <label for="periodo" class="pequeno">Período</label>
@@ -220,12 +219,28 @@ async function vistaSupervision() {
           || '<p class="suave">Sin alertas en este período. Todo en orden.</p>'}</section>
     </div>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-ranking"><h2 id="t-ranking">Tabla de puntualidad</h2>
-      <p class="suave pequeno" style="margin-top:-6px">Ordenada de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.</p>
-      <div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Asistencias</th><th>Retardos</th><th>Faltas sin justificar</th>
+      <p class="suave pequeno" style="margin-top:-6px">Ordenada de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.
+        Las horas extra cuentan cuando el supervisor o el jefe las aprueba.</p>
+      <div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Horas trabajadas / esperadas</th>
+        <th>Extra diaria</th><th>Extra fin de semana o día libre</th><th>Retardos</th><th>Faltas sin justificar</th>
         <th>Justificadas</th><th>Puntualidad</th></tr></thead><tbody>
-        ${est.personas.map((p) => `<tr><td>${esc(p.nombre)}</td><td>${p.asistencias} / ${p.laborables}</td>
+        ${est.personas.map((p) => `<tr><td>${esc(p.nombre)}</td>
+          <td style="white-space:nowrap"><strong>${formatoHoras(p.minutos)}</strong> / ${formatoHoras(p.minutosEsperados)}</td>
+          <td>${p.extraDiaria ? chip('+' + formatoHoras(p.extraDiaria), 'verde') : '—'}</td>
+          <td>${p.extraDiaLibre ? chip('+' + formatoHoras(p.extraDiaLibre), 'verde') : '—'}
+            ${p.extraPendiente ? `<br><span class="pequeno suave">${formatoHoras(p.extraPendiente)} por aprobar</span>` : ''}</td>
           <td>${p.retardos ? chip(p.retardos, 'amarillo') : 0}</td><td>${p.ausencias ? chip(p.ausencias, 'rojo') : 0}</td>
           <td>${p.justificadas}</td><td>${Math.round(p.puntualidad)}%</td></tr>`).join('')}</tbody></table></div></section>
+    <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-extra"><h2 id="t-extra">Horas extra por aprobar</h2>
+      <p class="suave pequeno" style="margin-top:-6px">Se calculan solas con la entrada y la salida: lo que pasa de la jornada, o todo lo trabajado en un día libre (desde 15 min).</p>
+      ${extras.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Fecha</th><th>Entrada – salida</th>
+        <th>Tipo</th><th>Extra</th><th><span class="solo-lector">Acciones</span></th></tr></thead><tbody>
+        ${extras.map((x) => `<tr><td>${esc(x.nombre)}</td><td>${fecha(x.jornada.fecha)}</td>
+          <td>${esc(x.jornada.horaEntrada)} – ${esc(x.jornada.horaSalida || '…')}</td><td>${esc(x.jornada.tipoExtra)}</td>
+          <td><strong>${formatoHoras(x.jornada.minutosExtra)}</strong></td>
+          <td style="white-space:nowrap"><button class="btn btn-exito btn-chico" data-extra="APROBADAS" data-cedula="${esc(x.cedula)}" data-fecha="${esc(x.jornada.fecha)}">Aprobar</button>
+            <button class="btn btn-peligro btn-chico" data-extra="RECHAZADAS" data-cedula="${esc(x.cedula)}" data-fecha="${esc(x.jornada.fecha)}">Rechazar</button></td></tr>`).join('')}
+        </tbody></table></div>` : '<p class="suave">No hay horas extra por aprobar.</p>'}</section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-reportes"><h2 id="t-reportes">Reportes</h2>
       <div class="acciones" style="justify-content:flex-start;align-items:flex-end">
         <div class="campo" style="margin:0"><label for="tipo-reporte">Tipo</label><select id="tipo-reporte">
@@ -235,6 +250,15 @@ async function vistaSupervision() {
         <button class="btn btn-primario" id="descargar-reporte">Descargar reporte</button>
       </div></section>`;
   $('#periodo').addEventListener('change', (e) => { estado.periodo = e.target.value; vistaSupervision(); });
+  contenido().querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', async () => {
+    try {
+      await Api.revisarHorasExtra(b.dataset.cedula, b.dataset.fecha, b.dataset.extra);
+      aviso(b.dataset.extra === 'APROBADAS' ? 'Horas extra aprobadas.' : 'Horas extra rechazadas.');
+      vistaSupervision();
+    } catch (e) {
+      aviso(e.message, 'error');
+    }
+  }));
   $('#descargar-reporte').addEventListener('click', async () => {
     try {
       const nombre = await Api.descargarReporte($('#tipo-reporte').value, $('#formato-reporte').value, periodo);

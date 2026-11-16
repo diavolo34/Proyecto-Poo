@@ -48,6 +48,11 @@ public class Horario {
         return hora.isAfter(horaEntrada.plusMinutes(TOLERANCIA_MINUTOS));
     }
 
+    /** Minutos que dura la jornada según el horario (por ejemplo, de 07:00 a 16:00 son 540). */
+    public long minutosJornada() {
+        return java.time.Duration.between(horaEntrada, horaSalida).toMinutes();
+    }
+
     public String getDias() {
         return dias;
     }

@@ -33,7 +33,7 @@ public final class JsonMapper {
                 .logico("presente", u.estaPresente())
                 .logico("trabajaHoy", u.trabajaEl(java.time.LocalDate.now()))
                 .crudo("horario", horario(u.getHorario()))
-                .crudo("asistenciaHoy", hoy == null ? "null" : registro(hoy));
+                .crudo("asistenciaHoy", hoy == null ? "null" : registro(hoy, u.getHorario()));
         if (u instanceof Empleado e) {
             Supervisor s = e.getSupervisor();
             json.crudo("supervisor", s == null ? "null"
@@ -52,7 +52,7 @@ public final class JsonMapper {
             List<RegistroAsistencia> recientes = new ArrayList<>(u.getAsistencias());
             Collections.reverse(recientes);
             json.crudo("asistencias", Json.lista(recientes.subList(0, Math.min(MAX_HISTORIAL, recientes.size())),
-                    JsonMapper::registro));
+                    r -> registro(r, u.getHorario())));
         }
         return json.toString();
     }
@@ -65,12 +65,27 @@ public final class JsonMapper {
                 .toString();
     }
 
-    public static String registro(RegistroAsistencia r) {
+    /** Una jornada con sus horas extra (que dependen del horario de la persona). */
+    public static String registro(RegistroAsistencia r, Horario horario) {
+        long extra = r.minutosExtra(horario);
         return new JsonObjeto()
                 .texto("fecha", r.getFecha())
                 .texto("horaEntrada", r.getHoraEntrada())
                 .texto("horaSalida", r.getHoraSalida())
                 .logico("tarde", r.isTarde())
+                .numero("minutos", r.minutosTrabajados())
+                .numero("minutosExtra", extra)
+                .texto("tipoExtra", extra == 0 ? null : r.tipoExtra(horario).getNombre())
+                .texto("estadoExtra", extra == 0 ? null : r.getEstadoExtra().getNombre())
+                .toString();
+    }
+
+    /** Jornada con horas extra por aprobar, con los datos de la persona para la tarjeta del supervisor. */
+    public static String horasExtra(Usuario u, RegistroAsistencia r) {
+        return new JsonObjeto()
+                .texto("cedula", u.getCedula())
+                .texto("nombre", u.getNombre())
+                .crudo("jornada", registro(r, u.getHorario()))
                 .toString();
     }
 
@@ -177,6 +192,10 @@ public final class JsonMapper {
                 .numero("justificadas", r.justificadas())
                 .numero("puntualidad", redondear(r.puntualidad()))
                 .numero("minutos", r.minutos())
+                .numero("minutosEsperados", r.minutosEsperados())
+                .numero("extraDiaria", r.extraDiaria())
+                .numero("extraDiaLibre", r.extraDiaLibre())
+                .numero("extraPendiente", r.extraPendiente())
                 .toString();
     }
 

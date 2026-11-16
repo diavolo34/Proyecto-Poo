@@ -110,6 +110,9 @@ const Api = {
   // ---- supervisión
   estadisticas: (periodo) => Api.pedir('GET', '/api/estadisticas?periodo=' + periodo),
   alertas: (periodo) => Api.pedir('GET', '/api/supervision/alertas?periodo=' + periodo),
+  horasExtra: () => Api.pedir('GET', '/api/horas-extra'),
+  revisarHorasExtra: (cedula, fecha, estado) =>
+    Api.pedir('PUT', `/api/horas-extra/${encodeURIComponent(cedula)}/${fecha}`, { estado }),
   descargarReporte: (tipo, formato, periodo) =>
     Api.descargar(`/api/reportes/${tipo}?formato=${formato}&periodo=${periodo}`),
 

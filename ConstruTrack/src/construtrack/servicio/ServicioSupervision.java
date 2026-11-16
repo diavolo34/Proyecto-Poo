@@ -2,14 +2,17 @@ package construtrack.servicio;
 
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
+import construtrack.modelo.EstadoHorasExtra;
 import construtrack.modelo.Estadisticas;
 import construtrack.modelo.Jefe;
 import construtrack.modelo.Periodo;
+import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.alertas.Alerta;
 import construtrack.modelo.alertas.MonitorSupervision;
 import construtrack.modelo.excepciones.DatoInvalidoException;
+import construtrack.modelo.excepciones.NoEncontradoException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.modelo.reportes.FormateadorReporte;
 import construtrack.modelo.reportes.Reporte;
@@ -18,6 +21,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +72,36 @@ public class ServicioSupervision extends ServicioBase {
         String contenido = leer(() -> formateador.formatear(reporte.generar(alcance(actual), periodo, hoy)));
         String nombre = "construtrack-" + tipo + "-" + hoy + "." + formateador.extension();
         return new Exportacion(contenido, formateador.mime(), nombre);
+    }
+
+    /** Una jornada con horas extra por aprobar y la persona a la que pertenece. */
+    public record HorasExtraPendientes(Usuario persona, RegistroAsistencia jornada) {
+    }
+
+    /** Horas extra por aprobar del grupo visible, de la más antigua a la más reciente. */
+    public List<HorasExtraPendientes> horasExtraPendientes(Usuario actual) {
+        return leer(() -> alcance(actual).stream()
+                .flatMap(u -> u.getHistorial().horasExtraPendientes(u.getHorario()).stream()
+                        .map(r -> new HorasExtraPendientes(u, r)))
+                .sorted(Comparator.comparing((HorasExtraPendientes h) -> h.jornada().getFecha()))
+                .toList());
+    }
+
+    /** Aprueba o rechaza las horas extra de una jornada; el modelo decide si el usuario tiene autoridad. */
+    public RegistroAsistencia revisarHorasExtra(Usuario actual, String cedula, LocalDate fecha, String estado) {
+        EstadoHorasExtra nuevo;
+        try {
+            nuevo = EstadoHorasExtra.valueOf(estado == null ? "" : estado.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new DatoInvalidoException("El estado debe ser APROBADAS o RECHAZADAS.");
+        }
+        return modificar(() -> {
+            Usuario persona = empresa.buscarUsuario(cedula);
+            if (persona == null) {
+                throw new NoEncontradoException("No existe una persona con la cédula " + cedula + ".");
+            }
+            return actual.revisarHorasExtra(persona, fecha, nuevo);
+        });
     }
 
     /** Personas que el usuario puede ver en reportes y alertas (sin incluir a los jefes). */

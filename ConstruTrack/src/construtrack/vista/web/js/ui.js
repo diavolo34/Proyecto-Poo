@@ -18,6 +18,12 @@ const fecha = (iso) => (iso ? String(iso).slice(0, 10).split('-').reverse().join
 /** 2026-11-15 → 15/11 */
 const fechaCorta = (iso) => (iso ? String(iso).slice(5, 10).split('-').reverse().join('/') : '—');
 
+/** Minutos a horas legibles: 90 → "1,5 h", 2400 → "40 h". */
+const formatoHoras = (minutos) => {
+  const h = Math.round((minutos || 0) / 6) / 10;
+  return (Number.isInteger(h) ? String(h) : h.toFixed(1).replace('.', ',')) + ' h';
+};
+
 const iniciales = (nombre) => String(nombre || '?').split(' ').slice(0, 2).map((p) => p[0]).join('').toUpperCase();
 
 const chip = (texto, color) => `<span class="chip chip-${color}">${esc(texto)}</span>`;

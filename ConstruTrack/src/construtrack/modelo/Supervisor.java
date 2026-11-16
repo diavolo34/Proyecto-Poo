@@ -70,6 +70,11 @@ public class Supervisor extends Usuario implements RevisorIncidencias {
     }
 
     @Override
+    public boolean puedeAprobarHorasDe(Usuario otro) {
+        return supervisa(otro) && otro != this;
+    }
+
+    @Override
     public boolean puedeRevisar(Incidencia incidencia) {
         return supervisa(incidencia.getAfectado()) && incidencia.getAfectado() != this;
     }

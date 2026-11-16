@@ -2,6 +2,7 @@ package construtrack.persistencia;
 
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
+import construtrack.modelo.EstadoHorasExtra;
 import construtrack.modelo.Horario;
 import construtrack.modelo.CodigoInvitacion;
 import construtrack.modelo.Cuenta;
@@ -65,7 +66,8 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         for (Supervisor s : new Supervisor[] {ana, luis}) {
             for (LocalDate dia : hoy.minusDays(14).datesUntil(hoy).toList()) {
                 if (s.trabajaEl(dia)) {
-                    s.agregarAsistencia(registro(dia, "06:45", "16:10", false));
+                    // Salen a su hora: unos minutos de más no cuentan como horas extra
+                    s.agregarAsistencia(registro(dia, "06:50", s.getHorario().getHoraSalida().plusMinutes(5).toString(), false));
                 }
             }
             if (s.trabajaEl(hoy)) {
@@ -74,7 +76,9 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             }
         }
 
+        LocalDate haceUnaSemana = hoy.minusDays(7);
         for (int i = 0; i < empleados.length; i++) {
+            boolean extraHecha = false;
             Empleado e = new Empleado(empleados[i][0], empleados[i][1], "emp123", i < 3 ? obra : sabados);
             e.setSupervisor(i < 3 ? ana : luis);
             e.setObra(i < 3 ? torre : puente);
@@ -93,8 +97,25 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                 boolean falta = deReposo || (dia.getDayOfMonth() * 3 + i) % 11 == 0;
                 if (!falta) {
                     String entrada = retardo ? "07:25" : "06:5" + (i % 10);
-                    e.agregarAsistencia(registro(dia, entrada, "16:0" + (i % 9), retardo));
+                    LocalTime salida = e.getHorario().getHoraSalida().plusMinutes(i % 9);
+                    // Horas extra de demostración en los últimos 7 días: José se quedó 2,5 h (aprobadas por Ana)
+                    // y Laura 1 h 15 min (por aprobar)
+                    boolean conExtra = !extraHecha && !dia.isBefore(haceUnaSemana) && (i == 0 || i == 3);
+                    if (conExtra) {
+                        salida = salida.plusMinutes(i == 0 ? 150 : 75);
+                        extraHecha = true;
+                    }
+                    RegistroAsistencia jornada = registro(dia, entrada, salida.toString(), retardo);
+                    if (conExtra && i == 0) {
+                        jornada.restaurarEstadoExtra(EstadoHorasExtra.APROBADAS);
+                    }
+                    e.agregarAsistencia(jornada);
                 }
+            }
+            // María (horario de lunes a viernes) vino el último sábado: todo cuenta como extra de día libre, por aprobar
+            LocalDate sabado = hoy.with(java.time.temporal.TemporalAdjusters.previous(DayOfWeek.SATURDAY));
+            if (i == 1 && !e.trabajaEl(sabado)) {
+                e.agregarAsistencia(registro(sabado, "08:00", "12:30", false));
             }
             if (i % 2 == 0 && e.trabajaEl(hoy)) {
                 e.agregarAsistencia(registro(hoy, i == 4 ? "07:25" : "06:58", null, i == 4));

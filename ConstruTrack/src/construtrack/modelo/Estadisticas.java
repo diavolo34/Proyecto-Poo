@@ -17,7 +17,8 @@ public final class Estadisticas {
     /** Resumen de una persona en el período. */
     public record Resumen(String cedula, String nombre, String rol, int laborables, int asistencias,
             double tasaAsistencia, int retardos, int ausencias, int justificadas,
-            double puntualidad, long minutos) {
+            double puntualidad, long minutos, long minutosEsperados, long extraDiaria, long extraDiaLibre,
+            long extraPendiente) {
     }
 
     private final Periodo periodo;
@@ -33,10 +34,17 @@ public final class Estadisticas {
             int laborables = h.diasLaborables(u.getHorario(), periodo, hoy).size() + (vinoHoy ? 1 : 0);
             int asistencias = h.asistenciasEn(periodo).size();
             double tasa = laborables == 0 ? 100.0 : Math.min(100.0, 100.0 * asistencias / laborables);
+            Horario horario = u.getHorario();
+            // Horas que debía cumplir: solo los días de su horario (un sábado libre no suma horas esperadas)
+            int diasConHorario = h.diasLaborables(horario, periodo, hoy).size() + (vinoHoy && u.trabajaEl(hoy) ? 1 : 0);
+            long esperados = diasConHorario * horario.minutosJornada();
             resumenes.add(new Resumen(u.getCedula(), u.getNombre(), u.getRol(), laborables, asistencias, tasa,
                     h.contarRetardos(periodo), h.ausenciasSinJustificar(u.getHorario(), periodo, hoy).size(),
                     h.ausenciasJustificadas(u.getHorario(), periodo, hoy).size(),
-                    h.porcentajePuntualidad(periodo), h.minutosTrabajados(periodo)));
+                    h.porcentajePuntualidad(periodo), h.minutosTrabajados(periodo), esperados,
+                    h.minutosExtra(horario, periodo, TipoHorasExtra.DIARIA, EstadoHorasExtra.APROBADAS),
+                    h.minutosExtra(horario, periodo, TipoHorasExtra.DIA_LIBRE, EstadoHorasExtra.APROBADAS),
+                    h.minutosExtraPendientes(horario, periodo)));
             h.incidenciasEn(periodo).forEach(i -> incidenciasPorTipo.merge(i.getNombreTipo(), 1, Integer::sum));
         }
     }

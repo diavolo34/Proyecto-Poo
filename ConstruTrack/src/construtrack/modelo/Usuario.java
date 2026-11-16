@@ -128,6 +128,29 @@ public abstract class Usuario {
         incidencia.registrarRevision(nuevo, this, comentario, ahora);
     }
 
+    // ------------------------------------------------------------------ horas extra
+
+    /**
+     * Indica si puede aprobar las horas extra de otra persona. Por defecto nadie puede;
+     * Supervisor (su equipo) y Jefe (todos menos otros jefes) lo redefinen (polimorfismo).
+     */
+    public boolean puedeAprobarHorasDe(Usuario otro) {
+        return false;
+    }
+
+    /** Aprueba o rechaza las horas extra de la jornada de otra persona en una fecha. */
+    public RegistroAsistencia revisarHorasExtra(Usuario empleado, LocalDate fecha, EstadoHorasExtra nuevo) {
+        if (!puedeAprobarHorasDe(empleado)) {
+            throw new PermisoDenegadoException("No puedes aprobar las horas extra de " + empleado.getNombre() + ".");
+        }
+        RegistroAsistencia jornada = empleado.getAsistenciaDel(fecha);
+        if (jornada == null) {
+            throw new OperacionInvalidaException(empleado.getNombre() + " no tiene jornada el " + fecha + ".");
+        }
+        jornada.revisarHorasExtra(nuevo, empleado.getHorario());
+        return jornada;
+    }
+
     public Historial getHistorial() {
         return historial;
     }

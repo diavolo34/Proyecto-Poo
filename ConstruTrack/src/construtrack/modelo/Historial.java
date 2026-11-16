@@ -105,6 +105,34 @@ public class Historial {
         return dias;
     }
 
+    /** Minutos extra del período de un tipo y estado (por ejemplo, las diarias aprobadas). */
+    public long minutosExtra(Horario horario, Periodo periodo, TipoHorasExtra tipo, EstadoHorasExtra estado) {
+        long total = 0;
+        for (RegistroAsistencia r : asistenciasEn(periodo)) {
+            if (r.getEstadoExtra() == estado && r.tipoExtra(horario) == tipo) {
+                total += r.minutosExtra(horario);
+            }
+        }
+        return total;
+    }
+
+    /** Minutos extra que esperan aprobación en el período, de cualquier tipo. */
+    public long minutosExtraPendientes(Horario horario, Periodo periodo) {
+        return minutosExtra(horario, periodo, TipoHorasExtra.DIARIA, EstadoHorasExtra.PENDIENTE)
+                + minutosExtra(horario, periodo, TipoHorasExtra.DIA_LIBRE, EstadoHorasExtra.PENDIENTE);
+    }
+
+    /** Jornadas con horas extra todavía sin revisar. */
+    public List<RegistroAsistencia> horasExtraPendientes(Horario horario) {
+        List<RegistroAsistencia> pendientes = new ArrayList<>();
+        for (RegistroAsistencia r : asistencias) {
+            if (r.tieneHorasExtra(horario) && r.getEstadoExtra() == EstadoHorasExtra.PENDIENTE) {
+                pendientes.add(r);
+            }
+        }
+        return pendientes;
+    }
+
     /** Una incidencia aprobada de un tipo justificable cubre esa fecha. */
     public boolean estaJustificado(LocalDate fecha) {
         for (Incidencia i : incidencias) {
