@@ -1,11 +1,9 @@
 name: Publicar página (GitHub Pages)
 
+# La página se publica en Netlify. Este workflow es opcional y se ejecuta a mano (pestaña Actions → «Run workflow»)
+# después de activar Pages en Settings → Pages → Source: GitHub Actions. Así no falla en cada push mientras
+# Pages esté desactivado.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "ConstruTrack/src/construtrack/vista/web/**"
-      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
