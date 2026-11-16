@@ -67,7 +67,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             for (LocalDate dia : hoy.minusDays(14).datesUntil(hoy).toList()) {
                 if (s.trabajaEl(dia)) {
                     // Salen a su hora: unos minutos de más no cuentan como horas extra
-                    s.agregarAsistencia(registro(dia, "06:50", s.getHorario().getHoraSalida().plusMinutes(5).toString(), false));
+                    s.agregarAsistencia(registro(dia, "06:50", s.getHorario().getHoraSalida().toString(), false));
                 }
             }
             if (s.trabajaEl(hoy)) {
@@ -76,7 +76,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             }
         }
 
-        LocalDate haceUnaSemana = hoy.minusDays(7);
+        LocalDate haceUnaSemana = hoy.minusDays(5); // dentro del período por defecto (últimos 7 días)
         for (int i = 0; i < empleados.length; i++) {
             boolean extraHecha = false;
             Empleado e = new Empleado(empleados[i][0], empleados[i][1], "emp123", i < 3 ? obra : sabados);

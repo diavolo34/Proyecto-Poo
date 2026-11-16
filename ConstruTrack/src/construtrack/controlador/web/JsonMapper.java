@@ -53,6 +53,11 @@ public final class JsonMapper {
             Collections.reverse(recientes);
             json.crudo("asistencias", Json.lista(recientes.subList(0, Math.min(MAX_HISTORIAL, recientes.size())),
                     r -> registro(r, u.getHorario())));
+            // El Historial reúne asistencia e incidencias (reposos, permisos, faltas…), la más reciente primero
+            List<Incidencia> incidencias = new ArrayList<>(u.getHistorial().getIncidencias());
+            incidencias.sort(java.util.Comparator.comparing(Incidencia::getDesde).reversed());
+            json.crudo("incidencias", Json.lista(incidencias, i -> incidencia(i, false)));
+            json.texto("fechaIngreso", u.getFechaIngreso());
         }
         return json.toString();
     }

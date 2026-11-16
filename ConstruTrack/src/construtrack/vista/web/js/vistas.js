@@ -223,13 +223,13 @@ async function vistaSupervision() {
       <p class="suave pequeno" style="margin-top:-6px">Ordenada de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.
         Las horas extra cuentan cuando el supervisor o el jefe las aprueba.</p>
       <div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Horas trabajadas / esperadas</th>
-        <th>Extra diaria</th><th>Extra fin de semana o día libre</th><th>Retardos</th><th>Faltas sin justificar</th>
+        <th>Extra diaria</th><th>Extra día libre</th><th>Extra por aprobar</th><th>Retardos</th><th>Faltas sin justificar</th>
         <th>Justificadas</th><th>Puntualidad</th></tr></thead><tbody>
-        ${est.personas.map((p) => `<tr><td>${esc(p.nombre)}</td>
+        ${est.personas.map((p) => `<tr><td style="white-space:nowrap">${esc(p.nombre)}</td>
           <td style="white-space:nowrap"><strong>${formatoHoras(p.minutos)}</strong> / ${formatoHoras(p.minutosEsperados)}</td>
           <td>${p.extraDiaria ? chip('+' + formatoHoras(p.extraDiaria), 'verde') : '—'}</td>
-          <td>${p.extraDiaLibre ? chip('+' + formatoHoras(p.extraDiaLibre), 'verde') : '—'}
-            ${p.extraPendiente ? `<br><span class="pequeno suave">${formatoHoras(p.extraPendiente)} por aprobar</span>` : ''}</td>
+          <td>${p.extraDiaLibre ? chip('+' + formatoHoras(p.extraDiaLibre), 'verde') : '—'}</td>
+          <td>${p.extraPendiente ? chip(formatoHoras(p.extraPendiente), 'amarillo') : '—'}</td>
           <td>${p.retardos ? chip(p.retardos, 'amarillo') : 0}</td><td>${p.ausencias ? chip(p.ausencias, 'rojo') : 0}</td>
           <td>${p.justificadas}</td><td>${Math.round(p.puntualidad)}%</td></tr>`).join('')}</tbody></table></div></section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-extra"><h2 id="t-extra">Horas extra por aprobar</h2>
@@ -373,11 +373,33 @@ async function formularioPersona(cedula) {
 async function historialPersona(cedula) {
   try {
     const u = await Api.verUsuario(cedula);
-    Modal.abrir('Historial de ' + u.nombre, `<p class="suave">${esc(textoDias(u.horario.dias))}, de ${esc(u.horario.horaEntrada)} a ${esc(u.horario.horaSalida)}</p>
-      <div class="tabla-contenedor"><table><thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th></tr></thead><tbody>
+    const incidencias = u.incidencias || [];
+    const modal = Modal.abrir('Historial de ' + u.nombre, `<p class="suave">${esc(textoDias(u.horario.dias))}, de ${esc(u.horario.horaEntrada)} a ${esc(u.horario.horaSalida)}
+      ${u.fechaIngreso ? ' · En la empresa desde el ' + fecha(u.fechaIngreso) : ''}</p>
+      <div class="pestanas" role="tablist">
+        <button type="button" role="tab" class="pestana activa" aria-selected="true" data-pestana="h-asistencia">Asistencia (${u.asistencias.length})</button>
+        <button type="button" role="tab" class="pestana" aria-selected="false" data-pestana="h-incidencias">Incidencias (${incidencias.length})</button>
+      </div>
+      <div id="h-asistencia" role="tabpanel"><div class="tabla-contenedor"><table><thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th><th>Horas</th><th>Extra</th></tr></thead><tbody>
       ${u.asistencias.map((a) => `<tr><td>${fecha(a.fecha)}</td><td>${esc(a.horaEntrada)}</td><td>${esc(a.horaSalida || 'En curso')}</td>
-        <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td></tr>`).join('')
-        || '<tr><td colspan="4" class="vacio">Sin jornadas registradas.</td></tr>'}</tbody></table></div>`);
+        <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td><td>${a.horaSalida ? formatoHoras(a.minutos) : '—'}</td>
+        <td>${a.minutosExtra ? '+' + formatoHoras(a.minutosExtra) + ' · ' + esc(a.estadoExtra) : '—'}</td></tr>`).join('')
+        || '<tr><td colspan="6" class="vacio">Sin jornadas registradas.</td></tr>'}</tbody></table></div></div>
+      <div id="h-incidencias" role="tabpanel" class="oculto"><div class="tabla-contenedor"><table><thead><tr><th>#</th><th>Tipo</th><th>Fechas</th><th>Estado</th><th>Detalle</th></tr></thead><tbody>
+      ${incidencias.map((i) => `<tr><td>${i.id}</td><td>${esc(i.nombreTipo)}<br>${chipGravedad(i.gravedad)}</td>
+        <td style="white-space:nowrap">${fecha(i.desde)}${i.hasta && i.hasta !== i.desde ? ' – ' + fecha(i.hasta) : ''}</td>
+        <td>${chipEstado(i.estadoNombre)}${i.revisor ? `<br><span class="pequeno suave">por ${esc(i.revisor)}</span>` : ''}</td>
+        <td>${esc(i.descripcion)}${i.detalle ? `<br><span class="pequeno suave">${esc(i.detalle)}</span>` : ''}
+          ${i.comentarioRevision ? `<br><span class="pequeno">«${esc(i.comentarioRevision)}»</span>` : ''}</td></tr>`).join('')
+        || '<tr><td colspan="5" class="vacio">Sin incidencias: no ha reportado faltas, reposos ni permisos.</td></tr>'}</tbody></table></div></div>`);
+    modal.querySelectorAll('[data-pestana]').forEach((b) => b.addEventListener('click', () => {
+      modal.querySelectorAll('[data-pestana]').forEach((x) => {
+        const activa = x === b;
+        x.classList.toggle('activa', activa);
+        x.setAttribute('aria-selected', String(activa));
+        modal.querySelector('#' + x.dataset.pestana).classList.toggle('oculto', !activa);
+      });
+    }));
   } catch (e) {
     aviso(e.message, 'error');
   }
