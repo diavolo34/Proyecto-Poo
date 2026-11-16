@@ -162,9 +162,9 @@
 /* Captura que se sale del panel por la derecha y por abajo, con una ilustración encima */
 .lp-visual-producto { padding: 48px 0 0 48px; min-height: 360px; }
 .lp-visual-producto .lp-navegador { width: 118%; border-radius: 12px 0 0 0; }
-.lp-pegatina { position: absolute; z-index: 1; filter: drop-shadow(0 16px 24px rgba(9, 30, 66, .22)); height: auto; }
-.lp-pegatina-izquierda { width: 40%; left: 4%; bottom: 6%; }
-.lp-pegatina-derecha { width: 42%; right: 4%; bottom: 5%; }
+.lp-fila-visual > .lp-pegatina { position: absolute; z-index: 1; filter: drop-shadow(0 16px 24px rgba(9, 30, 66, .22)); height: auto; }
+.lp-fila-visual > .lp-pegatina-izquierda { width: 38%; left: 5%; bottom: 7%; }
+.lp-fila-visual > .lp-pegatina-derecha { width: 38%; right: 5%; bottom: 6%; }
 
 /* ----------------------------------------------------------------- franja en vivo (cifras y obras) */
 .lp-envivo { position: relative; overflow: hidden; isolation: isolate; background: var(--lp-marino); color: #fff; padding: 104px 0; }
@@ -339,6 +339,7 @@
   .lp-cifra:nth-child(even) { padding-left: 16px; border-left: 1px solid rgba(255, 255, 255, .2); }
   .lp-cifra:nth-child(n+3) { border-top: 1px solid rgba(255, 255, 255, .2); }
   .lp-cta { padding: 76px 0 150px; }
+  .lp-cta::before { width: 200px; height: 180px; right: -120px; top: -110px; }
   .lp-pie-rejilla { grid-template-columns: 1fr 1fr; gap: 32px; }
 }
 @media (max-width: 560px) {
@@ -347,6 +348,7 @@
   .lp-hero h1 { letter-spacing: -1px; }
   .lp-bajada { font-size: 17px; }
   .lp-hero-campo { flex-direction: column; }
+  .lp-hero-campo input { flex: none; }
   .lp-hero-campo .btn { width: 100%; }
   .lp-etiqueta { font-size: 13px; }
   .lp-camino { padding: 22px 20px 26px; }
