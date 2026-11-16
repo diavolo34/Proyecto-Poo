@@ -1,6 +1,7 @@
 package construtrack.controlador.web;
 
 import construtrack.servicio.ServicioPersonal;
+import construtrack.util.Json;
 import java.time.LocalDate;
 
 /** Ruta pública para la portada: obras y cifras generales. No expone datos personales. */

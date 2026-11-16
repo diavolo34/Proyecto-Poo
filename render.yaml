@@ -11,3 +11,9 @@ services:
       # Sitios que pueden usar la API desde el navegador (separados por coma)
       - key: CORS_ORIGEN
         value: https://startling-toffee-914e34.netlify.app,https://diavolo34.github.io
+      # Datos permanentes: el plan gratuito borra el disco al reiniciar, así que se guardan en Upstash Redis.
+      # Copia los valores desde console.upstash.com (pestaña REST API) en Render → Environment.
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false

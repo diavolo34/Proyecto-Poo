@@ -2,6 +2,7 @@ package construtrack.controlador.web;
 
 import construtrack.modelo.alertas.Alerta;
 import construtrack.servicio.ServicioSupervision;
+import construtrack.util.Json;
 import java.util.List;
 
 /** Rutas de apoyo al supervisor: alertas automáticas y estadísticas del período. */

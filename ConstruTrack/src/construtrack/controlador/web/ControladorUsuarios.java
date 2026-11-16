@@ -1,6 +1,7 @@
 package construtrack.controlador.web;
 
 import construtrack.servicio.ServicioPersonal;
+import construtrack.util.Json;
 
 /** Rutas CRUD del personal. Los permisos por rol los aplica el servicio, no la vista. */
 public class ControladorUsuarios implements ControladorWeb {

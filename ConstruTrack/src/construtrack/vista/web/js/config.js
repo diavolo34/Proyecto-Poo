@@ -7,7 +7,7 @@ const CONFIG = {
   sitiosEstaticos: ['netlify.app', 'github.io'],
 };
 
-// Netlify pone su insignia «Powered by Netlify» abajo a la derecha: se sube el chatbot para que no la tape.
+// Netlify pone su insignia «Powered by Netlify» abajo a la derecha: los avisos suben para que no la tape.
 if (location.hostname.endsWith('netlify.app')) document.documentElement.classList.add('con-insignia-netlify');
 
 CONFIG.api = (() => {

@@ -219,10 +219,11 @@ async function vistaSupervision() {
           <div><strong>${esc(a.nombre)}</strong><br><span class="suave pequeno">${esc(a.mensaje)}</span></div></div>`).join('')
           || '<p class="suave">Sin alertas en este período. Todo en orden.</p>'}</section>
     </div>
-    <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-ranking"><h2 id="t-ranking">Quién requiere atención</h2>
+    <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-ranking"><h2 id="t-ranking">Tabla de puntualidad</h2>
+      <p class="suave pequeno" style="margin-top:-6px">Ordenada de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.</p>
       <div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Asistencias</th><th>Retardos</th><th>Faltas sin justificar</th>
         <th>Justificadas</th><th>Puntualidad</th></tr></thead><tbody>
-        ${est.personas.slice(0, 8).map((p) => `<tr><td>${esc(p.nombre)}</td><td>${p.asistencias} / ${p.laborables}</td>
+        ${est.personas.map((p) => `<tr><td>${esc(p.nombre)}</td><td>${p.asistencias} / ${p.laborables}</td>
           <td>${p.retardos ? chip(p.retardos, 'amarillo') : 0}</td><td>${p.ausencias ? chip(p.ausencias, 'rojo') : 0}</td>
           <td>${p.justificadas}</td><td>${Math.round(p.puntualidad)}%</td></tr>`).join('')}</tbody></table></div></section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-reportes"><h2 id="t-reportes">Reportes</h2>

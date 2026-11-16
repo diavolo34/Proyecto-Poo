@@ -12,7 +12,7 @@ servicios**, en el mismo proceso: lo que el Jefe aprueba en la ventana Swing apa
 |------|---------|-----------------|----------|
 | **Modelo · dominio** | `construtrack.modelo` (+ `incidencias`, `alertas`, `reportes`, `excepciones`) | Reglas del negocio. No conoce Swing, HTTP ni JSON. | `Usuario`, `Historial`, `Incidencia`, `Invitacion`, `MonitorSupervision` |
 | **Modelo · casos de uso** | `construtrack.servicio` | Orquesta el dominio, aplica permisos, sincroniza y guarda. | `ServicioIncidencias`, `ServicioSupervision`, `ServicioRegistro` |
-| **Modelo · persistencia** | `construtrack.persistencia` | Lee y escribe los datos detrás de interfaces. | `EscritorDatos`, `RepositorioArchivo` |
+| **Modelo · persistencia** | `construtrack.persistencia` | Lee y escribe los datos detrás de interfaces. | `EscritorDatos`, `RepositorioTexto`, `Almacen` |
 | **Controlador** (escritorio) | `construtrack.controlador.swing` | Recibe la vista, registra sus eventos y llama a los servicios. | `ControladoraIncidencias`, `ControladoraTablero` |
 | **Controlador** (web) | `construtrack.controlador.web` | Traduce peticiones HTTP en llamadas a servicios y respuestas JSON. | `Enrutador`, `ControladorIncidencias`, `JsonMapper` |
 | **Vista** (escritorio) | `construtrack.vista.swing` | Construye y expone los componentes; sin lógica de negocio. | `VentanaLogin`, `PanelTablero`, `Tema` |

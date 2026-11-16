@@ -4,6 +4,7 @@ import construtrack.modelo.Usuario;
 import construtrack.modelo.incidencias.EstadoIncidencia;
 import construtrack.modelo.incidencias.Incidencia;
 import construtrack.servicio.ServicioIncidencias;
+import construtrack.util.Json;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;

@@ -1,4 +1,4 @@
-// Asistente "Ayuda RRHH": responde preguntas frecuentes y, con sesión iniciada, consulta datos según el rol.
+// Asistente "Arqui": responde preguntas frecuentes y, con sesión iniciada, consulta datos según el rol.
 class Chatbot {
   /**
    * @param {object} contexto
@@ -12,7 +12,7 @@ class Chatbot {
   /** Preguntas sugeridas según quién usa la página (reconocer en vez de recordar). */
   sugerencias() {
     const usuario = this.contexto.usuario();
-    if (!usuario) return ['¿Cómo me registro?', '¿Qué es el código de invitación?', '¿Cuándo pagan la nómina?', 'Normas de seguridad'];
+    if (!usuario) return ['¿Cómo me registro?', '¿Qué es el código de invitación?', '¿Qué hace cada rol?', 'Normas de seguridad'];
     const comunes = ['Mi horario', 'Marcar entrada', 'Marcar salida', '¿Cómo reporto una falta?'];
     if (usuario.rol === 'Empleado') return comunes;
     return ['¿Hay alertas?', '¿Quién está presente?', '¿Quién llegó tarde hoy?', '¿Quién falta hoy?', ...comunes.slice(0, 2)];
@@ -47,7 +47,6 @@ class Chatbot {
     if (tiene('reporto', 'reportar', 'falta', 'reposo', 'enfermo', 'permiso')) {
       return 'Ve a «Incidencias», elige el tipo (reposo médico, permiso personal, retardo, accidente…), las fechas y una descripción. Tu supervisor la revisa y la aprueba o la rechaza; un reposo aprobado no cuenta como falta.';
     }
-    if (tiene('pago', 'nomina', 'sueldo', 'quincena')) return 'La nómina se cierra los jueves y se paga los viernes por transferencia.';
     if (tiene('seguridad', 'casco', 'epp', 'botas', 'chaleco')) return 'En la obra es obligatorio usar casco, botas de seguridad y chaleco reflectivo. Sin equipo de protección no se permite el ingreso.';
     if (tiene('horario', 'oficina', 'abren')) return 'La oficina de RRHH atiende de lunes a viernes de 8:00 a 17:00.';
     if (tiene('contacto', 'telefono', 'direccion')) return 'Oficina de RRHH en la caseta principal de la obra · 0212-555-0100.';
@@ -115,9 +114,9 @@ const ChatUI = {
   montar(contexto) {
     this.bot = new Chatbot(contexto);
     document.body.insertAdjacentHTML('beforeend', `
-      <button class="btn btn-primario chat-boton" id="chat-abrir" aria-expanded="false" aria-controls="chat-panel">Ayuda RRHH</button>
-      <section class="chat-panel oculto" id="chat-panel" aria-label="Asistente Ayuda RRHH">
-        <div class="chat-cabecera"><strong>Ayuda RRHH</strong>
+      <button class="btn btn-primario chat-boton" id="chat-abrir" aria-expanded="false" aria-controls="chat-panel">Arqui</button>
+      <section class="chat-panel oculto" id="chat-panel" aria-label="Asistente Arqui">
+        <div class="chat-cabecera"><strong>Arqui</strong>
           <button class="btn btn-enlace" type="button" id="chat-cerrar" aria-label="Cerrar el asistente">✕</button></div>
         <div class="chat-mensajes" id="chat-mensajes" aria-live="polite"></div>
         <div class="chat-sugerencias" id="chat-sugerencias"></div>
@@ -131,7 +130,7 @@ const ChatUI = {
     $('#chat-cerrar').addEventListener('click', () => this.alternar());
     $('#chat-formulario').addEventListener('submit', (e) => { e.preventDefault(); this.enviar(); });
     $('#chat-sugerencias').addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') this.enviar(e.target.textContent); });
-    this.agregar('¡Hola! Soy el asistente de RRHH. Elige una pregunta o escríbeme.', false);
+    this.agregar('¡Hola! Soy Arqui, el asistente de ConstruTrack. Elige una pregunta o escríbeme.', false);
   },
 
   alternar() {

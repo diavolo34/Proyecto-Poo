@@ -17,6 +17,16 @@ public class Historial {
 
     private final List<RegistroAsistencia> asistencias = new ArrayList<>();
     private final List<Incidencia> incidencias = new ArrayList<>();
+    /** Primer día en la empresa: antes de esa fecha no se esperan jornadas (null = sin límite, datos antiguos). */
+    private LocalDate inicio;
+
+    public LocalDate getInicio() {
+        return inicio;
+    }
+
+    public void setInicio(LocalDate inicio) {
+        this.inicio = inicio;
+    }
 
     public void agregarAsistencia(RegistroAsistencia registro) {
         asistencias.add(registro);
@@ -80,11 +90,15 @@ public class Historial {
         return retardos;
     }
 
-    /** Días del período en los que el horario indica que debía trabajar, sin contar hoy ni el futuro. */
+    /**
+     * Días del período en los que el horario indica que debía trabajar, sin contar hoy ni el futuro,
+     * ni los días anteriores a su ingreso a la empresa.
+     */
     public List<LocalDate> diasLaborables(Horario horario, Periodo periodo, LocalDate hoy) {
         List<LocalDate> dias = new ArrayList<>();
         for (LocalDate fecha : periodo.fechas()) {
-            if (fecha.isBefore(hoy) && horario.incluyeDia(fecha.getDayOfWeek())) {
+            boolean yaTrabajaba = inicio == null || !fecha.isBefore(inicio);
+            if (yaTrabajaba && fecha.isBefore(hoy) && horario.incluyeDia(fecha.getDayOfWeek())) {
                 dias.add(fecha);
             }
         }
@@ -146,5 +160,6 @@ public class Historial {
         asistencias.addAll(otro.asistencias);
         incidencias.clear();
         incidencias.addAll(otro.incidencias);
+        inicio = otro.inicio;
     }
 }

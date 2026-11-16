@@ -4,6 +4,7 @@ import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.incidencias.EstadoIncidencia;
 import construtrack.modelo.incidencias.Incidencia;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         }
         Horario horario = Horario.desdeTexto(datos.get("dias"), datos.get("horaEntrada"), datos.get("horaSalida"));
         Usuario nuevo = Usuario.crear(rol, datos.get("cedula"), datos.get("nombre"), datos.get("clave"), horario);
+        nuevo.setFechaIngreso(LocalDate.now(reloj));
         if (nuevo instanceof Empleado) {
             asignarSupervisor((Empleado) nuevo, datos.get("supervisor"));
         }

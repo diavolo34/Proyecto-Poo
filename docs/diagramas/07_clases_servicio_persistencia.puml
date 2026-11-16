@@ -51,10 +51,16 @@ interface LectorDatos {
 interface EscritorDatos {
   + guardar(e : Empresa) : void
 }
-class RepositorioArchivo {
-  - archivo : Path
-  + RepositorioArchivo(archivo : Path, datosIniciales : Supplier<Empresa>, fabrica : FabricaIncidencias)
+class RepositorioTexto {
+  - almacen : Almacen
+  + RepositorioTexto(almacen : Almacen, datosIniciales : Supplier<Empresa>, fabrica : FabricaIncidencias)
 }
+interface Almacen {
+  + leer() : Optional<String>
+  + escribir(contenido : String) : void
+}
+class AlmacenArchivo
+class AlmacenUpstash
 class RepositorioMemoria
 class GeneradorDatosPrueba
 
@@ -73,9 +79,12 @@ Servicios *-- ServicioInvitaciones
 ServicioBase --> EscritorDatos : depende de la abstracción
 ServicioInvitaciones --> Notificador
 Notificador <|.. NotificadorConsola
-LectorDatos <|.. RepositorioArchivo
-EscritorDatos <|.. RepositorioArchivo
+LectorDatos <|.. RepositorioTexto
+EscritorDatos <|.. RepositorioTexto
 LectorDatos <|.. RepositorioMemoria
 EscritorDatos <|.. RepositorioMemoria
-RepositorioArchivo ..> GeneradorDatosPrueba : si no existe el archivo
+RepositorioTexto ..> GeneradorDatosPrueba : si el almacén está vacío
+RepositorioTexto --> Almacen : depende de la abstracción
+Almacen <|.. AlmacenArchivo
+Almacen <|.. AlmacenUpstash
 @enduml
