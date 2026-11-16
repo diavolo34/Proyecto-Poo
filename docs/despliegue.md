@@ -49,7 +49,25 @@ Ambos implementan la interfaz `Almacen`, así que el resto del sistema no cambia
 
 Sin esas variables (por ejemplo, en NetBeans) los datos se guardan en `datos_construtrack.txt`.
 
-### Invitaciones por correo con Brevo (gratis)
+### Invitaciones por correo desde Gmail (recomendado, gratis y sin teléfono)
+
+Brevo exige verificar un teléfono y no acepta números de Venezuela; por eso la opción principal es enviar desde tu propio
+Gmail con un Google Apps Script (`NotificadorGmail`). Google permite unos 100 correos al día.
+
+1. Entra a https://script.google.com con tu cuenta de Google → **Nuevo proyecto**.
+2. Borra lo que trae y pega el contenido de [`tools/correo-gmail/Codigo.gs`](../tools/correo-gmail/Codigo.gs).
+   Cambia `CLAVE` por una frase larga que solo tú conozcas y guarda (Ctrl+S).
+3. (Opcional) Elige la función `probar` y pulsa **Ejecutar**: Google pide permiso para enviar correos en tu nombre
+   («Revisar permisos» → tu cuenta → «Configuración avanzada» → «Ir al proyecto» → «Permitir»). Te llega un correo de prueba.
+4. **Implementar → Nueva implementación** → tipo **Aplicación web** → *Ejecutar como*: **Yo** · *Quién tiene acceso*:
+   **Cualquier usuario** → **Implementar** → copia la **URL** que termina en `/exec`.
+5. En Render → `construtrack-api` → **Environment** agrega `GMAIL_SCRIPT_URL` (la URL) y `GMAIL_SCRIPT_CLAVE`
+   (la misma frase de `CLAVE`) → **Save, rebuild and deploy**.
+
+Al arrancar, el registro dice `correo real activado`. Si cambias el código del script, vuelve a implementarlo
+(**Implementar → Gestionar implementaciones → editar → Nueva versión**) para que la URL use la versión nueva.
+
+### Invitaciones por correo con Brevo (alternativa)
 
 Render gratis bloquea el envío por SMTP, así que el correo sale por la **API HTTP de Brevo** (`NotificadorBrevo`).
 

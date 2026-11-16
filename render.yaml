@@ -20,7 +20,12 @@ services:
         sync: false
       - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
-      # Invitaciones por correo con Brevo (gratis, 300 al día). Sin estas variables solo se registran en la consola.
+      # Invitaciones por correo desde Gmail con Google Apps Script (tools/correo-gmail/Codigo.gs)
+      - key: GMAIL_SCRIPT_URL
+        sync: false
+      - key: GMAIL_SCRIPT_CLAVE
+        sync: false
+      # Alternativa: invitaciones por correo con Brevo (gratis, 300 al día). Sin estas variables solo se registran en la consola.
       - key: BREVO_API_KEY
         sync: false
       - key: CORREO_REMITENTE

@@ -100,8 +100,8 @@ abstract class ServicioBase {
   se guardó sin tocar el disco).
 - `MonitorSupervision(List<ReglaAlerta> reglas)` recibe sus reglas; las pruebas le pasan reglas con otros umbrales.
 - `ServicioInvitaciones` depende de `Notificador`, igual que el `IMensajero` del material. Hay dos implementaciones:
-  `NotificadorConsola` (en NetBeans, solo registra) y `NotificadorBrevo` (en el servidor publicado, envía el correo
-  real por la API de Brevo). Se agregó el correo real **sin cambiar una línea del servicio**: `App` elige cuál inyectar
+  `NotificadorConsola` (en NetBeans, solo registra), `NotificadorGmail` (envía desde el Gmail del jefe con un
+  Apps Script) y `NotificadorBrevo` (API de Brevo). Las dos reales comparten el contenido en `MensajeInvitacion` (SRP). Se agregó el correo real **sin cambiar una línea del servicio**: `App` elige cuál inyectar
   según la configuración (DIP y, a la vez, OCP).
 - El reloj (`java.time.Clock`) también se inyecta: las pruebas usan `Clock.fixed` y obtienen siempre el mismo resultado.
 
