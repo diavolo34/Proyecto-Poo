@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- ConstruTrack · Rol Empleado: casco amarillo y chaleco reflectivo -->
+  <defs><clipPath id="circulo"><circle cx="80" cy="80" r="80"/></clipPath></defs>
+  <circle cx="80" cy="80" r="80" fill="#fff3d1"/>
+  <g clip-path="url(#circulo)">
+    <path d="M18 172c0-38 27-60 62-60s62 22 62 60z" fill="#0c66e4"/>
+    <path d="M28 172 C28 140 42 122 66 114 L74 172 Z" fill="#f5781f"/>
+    <path d="M132 172 C132 140 118 122 94 114 L86 172 Z" fill="#f5781f"/>
+    <rect x="28" y="138" width="46" height="8" fill="#fff" opacity=".9"/>
+    <rect x="86" y="138" width="46" height="8" fill="#fff" opacity=".9"/>
+    <rect x="70" y="96" width="20" height="20" rx="6" fill="#a86d32"/>
+    <circle cx="55" cy="84" r="5" fill="#c68642"/><circle cx="105" cy="84" r="5" fill="#c68642"/>
+    <circle cx="80" cy="80" r="25" fill="#c68642"/>
+    <circle cx="71" cy="84" r="2.6" fill="#172b4d"/><circle cx="89" cy="84" r="2.6" fill="#172b4d"/>
+    <path d="M72 93q8 6 16 0" fill="none" stroke="#172b4d" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M53 74a27 26 0 0 1 54 0z" fill="#fca700"/>
+    <rect x="48" y="70" width="64" height="9" rx="4.5" fill="#e08e00"/>
+    <rect x="75" y="49" width="10" height="24" rx="5" fill="#ffc94d"/>
+  </g>
+</svg>

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 220" width="360" height="220" font-family="'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif">
+  <!-- ConstruTrack · Ilustración: una persona escribe su código de invitación y entra a la empresa -->
+  <defs>
+    <filter id="sombra" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#7f5f01" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect width="360" height="220" rx="18" fill="#fff7d6"/>
+  <circle cx="34" cy="34" r="12" fill="#ffd57a"/>
+  <path d="M0 186 H360 V202 a18 18 0 0 1 -18 18 H18 a18 18 0 0 1 -18 -18 Z" fill="#ffe2a8"/>
+
+  <!-- Pantalla «Únete a tu empresa» -->
+  <g filter="url(#sombra)">
+    <rect x="34" y="30" width="150" height="156" rx="16" fill="#fff"/>
+  </g>
+  <text x="50" y="56" font-size="11.5" font-weight="700" fill="#172b4d">Únete a tu empresa</text>
+  <rect x="50" y="68" width="118" height="32" rx="6" fill="#fff" stroke="#0c66e4" stroke-width="2"/>
+  <text x="59" y="89" font-family="ui-monospace, Consolas, 'Courier New', monospace" font-size="11.5" font-weight="700" fill="#0055cc">CT-A7K2-9QMP</text>
+  <rect x="50" y="110" width="118" height="30" rx="6" fill="#0c66e4"/>
+  <text x="109" y="130" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Unirme</text>
+  <rect x="50" y="152" width="84" height="7" rx="3.5" fill="#dcdfe4"/>
+  <rect x="50" y="166" width="60" height="7" rx="3.5" fill="#dcdfe4"/>
+
+  <!-- Camino a la obra -->
+  <path d="M190 104 C214 92 222 96 240 106" fill="none" stroke="#7f5f01" stroke-width="2.5" stroke-dasharray="1 7" stroke-linecap="round"/>
+  <path d="M236 98 l8 9 -11 4" fill="none" stroke="#7f5f01" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Persona con casco -->
+  <g>
+    <rect x="203" y="160" width="7" height="26" rx="3" fill="#09326c"/>
+    <rect x="213" y="160" width="7" height="26" rx="3" fill="#09326c"/>
+    <path d="M200 166 v-24 a12 12 0 0 1 24 0 v24 z" fill="#f5781f"/>
+    <rect x="200" y="150" width="24" height="4" fill="#fff"/>
+    <circle cx="212" cy="122" r="9" fill="#c68642"/>
+    <path d="M202 120 a10 9 0 0 1 20 0z" fill="#fca700"/>
+    <rect x="200" y="118" width="24" height="4" rx="2" fill="#e08e00"/>
+  </g>
+
+  <!-- La empresa -->
+  <rect x="246" y="78" width="82" height="108" rx="6" fill="#fca700"/>
+  <g fill="#fff3d1">
+    <rect x="258" y="92" width="16" height="16" rx="2"/><rect x="282" y="92" width="16" height="16" rx="2"/><rect x="306" y="92" width="12" height="16" rx="2"/>
+    <rect x="258" y="118" width="16" height="16" rx="2"/><rect x="306" y="118" width="12" height="16" rx="2"/>
+  </g>
+  <rect x="276" y="146" width="24" height="40" rx="3" fill="#09326c"/>
+  <circle cx="294" cy="166" r="2" fill="#fca700"/>
+  <circle cx="326" cy="80" r="16" fill="#22a06b" stroke="#fff7d6" stroke-width="4"/>
+  <path d="M319 80l5 5 9-9" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
