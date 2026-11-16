@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 250" width="300" height="250" font-family="'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif">
+  <!-- ConstruTrack · Ilustración: sobre con un código de invitación de un solo uso -->
+  <rect x="24" y="100" width="252" height="138" rx="14" fill="#0055cc"/>
+  <path d="M28 104 L150 34 L272 104 Z" fill="#0c66e4" stroke="#0c66e4" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Tarjeta con el código -->
+  <rect x="52" y="54" width="196" height="122" rx="12" fill="#fff" stroke="#dcdfe4"/>
+  <text x="68" y="80" font-size="12" font-weight="600" fill="#44546f">Invitación · Empleado</text>
+  <rect x="66" y="92" width="168" height="36" rx="8" fill="#e9f2ff"/>
+  <text x="150" y="116" text-anchor="middle" font-family="ui-monospace, Consolas, 'Courier New', monospace" font-size="17" font-weight="700" letter-spacing="1" fill="#0055cc">CT-A7K2-9QMP</text>
+  <text x="150" y="150" text-anchor="middle" font-size="11.5" fill="#44546f">Sirve una sola vez</text>
+  <!-- Frente del sobre -->
+  <path d="M24 122 L150 194 L276 122 V224 a14 14 0 0 1 -14 14 H38 a14 14 0 0 1 -14 -14 Z" fill="#0c66e4"/>
+  <path d="M30 232 L124 178 M270 232 L176 178" stroke="#0055cc" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+  <!-- Correo -->
+  <circle cx="258" cy="50" r="28" fill="#fca700" stroke="#fff" stroke-width="5"/>
+  <text x="258" y="60" text-anchor="middle" font-size="28" font-weight="700" fill="#172b4d">@</text>
+  <path d="M28 40l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#fca700"/>
+</svg>

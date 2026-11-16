@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 520" width="600" height="520">
+  <!-- ConstruTrack · Ilustración de la portada: obra con grúa torre y edificio en construcción -->
+  <!-- Sol y nubes -->
+  <circle cx="540" cy="96" r="54" fill="#fff" opacity=".35"/>
+  <circle cx="540" cy="96" r="36" fill="#fff3d1"/>
+  <g fill="#fff">
+    <circle cx="52" cy="146" r="14"/><circle cx="78" cy="138" r="22"/><circle cx="106" cy="144" r="16"/>
+    <rect x="52" y="144" width="54" height="16"/>
+    <circle cx="392" cy="114" r="10"/><circle cx="412" cy="108" r="16"/><circle cx="432" cy="116" r="8"/>
+    <rect x="392" y="112" width="40" height="12"/>
+  </g>
+
+  <!-- Grúa torre -->
+  <g fill="none" stroke="#09326c" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="296" y="62" width="24" height="408" stroke-width="4"/>
+    <polyline stroke-width="3" points="296,62 320,86 296,110 320,134 296,158 320,182 296,206 320,230 296,254 320,278 296,302 320,326 296,350 320,374 296,398 320,422 296,446 320,470"/>
+    <path d="M296 48 L308 8 L320 48" stroke-width="4"/>
+    <path d="M58 48 L308 8 L442 48" stroke-width="2"/>
+    <rect x="56" y="48" width="388" height="14" stroke-width="4"/>
+    <polyline stroke-width="3" points="56,62 72,48 88,62 104,48 120,62 136,48 152,62 168,48 184,62 200,48 216,62 232,48 248,62 264,48 280,62 296,48 312,62 328,48 344,62 360,48 376,62 392,48 408,62 424,48 440,62"/>
+  </g>
+  <rect x="404" y="62" width="36" height="30" rx="3" fill="#44546f"/>
+  <rect x="404" y="70" width="36" height="5" fill="#fca700"/>
+  <rect x="320" y="62" width="28" height="24" rx="4" fill="#0c66e4"/>
+  <rect x="326" y="67" width="16" height="10" rx="2" fill="#cce0ff"/>
+  <!-- Carro, cable y viga colgando -->
+  <rect x="132" y="62" width="24" height="8" rx="2" fill="#09326c"/>
+  <path d="M144 70 V96" stroke="#09326c" stroke-width="2"/>
+  <rect x="138" y="92" width="12" height="10" rx="2" fill="#fca700"/>
+  <path d="M144 102 v5 a6 6 0 1 1 -6 6" fill="none" stroke="#09326c" stroke-width="3" stroke-linecap="round"/>
+  <path d="M144 110 L104 128 M144 110 L184 128" stroke="#44546f" stroke-width="2" stroke-linecap="round"/>
+  <rect x="96" y="128" width="96" height="14" rx="2" fill="#0c66e4"/>
+  <rect x="96" y="128" width="96" height="3" fill="#0055cc"/>
+  <rect x="96" y="139" width="96" height="3" fill="#0055cc"/>
+
+  <!-- Edificio en construcción -->
+  <g>
+    <rect x="470" y="170" width="8" height="300" fill="#8590a2"/>
+    <rect x="521" y="170" width="8" height="300" fill="#8590a2"/>
+    <rect x="572" y="170" width="8" height="300" fill="#8590a2"/>
+    <!-- Pisos terminados -->
+    <rect x="478" y="358" width="94" height="52" fill="#fff"/>
+    <rect x="478" y="418" width="94" height="52" fill="#fff"/>
+    <rect x="478" y="298" width="43" height="52" fill="#fff"/>
+    <g fill="#85b8ff">
+      <rect x="486" y="370" width="28" height="26" rx="3"/><rect x="536" y="370" width="28" height="26" rx="3"/>
+      <rect x="486" y="430" width="28" height="26" rx="3"/><rect x="536" y="430" width="28" height="26" rx="3"/>
+      <rect x="486" y="310" width="28" height="26" rx="3"/>
+    </g>
+    <!-- Andamio en los pisos de arriba -->
+    <path d="M478 178 L521 230 M521 178 L478 230 M529 178 L572 230 M572 178 L529 230 M478 238 L521 290 M521 238 L478 290 M529 238 L572 290 M572 238 L529 290 M529 298 L572 350 M572 298 L529 350"
+      stroke="#09326c" stroke-width="2" opacity=".45"/>
+    <g fill="#44546f">
+      <rect x="464" y="170" width="122" height="8" rx="2"/><rect x="464" y="230" width="122" height="8" rx="2"/>
+      <rect x="464" y="290" width="122" height="8" rx="2"/><rect x="464" y="350" width="122" height="8" rx="2"/>
+      <rect x="464" y="410" width="122" height="8" rx="2"/>
+    </g>
+    <!-- Bandera en la azotea -->
+    <path d="M576 170 V128" stroke="#09326c" stroke-width="3" stroke-linecap="round"/>
+    <path d="M576 130 h-28 l8 9 l-8 9 h28 z" fill="#0c66e4"/>
+  </g>
+
+  <!-- Suelo y conos -->
+  <rect x="0" y="468" width="600" height="8" rx="4" fill="#09326c" opacity=".2"/>
+  <g>
+    <path d="M534 468 L546 432 L558 468 Z" fill="#f5781f"/>
+    <rect x="539" y="446" width="14" height="6" fill="#fff"/>
+    <rect x="530" y="464" width="32" height="6" rx="2" fill="#c25100"/>
+    <path d="M566 468 L578 432 L590 468 Z" fill="#f5781f"/>
+    <rect x="571" y="446" width="14" height="6" fill="#fff"/>
+    <rect x="562" y="464" width="32" height="6" rx="2" fill="#c25100"/>
+  </g>
+</svg>

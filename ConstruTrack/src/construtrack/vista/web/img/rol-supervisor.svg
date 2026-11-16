@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- ConstruTrack · Rol Supervisor: casco azul, chaleco y portapapeles -->
+  <defs><clipPath id="circulo"><circle cx="80" cy="80" r="80"/></clipPath></defs>
+  <circle cx="80" cy="80" r="80" fill="#e9f2ff"/>
+  <g clip-path="url(#circulo)">
+    <path d="M18 172c0-38 27-60 62-60s62 22 62 60z" fill="#fff"/>
+    <path d="M28 172 C28 140 42 122 66 114 L74 172 Z" fill="#fca700"/>
+    <path d="M132 172 C132 140 118 122 94 114 L86 172 Z" fill="#fca700"/>
+    <rect x="28" y="138" width="46" height="8" fill="#fff" opacity=".9"/>
+    <rect x="86" y="138" width="46" height="8" fill="#fff" opacity=".9"/>
+    <rect x="70" y="96" width="20" height="20" rx="6" fill="#6f4219"/>
+    <circle cx="55" cy="84" r="5" fill="#8d5524"/><circle cx="105" cy="84" r="5" fill="#8d5524"/>
+    <circle cx="80" cy="80" r="25" fill="#8d5524"/>
+    <circle cx="71" cy="84" r="2.6" fill="#172b4d"/><circle cx="89" cy="84" r="2.6" fill="#172b4d"/>
+    <path d="M72 93q8 6 16 0" fill="none" stroke="#172b4d" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M53 74a27 26 0 0 1 54 0z" fill="#0c66e4"/>
+    <rect x="48" y="70" width="64" height="9" rx="4.5" fill="#0055cc"/>
+    <rect x="75" y="49" width="10" height="24" rx="5" fill="#4c9aff"/>
+    <!-- Portapapeles -->
+    <g transform="rotate(8 112 140)">
+      <rect x="94" y="116" width="38" height="48" rx="5" fill="#44546f"/>
+      <rect x="99" y="124" width="28" height="36" rx="2" fill="#fff"/>
+      <rect x="104" y="112" width="18" height="8" rx="3" fill="#8590a2"/>
+      <path d="M103 133l3 3 5-6 M103 145l3 3 5-6" fill="none" stroke="#22a06b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M114 134h9 M114 146h9" stroke="#8590a2" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>
