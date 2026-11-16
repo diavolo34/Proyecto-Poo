@@ -2,7 +2,7 @@
 
 **Objetivo:** corregir lo encontrado al usar la página publicada «como la profesora» y dejar ConstruTrack listo para que
 cualquier constructora lo use.
-**Historias:** HU-18 a HU-28.
+**Historias:** HU-18 a HU-30.
 
 ## Sprint Backlog
 - **Datos permanentes** (HU-20): `Almacen` con `AlmacenArchivo` y `AlmacenUpstash`; el plan gratuito de Render borraba
@@ -18,9 +18,13 @@ cualquier constructora lo use.
 - **Portada nueva** (HU-27), asistente **Arqui**, código sin comentarios.
 - **Versión para clientes** (HU-28): arranque vacío, modo demostración opcional (`--demo`) y demo privada con clave
   en la misma página (`app.html#demo`).
+- **Pulido final** (HU-29, HU-30): las incidencias aprobadas o rechazadas salen del tablero 3 horas después de
+  revisarse y quedan en el reporte de incidencias (con «Todo el historial»); la asistencia se calcula desde la jornada
+  abierta, lo que arregla la marca del jefe; el jefe y los supervisores aparecen primero y destacados en la tabla de
+  puntualidad; y las opciones de rol del registro quedan alineadas en el celular.
 
 ## Incremento
-PRs #3 a #9 fusionados en `main`, cada uno con el CI en verde, desplegados en Render y publicados en Netlify.
+PRs #3 a #10 fusionados en `main`, cada uno con el CI en verde, desplegados en Render y publicados en Netlify.
 Copia de respaldo de la versión anterior (código y datos) entregada fuera del repositorio.
 
 ## Review
@@ -29,7 +33,7 @@ Copia de respaldo de la versión anterior (código y datos) entregada fuera del 
   otra empresa) y con un recorrido en el navegador.
 - Al quitar los comentarios se verificó que el Java compilado es idéntico byte a byte y que el JavaScript tiene el mismo
   árbol sintáctico.
-- 50 pruebas JUnit y pruebas de humo de la API en modo demostración, producción y demo privada.
+- 57 pruebas JUnit y pruebas de humo de la API en modo demostración, producción y demo privada.
 
 ## Retrospectiva
 - **Bien:** probar la página real como lo haría la profesora reveló errores que las pruebas unitarias no veían
