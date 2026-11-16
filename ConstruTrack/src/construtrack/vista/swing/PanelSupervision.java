@@ -24,7 +24,8 @@ public final class PanelSupervision extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private final JComboBox<Opcion> cboPeriodo = new JComboBox<>(new Opcion[] {
-        new Opcion("semana", "Esta semana"), new Opcion("mes", "Este mes")});
+        new Opcion("ultimos7", "Últimos 7 días"), new Opcion("semana", "Esta semana"),
+        new Opcion("mes", "Este mes")});
     private final JLabel lblAsistencia = Tema.texto("—");
     private final JLabel lblPuntualidad = Tema.texto("—");
     private final JLabel lblHoras = Tema.texto("—");

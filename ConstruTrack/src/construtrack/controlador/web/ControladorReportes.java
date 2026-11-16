@@ -19,7 +19,7 @@ public class ControladorReportes implements ControladorWeb {
 
     private Respuesta descargar(Peticion p) {
         Exportacion exportacion = supervision.exportar(p.usuario(), p.parametro("tipo"),
-                p.consulta("formato", "csv"), p.consulta("periodo", "semana"));
+                p.consulta("formato", "csv"), p.consulta("periodo", "ultimos7"));
         return Respuesta.descarga(exportacion.contenido(), exportacion.mime(), exportacion.nombreArchivo());
     }
 }

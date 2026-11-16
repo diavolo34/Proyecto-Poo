@@ -81,14 +81,20 @@ public class ServicioSupervision extends ServicioBase {
         throw new PermisoDenegadoException("Tu rol no tiene acceso a los reportes del equipo.");
     }
 
-    /** Convierte el nombre del período en un rango de fechas: semana (por defecto) o mes. */
-    private static Periodo periodo(String nombre, LocalDate hoy) {
-        if (nombre == null || nombre.isBlank() || "semana".equals(nombre)) {
+    /**
+     * Convierte el nombre del período en un rango de fechas. Por defecto, los últimos 7 días: así un lunes
+     * por la mañana también hay datos que revisar (la semana calendario apenas empieza).
+     */
+    public static Periodo periodo(String nombre, LocalDate hoy) {
+        if (nombre == null || nombre.isBlank() || "ultimos7".equals(nombre)) {
+            return Periodo.ultimosDias(hoy, 7);
+        }
+        if ("semana".equals(nombre)) {
             return Periodo.semanaDe(hoy);
         }
         if ("mes".equals(nombre)) {
             return Periodo.mesDe(hoy);
         }
-        throw new DatoInvalidoException("El período debe ser 'semana' o 'mes'.");
+        throw new DatoInvalidoException("El período debe ser 'ultimos7', 'semana' o 'mes'.");
     }
 }

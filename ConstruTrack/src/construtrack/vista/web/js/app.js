@@ -1,5 +1,5 @@
 // Aplicación: arranque, sesión, enrutamiento por #hash y estructura (barra superior + menú lateral).
-const estado = { usuario: null, cuenta: null, periodo: 'semana' };
+const estado = { usuario: null, cuenta: null, periodo: 'ultimos7' };
 
 (async function iniciar() {
   const banda = $('#conexion');

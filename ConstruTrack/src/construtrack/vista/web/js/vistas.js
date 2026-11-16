@@ -193,12 +193,12 @@ async function revisarIncidencia(id, nuevoEstado) {
 
 // ------------------------------------------------------------------ Supervisión
 async function vistaSupervision() {
-  const periodo = estado.periodo || 'semana';
+  const periodo = estado.periodo || 'ultimos7';
   const [est, alertas] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo)]);
   const color = (v) => (v >= 90 ? '#22a06b' : v >= 75 ? '#e2b203' : '#c9372c');
   contenido().innerHTML = encabezado('Equipo /', 'Supervisión', `
     <label for="periodo" class="pequeno">Período</label>
-    <select id="periodo" style="width:auto">${[['semana', 'Esta semana'], ['mes', 'Este mes']]
+    <select id="periodo" style="width:auto">${[['ultimos7', 'Últimos 7 días'], ['semana', 'Esta semana'], ['mes', 'Este mes']]
       .map(([v, t]) => `<option value="${v}" ${v === periodo ? 'selected' : ''}>${t}</option>`).join('')}</select>`) + `
     <p class="suave pequeno" style="margin-top:-8px">${esc(est.periodo)}</p>
     <div class="cifras">
@@ -214,9 +214,9 @@ async function vistaSupervision() {
           <div class="barra-pista" role="img" aria-label="${esc(p.nombre)}: ${Math.round(p.tasaAsistencia)}% de asistencia">
             <span style="width:${p.tasaAsistencia}%;background:${color(p.tasaAsistencia)}"></span></div>
           <strong>${Math.round(p.tasaAsistencia)}%</strong></div>`).join('') || '<p class="suave">Sin datos.</p>'}</div></section>
-      <section class="tarjeta" aria-labelledby="t-alertas"><h2 id="t-alertas">Alertas automáticas</h2>
+      <section class="tarjeta" aria-labelledby="t-alertas"><h2 id="t-alertas">Alertas automáticas</h2><p class="suave pequeno" style="margin-top:-6px">De la más antigua a la más reciente.</p>
         ${alertas.map((a) => `<div class="alerta">${chip(a.nivel, a.nivel === 'Alta' ? 'rojo' : 'amarillo')}
-          <div><strong>${esc(a.nombre)}</strong><br><span class="suave pequeno">${esc(a.mensaje)}</span></div></div>`).join('')
+          <div><strong>${esc(a.nombre)}</strong> <span class="suave pequeno">· desde ${fecha(a.desde)}</span><br><span class="suave pequeno">${esc(a.mensaje)}</span></div></div>`).join('')
           || '<p class="suave">Sin alertas en este período. Todo en orden.</p>'}</section>
     </div>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-ranking"><h2 id="t-ranking">Tabla de puntualidad</h2>
@@ -300,7 +300,7 @@ async function formularioPersona(cedula) {
     <div class="fila">
       <div class="campo"><label for="rol">Rol</label><select id="rol" name="rol">
         ${['Empleado', 'Supervisor'].map((r) => `<option ${u && u.rol === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>
-      <div class="campo"><label for="p-cedula">Cédula o DNI</label><input id="p-cedula" name="cedula" value="${esc(u ? u.cedula : '')}" ${u ? 'disabled' : ''}></div>
+      <div class="campo"><label for="p-cedula">Cédula o DNI</label><input id="p-cedula" name="cedula" value="${esc(u ? u.cedula : '')}" ${u ? 'disabled' : 'inputmode="numeric" maxlength="10" data-solo-numeros'}></div>
     </div>
     <div class="campo"><label for="p-nombre">Nombre completo</label><input id="p-nombre" name="nombre" value="${esc(u ? u.nombre : '')}"></div>
     <div class="campo"><label for="p-clave">Clave</label><input id="p-clave" name="clave" type="password" autocomplete="new-password">

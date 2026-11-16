@@ -21,12 +21,12 @@ public class ControladorSupervision implements ControladorWeb {
     }
 
     private Respuesta alertas(Peticion p) {
-        List<Alerta> alertas = supervision.alertas(p.usuario(), p.consulta("periodo", "semana"));
+        List<Alerta> alertas = supervision.alertas(p.usuario(), p.consulta("periodo", "ultimos7"));
         return Respuesta.json(Json.lista(alertas, JsonMapper::alerta));
     }
 
     private Respuesta estadisticas(Peticion p) {
         return Respuesta.json(JsonMapper.estadisticas(
-                supervision.estadisticas(p.usuario(), p.consulta("periodo", "semana"))));
+                supervision.estadisticas(p.usuario(), p.consulta("periodo", "ultimos7"))));
     }
 }

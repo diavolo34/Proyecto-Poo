@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import construtrack.Datos;
 import construtrack.modelo.excepciones.CredencialesInvalidasException;
+import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.modelo.incidencias.Incidencia;
 import construtrack.persistencia.RepositorioMemoria;
@@ -52,5 +53,26 @@ class ServiciosTest {
         servicios.registro().unirse(cuenta, inv.getCodigo().toString().toLowerCase());
         assertEquals("Empleado", servicios.autenticacion().ingresar("28555111", "pablo123").usuario().getRol());
         assertThrows(CredencialesInvalidasException.class, () -> servicios.autenticacion().ingresar("pablo@correo.com", "mala"));
+    }
+
+    @Test
+    @DisplayName("Una cédula nueva solo admite números (sin V, puntos ni guiones)")
+    void cedulaSoloNumeros() {
+        for (String mala : new String[] {"V28555111", "28.555.111", "28-555-111", "12345"}) {
+            assertThrows(DatoInvalidoException.class, () -> servicios.registro().registrar(Map.of("correo", "x@correo.com",
+                    "clave", "clave123", "confirmacion", "clave123", "nombre", "Ana", "apellido", "Paz",
+                    "documento", mala, "telefono", "04121234567")), mala);
+        }
+        assertThrows(DatoInvalidoException.class, () -> servicios.personal().registrar(d.jefe, Map.of("rol", "Empleado",
+                "cedula", "V30000099", "nombre", "Pepe Prueba", "clave", "pepe123", "dias", "LU,MA",
+                "horaEntrada", "07:00", "horaSalida", "16:00")));
+    }
+
+    @Test
+    @DisplayName("El período por defecto son los últimos 7 días")
+    void periodoPorDefecto() {
+        var periodo = ServicioSupervision.periodo(null, HOY);
+        assertEquals(HOY.minusDays(6), periodo.getDesde());
+        assertEquals(HOY, periodo.getHasta());
     }
 }

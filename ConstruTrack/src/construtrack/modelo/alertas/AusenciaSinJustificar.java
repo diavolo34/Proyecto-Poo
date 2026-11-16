@@ -22,6 +22,6 @@ public class AusenciaSinJustificar implements ReglaAlerta {
         String fechas = faltas.stream().map(f -> f.format(FORMATO)).collect(Collectors.joining(", "));
         Nivel nivel = faltas.size() >= 2 ? Nivel.ALTA : Nivel.MEDIA;
         return List.of(Alerta.de(nivel, empleado,
-                faltas.size() + " día(s) sin justificar: " + fechas + ".", ahora));
+                faltas.size() + " día(s) sin justificar: " + fechas + ".", faltas.get(0).atStartOfDay(), ahora));
     }
 }

@@ -146,6 +146,7 @@ public final class JsonMapper {
                 .texto("cedula", a.getCedula())
                 .texto("nombre", a.getNombre())
                 .texto("mensaje", a.getMensaje())
+                .texto("desde", a.getDesde())
                 .texto("generada", a.getGenerada())
                 .toString();
     }

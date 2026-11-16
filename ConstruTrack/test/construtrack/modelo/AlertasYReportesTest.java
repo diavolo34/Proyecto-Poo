@@ -44,7 +44,7 @@ class AlertasYReportesTest {
     }
 
     @Test
-    @DisplayName("El monitor aplica todas las reglas solo a empleados y ordena por prioridad")
+    @DisplayName("El monitor aplica todas las reglas solo a empleados; a igual antigüedad, primero la más grave")
     void monitorConReglasInyectadas() {
         tardeLunesYMartes(d.jose);
         // Laura no vino ni lunes ni martes: dos faltas sin justificar → alerta ALTA
@@ -53,6 +53,19 @@ class AlertasYReportesTest {
         assertEquals(Nivel.ALTA, alertas.get(0).getNivel());
         assertEquals("Laura Torres", alertas.get(0).getNombre());
         assertTrue(alertas.stream().noneMatch(a -> a.getNombre().equals("Ana Rodríguez")), "Los supervisores no se evalúan");
+    }
+
+    @Test
+    @DisplayName("Las alertas salen de la más antigua a la más reciente, aunque la nueva sea más grave")
+    void alertasPorAntiguedad() {
+        // Regla de prueba (OCP: se agrega sin tocar el monitor): Laura tiene un problema desde el lunes, José desde el martes
+        ReglaAlerta regla = (empleado, periodo, hoy, ahora) -> switch (empleado.getNombre()) {
+            case "Laura Torres" -> List.of(Alerta.de(Nivel.MEDIA, empleado, "Desde el lunes", lunes.atStartOfDay(), ahora));
+            case "José García" -> List.of(Alerta.de(Nivel.ALTA, empleado, "Desde el martes", martes.atStartOfDay(), ahora));
+            default -> List.of();
+        };
+        List<Alerta> alertas = new MonitorSupervision(List.of(regla)).evaluar(d.empresa.listarUsuarios(), semana, HOY, AHORA);
+        assertEquals(List.of("Laura Torres", "José García"), alertas.stream().map(Alerta::getNombre).toList());
     }
 
     @Test
