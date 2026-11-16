@@ -73,7 +73,7 @@ public class RegistroAsistencia {
         if (!tieneHorasExtra(horario)) {
             throw new OperacionInvalidaException("La jornada del " + fecha + " no tiene horas extra.");
         }
-        if (nuevo == null || nuevo == EstadoHorasExtra.PENDIENTE) {
+        if (nuevo == null || nuevo == EstadoHorasExtra.PENDIENTE || nuevo == EstadoHorasExtra.NO_APLICA) {
             throw new OperacionInvalidaException("Elige aprobar o rechazar las horas extra.");
         }
         if (estadoExtra != EstadoHorasExtra.PENDIENTE) {

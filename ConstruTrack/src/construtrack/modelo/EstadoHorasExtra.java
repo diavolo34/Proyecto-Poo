@@ -4,7 +4,9 @@ package construtrack.modelo;
 public enum EstadoHorasExtra {
     PENDIENTE("Por aprobar"),
     APROBADAS("Aprobadas"),
-    RECHAZADAS("Rechazadas");
+    RECHAZADAS("Rechazadas"),
+    /** Jornada guardada antes de existir el control de horas extra: no se cuenta ni se revisa. */
+    NO_APLICA("Antes del control de horas extra");
 
     private final String nombre;
 

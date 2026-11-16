@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml/badge.svg)](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=openjdk)
-![Pruebas](https://img.shields.io/badge/JUnit%205-39%20pruebas-brightgreen)
+![Pruebas](https://img.shields.io/badge/JUnit%205-40%20pruebas-brightgreen)
 ![Arquitectura](https://img.shields.io/badge/arquitectura-MVC%20%2B%20SOLID-blue)
 ![Dependencias](https://img.shields.io/badge/dependencias-0-brightgreen)
 [![Demo en vivo](https://img.shields.io/badge/demo-en%20vivo-0052CC?logo=netlify)](https://startling-toffee-914e34.netlify.app)
@@ -166,7 +166,7 @@ con códigos 400, 401, 403, 404 o 409.
 
 ## Calidad
 
-- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **39 pruebas JUnit 5** y una prueba de humo de la API.
+- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **40 pruebas JUnit 5** y una prueba de humo de la API.
 - **Pruebas** del modelo, la persistencia y los servicios con reloj fijo; se comprobó que detectan errores introducidos a propósito.
 - Verificado en la interfaz real: recorridos de la web con Playwright, de Swing en pantalla virtual, y despliegue con Docker y CORS.
 

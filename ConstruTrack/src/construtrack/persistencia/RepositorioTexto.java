@@ -180,9 +180,8 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         if (!"-".equals(c[4])) {
             registro.registrarSalida(LocalTime.parse(c[4]));
         }
-        if (c.length > 6) { // campo agregado después: en archivos viejos todas quedan por aprobar
-            registro.restaurarEstadoExtra(EstadoHorasExtra.valueOf(c[6]));
-        }
+        // Campo agregado después: las jornadas de archivos viejos no entran en el control de horas extra
+        registro.restaurarEstadoExtra(c.length > 6 ? EstadoHorasExtra.valueOf(c[6]) : EstadoHorasExtra.NO_APLICA);
         return registro;
     }
 

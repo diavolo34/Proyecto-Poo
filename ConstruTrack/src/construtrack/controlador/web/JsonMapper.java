@@ -72,7 +72,7 @@ public final class JsonMapper {
 
     /** Una jornada con sus horas extra (que dependen del horario de la persona). */
     public static String registro(RegistroAsistencia r, Horario horario) {
-        long extra = r.minutosExtra(horario);
+        long extra = r.getEstadoExtra() == construtrack.modelo.EstadoHorasExtra.NO_APLICA ? 0 : r.minutosExtra(horario);
         return new JsonObjeto()
                 .texto("fecha", r.getFecha())
                 .texto("horaEntrada", r.getHoraEntrada())

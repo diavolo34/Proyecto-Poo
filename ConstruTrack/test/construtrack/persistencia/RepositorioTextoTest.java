@@ -83,6 +83,21 @@ class RepositorioTextoTest {
     }
 
     @Test
+    @DisplayName("Archivos viejos: la cédula con letras se sigue cargando y sus jornadas no entran en horas extra")
+    void compatibleConDatosViejos() throws java.io.IOException {
+        Path archivo = carpeta.resolve("viejo.txt");
+        java.nio.file.Files.writeString(archivo, String.join("\n",
+                "EMPRESA|ConstruTrack",
+                "U|Supervisor|V29955199|Persona Vieja|" + "a".repeat(64) + "|LU,MA,MI,JU,VI|07:00|16:00|false",
+                "A|V29955199|2026-11-16|06:45|18:10|false"));
+        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        Empresa empresa = new RepositorioTexto(archivo, () -> null, fabrica).cargar();
+        Usuario vieja = empresa.buscarUsuario("V29955199");
+        assertEquals(construtrack.modelo.EstadoHorasExtra.NO_APLICA, vieja.getAsistencias().get(0).getEstadoExtra());
+        assertTrue(vieja.getHistorial().horasExtraPendientes(vieja.getHorario()).isEmpty());
+    }
+
+    @Test
     @DisplayName("Con datos iniciales, la siguiente incidencia no repite un número existente")
     void contadorTrasDatosIniciales() {
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
