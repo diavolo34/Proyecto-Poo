@@ -2,12 +2,7 @@ package construtrack.modelo.reportes;
 
 import java.util.List;
 
-/**
- * CSV con ';' como separador (así lo abre Excel en configuración en español) y BOM UTF-8
- * para que las tildes se vean bien.
- */
 public class FormateadorCSV implements FormateadorReporte {
-
     private static final String BOM = "﻿";
 
     @Override

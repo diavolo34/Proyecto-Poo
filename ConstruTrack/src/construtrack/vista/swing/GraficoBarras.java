@@ -10,12 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
-/**
- * Gráfico de barras horizontales dibujado con Java2D (sin librerías externas).
- * Cada barra muestra además su valor en texto, para no depender solo de la longitud o del color.
- */
 public final class GraficoBarras extends JPanel {
-
     private static final long serialVersionUID = 1L;
     private static final int ALTO_BARRA = 22;
     private static final int SEPARACION = 12;
@@ -93,7 +88,6 @@ public final class GraficoBarras extends JPanel {
         g2.dispose();
     }
 
-    /** Verde si va bien, ámbar si hay que vigilar, rojo si requiere atención. */
     private Color colorPara(double valor) {
         double proporcion = valor / maximo;
         if (proporcion >= 0.9) {

@@ -1,5 +1,3 @@
-// Vistas del sistema. Cada una tiene un título, para quién está disponible y cómo se dibuja.
-
 const HORAS = Array.from({ length: 34 }, (_, i) => `${String(5 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`);
 const esRevisor = () => estado.usuario && estado.usuario.rol !== 'Empleado';
 const esJefe = () => estado.usuario && estado.usuario.rol === 'Jefe';
@@ -20,7 +18,6 @@ const VISTAS = [
   { id: 'invitaciones', titulo: 'Invitaciones', grupo: 'Administración', icono: '✉', disponible: esJefe, dibujar: vistaInvitaciones },
 ];
 
-// ------------------------------------------------------------------ Mi asistencia
 async function vistaAsistencia() {
   const u = estado.usuario = await Api.yo();
   const lunes = new Date();
@@ -78,7 +75,6 @@ async function vistaAsistencia() {
   $('#marcar-salida').addEventListener('click', () => marcar(Api.marcarSalida));
 }
 
-// ------------------------------------------------------------------ Incidencias
 const EXTRAS = {
   REPOSO_MEDICO: `<div class="campo"><label for="centroMedico">Centro médico *</label><input id="centroMedico" name="centroMedico"></div>
     <div class="campo"><label for="certificado">N.º de certificado</label><input id="certificado" name="certificado"></div>`,
@@ -133,7 +129,6 @@ async function vistaIncidencias() {
   });
 }
 
-// ------------------------------------------------------------------ Tablero
 async function vistaTablero() {
   const lista = await Api.incidencias();
   const columnas = ['Pendiente', 'En revisión', 'Aprobada', 'Rechazada'];
@@ -181,7 +176,7 @@ async function revisarIncidencia(id, nuevoEstado) {
     await enviar('');
     return;
   }
-  // Rechazar pide el motivo: el trabajador sabrá por qué (ayuda a reconocer y corregir errores)
+
   const modal = Modal.abrir(`Rechazar la incidencia #${id}`, `<form id="form-rechazo">
     <div class="campo"><label for="motivo">Motivo del rechazo *</label>
       <textarea id="motivo" name="comentario" required placeholder="Ej.: falta el certificado médico"></textarea>
@@ -191,7 +186,6 @@ async function revisarIncidencia(id, nuevoEstado) {
   modal.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); enviar($('#motivo').value); });
 }
 
-// ------------------------------------------------------------------ Supervisión
 async function vistaSupervision() {
   const periodo = estado.periodo || 'ultimos7';
   const [est, alertas, extras] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo), Api.horasExtra()]);
@@ -270,7 +264,6 @@ async function vistaSupervision() {
   });
 }
 
-// ------------------------------------------------------------------ Personal
 async function vistaPersonal() {
   const lista = await Api.listarUsuarios();
   const filtro = (estado.filtroPersonal || '').toLowerCase();
@@ -405,11 +398,9 @@ async function historialPersona(cedula) {
   }
 }
 
-// ------------------------------------------------------------------ Invitaciones (Jefe)
-// ------------------------------------------------------------------ Obras (Supervisor y Jefe)
 async function vistaObras() {
   const [obras, visibles] = await Promise.all([Api.obras(), Api.listarUsuarios()]);
-  // A quién puede mover de obra: el Jefe a todos; el Supervisor a su equipo y a sí mismo
+
   const asignables = esJefe() ? visibles : [estado.usuario, ...visibles];
   contenido().innerHTML = encabezado('Equipo /', 'Obras', '<button class="btn btn-primario" id="nueva-obra">+ Nueva obra</button>') + `
     <p class="suave" style="margin-top:-8px">Los lugares donde trabaja el personal. Las gestionan el supervisor y el jefe.</p>

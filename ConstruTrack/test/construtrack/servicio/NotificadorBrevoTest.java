@@ -18,9 +18,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** El correo se prueba contra un servidor HTTP falso que imita la API de Brevo. */
 class NotificadorBrevoTest {
-
     private final Datos d = new Datos();
     private final AtomicReference<String> cuerpo = new AtomicReference<>();
     private final AtomicReference<String> clave = new AtomicReference<>();

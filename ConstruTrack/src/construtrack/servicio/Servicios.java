@@ -13,12 +13,7 @@ import construtrack.persistencia.EscritorDatos;
 import java.time.Clock;
 import java.util.Map;
 
-/**
- * Punto único de acceso a los casos de uso. Las dos vistas (Swing y web) reciben este objeto,
- * así comparten exactamente el mismo modelo y las mismas reglas.
- */
 public class Servicios {
-
     private final ServicioAutenticacion autenticacion;
     private final ServicioAsistencia asistencia;
     private final ServicioPersonal personal;
@@ -32,7 +27,6 @@ public class Servicios {
         this(empresa.getPlataforma(), escritor, reloj, siguienteIdIncidencia, new NotificadorConsola());
     }
 
-    /** El notificador se inyecta: correo real con Brevo en el servidor publicado, registro en consola en local. */
     public Servicios(Plataforma plataforma, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia,
             Notificador notificador) {
         this.autenticacion = new ServicioAutenticacion(plataforma, escritor, reloj);

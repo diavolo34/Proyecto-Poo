@@ -7,9 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-/** Guarda los datos en un archivo de texto local (NetBeans, terminal o Docker con disco). */
 public class AlmacenArchivo implements Almacen {
-
     private final Path archivo;
 
     public AlmacenArchivo(Path archivo) {

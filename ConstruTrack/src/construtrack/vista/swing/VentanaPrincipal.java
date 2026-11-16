@@ -12,12 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
-/**
- * Vista: ventana principal con barra superior (marca, usuario, salir) y pestañas según el rol.
- * La barra siempre muestra quién inició sesión y con qué rol (visibilidad del estado del sistema).
- */
 public final class VentanaPrincipal extends JFrame {
-
     private static final long serialVersionUID = 1L;
 
     private final JTabbedPane pestanas = new JTabbedPane();

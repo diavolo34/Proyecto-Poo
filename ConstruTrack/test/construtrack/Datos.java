@@ -13,9 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Map;
 
-/** Datos de prueba compartidos: una empresa pequeña y un reloj fijo (miércoles 18/11/2026 10:00). */
 public final class Datos {
-
     public static final LocalDateTime AHORA = LocalDateTime.of(2026, 11, 18, 10, 0);
     public static final LocalDate HOY = AHORA.toLocalDate();
     public static final Clock RELOJ = Clock.fixed(AHORA.atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
@@ -37,7 +35,6 @@ public final class Datos {
         laura.setSupervisor(luis);
     }
 
-    /** Lunes a viernes de 07:00 a 16:00. */
     public static Horario horario() {
         return Horario.desdeTexto("LU,MA,MI,JU,VI", "07:00", "16:00");
     }

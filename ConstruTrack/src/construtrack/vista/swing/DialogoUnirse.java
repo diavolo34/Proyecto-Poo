@@ -9,9 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-/** Vista: la persona con cuenta escribe el código de invitación para unirse a la empresa. */
 public final class DialogoUnirse extends JDialog {
-
     private static final long serialVersionUID = 1L;
 
     private final JTextField txtCodigo = new JTextField(16);

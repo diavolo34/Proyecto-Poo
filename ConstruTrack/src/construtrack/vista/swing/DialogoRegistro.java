@@ -13,12 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-/**
- * Vista: registro de una cuenta nueva con correo y datos personales. Primero se elige cómo empezar:
- * el jefe crea su empresa; los demás se unen después con el código que les da su jefe.
- */
 public final class DialogoRegistro extends JDialog {
-
     private static final long serialVersionUID = 1L;
 
     private final JComboBox<Opcion> cboTipo = new JComboBox<>(new Opcion[] {
@@ -87,7 +82,6 @@ public final class DialogoRegistro extends JDialog {
         setLocationRelativeTo(dueno);
     }
 
-    /** Datos con las claves que espera el servicio de registro. */
     public Map<String, String> datos() {
         Map<String, String> datos = new LinkedHashMap<>();
         datos.put("tipo", esJefe() ? "jefe" : "unirme");

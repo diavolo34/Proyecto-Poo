@@ -7,9 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-/** Rutas de apoyo al supervisor: alertas automáticas y estadísticas del período. */
 public class ControladorSupervision implements ControladorWeb {
-
     private final ServicioSupervision supervision;
 
     public ControladorSupervision(ServicioSupervision supervision) {

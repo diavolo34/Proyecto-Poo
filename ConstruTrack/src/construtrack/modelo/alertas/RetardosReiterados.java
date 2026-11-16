@@ -7,9 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/** Alerta cuando el empleado llega tarde al menos {@code umbral} veces en el período. */
 public class RetardosReiterados implements ReglaAlerta {
-
     private final int umbral;
 
     public RetardosReiterados(int umbral) {

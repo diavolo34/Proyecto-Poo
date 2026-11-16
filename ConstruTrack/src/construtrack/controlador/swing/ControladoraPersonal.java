@@ -22,9 +22,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
-/** Controladora del personal: búsqueda en vivo y, para el Jefe, registrar, editar y eliminar. */
 public final class ControladoraPersonal {
-
     private final PanelPersonal vista;
     private final ServicioPersonal personal;
     private final Usuario usuario;

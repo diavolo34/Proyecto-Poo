@@ -3,14 +3,7 @@ package construtrack.modelo.incidencias;
 import java.util.EnumSet;
 import java.util.Set;
 
-/**
- * Ciclo de vida de una incidencia. Cada estado conoce a qué estados puede pasar,
- * así la regla vive en un solo lugar y no se repite en las vistas.
- *
- * PENDIENTE → EN_REVISION → APROBADA | RECHAZADA (también se puede resolver directamente desde PENDIENTE).
- */
 public enum EstadoIncidencia {
-
     PENDIENTE("Pendiente"),
     EN_REVISION("En revisión"),
     APROBADA("Aprobada"),
@@ -34,7 +27,6 @@ public enum EstadoIncidencia {
         return siguientes().contains(otro);
     }
 
-    /** Un estado final ya no admite cambios. */
     public boolean esFinal() {
         return siguientes().isEmpty();
     }

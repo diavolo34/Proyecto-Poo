@@ -17,12 +17,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
-/**
- * Vista: inicio de sesión. Solo construye y expone los componentes; la lógica está en ControladoraLogin.
- * Diseño: ilustración a la izquierda y un formulario corto a la derecha, con una sola acción principal.
- */
 public final class VentanaLogin extends JFrame {
-
     private static final long serialVersionUID = 1L;
 
     private final JTextField txtIdentificador = new JTextField(18);
@@ -41,7 +36,7 @@ public final class VentanaLogin extends JFrame {
         setSize(new Dimension(920, 560));
         setMinimumSize(new Dimension(760, 500));
         setLocationRelativeTo(null);
-        getRootPane().setDefaultButton(btnEntrar); // Enter inicia sesión (eficiencia de uso)
+        getRootPane().setDefaultButton(btnEntrar);
     }
 
     private JPanel formulario(String nombreEmpresa) {
@@ -86,7 +81,6 @@ public final class VentanaLogin extends JFrame {
         return contenedor;
     }
 
-    /** Campo con su etiqueta arriba y una ayuda debajo; la etiqueta queda asociada para lectores de pantalla. */
     private static JPanel campo(String etiqueta, JTextField campo, String ayuda) {
         JPanel panel = new JPanel(new BorderLayout(0, 4));
         panel.setOpaque(false);

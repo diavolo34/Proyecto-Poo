@@ -21,7 +21,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class IncidenciaTest {
-
     private final Datos d = new Datos();
     private final FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
 

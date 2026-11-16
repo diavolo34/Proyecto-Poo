@@ -5,9 +5,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Reposo indicado por un médico (por ejemplo, un trabajador que falta por enfermedad). */
 public class ReposoMedico extends Incidencia implements Justificable {
-
     public static final String CODIGO = "REPOSO_MEDICO";
 
     private final String centroMedico;

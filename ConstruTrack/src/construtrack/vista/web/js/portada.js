@@ -1,7 +1,5 @@
-// Portada pública: menú, formulario de inicio, cifras y obras en vivo, animaciones suaves y el asistente.
 $('#logo-cabecera').outerHTML = LOGO;
 
-// ---- Menú desplegable (tabletas y celulares)
 const cabecera = $('#lp-cabecera');
 const botonMenu = $('#lp-menu-boton');
 function abrirMenu(abrir) {
@@ -18,14 +16,12 @@ document.addEventListener('keydown', (evento) => {
   }
 });
 
-// ---- Formulario del hero: el correo pasa al registro
 $('#form-empezar').addEventListener('submit', (evento) => {
   evento.preventDefault();
   const correo = $('#correo-empezar').value.trim();
   location.href = 'app.html#registro' + (correo ? '?correo=' + encodeURIComponent(correo) : '');
 });
 
-// ---- Cifras y obras en vivo (GET /api/publico)
 const cifra = (valor, texto) =>
   `<div class="lp-cifra"><span class="lp-cifra-valor">${esc(valor)}</span><span class="lp-cifra-texto">${esc(texto)}</span></div>`;
 
@@ -48,7 +44,7 @@ const cifra = (valor, texto) =>
       [datos.obras.length, 'Obras activas'],
       [promedio + '%', 'Avance promedio del plazo'],
     ];
-    // Servidores más nuevos también cuentan las empresas; si el dato no viene, no se muestra
+
     if (typeof datos.empresas === 'number') cifras.unshift([datos.empresas, datos.empresas === 1 ? 'Empresa usa ConstruTrack' : 'Empresas usan ConstruTrack']);
     $('#cifras').innerHTML = cifras.map(([valor, texto]) => cifra(valor, texto)).join('');
     $('#lista-obras').innerHTML = datos.obras.map((o) => `
@@ -65,7 +61,6 @@ const cifra = (valor, texto) =>
   }
 }());
 
-// ---- Aparición suave de las secciones (solo si la persona no pidió reducir el movimiento)
 if ('IntersectionObserver' in window && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
   document.documentElement.classList.add('lp-animar');
   const observador = new IntersectionObserver((entradas) => entradas.forEach((entrada) => {
@@ -77,7 +72,6 @@ if ('IntersectionObserver' in window && matchMedia('(prefers-reduced-motion: no-
   document.querySelectorAll('.lp-aparece').forEach((elemento) => observador.observe(elemento));
 }
 
-// ---- Asistente Arqui (abajo a la izquierda) y botón del llamado final que lo abre
 ChatUI.montar({ usuario: () => null, alCambiar: () => {} });
 $('#lp-abrir-arqui').addEventListener('click', () => {
   if ($('#chat-panel').classList.contains('oculto')) ChatUI.alternar();

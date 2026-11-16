@@ -18,9 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-/** Casos de uso del Jefe: crear, listar y cancelar invitaciones. */
 public class ServicioInvitaciones extends ServicioBase {
-
     private final Notificador notificador;
     private final SecureRandom azar = new SecureRandom();
 
@@ -29,20 +27,14 @@ public class ServicioInvitaciones extends ServicioBase {
         this.notificador = notificador;
     }
 
-    /** Invitación recién creada y el resultado del correo (null si no se pidió enviarlo). */
     public record Creada(Invitacion invitacion, String avisoCorreo, boolean correoEnviado) {
     }
 
-    /** Crea una invitación; si se indica un correo, también se envía (o se registra, en modo demostración). */
     public Invitacion crear(Usuario actual, String rol, String cedulaSupervisor, String codigoObra, int dias,
             String correoDestino) {
         return crearYEnviar(actual, rol, cedulaSupervisor, codigoObra, dias, correoDestino).invitacion();
     }
 
-    /**
-     * Crea la invitación y, si hay correo, intenta enviarla. Si el correo falla la invitación igual queda creada:
-     * el Jefe ve el motivo y puede reenviarla o compartir el código por otro medio.
-     */
     public Creada crearYEnviar(Usuario actual, String rol, String cedulaSupervisor, String codigoObra, int dias,
             String correoDestino) {
         String correo = correoDestino == null || correoDestino.isBlank() ? null : Cuenta.validarCorreo(correoDestino);
@@ -59,7 +51,6 @@ public class ServicioInvitaciones extends ServicioBase {
         }
     }
 
-    /** Envía (o reenvía) por correo una invitación vigente. */
     public String enviar(Usuario actual, String codigo, String correoDestino) {
         comoJefe(actual);
         String correo = Cuenta.validarCorreo(correoDestino);
@@ -74,7 +65,6 @@ public class ServicioInvitaciones extends ServicioBase {
         return mensajeEnviado(correo);
     }
 
-    /** Indica si los correos llegan de verdad (Brevo configurado) o solo se registran. */
     public boolean correoReal() {
         return notificador.envioReal();
     }
@@ -84,7 +74,6 @@ public class ServicioInvitaciones extends ServicioBase {
                 : "El envío de correos no está configurado: comparte el código con " + correo + " por otro medio.";
     }
 
-    /** Invitaciones de la empresa, las más recientes primero. */
     public List<Invitacion> listar(Usuario actual) {
         comoJefe(actual);
         return leer(() -> empresaDe(actual).listarInvitaciones().stream()

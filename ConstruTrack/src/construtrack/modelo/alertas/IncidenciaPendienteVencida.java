@@ -8,9 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Alerta por cada incidencia que lleva más de {@code horasLimite} horas sin resolverse. */
 public class IncidenciaPendienteVencida implements ReglaAlerta {
-
     private final long horasLimite;
 
     public IncidenciaPendienteVencida(long horasLimite) {

@@ -5,15 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Utilidades mínimas para escribir y leer JSON sin librerías externas.
- */
 public final class Json {
-
     private Json() {
     }
 
-    /** Convierte un texto en una cadena JSON (con comillas y caracteres especiales escapados). */
     public static String texto(String valor) {
         if (valor == null) {
             return "null";
@@ -37,7 +32,6 @@ public final class Json {
         return sb.append('"').toString();
     }
 
-    /** Convierte una colección en un arreglo JSON usando la función de conversión de cada elemento. */
     public static <T> String lista(Collection<T> elementos, Function<? super T, String> conversion) {
         StringBuilder json = new StringBuilder("[");
         for (T elemento : elementos) {
@@ -46,7 +40,6 @@ public final class Json {
         return json.append(']').toString();
     }
 
-    /** Lee un objeto JSON plano {"clave": valor, ...}. Los valores se devuelven como texto. */
     public static Map<String, String> leerObjeto(String json) {
         try {
             Map<String, String> datos = new LinkedHashMap<>();

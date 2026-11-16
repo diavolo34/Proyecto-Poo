@@ -1,8 +1,6 @@
 package construtrack.controlador.web;
 
-/** Resultado de atender una petición: código HTTP, tipo de contenido y cuerpo. */
 public class Respuesta {
-
     private final int codigo;
     private final String tipo;
     private final String cuerpo;
@@ -27,7 +25,6 @@ public class Respuesta {
         return new Respuesta(codigo, "application/json; charset=utf-8", JsonMapper.error(mensaje), null);
     }
 
-    /** Respuesta que el navegador descarga como archivo (reportes TXT o CSV). */
     public static Respuesta descarga(String contenido, String tipo, String nombreArchivo) {
         return new Respuesta(200, tipo + "; charset=utf-8", contenido, nombreArchivo);
     }

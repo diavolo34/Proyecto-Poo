@@ -8,9 +8,7 @@ import construtrack.persistencia.EscritorDatos;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
-/** Casos de uso: marcar entrada y salida de la obra. */
 public class ServicioAsistencia extends ServicioBase {
-
     public ServicioAsistencia(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
         super(plataforma, escritor, reloj);
     }

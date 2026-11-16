@@ -9,9 +9,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-/** Vista: lista del personal con búsqueda. El Jefe además ve los botones para registrar, editar y eliminar. */
 public final class PanelPersonal extends JPanel {
-
     private static final long serialVersionUID = 1L;
 
     private final DefaultTableModel modelo =

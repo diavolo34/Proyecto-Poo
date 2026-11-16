@@ -5,9 +5,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Accidente ocurrido en la obra. Siempre es de gravedad alta y justifica los días de recuperación. */
 public class AccidenteLaboral extends Incidencia implements Justificable {
-
     public static final String CODIGO = "ACCIDENTE_LABORAL";
 
     private final String lugar;

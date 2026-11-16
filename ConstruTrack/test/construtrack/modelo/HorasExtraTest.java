@@ -12,9 +12,7 @@ import java.time.LocalTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Horas extra: se calculan solas con la entrada y la salida, pero solo cuentan cuando se aprueban. */
 class HorasExtraTest {
-
     private final Datos d = new Datos();
     private final LocalDate lunes = LocalDate.of(2026, 11, 16);
     private final LocalDate sabado = LocalDate.of(2026, 11, 14);
@@ -30,7 +28,6 @@ class HorasExtraTest {
     @Test
     @DisplayName("Extra diaria: lo que pasa de la jornada; menos de 15 minutos no cuenta")
     void extraDiaria() {
-        // Horario de prueba: 07:00 a 16:00 (540 min)
         assertEquals(0, jornada(lunes, "07:00", "16:10").minutosExtra(d.jose.getHorario()));
         RegistroAsistencia martes = jornada(lunes.plusDays(1), "07:00", "18:30");
         assertEquals(150, martes.minutosExtra(d.jose.getHorario()));
@@ -69,7 +66,7 @@ class HorasExtraTest {
     void horasEsperadas() {
         jornada(lunes, "07:00", "16:00");
         Estadisticas.Resumen r = new Estadisticas(java.util.List.of(d.jose), semana, HOY).resumenes().get(0);
-        // Del 12 al 18 de noviembre (hoy miércoles no cuenta): jueves 12, viernes 13, lunes 16 y martes 17 = 4 días × 9 h
+
         assertEquals(4 * 540, r.minutosEsperados());
         assertEquals(540, r.minutos());
     }

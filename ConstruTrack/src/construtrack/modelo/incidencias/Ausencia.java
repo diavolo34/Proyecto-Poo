@@ -1,8 +1,6 @@
 package construtrack.modelo.incidencias;
 
-/** Falta sin justificativo. La registra el supervisor; no justifica la inasistencia. */
 public class Ausencia extends Incidencia {
-
     public static final String CODIGO = "AUSENCIA";
 
     public Ausencia(DatosIncidencia datos) {

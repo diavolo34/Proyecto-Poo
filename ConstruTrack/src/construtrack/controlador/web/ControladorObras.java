@@ -5,9 +5,7 @@ import construtrack.servicio.ServicioObras;
 import construtrack.util.Json;
 import java.time.LocalDate;
 
-/** Rutas de las obras: listar, crear, editar, eliminar y asignar personas (Supervisor y Jefe). */
 public class ControladorObras implements ControladorWeb {
-
     private final ServicioObras obras;
 
     public ControladorObras(ServicioObras obras) {

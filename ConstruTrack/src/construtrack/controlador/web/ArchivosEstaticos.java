@@ -6,11 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Entrega los archivos de la vista web (carpeta construtrack/vista/web) para abrirla en http://localhost:8080.
- */
 public class ArchivosEstaticos implements HttpHandler {
-
     private static final String CARPETA = "/construtrack/vista/web";
 
     @Override

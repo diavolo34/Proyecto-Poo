@@ -1,6 +1,3 @@
-// Utilidades de interfaz compartidas por la portada y la aplicación.
-
-/** Escapa texto para insertarlo en HTML sin riesgo de inyección. */
 const esc = (texto) => String(texto ?? '').replace(/[&<>"']/g,
   (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -13,12 +10,10 @@ function textoDias(dias) {
   return lista.length > 1 ? lista.slice(0, -1).join(', ') + ' y ' + lista[lista.length - 1] : lista[0];
 }
 
-/** 2026-11-15 → 15/11/2026 */
 const fecha = (iso) => (iso ? String(iso).slice(0, 10).split('-').reverse().join('/') : '—');
-/** 2026-11-15 → 15/11 */
+
 const fechaCorta = (iso) => (iso ? String(iso).slice(5, 10).split('-').reverse().join('/') : '—');
 
-/** Minutos a horas legibles: 90 → "1,5 h", 2400 → "40 h". */
 const formatoHoras = (minutos) => {
   const h = Math.round((minutos || 0) / 6) / 10;
   return (Number.isInteger(h) ? String(h) : h.toFixed(1).replace('.', ',')) + ' h';
@@ -34,7 +29,6 @@ const chipEstado = (estado) => chip(estado, {
 }[estado] || 'gris');
 const chipGravedad = (g) => chip('Gravedad ' + String(g).toLowerCase(), { Alta: 'rojo', Media: 'amarillo', Baja: 'azul' }[g]);
 
-/** Mensaje flotante breve: confirma acciones sin bloquear (visibilidad del estado del sistema). */
 function aviso(texto, tipo = 'ok') {
   let zona = $('#avisos');
   if (!zona) {
@@ -51,7 +45,6 @@ function aviso(texto, tipo = 'ok') {
   setTimeout(() => elemento.remove(), tipo === 'error' ? 6000 : 3500);
 }
 
-/** Ventana modal accesible: se cierra con Esc, con el botón ✕ o al hacer clic fuera. */
 const Modal = {
   anterior: null,
   abrir(titulo, html) {
@@ -80,16 +73,13 @@ const Modal = {
 };
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && Modal.abierto()) Modal.cerrar(); });
 
-/** Marca de ConstruTrack (logotipo SVG propio). */
 const LOGO = `<svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0c66e4"/>
   <path d="M8 23V13l8-5 8 5v10h-5v-6h-6v6z" fill="#fff"/><rect x="21" y="6" width="3" height="7" fill="#fca700"/></svg>`;
 
-/** Lee los campos de un formulario como objeto { nombre: valor } (las casillas marcadas se unen con coma). */
-// Campos de cédula: se descartan letras, puntos y guiones mientras se escribe o se pega
 document.addEventListener('input', (evento) => {
   const campo = evento.target;
   if (campo.matches && campo.matches('[data-solo-numeros]')) {
-    const limpio = campo.value.replace(/[^0-9]/g, '').slice(0, 10); // primero limpia y luego limita a 10 dígitos
+    const limpio = campo.value.replace(/[^0-9]/g, '').slice(0, 10);
     if (limpio !== campo.value) campo.value = limpio;
   }
 });

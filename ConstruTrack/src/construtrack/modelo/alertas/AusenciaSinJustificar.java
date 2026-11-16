@@ -8,9 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Alerta por días laborables sin jornada registrada y sin incidencia aprobada que los justifique. */
 public class AusenciaSinJustificar implements ReglaAlerta {
-
     private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM");
 
     @Override

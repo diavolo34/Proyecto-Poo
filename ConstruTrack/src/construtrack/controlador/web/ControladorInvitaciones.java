@@ -5,9 +5,7 @@ import construtrack.servicio.ServicioInvitaciones;
 import construtrack.util.Json;
 import java.util.Map;
 
-/** Rutas del Jefe para crear, listar y cancelar invitaciones. */
 public class ControladorInvitaciones implements ControladorWeb {
-
     private final ServicioInvitaciones invitaciones;
 
     public ControladorInvitaciones(ServicioInvitaciones invitaciones) {

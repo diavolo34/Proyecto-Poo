@@ -1,8 +1,6 @@
 package construtrack.modelo.incidencias;
 
-/** Importancia de una incidencia: ordena el tablero y define el color en las vistas. */
 public enum Gravedad {
-
     BAJA("Baja"),
     MEDIA("Media"),
     ALTA("Alta");

@@ -21,12 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.function.Supplier;
 
-/**
- * Crea el personal de demostración: 1 jefe, 2 supervisores y 6 empleados con algo de historial.
- * Está separado del repositorio (responsabilidad única): el repositorio solo lee y escribe.
- */
 public class GeneradorDatosPrueba implements Supplier<Empresa> {
-
     private final Clock reloj;
 
     private final FabricaIncidencias fabrica;
@@ -62,11 +57,10 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         empresa.agregarObra(puente);
         ana.setObra(torre);
         luis.setObra(puente);
-        // Los supervisores también marcan asistencia (son personal de la obra)
+
         for (Supervisor s : new Supervisor[] {ana, luis}) {
             for (LocalDate dia : hoy.minusDays(14).datesUntil(hoy).toList()) {
                 if (s.trabajaEl(dia)) {
-                    // Salen a su hora: unos minutos de más no cuentan como horas extra
                     s.agregarAsistencia(registro(dia, "06:50", s.getHorario().getHoraSalida().toString(), false));
                 }
             }
@@ -76,30 +70,29 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             }
         }
 
-        LocalDate haceUnaSemana = hoy.minusDays(5); // dentro del período por defecto (últimos 7 días)
+        LocalDate haceUnaSemana = hoy.minusDays(5);
         for (int i = 0; i < empleados.length; i++) {
             boolean extraHecha = false;
             Empleado e = new Empleado(empleados[i][0], empleados[i][1], "emp123", i < 3 ? obra : sabados);
             e.setSupervisor(i < 3 ? ana : luis);
             e.setObra(i < 3 ? torre : puente);
             empresa.agregarUsuario(e);
-            // Historial de dos semanas laborables: asistencia puntual con algunos retardos y faltas
+
             for (LocalDate dia : hoy.minusDays(14).datesUntil(hoy).toList()) {
                 if (!e.trabajaEl(dia) || dia.getDayOfWeek() == DayOfWeek.SUNDAY) {
                     continue;
                 }
-                // Pedro (tercer empleado) llega tarde tres veces esta semana: caso de demostración de la alerta
+
                 boolean retardo = i == 2
                         ? !dia.isBefore(hoy.with(DayOfWeek.MONDAY)) && dia.getDayOfWeek().getValue() <= 3
                         : (dia.getDayOfMonth() + i) % 5 == 0;
-                // José (primer empleado) estuvo de reposo médico hace 3 y 4 días: no asistió esos días
+
                 boolean deReposo = i == 0 && (dia.equals(hoy.minusDays(4)) || dia.equals(hoy.minusDays(3)));
                 boolean falta = deReposo || (dia.getDayOfMonth() * 3 + i) % 11 == 0;
                 if (!falta) {
                     String entrada = retardo ? "07:25" : "06:5" + (i % 10);
                     LocalTime salida = e.getHorario().getHoraSalida().plusMinutes(i % 9);
-                    // Horas extra de demostración en los últimos 7 días: José se quedó 2,5 h (aprobadas por Ana)
-                    // y Laura 1 h 15 min (por aprobar)
+
                     boolean conExtra = !extraHecha && !dia.isBefore(haceUnaSemana) && (i == 0 || i == 3);
                     if (conExtra) {
                         salida = salida.plusMinutes(i == 0 ? 150 : 75);
@@ -112,7 +105,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                     e.agregarAsistencia(jornada);
                 }
             }
-            // María (horario de lunes a viernes) vino el último sábado: todo cuenta como extra de día libre, por aprobar
+
             LocalDate sabado = hoy.with(java.time.temporal.TemporalAdjusters.previous(DayOfWeek.SATURDAY));
             if (i == 1 && !e.trabajaEl(sabado)) {
                 e.agregarAsistencia(registro(sabado, "08:00", "12:30", false));
@@ -127,13 +120,8 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         return empresa;
     }
 
-    /** Código fijo de la invitación de demostración (documentado en el README). */
     public static final String CODIGO_DEMO = "CT-RQ7K-4M2P";
 
-    /**
-     * Cada usuario de prueba tiene una cuenta con correo (nombre.apellido@construtrack.demo) y la misma clave.
-     * Además hay una persona registrada que aún no se une a la empresa y una invitación vigente para ella.
-     */
     private void agregarCuentasDemo(Empresa empresa, LocalDate hoy) {
         LocalDateTime registro = hoy.minusMonths(2).atTime(9, 0);
         for (Usuario u : empresa.listarUsuarios()) {
@@ -158,7 +146,6 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         return java.text.Normalizer.normalize(texto, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
     }
 
-    /** Incidencias de ejemplo: un reposo aprobado, un permiso pendiente, un retardo y una ausencia sin justificar. */
     private static void agregarIncidenciasDemo(Empresa empresa, FabricaIncidencias fabrica, LocalDate hoy) {
         Usuario jose = empresa.buscarUsuario("30000001");
         Usuario maria = empresa.buscarUsuario("30000002");

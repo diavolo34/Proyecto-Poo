@@ -8,9 +8,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Rango de fechas cerrado [desde, hasta] sobre el que se consultan historiales, reportes y estadísticas. */
 public final class Periodo {
-
     private static final DateTimeFormatter FORMATO = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final LocalDate desde;
@@ -24,18 +22,15 @@ public final class Periodo {
         this.hasta = hasta;
     }
 
-    /** Semana de lunes a domingo que contiene la fecha. */
     public static Periodo semanaDe(LocalDate fecha) {
         LocalDate lunes = fecha.with(DayOfWeek.MONDAY);
         return new Periodo(lunes, lunes.plusDays(6));
     }
 
-    /** Mes calendario que contiene la fecha. */
     public static Periodo mesDe(LocalDate fecha) {
         return new Periodo(fecha.withDayOfMonth(1), fecha.withDayOfMonth(fecha.lengthOfMonth()));
     }
 
-    /** Los últimos n días terminando en la fecha indicada (incluida). */
     public static Periodo ultimosDias(LocalDate hasta, int dias) {
         return new Periodo(hasta.minusDays(dias - 1L), hasta);
     }
@@ -44,7 +39,6 @@ public final class Periodo {
         return !fecha.isBefore(desde) && !fecha.isAfter(hasta);
     }
 
-    /** Todas las fechas del período, en orden. */
     public List<LocalDate> fechas() {
         List<LocalDate> fechas = new ArrayList<>();
         for (LocalDate f = desde; !f.isAfter(hasta); f = f.plusDays(1)) {

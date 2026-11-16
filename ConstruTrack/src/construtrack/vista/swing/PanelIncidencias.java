@@ -21,13 +21,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Vista: formulario para reportar una incidencia y tabla con las incidencias visibles.
- * Al cambiar el tipo en el combo, se muestran solo los campos propios de ese tipo
- * (como en el ejemplo de combos dependientes): menos opciones a la vista, menos carga mental.
- */
 public final class PanelIncidencias extends JPanel {
-
     private static final long serialVersionUID = 1L;
     public static final String SIN_EXTRAS = "SIN_EXTRAS";
 
@@ -153,7 +147,6 @@ public final class PanelIncidencias extends JPanel {
         return panel;
     }
 
-    /** Muestra solo los campos propios del tipo elegido. */
     public void mostrarExtras(String codigoTipo) {
         boolean tieneExtras = "REPOSO_MEDICO".equals(codigoTipo) || "RETARDO".equals(codigoTipo)
                 || "ACCIDENTE_LABORAL".equals(codigoTipo);

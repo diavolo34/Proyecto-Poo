@@ -5,9 +5,7 @@ import construtrack.modelo.Usuario;
 import construtrack.servicio.Ingreso;
 import construtrack.servicio.ServicioRegistro;
 
-/** Rutas públicas de registro: crear cuenta con correo y unirse a la empresa con un código. */
 public class ControladorRegistro implements ControladorWeb {
-
     private final ServicioRegistro registro;
     private final GestorSesiones sesiones;
 
@@ -23,7 +21,6 @@ public class ControladorRegistro implements ControladorWeb {
                 .post("/api/empresas", this::crearEmpresa);
     }
 
-    /** Crea la cuenta e inicia sesión de una vez: el jefe entra con su empresa; los demás quedan por unirse. */
     private Respuesta registrar(Peticion p) {
         Cuenta cuenta = registro.registrar(p.cuerpo());
         Ingreso ingreso = new Ingreso(cuenta, cuenta.getUsuario());
@@ -36,7 +33,6 @@ public class ControladorRegistro implements ControladorWeb {
                 + "! Ya eres " + usuario.getRol().toLowerCase() + ".", JsonMapper.usuario(usuario, true)));
     }
 
-    /** Una cuenta pendiente crea su empresa y pasa a ser su Jefe. */
     private Respuesta crearEmpresa(Peticion p) {
         Usuario jefe = registro.crearEmpresa(p.cuenta(), p.cuerpo().get("nombre"));
         return Respuesta.creado(JsonMapper.mensaje("Tu empresa «" + jefe.getEmpresa().getNombre()

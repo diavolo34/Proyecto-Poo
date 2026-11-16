@@ -8,16 +8,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Historial laboral de un usuario: sus jornadas de asistencia y sus incidencias.
- * Es parte del usuario (composición): se crea con él y desaparece con él.
- * Concentra las consultas sobre ese historial para que reportes, estadísticas y alertas las reutilicen.
- */
 public class Historial {
-
     private final List<RegistroAsistencia> asistencias = new ArrayList<>();
     private final List<Incidencia> incidencias = new ArrayList<>();
-    /** Primer día en la empresa: antes de esa fecha no se esperan jornadas (null = sin límite, datos antiguos). */
+
     private LocalDate inicio;
 
     public LocalDate getInicio() {
@@ -50,7 +44,6 @@ public class Historial {
         return asistencias.isEmpty() ? null : asistencias.get(asistencias.size() - 1);
     }
 
-    /** Jornada de una fecha, o null si ese día no marcó entrada. */
     public RegistroAsistencia asistenciaDel(LocalDate fecha) {
         for (int i = asistencias.size() - 1; i >= 0; i--) {
             if (asistencias.get(i).getFecha().equals(fecha)) {
@@ -90,10 +83,6 @@ public class Historial {
         return retardos;
     }
 
-    /**
-     * Días del período en los que el horario indica que debía trabajar, sin contar hoy ni el futuro,
-     * ni los días anteriores a su ingreso a la empresa.
-     */
     public List<LocalDate> diasLaborables(Horario horario, Periodo periodo, LocalDate hoy) {
         List<LocalDate> dias = new ArrayList<>();
         for (LocalDate fecha : periodo.fechas()) {
@@ -105,7 +94,6 @@ public class Historial {
         return dias;
     }
 
-    /** Minutos extra del período de un tipo y estado (por ejemplo, las diarias aprobadas). */
     public long minutosExtra(Horario horario, Periodo periodo, TipoHorasExtra tipo, EstadoHorasExtra estado) {
         long total = 0;
         for (RegistroAsistencia r : asistenciasEn(periodo)) {
@@ -116,13 +104,11 @@ public class Historial {
         return total;
     }
 
-    /** Minutos extra que esperan aprobación en el período, de cualquier tipo. */
     public long minutosExtraPendientes(Horario horario, Periodo periodo) {
         return minutosExtra(horario, periodo, TipoHorasExtra.DIARIA, EstadoHorasExtra.PENDIENTE)
                 + minutosExtra(horario, periodo, TipoHorasExtra.DIA_LIBRE, EstadoHorasExtra.PENDIENTE);
     }
 
-    /** Jornadas con horas extra todavía sin revisar. */
     public List<RegistroAsistencia> horasExtraPendientes(Horario horario) {
         List<RegistroAsistencia> pendientes = new ArrayList<>();
         for (RegistroAsistencia r : asistencias) {
@@ -133,7 +119,6 @@ public class Historial {
         return pendientes;
     }
 
-    /** Una incidencia aprobada de un tipo justificable cubre esa fecha. */
     public boolean estaJustificado(LocalDate fecha) {
         for (Incidencia i : incidencias) {
             if (i instanceof Justificable j && j.justificaAusenciaEl(fecha)) {
@@ -143,7 +128,6 @@ public class Historial {
         return false;
     }
 
-    /** Días laborables sin jornada registrada y sin justificativo aprobado: se detectan automáticamente. */
     public List<LocalDate> ausenciasSinJustificar(Horario horario, Periodo periodo, LocalDate hoy) {
         List<LocalDate> ausencias = new ArrayList<>();
         for (LocalDate fecha : diasLaborables(horario, periodo, hoy)) {
@@ -154,7 +138,6 @@ public class Historial {
         return ausencias;
     }
 
-    /** Días laborables sin asistencia pero cubiertos por un justificativo aprobado. */
     public List<LocalDate> ausenciasJustificadas(Horario horario, Periodo periodo, LocalDate hoy) {
         List<LocalDate> justificadas = new ArrayList<>();
         for (LocalDate fecha : diasLaborables(horario, periodo, hoy)) {
@@ -165,7 +148,6 @@ public class Historial {
         return justificadas;
     }
 
-    /** Porcentaje de llegadas puntuales sobre las jornadas registradas (100 si no hay jornadas). */
     public double porcentajePuntualidad(Periodo periodo) {
         List<RegistroAsistencia> jornadas = asistenciasEn(periodo);
         if (jornadas.isEmpty()) {
@@ -182,7 +164,6 @@ public class Historial {
         return minutos;
     }
 
-    /** Copia todo el historial de otro (se usa cuando el Jefe cambia el rol de una persona). */
     void copiarDe(Historial otro) {
         asistencias.clear();
         asistencias.addAll(otro.asistencias);

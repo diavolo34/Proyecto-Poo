@@ -5,9 +5,7 @@ import construtrack.modelo.Usuario;
 import java.time.LocalDate;
 import java.util.List;
 
-/** Días laborables, asistencias, porcentaje y faltas por persona. */
 public class ReporteAsistencia extends Reporte {
-
     @Override
     protected String titulo() {
         return "Reporte de asistencia";
@@ -29,7 +27,6 @@ public class ReporteAsistencia extends Reporte {
                 horas(r.extraPendiente()));
     }
 
-    /** Minutos a horas con un decimal, por ejemplo 90 → "1.5". */
     private static String horas(long minutos) {
         return String.format(java.util.Locale.ROOT, "%.1f", minutos / 60.0);
     }

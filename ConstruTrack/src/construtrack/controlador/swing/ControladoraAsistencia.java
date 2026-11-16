@@ -13,9 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Controladora de "Mi asistencia": marca entrada y salida y muestra el resumen y el historial. */
 public final class ControladoraAsistencia {
-
     private static final int MAX_FILAS = 30;
 
     private final PanelAsistencia vista;

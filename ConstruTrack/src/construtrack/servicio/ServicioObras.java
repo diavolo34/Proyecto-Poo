@@ -14,17 +14,11 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Casos de uso de las obras (los lugares de trabajo): las gestionan el Supervisor y el Jefe.
- * Los permisos los decide el modelo (Usuario.puedeGestionarObras / puedeAsignarObraA).
- */
 public class ServicioObras extends ServicioBase {
-
     public ServicioObras(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
         super(plataforma, escritor, reloj);
     }
 
-    /** Una obra con las personas asignadas, para mostrarla en la vista. */
     public record ObraConPersonas(Obra obra, List<Usuario> personas) {
     }
 
@@ -34,7 +28,6 @@ public class ServicioObras extends ServicioBase {
                 .map(o -> new ObraConPersonas(o, empresa.personasEn(o))).toList());
     }
 
-    /** Datos: nombre, ubicacion, inicio, fin (AAAA-MM-DD). */
     public Obra crear(Usuario actual, Map<String, String> datos) {
         verificarGestion(actual);
         Empresa empresa = empresaDe(actual);
@@ -65,7 +58,6 @@ public class ServicioObras extends ServicioBase {
         });
     }
 
-    /** Asigna una persona a una obra; con código vacío la deja sin obra. */
     public Usuario asignar(Usuario actual, String cedula, String codigoObra) {
         return modificar(() -> {
             Usuario persona = empresaDe(actual).buscarUsuario(cedula);

@@ -15,12 +15,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
-/**
- * Vista: panel del supervisor con indicadores, gráfico de asistencia por persona,
- * alertas automáticas y exportación de reportes.
- */
 public final class PanelSupervision extends JPanel {
-
     private static final long serialVersionUID = 1L;
 
     private final JComboBox<Opcion> cboPeriodo = new JComboBox<>(new Opcion[] {
@@ -152,9 +147,7 @@ public final class PanelSupervision extends JPanel {
         return btnExportar;
     }
 
-    /** Dibuja cada alerta con su nivel en texto y color, y el mensaje debajo del nombre. */
     private static final class RenderAlerta extends JPanel implements ListCellRenderer<Alerta> {
-
         private static final long serialVersionUID = 1L;
         private final JLabel nivel = Tema.chip(" ", Tema.GRIS_SUAVE, Tema.TEXTO);
         private final JLabel nombre = Tema.texto(" ");

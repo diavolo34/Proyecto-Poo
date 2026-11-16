@@ -1,15 +1,8 @@
-// Asistente "Arqui": responde preguntas frecuentes y, con sesión iniciada, consulta datos según el rol.
 class Chatbot {
-  /**
-   * @param {object} contexto
-   *   usuario():  usuario con sesión iniciada o null
-   *   alCambiar(): se llama después de marcar entrada o salida desde el chat
-   */
   constructor(contexto) {
     this.contexto = contexto;
   }
 
-  /** Preguntas sugeridas según quién usa la página (reconocer en vez de recordar). */
   sugerencias() {
     const usuario = this.contexto.usuario();
     if (!usuario) return ['¿Cómo me registro?', '¿Qué es el código de invitación?', '¿Qué hace cada rol?', 'Normas de seguridad'];
@@ -110,7 +103,6 @@ class Chatbot {
   }
 }
 
-/** Ventana flotante del asistente. Se monta igual en la portada y en la aplicación. */
 const ChatUI = {
   bot: null,
 
@@ -163,7 +155,7 @@ const ChatUI = {
     if (!mensaje) return;
     entrada.value = '';
     this.agregar(mensaje, true);
-    // Microinteracción: tres puntos "escribiendo…" mientras se prepara la respuesta
+
     const escribiendo = this.agregar('', false);
     escribiendo.innerHTML = '<span class="escribiendo" aria-label="Escribiendo"><span></span><span></span><span></span></span>';
     const respuesta = await this.bot.responder(mensaje);

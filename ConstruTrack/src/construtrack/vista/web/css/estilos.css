@@ -1,7 +1,3 @@
-/* ConstruTrack · Sistema de diseño de la vista web.
-   Misma paleta que vista/swing/Tema.java para que ambas vistas se sientan iguales (consistencia, Nielsen #4).
-   Los textos tienen contraste de al menos 4.5:1 (WCAG AA). Sin dependencias externas: funciona sin internet. */
-
 :root {
   --azul: #0c66e4;
   --azul-oscuro: #0055cc;
@@ -46,7 +42,6 @@ p { margin: 0 0 .8em; }
 .oculto { display: none !important; }
 .solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* Foco visible para navegar con TAB (WCAG 2.4.7) */
 :focus-visible { outline: 3px solid #4c9aff; outline-offset: 2px; border-radius: 4px; }
 
 .saltar {
@@ -55,7 +50,6 @@ p { margin: 0 0 .8em; }
 }
 .saltar:focus { top: 8px; }
 
-/* ----------------------------------------------------------------- botones */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   font: inherit; font-weight: 600; font-size: 14px;
@@ -81,7 +75,6 @@ p { margin: 0 0 .8em; }
 .btn-chico { padding: 5px 10px; font-size: 13px; }
 .btn-grande { padding: 13px 22px; font-size: 16px; }
 
-/* ----------------------------------------------------------------- formularios */
 .campo { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
 .campo label, .etiqueta { font-weight: 600; font-size: 14px; }
 .campo .ayuda { font-size: 12.5px; color: var(--texto-suave); }
@@ -105,7 +98,6 @@ textarea { resize: vertical; min-height: 80px; }
 .separador { display: flex; align-items: center; gap: 10px; color: var(--texto-suave); font-size: 13px; margin: 16px 0; }
 .separador::before, .separador::after { content: ""; flex: 1; height: 1px; background: var(--borde); }
 
-/* ----------------------------------------------------------------- piezas */
 .tarjeta { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 20px; }
 .tarjeta h2, .tarjeta h3 { font-size: 17px; }
 .chip {
@@ -134,7 +126,6 @@ tbody tr:hover { background: #fafbfc; }
 .cifra .valor { font-size: 30px; font-weight: 700; line-height: 1.1; }
 .cifra .descripcion { color: var(--texto-suave); font-size: 13px; }
 
-/* ----------------------------------------------------------------- avisos flotantes y modal */
 #avisos { position: fixed; right: 16px; bottom: 16px; z-index: 60; display: flex; flex-direction: column; gap: 8px; }
 .aviso {
   background: var(--texto); color: #fff; padding: 12px 16px; border-radius: 6px; box-shadow: var(--sombra-alta);
@@ -149,7 +140,6 @@ tbody tr:hover { background: #fafbfc; }
 .modal-cabecera h2 { margin: 0; font-size: 20px; }
 .acciones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
 
-/* ----------------------------------------------------------------- portada pública */
 .cabecera-publica {
   position: sticky; top: 0; z-index: 30; background: var(--superficie);
   border-bottom: 1px solid var(--borde);
@@ -201,7 +191,6 @@ tbody tr:hover { background: #fafbfc; }
 .pie a { color: #fff; }
 .pie .contenedor { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
 
-/* ----------------------------------------------------------------- tablero (también en la portada) */
 .kanban { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 12px; align-items: start; }
 .kanban-columna { background: var(--gris-suave); border-radius: var(--radio); padding: 10px; min-height: 120px; }
 .kanban-columna h3 { font-size: 12.5px; color: var(--texto-suave); text-transform: uppercase; letter-spacing: .4px; margin: 4px 4px 10px; display: flex; gap: 6px; }
@@ -215,7 +204,6 @@ tbody tr:hover { background: #fafbfc; }
 .tarjeta-kanban p { font-size: 13.5px; margin: 0 0 4px; }
 .tarjeta-kanban .acciones { justify-content: flex-start; margin-top: 8px; gap: 6px; }
 
-/* ----------------------------------------------------------------- acceso (login / registro) */
 .pagina-acceso { min-height: 100vh; display: grid; grid-template-columns: 1fr minmax(380px, 460px) 1fr; background: #fafbfc; }
 .acceso-lado { position: relative; overflow: hidden; }
 .acceso-lado svg { position: absolute; bottom: 0; width: 100%; height: auto; }
@@ -228,7 +216,6 @@ tbody tr:hover { background: #fafbfc; }
 .demo-usuarios button { font-size: 12.5px; }
 .codigo-grande { font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
 
-/* ----------------------------------------------------------------- aplicación */
 .app { display: grid; grid-template-columns: 248px minmax(0, 1fr); grid-template-rows: 56px 1fr; min-height: 100vh; }
 .barra-superior {
   grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 0 16px;
@@ -253,16 +240,16 @@ tbody tr:hover { background: #fafbfc; }
 .rejilla-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .rejilla-incidencias { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: start; }
 .pila > * + * { margin-top: 16px; }
-/* Las columnas de una rejilla pueden encogerse: las tablas anchas se desplazan dentro de su caja, no la página */
+
 .rejilla-2 > *, .rejilla-incidencias > *, .rejilla-obras > *, .cifras > * { min-width: 0; }
 .codigo { white-space: nowrap; font-family: ui-monospace, Consolas, monospace; letter-spacing: .5px; }
-/* Pestañas (Historial: asistencia / incidencias) */
+
 .pestanas { display: flex; gap: 4px; border-bottom: 1px solid var(--borde); margin: 8px 0 12px; }
 .pestana { font: inherit; font-weight: 600; font-size: 14px; background: none; border: 0; padding: 8px 12px; cursor: pointer;
   color: var(--texto-suave); border-bottom: 3px solid transparent; margin-bottom: -1px; }
 .pestana.activa { color: var(--azul-oscuro); border-bottom-color: var(--azul); }
 .pestana:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
-/* En Netlify su insignia ocupa la esquina inferior derecha: espacio libre al final para que no tape las tablas */
+
 .con-insignia-netlify .contenido, .con-insignia-netlify main { padding-bottom: 90px; }
 .estado-jornada { display: flex; align-items: center; gap: 10px; margin: 6px 0 12px; }
 
@@ -280,7 +267,6 @@ tbody tr:hover { background: #fafbfc; }
 .girando { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: girar .8s linear infinite; display: inline-block; }
 @keyframes girar { to { transform: rotate(360deg); } }
 
-/* ----------------------------------------------------------------- chatbot */
 .chat-boton {
   position: fixed; left: 18px; bottom: 18px; z-index: 40; border-radius: 28px; box-shadow: var(--sombra-alta);
 }
@@ -288,7 +274,7 @@ tbody tr:hover { background: #fafbfc; }
   position: fixed; left: 18px; bottom: 76px; z-index: 40; width: 360px; max-width: calc(100vw - 36px);
   background: var(--superficie); border-radius: 12px; box-shadow: var(--sombra-alta); overflow: hidden; display: flex; flex-direction: column;
 }
-/* En Netlify su insignia ocupa la esquina inferior derecha (config.js agrega la clase): los avisos suben */
+
 .con-insignia-netlify #avisos { bottom: 84px; }
 .chat-cabecera { background: var(--azul); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
 .chat-cabecera .btn { color: #fff; }
@@ -305,7 +291,6 @@ tbody tr:hover { background: #fafbfc; }
 .escribiendo span:nth-child(3) { animation-delay: .3s; }
 @keyframes rebote { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
 
-/* ----------------------------------------------------------------- adaptable a celular */
 @media (max-width: 980px) {
   .hero .contenedor, .rejilla-2, .rejilla-incidencias { grid-template-columns: 1fr; }
   .rejilla-3, .rejilla-4, .cifras { grid-template-columns: 1fr 1fr; }
@@ -328,7 +313,7 @@ tbody tr:hover { background: #fafbfc; }
   .barra-superior .ocultar-movil { display: none; }
   .barra-superior { gap: 8px; padding: 0 10px; }
   .barra-superior .marca { font-size: 16px; }
-  /* Portada: en el celular solo queda «Crear cuenta» arriba (iniciar sesión sigue en el formulario de la portada) */
+
   .cabecera-publica .contenedor { gap: 10px; }
   .cabecera-acciones .btn-enlace { display: none; }
   .cabecera-acciones .btn { padding: 8px 12px; }
@@ -340,12 +325,10 @@ tbody tr:hover { background: #fafbfc; }
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
 
-/* ----------------------------------------------------------------- obras */
 .rejilla-obras { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
 .lista-personas { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .lista-personas li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }
 
-/* ----------------------------------------------------------------- registro: elegir cómo empezar */
 .opciones-rol { border: 0; padding: 0; margin: 0 0 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .opcion-rol { display: flex; gap: 10px; align-items: flex-start; border: 2px solid var(--borde); border-radius: var(--radio);
   padding: 12px; cursor: pointer; background: var(--superficie); }

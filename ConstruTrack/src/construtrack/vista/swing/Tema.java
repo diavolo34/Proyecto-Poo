@@ -20,15 +20,7 @@ import javax.swing.plaf.FontUIResource;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-/**
- * Sistema de diseño de la vista Swing: colores, tipografía y componentes con el mismo estilo.
- * Centralizarlo aquí garantiza consistencia (heurística 4 de Nielsen) y permite cambiar
- * la apariencia de toda la aplicación desde un solo lugar.
- *
- * Los colores de texto tienen contraste de al menos 4.5:1 sobre blanco (WCAG AA).
- */
 public final class Tema {
-
     public static final Color AZUL = new Color(0x0C66E4);
     public static final Color AZUL_OSCURO = new Color(0x0055CC);
     public static final Color AZUL_SUAVE = new Color(0xE9F2FF);
@@ -57,12 +49,10 @@ public final class Tema {
     private Tema() {
     }
 
-    /** Aplica la tipografía y los colores base a todos los componentes Swing. */
     public static void instalar() {
         try {
             UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException e) {
-            // Si no se puede cambiar, se usa la apariencia por defecto
         }
         FontUIResource fuente = new FontUIResource(FUENTE);
         for (String clave : new String[] {"Label", "Button", "TextField", "PasswordField", "TextArea", "ComboBox",
@@ -83,19 +73,14 @@ public final class Tema {
         UIManager.put("ToolTip.foreground", Color.WHITE);
     }
 
-    // ------------------------------------------------------------------ botones
-
-    /** Acción principal de la pantalla: azul y destacada (efecto Von Restorff). */
     public static JButton botonPrimario(String texto) {
         return boton(texto, AZUL, AZUL_OSCURO, Color.WHITE);
     }
 
-    /** Acción secundaria: neutra, para no competir con la principal. */
     public static JButton botonSecundario(String texto) {
         return boton(texto, GRIS_SUAVE, BORDE, TEXTO);
     }
 
-    /** Acción destructiva o de rechazo: roja, para que no se confunda. */
     public static JButton botonPeligro(String texto) {
         return boton(texto, ROJO_SUAVE, new Color(0xFFD5D2), ROJO);
     }
@@ -114,13 +99,13 @@ public final class Tema {
         boton.setFocusPainted(true);
         boton.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 14));
         boton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        // Deshabilitado: fondo gris y texto atenuado, para que se note que no se puede pulsar
+
         boton.addPropertyChangeListener("enabled", e -> {
             boolean activo = boton.isEnabled();
             boton.setBackground(activo ? fondo : GRIS_SUAVE);
             boton.setCursor(Cursor.getPredefinedCursor(activo ? Cursor.HAND_CURSOR : Cursor.DEFAULT_CURSOR));
         });
-        // Microinteracción: el botón cambia de color al pasar el ratón (respuesta inmediata)
+
         boton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -136,8 +121,6 @@ public final class Tema {
         });
         return boton;
     }
-
-    // ------------------------------------------------------------------ textos
 
     public static JLabel titulo(String texto) {
         return etiqueta(texto, TITULO, TEXTO);
@@ -162,7 +145,6 @@ public final class Tema {
         return etiqueta;
     }
 
-    /** Etiqueta pequeña con fondo de color (estado, gravedad, rol). Siempre lleva texto: no depende solo del color. */
     public static JLabel chip(String texto, Color fondo, Color colorTexto) {
         JLabel chip = new JLabel(texto);
         chip.setFont(PEQUENA.deriveFont(Font.BOLD));
@@ -173,9 +155,6 @@ public final class Tema {
         return chip;
     }
 
-    // ------------------------------------------------------------------ contenedores
-
-    /** Panel blanco con borde fino y margen interno: agrupa información relacionada (proximidad, Gestalt). */
     public static JPanel tarjeta(LayoutManager layout) {
         JPanel tarjeta = new JPanel(layout);
         tarjeta.setBackground(SUPERFICIE);
@@ -188,7 +167,6 @@ public final class Tema {
         return BorderFactory.createEmptyBorder(arriba, izquierda, abajo, derecha);
     }
 
-    /** Tabla de solo lectura con filas altas y encabezado sobrio. */
     public static JTable tabla(DefaultTableModel modelo) {
         JTable tabla = new JTable(modelo);
         tabla.setRowHeight(30);
@@ -217,14 +195,12 @@ public final class Tema {
         return tabla;
     }
 
-    /** Fija el ancho preferido de cada columna (en píxeles), en el orden de la tabla. */
     public static void anchos(JTable tabla, int... anchos) {
         for (int i = 0; i < anchos.length && i < tabla.getColumnCount(); i++) {
             tabla.getColumnModel().getColumn(i).setPreferredWidth(anchos[i]);
         }
     }
 
-    /** Modelo de tabla que no permite editar celdas (los cambios se hacen con formularios validados). */
     public static DefaultTableModel modeloSoloLectura(String... columnas) {
         return new DefaultTableModel(columnas, 0) {
             private static final long serialVersionUID = 1L;

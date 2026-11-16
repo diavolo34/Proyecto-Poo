@@ -28,10 +28,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Varias empresas en la misma plataforma: un jefe crea la suya y nunca ve los datos de las demás. */
 class MultiempresaTest {
-
-    private final Datos d = new Datos(); // empresa «Prueba» con Carlos (jefe), Ana, Luis, José y Laura
+    private final Datos d = new Datos();
     private final Servicios servicios = new Servicios(d.empresa, new RepositorioMemoria(d.empresa), Datos.RELOJ, 1);
 
     @TempDir
@@ -49,7 +47,6 @@ class MultiempresaTest {
         return m;
     }
 
-    /** Marta se registra como jefa de «Constructora Norte» y entra sin código. */
     private Jefe registrarJefaNorte() {
         Cuenta cuenta = servicios.registro().registrar(datos("marta@correo.com", "15111222", "jefe", "Constructora Norte"));
         assertTrue(cuenta.perteneceAEmpresa(), "El jefe queda dentro de su empresa al registrarse");

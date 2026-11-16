@@ -16,7 +16,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class HistorialTest {
-
     private final Datos d = new Datos();
     private final LocalDate lunes = LocalDate.of(2026, 11, 16);
     private final LocalDate martes = LocalDate.of(2026, 11, 17);

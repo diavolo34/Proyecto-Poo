@@ -7,9 +7,7 @@ import construtrack.servicio.ServicioRegistro;
 import construtrack.vista.swing.DialogoUnirse;
 import java.util.function.Consumer;
 
-/** Controladora para canjear el código de invitación y entrar a la empresa. */
 public final class ControladoraUnirse {
-
     public ControladoraUnirse(DialogoUnirse vista, ServicioRegistro registro, Cuenta cuenta, Consumer<Usuario> alUnirse) {
         vista.getBtnMasTarde().addActionListener(e -> vista.dispose());
         vista.getBtnUnirse().addActionListener(e -> {
