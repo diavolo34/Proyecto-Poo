@@ -96,8 +96,18 @@ function pantallaLogin() {
 function pantallaRegistro(parametros) {
   marcoAcceso(`
     <h1>Crea tu cuenta</h1>
-    <p class="bajada">Después te unes a la empresa con el código que te dé tu jefe.</p>
+    <p class="bajada">Elige cómo vas a usar ConstruTrack.</p>
     <form id="form-registro" novalidate>
+      <fieldset class="opciones-rol">
+        <legend class="solo-lector">¿Cómo usarás ConstruTrack?</legend>
+        <label class="opcion-rol"><input type="radio" name="tipo" value="unirme" checked>
+          <span><strong>Me uno a una empresa</strong><span class="pequeno suave">Mi jefe me dará un código de invitación (empleado o supervisor).</span></span></label>
+        <label class="opcion-rol"><input type="radio" name="tipo" value="jefe">
+          <span><strong>Soy jefe: crear mi empresa</strong><span class="pequeno suave">Creo la empresa e invito a mi equipo.</span></span></label>
+      </fieldset>
+      <div class="campo oculto" id="campo-empresa"><label for="r-empresa">Nombre de la empresa *</label>
+        <input id="r-empresa" name="empresa" autocomplete="organization" maxlength="60" placeholder="Ej.: Constructora Los Andes">
+        <span class="ayuda">Serás su Jefe: podrás crear obras e invitar a supervisores y empleados.</span></div>
       <div class="campo"><label for="correo">Correo electrónico *</label>
         <input id="correo" name="correo" type="email" autocomplete="email" required>
         <span class="ayuda">Lo usarás para iniciar sesión.</span></div>
@@ -106,7 +116,7 @@ function pantallaRegistro(parametros) {
         <div class="campo"><label for="apellido">Apellido *</label><input id="apellido" name="apellido" autocomplete="family-name" required></div>
       </div>
       <div class="fila">
-        <div class="campo"><label for="documento">Cédula o DNI *</label><input id="documento" name="documento" required inputmode="numeric" pattern="[0-9]{6,10}" maxlength="10" data-solo-numeros>
+        <div class="campo"><label for="documento">Cédula o DNI *</label><input id="documento" name="documento" required inputmode="numeric" pattern="[0-9]{6,10}" data-solo-numeros>
           <span class="ayuda">Solo números, sin V, puntos ni guiones.</span></div>
         <div class="campo"><label for="telefono">Teléfono *</label><input id="telefono" name="telefono" type="tel" autocomplete="tel" required>
           <span class="ayuda">Ej.: +58 412 1234567</span></div>
@@ -123,6 +133,16 @@ function pantallaRegistro(parametros) {
     <a class="btn btn-contorno btn-bloque" href="#login">Iniciar sesión</a>`);
   const formulario = $('#form-registro');
   $('#correo').value = parametros.get('correo') || '';
+  const empresa = $('#r-empresa');
+  const alternarTipo = () => {
+    const esJefe = formulario.querySelector('input[name=tipo]:checked').value === 'jefe';
+    $('#campo-empresa').classList.toggle('oculto', !esJefe);
+    empresa.required = esJefe; // solo el jefe escribe el nombre de su empresa
+    formulario.querySelector('button[type=submit]').textContent = esJefe ? 'Crear cuenta y empresa' : 'Crear cuenta';
+  };
+  formulario.querySelectorAll('input[name=tipo]').forEach((r) => r.addEventListener('change', alternarTipo));
+  if (parametros.get('tipo') === 'jefe') formulario.querySelector('input[value=jefe]').checked = true;
+  alternarTipo();
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
     // Revisa primero en el navegador qué falta, para decirlo todo de una vez y llevar el foco al primer campo
@@ -138,9 +158,14 @@ function pantallaRegistro(parametros) {
     try {
       const sesion = await Api.registrar(datosFormulario(formulario));
       estado.cuenta = sesion.cuenta;
-      estado.usuario = null;
-      aviso('Cuenta creada. Ahora únete a tu empresa.');
-      location.hash = 'unirse';
+      estado.usuario = sesion.usuario;
+      if (sesion.pendiente) {
+        aviso('Cuenta creada. Ahora únete a tu empresa con el código.');
+        location.hash = 'unirse';
+      } else {
+        aviso(`Tu empresa «${sesion.usuario.empresa}» está lista. Ahora invita a tu equipo.`);
+        location.hash = 'invitaciones';
+      }
       enrutar();
     } catch (e) {
       mostrarErrorFormulario(formulario, e.message);
@@ -148,7 +173,7 @@ function pantallaRegistro(parametros) {
       boton.disabled = false;
     }
   });
-  (parametros.get('correo') ? $('#nombre') : $('#correo')).focus();
+  (parametros.get('tipo') === 'jefe' ? empresa : parametros.get('correo') ? $('#nombre') : $('#correo')).focus();
 }
 
 function pantallaUnirse() {
@@ -164,7 +189,30 @@ function pantallaUnirse() {
       <button class="btn btn-primario btn-bloque" type="submit">Unirme a la empresa</button>
     </form>
     <p class="pequeno suave" style="margin-top:14px">¿No tienes código? Pídeselo a tu jefe. Para probar: <strong>CT-RQ7K-4M2P</strong></p>
+    <div class="separador">¿Eres jefe?</div>
+    <details class="crear-empresa">
+      <summary class="btn btn-contorno btn-bloque">Crear mi empresa</summary>
+      <form id="form-empresa" novalidate style="margin-top:12px">
+        <div class="campo"><label for="u-empresa">Nombre de la empresa *</label>
+          <input id="u-empresa" name="nombre" autocomplete="organization" maxlength="60" required placeholder="Ej.: Constructora Los Andes"></div>
+        <div class="mensaje mensaje-error oculto" role="alert"></div>
+        <button class="btn btn-primario btn-bloque" type="submit">Crear empresa y entrar como jefe</button>
+      </form>
+    </details>
     <button class="btn btn-enlace btn-bloque" id="salir-unirse">Cerrar sesión</button>`);
+  const formEmpresa = $('#form-empresa');
+  formEmpresa.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    try {
+      const respuesta = await Api.crearEmpresa($('#u-empresa').value);
+      estado.usuario = respuesta.usuario;
+      aviso(respuesta.mensaje);
+      location.hash = 'invitaciones';
+      enrutar();
+    } catch (e) {
+      mostrarErrorFormulario(formEmpresa, e.message);
+    }
+  });
   const formulario = $('#form-unirse');
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();

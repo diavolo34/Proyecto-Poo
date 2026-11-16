@@ -30,6 +30,7 @@ public final class JsonMapper {
                 .texto("cedula", u.getCedula())
                 .texto("nombre", u.getNombre())
                 .texto("rol", u.getRol())
+                .texto("empresa", u.getEmpresa() == null ? null : u.getEmpresa().getNombre())
                 .logico("presente", u.estaPresente())
                 .logico("trabajaHoy", u.trabajaEl(java.time.LocalDate.now()))
                 .crudo("horario", horario(u.getHorario()))

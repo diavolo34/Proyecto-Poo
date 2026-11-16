@@ -325,7 +325,7 @@ async function formularioPersona(cedula) {
     <div class="fila">
       <div class="campo"><label for="rol">Rol</label><select id="rol" name="rol">
         ${['Empleado', 'Supervisor'].map((r) => `<option ${u && u.rol === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>
-      <div class="campo"><label for="p-cedula">Cédula o DNI</label><input id="p-cedula" name="cedula" value="${esc(u ? u.cedula : '')}" ${u ? 'disabled' : 'inputmode="numeric" maxlength="10" data-solo-numeros'}></div>
+      <div class="campo"><label for="p-cedula">Cédula o DNI</label><input id="p-cedula" name="cedula" value="${esc(u ? u.cedula : '')}" ${u ? 'disabled' : 'inputmode="numeric" data-solo-numeros'}></div>
     </div>
     <div class="campo"><label for="p-nombre">Nombre completo</label><input id="p-nombre" name="nombre" value="${esc(u ? u.nombre : '')}"></div>
     <div class="campo"><label for="p-clave">Clave</label><input id="p-clave" name="clave" type="password" autocomplete="new-password">

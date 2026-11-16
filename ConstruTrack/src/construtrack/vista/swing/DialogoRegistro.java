@@ -6,6 +6,7 @@ import java.awt.Window;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -13,13 +14,17 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 /**
- * Vista: registro de una cuenta nueva con correo y datos personales.
- * Pide solo lo necesario y explica el siguiente paso (unirse con un código), para que nadie se pierda.
+ * Vista: registro de una cuenta nueva con correo y datos personales. Primero se elige cómo empezar:
+ * el jefe crea su empresa; los demás se unen después con el código que les da su jefe.
  */
 public final class DialogoRegistro extends JDialog {
 
     private static final long serialVersionUID = 1L;
 
+    private final JComboBox<Opcion> cboTipo = new JComboBox<>(new Opcion[] {
+        new Opcion("unirme", "Me uno a una empresa (mi jefe me da un código)"),
+        new Opcion("jefe", "Soy jefe: crear mi empresa")});
+    private final JTextField txtEmpresa = new JTextField(24);
     private final JTextField txtCorreo = new JTextField(24);
     private final JTextField txtNombre = new JTextField(12);
     private final JTextField txtApellido = new JTextField(12);
@@ -40,15 +45,17 @@ public final class DialogoRegistro extends JDialog {
         JPanel encabezado = new JPanel(new BorderLayout(0, 4));
         encabezado.setOpaque(false);
         encabezado.add(Tema.subtitulo("Crea tu cuenta en ConstruTrack"), BorderLayout.NORTH);
-        encabezado.add(Tema.textoSuave("<html><div style='width:380px'>Después de registrarte, escribe el código de "
-                + "invitación que te dio tu jefe para unirte a la empresa.</div></html>"), BorderLayout.CENTER);
+        encabezado.add(Tema.textoSuave("<html><div style='width:380px'>Si eres jefe, crea tu empresa e invita a tu equipo. "
+                + "Si no, después escribe el código de invitación que te dé tu jefe.</div></html>"), BorderLayout.CENTER);
         contenido.add(encabezado, BorderLayout.NORTH);
 
         Formulario f = new Formulario()
+                .campo("¿Cómo usarás ConstruTrack? *", cboTipo, null)
+                .campo("Nombre de la empresa (solo jefes)", txtEmpresa, "Serás su Jefe y podrás invitar a tu equipo")
                 .campo("Correo electrónico *", txtCorreo, "Lo usarás para iniciar sesión")
                 .campo("Nombre *", txtNombre, null, 0, 1)
                 .campo("Apellido *", txtApellido, null, 1, 1)
-                .campo("Cédula o DNI *", txtDocumento, "Sin puntos ni guiones", 0, 1)
+                .campo("Cédula o DNI *", txtDocumento, "Solo números", 0, 1)
                 .campo("Teléfono *", txtTelefono, "Ej.: +58 412 1234567", 1, 1)
                 .campo("Clave *", txtClave, "Mínimo 4 caracteres", 0, 1)
                 .campo("Repite la clave *", txtConfirmacion, null, 1, 1);
@@ -65,6 +72,15 @@ public final class DialogoRegistro extends JDialog {
         abajo.add(botones, BorderLayout.SOUTH);
         contenido.add(abajo, BorderLayout.SOUTH);
 
+        txtEmpresa.setEnabled(false);
+        cboTipo.addActionListener(e -> {
+            boolean jefe = esJefe();
+            txtEmpresa.setEnabled(jefe);
+            btnCrear.setText(jefe ? "Crear cuenta y empresa" : "Crear cuenta");
+            if (jefe) {
+                txtEmpresa.requestFocusInWindow();
+            }
+        });
         setContentPane(contenido);
         getRootPane().setDefaultButton(btnCrear);
         pack();
@@ -74,6 +90,8 @@ public final class DialogoRegistro extends JDialog {
     /** Datos con las claves que espera el servicio de registro. */
     public Map<String, String> datos() {
         Map<String, String> datos = new LinkedHashMap<>();
+        datos.put("tipo", esJefe() ? "jefe" : "unirme");
+        datos.put("empresa", txtEmpresa.getText());
         datos.put("correo", txtCorreo.getText());
         datos.put("nombre", txtNombre.getText());
         datos.put("apellido", txtApellido.getText());
@@ -82,6 +100,10 @@ public final class DialogoRegistro extends JDialog {
         datos.put("clave", new String(txtClave.getPassword()));
         datos.put("confirmacion", new String(txtConfirmacion.getPassword()));
         return datos;
+    }
+
+    private boolean esJefe() {
+        return "jefe".equals(((Opcion) cboTipo.getSelectedItem()).valor());
     }
 
     public void mostrarError(String mensaje) {
