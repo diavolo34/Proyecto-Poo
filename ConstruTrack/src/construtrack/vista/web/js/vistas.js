@@ -15,6 +15,7 @@ const VISTAS = [
   { id: 'incidencias', titulo: 'Incidencias', grupo: 'Mi trabajo', icono: '✚', disponible: () => true, dibujar: vistaIncidencias },
   { id: 'tablero', titulo: 'Tablero', grupo: 'Equipo', icono: '▦', disponible: esRevisor, dibujar: vistaTablero },
   { id: 'supervision', titulo: 'Supervisión', grupo: 'Equipo', icono: '▤', disponible: esRevisor, dibujar: vistaSupervision },
+  { id: 'obras', titulo: 'Obras', grupo: 'Equipo', icono: '⌂', disponible: esRevisor, dibujar: vistaObras },
   { id: 'personal', titulo: 'Personal', grupo: 'Equipo', icono: '☰', disponible: esRevisor, dibujar: vistaPersonal },
   { id: 'invitaciones', titulo: 'Invitaciones', grupo: 'Administración', icono: '✉', disponible: esJefe, dibujar: vistaInvitaciones },
 ];
@@ -29,12 +30,11 @@ async function vistaAsistencia() {
   const tardes = semana.filter((a) => a.tarde).length;
   const puntualidad = semana.length ? Math.round(100 * (semana.length - tardes) / semana.length) : 100;
   const hoy = u.asistenciaHoy;
-  const horas = (a) => {
-    if (!a.horaSalida) return '—';
-    const [h1, m1] = a.horaEntrada.split(':').map(Number);
-    const [h2, m2] = a.horaSalida.split(':').map(Number);
-    return (((h2 * 60 + m2) - (h1 * 60 + m1)) / 60).toFixed(1) + ' h';
-  };
+  const horas = (a) => (a.horaSalida ? formatoHoras(a.minutos) : '—');
+  const extra = (a) => (a.minutosExtra
+    ? chip('+' + formatoHoras(a.minutosExtra), a.estadoExtra === 'Aprobadas' ? 'verde' : a.estadoExtra === 'Rechazadas' ? 'gris' : 'amarillo')
+      + `<br><span class="pequeno suave">${esc(a.estadoExtra)}</span>`
+    : '—');
   contenido().innerHTML = encabezado('Mi trabajo /', 'Mi asistencia') + `
     <div class="rejilla-2">
       <section class="tarjeta" aria-labelledby="t-hoy">
@@ -59,11 +59,11 @@ async function vistaAsistencia() {
     </div>
     <section class="tarjeta" style="margin-top:16px"><h2>Mi historial reciente</h2>
       <div class="tabla-contenedor"><table>
-        <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th><th>Horas</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th><th>Horas</th><th>Extra</th></tr></thead>
         <tbody>${u.asistencias.map((a) => `<tr><td>${fecha(a.fecha)}</td><td>${esc(a.horaEntrada)}</td>
           <td>${a.horaSalida ? esc(a.horaSalida) : chip('En curso', 'azul')}</td>
-          <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td><td>${horas(a)}</td></tr>`).join('')
-          || '<tr><td colspan="5" class="vacio">Aún no tienes jornadas registradas. Marca tu primera entrada.</td></tr>'}</tbody>
+          <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td><td>${horas(a)}</td><td>${extra(a)}</td></tr>`).join('')
+          || '<tr><td colspan="6" class="vacio">Aún no tienes jornadas registradas. Marca tu primera entrada.</td></tr>'}</tbody>
       </table></div></section>`;
   const marcar = async (accion) => {
     try {
@@ -193,12 +193,12 @@ async function revisarIncidencia(id, nuevoEstado) {
 
 // ------------------------------------------------------------------ Supervisión
 async function vistaSupervision() {
-  const periodo = estado.periodo || 'semana';
-  const [est, alertas] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo)]);
+  const periodo = estado.periodo || 'ultimos7';
+  const [est, alertas, extras] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo), Api.horasExtra()]);
   const color = (v) => (v >= 90 ? '#22a06b' : v >= 75 ? '#e2b203' : '#c9372c');
   contenido().innerHTML = encabezado('Equipo /', 'Supervisión', `
     <label for="periodo" class="pequeno">Período</label>
-    <select id="periodo" style="width:auto">${[['semana', 'Esta semana'], ['mes', 'Este mes']]
+    <select id="periodo" style="width:auto">${[['ultimos7', 'Últimos 7 días'], ['semana', 'Esta semana'], ['mes', 'Este mes']]
       .map(([v, t]) => `<option value="${v}" ${v === periodo ? 'selected' : ''}>${t}</option>`).join('')}</select>`) + `
     <p class="suave pequeno" style="margin-top:-8px">${esc(est.periodo)}</p>
     <div class="cifras">
@@ -214,18 +214,34 @@ async function vistaSupervision() {
           <div class="barra-pista" role="img" aria-label="${esc(p.nombre)}: ${Math.round(p.tasaAsistencia)}% de asistencia">
             <span style="width:${p.tasaAsistencia}%;background:${color(p.tasaAsistencia)}"></span></div>
           <strong>${Math.round(p.tasaAsistencia)}%</strong></div>`).join('') || '<p class="suave">Sin datos.</p>'}</div></section>
-      <section class="tarjeta" aria-labelledby="t-alertas"><h2 id="t-alertas">Alertas automáticas</h2>
+      <section class="tarjeta" aria-labelledby="t-alertas"><h2 id="t-alertas">Alertas automáticas</h2><p class="suave pequeno" style="margin-top:-6px">De la más antigua a la más reciente.</p>
         ${alertas.map((a) => `<div class="alerta">${chip(a.nivel, a.nivel === 'Alta' ? 'rojo' : 'amarillo')}
-          <div><strong>${esc(a.nombre)}</strong><br><span class="suave pequeno">${esc(a.mensaje)}</span></div></div>`).join('')
+          <div><strong>${esc(a.nombre)}</strong> <span class="suave pequeno">· desde ${fecha(a.desde)}</span><br><span class="suave pequeno">${esc(a.mensaje)}</span></div></div>`).join('')
           || '<p class="suave">Sin alertas en este período. Todo en orden.</p>'}</section>
     </div>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-ranking"><h2 id="t-ranking">Tabla de puntualidad</h2>
-      <p class="suave pequeno" style="margin-top:-6px">Ordenada de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.</p>
-      <div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Asistencias</th><th>Retardos</th><th>Faltas sin justificar</th>
+      <p class="suave pequeno" style="margin-top:-6px">Ordenada de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.
+        Las horas extra cuentan cuando el supervisor o el jefe las aprueba.</p>
+      <div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Horas trabajadas / esperadas</th>
+        <th>Extra diaria</th><th>Extra día libre</th><th>Extra por aprobar</th><th>Retardos</th><th>Faltas sin justificar</th>
         <th>Justificadas</th><th>Puntualidad</th></tr></thead><tbody>
-        ${est.personas.map((p) => `<tr><td>${esc(p.nombre)}</td><td>${p.asistencias} / ${p.laborables}</td>
+        ${est.personas.map((p) => `<tr><td style="white-space:nowrap">${esc(p.nombre)}</td>
+          <td style="white-space:nowrap"><strong>${formatoHoras(p.minutos)}</strong> / ${formatoHoras(p.minutosEsperados)}</td>
+          <td>${p.extraDiaria ? chip('+' + formatoHoras(p.extraDiaria), 'verde') : '—'}</td>
+          <td>${p.extraDiaLibre ? chip('+' + formatoHoras(p.extraDiaLibre), 'verde') : '—'}</td>
+          <td>${p.extraPendiente ? chip(formatoHoras(p.extraPendiente), 'amarillo') : '—'}</td>
           <td>${p.retardos ? chip(p.retardos, 'amarillo') : 0}</td><td>${p.ausencias ? chip(p.ausencias, 'rojo') : 0}</td>
           <td>${p.justificadas}</td><td>${Math.round(p.puntualidad)}%</td></tr>`).join('')}</tbody></table></div></section>
+    <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-extra"><h2 id="t-extra">Horas extra por aprobar</h2>
+      <p class="suave pequeno" style="margin-top:-6px">Se calculan solas con la entrada y la salida: lo que pasa de la jornada, o todo lo trabajado en un día libre (desde 15 min).</p>
+      ${extras.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Fecha</th><th>Entrada – salida</th>
+        <th>Tipo</th><th>Extra</th><th><span class="solo-lector">Acciones</span></th></tr></thead><tbody>
+        ${extras.map((x) => `<tr><td>${esc(x.nombre)}</td><td>${fecha(x.jornada.fecha)}</td>
+          <td>${esc(x.jornada.horaEntrada)} – ${esc(x.jornada.horaSalida || '…')}</td><td>${esc(x.jornada.tipoExtra)}</td>
+          <td><strong>${formatoHoras(x.jornada.minutosExtra)}</strong></td>
+          <td style="white-space:nowrap"><button class="btn btn-exito btn-chico" data-extra="APROBADAS" data-cedula="${esc(x.cedula)}" data-fecha="${esc(x.jornada.fecha)}">Aprobar</button>
+            <button class="btn btn-peligro btn-chico" data-extra="RECHAZADAS" data-cedula="${esc(x.cedula)}" data-fecha="${esc(x.jornada.fecha)}">Rechazar</button></td></tr>`).join('')}
+        </tbody></table></div>` : '<p class="suave">No hay horas extra por aprobar.</p>'}</section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-reportes"><h2 id="t-reportes">Reportes</h2>
       <div class="acciones" style="justify-content:flex-start;align-items:flex-end">
         <div class="campo" style="margin:0"><label for="tipo-reporte">Tipo</label><select id="tipo-reporte">
@@ -235,6 +251,15 @@ async function vistaSupervision() {
         <button class="btn btn-primario" id="descargar-reporte">Descargar reporte</button>
       </div></section>`;
   $('#periodo').addEventListener('change', (e) => { estado.periodo = e.target.value; vistaSupervision(); });
+  contenido().querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', async () => {
+    try {
+      await Api.revisarHorasExtra(b.dataset.cedula, b.dataset.fecha, b.dataset.extra);
+      aviso(b.dataset.extra === 'APROBADAS' ? 'Horas extra aprobadas.' : 'Horas extra rechazadas.');
+      vistaSupervision();
+    } catch (e) {
+      aviso(e.message, 'error');
+    }
+  }));
   $('#descargar-reporte').addEventListener('click', async () => {
     try {
       const nombre = await Api.descargarReporte($('#tipo-reporte').value, $('#formato-reporte').value, periodo);
@@ -300,7 +325,7 @@ async function formularioPersona(cedula) {
     <div class="fila">
       <div class="campo"><label for="rol">Rol</label><select id="rol" name="rol">
         ${['Empleado', 'Supervisor'].map((r) => `<option ${u && u.rol === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>
-      <div class="campo"><label for="p-cedula">Cédula o DNI</label><input id="p-cedula" name="cedula" value="${esc(u ? u.cedula : '')}" ${u ? 'disabled' : ''}></div>
+      <div class="campo"><label for="p-cedula">Cédula o DNI</label><input id="p-cedula" name="cedula" value="${esc(u ? u.cedula : '')}" ${u ? 'disabled' : 'inputmode="numeric" maxlength="10" data-solo-numeros'}></div>
     </div>
     <div class="campo"><label for="p-nombre">Nombre completo</label><input id="p-nombre" name="nombre" value="${esc(u ? u.nombre : '')}"></div>
     <div class="campo"><label for="p-clave">Clave</label><input id="p-clave" name="clave" type="password" autocomplete="new-password">
@@ -314,6 +339,9 @@ async function formularioPersona(cedula) {
     <div class="campo" id="campo-supervisor"><label for="supervisor">Supervisor</label><select id="supervisor" name="supervisor">
       <option value="">— Sin supervisor —</option>${opciones.supervisores.map((s) =>
         `<option value="${esc(s.cedula)}" ${u && u.supervisor && u.supervisor.cedula === s.cedula ? 'selected' : ''}>${esc(s.nombre)}</option>`).join('')}</select></div>
+    <div class="campo"><label for="p-obra">Obra</label><select id="p-obra" name="obra">
+      <option value="">— Sin obra —</option>${opciones.obras.map((o) =>
+        `<option value="${esc(o.codigo)}" ${u && u.obra === o.nombre ? 'selected' : ''}>${esc(o.nombre)}</option>`).join('')}</select></div>
     <div class="mensaje mensaje-error oculto" role="alert"></div>
     <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
       <button class="btn btn-primario" type="submit">Guardar</button></div></form>`);
@@ -328,7 +356,11 @@ async function formularioPersona(cedula) {
     datos.dias = datos.dias || '';
     if (!datos.clave) delete datos.clave;
     try {
+      const obra = datos.obra || '';
+      delete datos.obra;
       const guardado = cedula ? await Api.modificarUsuario(cedula, datos) : await Api.registrarUsuario(datos);
+      const obraAnterior = (opciones.obras.find((o) => u && o.nombre === u.obra) || {}).codigo || '';
+      if (obra !== obraAnterior) await Api.asignarObra(guardado.cedula, obra);
       Modal.cerrar();
       aviso((cedula ? 'Se actualizó a ' : 'Se registró a ') + guardado.nombre + '.');
       await vistaPersonal();
@@ -341,19 +373,120 @@ async function formularioPersona(cedula) {
 async function historialPersona(cedula) {
   try {
     const u = await Api.verUsuario(cedula);
-    Modal.abrir('Historial de ' + u.nombre, `<p class="suave">${esc(textoDias(u.horario.dias))}, de ${esc(u.horario.horaEntrada)} a ${esc(u.horario.horaSalida)}</p>
-      <div class="tabla-contenedor"><table><thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th></tr></thead><tbody>
+    const incidencias = u.incidencias || [];
+    const modal = Modal.abrir('Historial de ' + u.nombre, `<p class="suave">${esc(textoDias(u.horario.dias))}, de ${esc(u.horario.horaEntrada)} a ${esc(u.horario.horaSalida)}
+      ${u.fechaIngreso ? ' · En la empresa desde el ' + fecha(u.fechaIngreso) : ''}</p>
+      <div class="pestanas" role="tablist">
+        <button type="button" role="tab" class="pestana activa" aria-selected="true" data-pestana="h-asistencia">Asistencia (${u.asistencias.length})</button>
+        <button type="button" role="tab" class="pestana" aria-selected="false" data-pestana="h-incidencias">Incidencias (${incidencias.length})</button>
+      </div>
+      <div id="h-asistencia" role="tabpanel"><div class="tabla-contenedor"><table><thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th><th>Horas</th><th>Extra</th></tr></thead><tbody>
       ${u.asistencias.map((a) => `<tr><td>${fecha(a.fecha)}</td><td>${esc(a.horaEntrada)}</td><td>${esc(a.horaSalida || 'En curso')}</td>
-        <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td></tr>`).join('')
-        || '<tr><td colspan="4" class="vacio">Sin jornadas registradas.</td></tr>'}</tbody></table></div>`);
+        <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td><td>${a.horaSalida ? formatoHoras(a.minutos) : '—'}</td>
+        <td>${a.minutosExtra ? '+' + formatoHoras(a.minutosExtra) + ' · ' + esc(a.estadoExtra) : '—'}</td></tr>`).join('')
+        || '<tr><td colspan="6" class="vacio">Sin jornadas registradas.</td></tr>'}</tbody></table></div></div>
+      <div id="h-incidencias" role="tabpanel" class="oculto"><div class="tabla-contenedor"><table><thead><tr><th>#</th><th>Tipo</th><th>Fechas</th><th>Estado</th><th>Detalle</th></tr></thead><tbody>
+      ${incidencias.map((i) => `<tr><td>${i.id}</td><td>${esc(i.nombreTipo)}<br>${chipGravedad(i.gravedad)}</td>
+        <td style="white-space:nowrap">${fecha(i.desde)}${i.hasta && i.hasta !== i.desde ? ' – ' + fecha(i.hasta) : ''}</td>
+        <td>${chipEstado(i.estadoNombre)}${i.revisor ? `<br><span class="pequeno suave">por ${esc(i.revisor)}</span>` : ''}</td>
+        <td>${esc(i.descripcion)}${i.detalle ? `<br><span class="pequeno suave">${esc(i.detalle)}</span>` : ''}
+          ${i.comentarioRevision ? `<br><span class="pequeno">«${esc(i.comentarioRevision)}»</span>` : ''}</td></tr>`).join('')
+        || '<tr><td colspan="5" class="vacio">Sin incidencias: no ha reportado faltas, reposos ni permisos.</td></tr>'}</tbody></table></div></div>`);
+    modal.querySelectorAll('[data-pestana]').forEach((b) => b.addEventListener('click', () => {
+      modal.querySelectorAll('[data-pestana]').forEach((x) => {
+        const activa = x === b;
+        x.classList.toggle('activa', activa);
+        x.setAttribute('aria-selected', String(activa));
+        modal.querySelector('#' + x.dataset.pestana).classList.toggle('oculto', !activa);
+      });
+    }));
   } catch (e) {
     aviso(e.message, 'error');
   }
 }
 
 // ------------------------------------------------------------------ Invitaciones (Jefe)
+// ------------------------------------------------------------------ Obras (Supervisor y Jefe)
+async function vistaObras() {
+  const [obras, visibles] = await Promise.all([Api.obras(), Api.listarUsuarios()]);
+  // A quién puede mover de obra: el Jefe a todos; el Supervisor a su equipo y a sí mismo
+  const asignables = esJefe() ? visibles : [estado.usuario, ...visibles];
+  contenido().innerHTML = encabezado('Equipo /', 'Obras', '<button class="btn btn-primario" id="nueva-obra">+ Nueva obra</button>') + `
+    <p class="suave" style="margin-top:-8px">Los lugares donde trabaja el personal. Las gestionan el supervisor y el jefe.</p>
+    <div class="rejilla-obras">${obras.map((o) => `<section class="tarjeta" aria-labelledby="obra-${esc(o.codigo)}">
+      <div class="titulo-vista" style="margin:0 0 4px"><h2 id="obra-${esc(o.codigo)}" style="margin:0">${esc(o.nombre)}</h2>${chip(o.codigo, 'gris')}</div>
+      <p class="suave pequeno" style="margin:0 0 10px">${esc(o.ubicacion || 'Sin ubicación')} · ${fecha(o.inicio)} → ${fecha(o.fin)}</p>
+      <div class="barra-pista" role="img" aria-label="${o.avance}% del plazo transcurrido"><span style="width:${o.avance}%;background:#0c66e4"></span></div>
+      <p class="pequeno suave" style="margin:4px 0 12px">${o.avance}% del plazo</p>
+      <h3 class="pequeno" style="margin:0 0 6px">Personas (${o.personas.length})</h3>
+      <ul class="lista-personas">${o.personas.map((p) => `<li>${esc(p.nombre)} ${chipRol(p.rol)}
+        ${asignables.some((a) => a.cedula === p.cedula) ? `<button class="btn btn-enlace btn-chico" data-quitar="${esc(p.cedula)}" aria-label="Quitar a ${esc(p.nombre)} de la obra">Quitar</button>` : ''}</li>`).join('')
+        || '<li class="suave">Nadie asignado todavía.</li>'}</ul>
+      <div class="acciones" style="justify-content:flex-start;flex-wrap:wrap">
+        <label class="solo-lector" for="sumar-${esc(o.codigo)}">Sumar persona a ${esc(o.nombre)}</label>
+        <select id="sumar-${esc(o.codigo)}" data-sumar="${esc(o.codigo)}" style="width:auto;max-width:100%">
+          <option value="">+ Sumar persona…</option>${asignables.filter((a) => !o.personas.some((p) => p.cedula === a.cedula))
+            .map((a) => `<option value="${esc(a.cedula)}">${esc(a.nombre)}${a.obra ? ' (en ' + esc(a.obra) + ')' : ''}</option>`).join('')}</select>
+        <button class="btn btn-secundario btn-chico" data-editar-obra="${esc(o.codigo)}">Editar</button>
+        <button class="btn btn-peligro btn-chico" data-eliminar-obra="${esc(o.codigo)}">Eliminar</button>
+      </div></section>`).join('') || '<p class="suave">Aún no hay obras. Crea la primera.</p>'}</div>`;
+  const recargar = async (mensaje) => { aviso(mensaje); await vistaObras(); };
+  const intentar = (accion) => async (evento) => {
+    try {
+      await accion(evento);
+    } catch (e) {
+      aviso(e.message, 'error');
+    }
+  };
+  $('#nueva-obra').addEventListener('click', () => formularioObra(null));
+  contenido().querySelectorAll('[data-editar-obra]').forEach((b) => b.addEventListener('click',
+    () => formularioObra(obras.find((o) => o.codigo === b.dataset.editarObra))));
+  contenido().querySelectorAll('[data-eliminar-obra]').forEach((b) => b.addEventListener('click', intentar(async () => {
+    const obra = obras.find((o) => o.codigo === b.dataset.eliminarObra);
+    if (!confirm(`¿Eliminar la obra «${obra.nombre}»? Esta acción no se puede deshacer.`)) return;
+    await Api.eliminarObra(obra.codigo);
+    await recargar('Obra eliminada.');
+  })));
+  contenido().querySelectorAll('[data-sumar]').forEach((s) => s.addEventListener('change', intentar(async () => {
+    if (!s.value) return;
+    const persona = await Api.asignarObra(s.value, s.dataset.sumar);
+    await recargar(persona.nombre + ' ahora trabaja en esta obra.');
+  })));
+  contenido().querySelectorAll('[data-quitar]').forEach((b) => b.addEventListener('click', intentar(async () => {
+    const persona = await Api.asignarObra(b.dataset.quitar, '');
+    await recargar(persona.nombre + ' quedó sin obra asignada.');
+  })));
+}
+
+function formularioObra(obra) {
+  const hoy = new Date().toISOString().slice(0, 10);
+  const modal = Modal.abrir(obra ? 'Editar obra' : 'Nueva obra', `<form novalidate>
+    <div class="campo"><label for="o-nombre">Nombre *</label><input id="o-nombre" name="nombre" required value="${esc(obra ? obra.nombre : '')}" placeholder="Ej.: Edificio Las Acacias"></div>
+    <div class="campo"><label for="o-ubicacion">Ubicación</label><input id="o-ubicacion" name="ubicacion" value="${esc(obra ? obra.ubicacion : '')}" placeholder="Ej.: Av. Libertador, Caracas"></div>
+    <div class="fila">
+      <div class="campo"><label for="o-inicio">Inicio *</label><input id="o-inicio" name="inicio" type="date" required value="${esc(obra ? obra.inicio : hoy)}"></div>
+      <div class="campo"><label for="o-fin">Fin estimado *</label><input id="o-fin" name="fin" type="date" required value="${esc(obra ? obra.fin : '')}"></div>
+    </div>
+    <div class="mensaje mensaje-error oculto" role="alert"></div>
+    <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
+      <button class="btn btn-primario" type="submit">Guardar</button></div></form>`);
+  const formulario = modal.querySelector('form');
+  formulario.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    try {
+      const datos = datosFormulario(formulario);
+      const guardada = obra ? await Api.editarObra(obra.codigo, datos) : await Api.crearObra(datos);
+      Modal.cerrar();
+      aviso((obra ? 'Se actualizó la obra ' : 'Se creó la obra ') + guardada.nombre + '.');
+      await vistaObras();
+    } catch (e) {
+      mostrarErrorFormulario(formulario, e.message);
+    }
+  });
+}
+
 async function vistaInvitaciones() {
-  const [opciones, lista] = await Promise.all([Api.opcionesPersonal(), Api.invitaciones()]);
+  const [opciones, lista, config] = await Promise.all([Api.opcionesPersonal(), Api.invitaciones(), Api.configuracionInvitaciones()]);
   contenido().innerHTML = encabezado('Administración /', 'Invitaciones') + `
     <p class="suave" style="margin-top:-8px">Cada código sirve una sola vez. Compártelo por WhatsApp o correo con la persona que quieres sumar.</p>
     <div class="rejilla-incidencias">
@@ -365,16 +498,18 @@ async function vistaInvitaciones() {
         <div class="campo"><label for="i-obra">Obra</label><select id="i-obra" name="obra"><option value="">— Sin obra —</option>
           ${opciones.obras.map((o) => `<option value="${esc(o.codigo)}">${esc(o.nombre)}</option>`).join('')}</select></div>
         <div class="campo"><label for="i-dias">Vigencia (días)</label><input id="i-dias" name="dias" type="number" min="1" max="30" value="7"></div>
-        <div class="campo"><label for="i-correo">Correo de la persona (opcional)</label><input id="i-correo" name="correo" type="email">
-          <span class="ayuda">Se registra el envío; no se manda un correo real.</span></div>
+        <div class="campo"><label for="i-correo">Correo de la persona (opcional)</label><input id="i-correo" name="correo" type="email" placeholder="nombre@correo.com">
+          <span class="ayuda">${config.correoReal ? '✉ Le llegará un correo con el código y un botón para unirse.'
+            : 'El envío de correos no está configurado: se registra, pero no llega. Comparte el código por WhatsApp.'}</span></div>
         <button class="btn btn-primario btn-bloque" type="submit">Crear invitación</button>
         <div id="codigo-creado" class="oculto" style="margin-top:14px"></div>
       </form>
       <section class="tarjeta" aria-labelledby="t-creadas"><h2 id="t-creadas">Invitaciones creadas</h2>
         <div class="tabla-contenedor"><table><thead><tr><th>Código</th><th>Rol</th><th>Supervisor</th><th>Obra</th><th>Estado</th><th>Vence</th><th>Usada por</th><th></th></tr></thead>
-        <tbody>${lista.map((v) => `<tr><td><strong>${esc(v.codigo)}</strong></td><td>${esc(v.rol)}</td><td>${esc(v.supervisor || '—')}</td>
+        <tbody>${lista.map((v) => `<tr><td><strong class="codigo">${esc(v.codigo)}</strong></td><td>${esc(v.rol)}</td><td>${esc(v.supervisor || '—')}</td>
           <td>${esc(v.obra || '—')}</td><td>${chipEstado(v.estado)}</td><td>${fecha(v.vence)}</td><td>${esc(v.usadaPor || '—')}</td>
-          <td>${v.estado === 'Vigente' ? `<button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-cancelar="${esc(v.codigo)}">Cancelar</button>` : ''}</td></tr>`).join('')
+          <td style="white-space:nowrap">${v.estado === 'Vigente' ? `<button class="btn btn-enlace btn-chico" data-enviar="${esc(v.codigo)}">Enviar por correo</button>
+            <button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-cancelar="${esc(v.codigo)}">Cancelar</button>` : ''}</td></tr>`).join('')
           || '<tr><td colspan="8" class="vacio">Aún no has creado invitaciones.</td></tr>'}</tbody></table></div></section>
     </div>`;
   const rol = $('#i-rol');
@@ -382,7 +517,8 @@ async function vistaInvitaciones() {
   $('#form-invitacion').addEventListener('submit', async (evento) => {
     evento.preventDefault();
     try {
-      const v = await Api.crearInvitacion(datosFormulario(evento.target));
+      const creada = await Api.crearInvitacion(datosFormulario(evento.target));
+      const v = creada.invitacion;
       await vistaInvitaciones();
       const enlace = location.href.split('#')[0] + '#registro';
       const mensaje = `Te invito a ConstruTrack. Crea tu cuenta en ${enlace} y únete con el código ${v.codigo}`;
@@ -398,10 +534,35 @@ async function vistaInvitaciones() {
       $('#copiar-codigo').addEventListener('click', () => copiar(v.codigo, 'Código'));
       $('#copiar-mensaje').addEventListener('click', () => copiar(mensaje, 'Mensaje'));
       aviso('Invitación ' + v.codigo + ' creada.');
+      if (creada.avisoCorreo) aviso(creada.avisoCorreo, creada.correoEnviado ? 'ok' : 'error');
     } catch (e) {
       aviso(e.message, 'error');
     }
   });
+  contenido().querySelectorAll('[data-enviar]').forEach((b) => b.addEventListener('click', () => {
+    const modal = Modal.abrir('Enviar ' + b.dataset.enviar + ' por correo', `<form novalidate>
+      <div class="campo"><label for="e-correo">Correo de la persona</label><input id="e-correo" name="correo" type="email" required placeholder="nombre@correo.com"></div>
+      ${config.correoReal ? '' : '<p class="mensaje mensaje-info pequeno">El envío de correos no está configurado en este servidor: quedará registrado, pero no llegará.</p>'}
+      <div class="mensaje mensaje-error oculto" role="alert"></div>
+      <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
+        <button class="btn btn-primario" type="submit">Enviar</button></div></form>`);
+    const formulario = modal.querySelector('form');
+    formulario.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      const boton = formulario.querySelector('button[type=submit]');
+      boton.disabled = true;
+      boton.textContent = 'Enviando…';
+      try {
+        const r = await Api.enviarInvitacion(b.dataset.enviar, $('#e-correo').value);
+        Modal.cerrar();
+        aviso(r.mensaje);
+      } catch (e) {
+        mostrarErrorFormulario(formulario, e.message);
+        boton.disabled = false;
+        boton.textContent = 'Enviar';
+      }
+    });
+  }));
   contenido().querySelectorAll('[data-cancelar]').forEach((b) => b.addEventListener('click', async () => {
     try {
       await Api.cancelarInvitacion(b.dataset.cancelar);

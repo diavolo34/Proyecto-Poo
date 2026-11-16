@@ -38,7 +38,8 @@ public class MonitorSupervision {
                 }
             }
         }
-        alertas.sort(Comparator.comparing(Alerta::getNivel).thenComparing(Alerta::getNombre));
+        // De la más antigua a la más reciente: lo que lleva más tiempo sin atenderse va primero
+        alertas.sort(Comparator.comparing(Alerta::getDesde).thenComparing(Alerta::getNivel).thenComparing(Alerta::getNombre));
         return alertas;
     }
 }

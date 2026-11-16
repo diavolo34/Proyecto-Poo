@@ -71,10 +71,10 @@ class Chatbot {
     const usuario = this.contexto.usuario();
     if (!usuario || usuario.rol === 'Empleado') return 'Las alertas son para supervisores y jefes.';
     try {
-      const alertas = await Api.alertas('semana');
+      const alertas = await Api.alertas('ultimos7');
       return alertas.length
-        ? `Tienes ${alertas.length} alerta(s) esta semana:\n` + alertas.map((a) => `• [${a.nivel}] ${a.nombre}: ${a.mensaje}`).join('\n')
-        : 'No hay alertas esta semana. Todo en orden.';
+        ? `Tienes ${alertas.length} alerta(s) en los últimos 7 días:\n` + alertas.map((a) => `• [${a.nivel}] ${a.nombre}: ${a.mensaje}`).join('\n')
+        : 'No hay alertas en los últimos 7 días. Todo en orden.';
     } catch (e) {
       return 'No se pudo consultar: ' + e.message;
     }

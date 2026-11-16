@@ -43,6 +43,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     public Usuario registrarUsuario(Map<String, String> datos) {
         String rol = datos.get("rol");
         verificarRolGestionable(rol);
+        validarCedulaNueva(datos.get("cedula"));
         if (empresa.existeCedula(datos.get("cedula"))) {
             throw new OperacionInvalidaException("Ya existe un usuario con la cédula " + datos.get("cedula") + ".");
         }
@@ -200,6 +201,21 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     @Override
     public boolean puedeReportarPara(Usuario afectado) {
         return true;
+    }
+
+    @Override
+    public boolean puedeGestionarObras() {
+        return true;
+    }
+
+    @Override
+    public boolean puedeAsignarObraA(Usuario otro) {
+        return true;
+    }
+
+    @Override
+    public boolean puedeAprobarHorasDe(Usuario otro) {
+        return !(otro instanceof Jefe);
     }
 
     @Override

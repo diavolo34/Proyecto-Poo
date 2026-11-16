@@ -45,6 +45,13 @@ interface Notificador {
   + enviarInvitacion(i : Invitacion, correo : String) : void
 }
 class NotificadorConsola
+class NotificadorBrevo {
+  + NotificadorBrevo(api, clave, remitente, urlSitio)
+}
+class ServicioObras {
+  + crear(actual, datos) : Obra
+  + asignar(actual, cedula, codigoObra) : Usuario
+}
 interface LectorDatos {
   + cargar() : Empresa
 }
@@ -79,6 +86,8 @@ Servicios *-- ServicioInvitaciones
 ServicioBase --> EscritorDatos : depende de la abstracción
 ServicioInvitaciones --> Notificador
 Notificador <|.. NotificadorConsola
+Notificador <|.. NotificadorBrevo
+ServicioBase <|-- ServicioObras
 LectorDatos <|.. RepositorioTexto
 EscritorDatos <|.. RepositorioTexto
 LectorDatos <|.. RepositorioMemoria

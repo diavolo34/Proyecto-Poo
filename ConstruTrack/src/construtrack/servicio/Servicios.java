@@ -25,8 +25,15 @@ public class Servicios {
     private final ServicioSupervision supervision;
     private final ServicioRegistro registro;
     private final ServicioInvitaciones invitaciones;
+    private final ServicioObras obras;
 
     public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia) {
+        this(empresa, escritor, reloj, siguienteIdIncidencia, new NotificadorConsola());
+    }
+
+    /** El notificador se inyecta: correo real con Brevo en el servidor publicado, registro en consola en local. */
+    public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia,
+            Notificador notificador) {
         this.autenticacion = new ServicioAutenticacion(empresa, escritor, reloj);
         this.asistencia = new ServicioAsistencia(empresa, escritor, reloj);
         this.personal = new ServicioPersonal(empresa, escritor, reloj);
@@ -37,7 +44,12 @@ public class Servicios {
                         "incidencias", new ReporteIncidencias()),
                 Map.of("txt", new FormateadorTexto(), "csv", new FormateadorCSV()));
         this.registro = new ServicioRegistro(empresa, escritor, reloj);
-        this.invitaciones = new ServicioInvitaciones(empresa, escritor, reloj, new NotificadorConsola());
+        this.invitaciones = new ServicioInvitaciones(empresa, escritor, reloj, notificador);
+        this.obras = new ServicioObras(empresa, escritor, reloj);
+    }
+
+    public ServicioObras obras() {
+        return obras;
     }
 
     public ServicioRegistro registro() {

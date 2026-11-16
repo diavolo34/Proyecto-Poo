@@ -12,6 +12,7 @@ import construtrack.modelo.incidencias.EstadoIncidencia;
 import construtrack.modelo.incidencias.FabricaIncidencias;
 import construtrack.modelo.incidencias.Incidencia;
 import construtrack.modelo.Empresa;
+import construtrack.modelo.EstadoHorasExtra;
 import construtrack.modelo.Horario;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
@@ -33,7 +34,7 @@ import java.util.function.Supplier;
  *   EMPRESA|nombre
  *   U|rol|cedula|nombre|resumenClave|dias|horaEntrada|horaSalida|presente|fechaIngreso(o -)
  *   S|cedulaEmpleado|cedulaSupervisor
- *   A|cedula|fecha|horaEntrada|horaSalida(o -)|tarde
+ *   A|cedula|fecha|horaEntrada|horaSalida(o -)|tarde|estadoHorasExtra
  *   O|codigo|nombre|ubicacion|fechaInicio|fechaFinEstimada
  *   Y|cedulaEmpleado|cedulaObra
  *   I|id|tipo|cedulaAfectado|cedulaReporta|desde|hasta|descripcion|fechaReporte|estado|cedulaRevisor|comentario|fechaRevision|extras
@@ -135,7 +136,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
             }
             for (RegistroAsistencia a : u.getAsistencias()) {
                 lineas.add(unir("A", u.getCedula(), a.getFecha(), a.getHoraEntrada(),
-                        a.getHoraSalida() == null ? "-" : a.getHoraSalida(), a.isTarde()));
+                        a.getHoraSalida() == null ? "-" : a.getHoraSalida(), a.isTarde(), a.getEstadoExtra().name()));
             }
         }
         for (Usuario u : empresa.listarUsuarios()) {
@@ -179,6 +180,8 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         if (!"-".equals(c[4])) {
             registro.registrarSalida(LocalTime.parse(c[4]));
         }
+        // Campo agregado después: las jornadas de archivos viejos no entran en el control de horas extra
+        registro.restaurarEstadoExtra(c.length > 6 ? EstadoHorasExtra.valueOf(c[6]) : EstadoHorasExtra.NO_APLICA);
         return registro;
     }
 

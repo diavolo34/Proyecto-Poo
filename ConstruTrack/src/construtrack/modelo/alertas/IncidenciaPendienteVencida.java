@@ -24,7 +24,8 @@ public class IncidenciaPendienteVencida implements ReglaAlerta {
             long horas = incidencia.horasSinResolver(ahora);
             if (horas > horasLimite) {
                 alertas.add(Alerta.de(Nivel.MEDIA, empleado, "Incidencia #" + incidencia.getId()
-                        + " (" + incidencia.getNombreTipo() + ") sin resolver desde hace " + horas + " h.", ahora));
+                        + " (" + incidencia.getNombreTipo() + ") sin resolver desde hace " + horas + " h.",
+                        incidencia.getFechaReporte(), ahora));
             }
         }
         return alertas;

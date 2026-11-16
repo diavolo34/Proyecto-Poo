@@ -9,12 +9,17 @@ import construtrack.persistencia.AlmacenArchivo;
 import construtrack.persistencia.AlmacenUpstash;
 import construtrack.persistencia.GeneradorDatosPrueba;
 import construtrack.persistencia.RepositorioTexto;
+import construtrack.servicio.Notificador;
+import construtrack.servicio.NotificadorBrevo;
+import construtrack.servicio.NotificadorConsola;
 import construtrack.servicio.Servicios;
 import java.awt.GraphicsEnvironment;
 import java.net.BindException;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.TimeZone;
 import javax.swing.SwingUtilities;
 
 /**
@@ -33,12 +38,15 @@ public final class App {
 
     public static void main(String[] args) throws Exception {
         int puerto = Integer.parseInt(entorno("PORT", "8080"));
-        Clock reloj = Clock.systemDefaultZone();
+        // La hora de la obra, no la del servidor: Render y Docker usan UTC (4 h adelantado respecto a Venezuela)
+        ZoneId zona = ZoneId.of(entorno("ZONA", "America/Caracas"));
+        TimeZone.setDefault(TimeZone.getTimeZone(zona));
+        Clock reloj = Clock.system(zona);
 
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
         RepositorioTexto repositorio = new RepositorioTexto(almacen(), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
         Empresa empresa = repositorio.cargar();
-        Servicios servicios = new Servicios(empresa, repositorio, reloj, repositorio.siguienteIdIncidencia());
+        Servicios servicios = new Servicios(empresa, repositorio, reloj, repositorio.siguienteIdIncidencia(), notificador());
 
         ServidorWeb web;
         try {
@@ -51,13 +59,28 @@ public final class App {
         }
         web.iniciar();
         System.out.println("ConstruTrack listo en " + web.getUrl()
-                + " (" + empresa.listarUsuarios().size() + " usuarios, datos en " + repositorio.getAlmacen().descripcion() + ")");
+                + " (" + empresa.listarUsuarios().size() + " usuarios, datos en " + repositorio.getAlmacen().descripcion()
+                + ", correo " + (servicios.invitaciones().correoReal() ? "con Brevo" : "solo registrado en consola") + ")");
 
         // Vista de escritorio: se abre salvo que no haya pantalla (servidor) o se pida --sin-ventana
         boolean sinVentana = Arrays.asList(args).contains("--sin-ventana");
         if (!sinVentana && !GraphicsEnvironment.isHeadless()) {
             SwingUtilities.invokeLater(() -> new AplicacionSwing(servicios, web.getUrl()).iniciar());
         }
+    }
+
+    /**
+     * Cómo se envían las invitaciones: por correo real con Brevo si están BREVO_API_KEY y CORREO_REMITENTE
+     * (servidor publicado), o solo registradas en la consola (NetBeans, sin configuración).
+     */
+    private static Notificador notificador() {
+        String clave = entorno("BREVO_API_KEY", "");
+        String remitente = entorno("CORREO_REMITENTE", "");
+        if (clave.isEmpty() || remitente.isEmpty()) {
+            return new NotificadorConsola();
+        }
+        return new NotificadorBrevo(NotificadorBrevo.API, clave, remitente,
+                entorno("URL_SITIO", "https://startling-toffee-914e34.netlify.app"));
     }
 
     /**

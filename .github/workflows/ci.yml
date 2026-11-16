@@ -23,7 +23,7 @@ jobs:
 
       - name: Pruebas unitarias (JUnit 5)
         run: |
-          curl -sSfLo junit.jar https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar
+          curl -sSfL --retry 5 --retry-delay 10 --retry-all-errors -o junit.jar https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar
           javac --release 17 -encoding UTF-8 -Xlint:all -Werror -cp out:junit.jar -d out-test $(find ConstruTrack/test -name "*.java")
           java -jar junit.jar execute -cp out:out-test --scan-class-path --disable-banner --details=tree --fail-if-no-tests
 

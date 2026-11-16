@@ -110,11 +110,24 @@ const Api = {
   // ---- supervisión
   estadisticas: (periodo) => Api.pedir('GET', '/api/estadisticas?periodo=' + periodo),
   alertas: (periodo) => Api.pedir('GET', '/api/supervision/alertas?periodo=' + periodo),
+  horasExtra: () => Api.pedir('GET', '/api/horas-extra'),
+  revisarHorasExtra: (cedula, fecha, estado) =>
+    Api.pedir('PUT', `/api/horas-extra/${encodeURIComponent(cedula)}/${fecha}`, { estado }),
   descargarReporte: (tipo, formato, periodo) =>
     Api.descargar(`/api/reportes/${tipo}?formato=${formato}&periodo=${periodo}`),
+
+  // ---- obras
+  obras: () => Api.pedir('GET', '/api/obras'),
+  crearObra: (datos) => Api.pedir('POST', '/api/obras', datos),
+  editarObra: (codigo, datos) => Api.pedir('PUT', '/api/obras/' + encodeURIComponent(codigo), datos),
+  eliminarObra: (codigo) => Api.pedir('DELETE', '/api/obras/' + encodeURIComponent(codigo)),
+  asignarObra: (cedula, obra) => Api.pedir('PUT', `/api/usuarios/${encodeURIComponent(cedula)}/obra`, { obra }),
 
   // ---- invitaciones
   invitaciones: () => Api.pedir('GET', '/api/invitaciones'),
   crearInvitacion: (datos) => Api.pedir('POST', '/api/invitaciones', datos),
+  configuracionInvitaciones: () => Api.pedir('GET', '/api/invitaciones/configuracion'),
+  enviarInvitacion: (codigo, correo) =>
+    Api.pedir('POST', `/api/invitaciones/${encodeURIComponent(codigo)}/enviar`, { correo }),
   cancelarInvitacion: (codigo) => Api.pedir('DELETE', '/api/invitaciones/' + encodeURIComponent(codigo)),
 };

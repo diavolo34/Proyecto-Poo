@@ -1,6 +1,7 @@
 package construtrack.modelo.alertas;
 
 import construtrack.modelo.Periodo;
+import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Usuario;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,6 +23,9 @@ public class RetardosReiterados implements ReglaAlerta {
             return List.of();
         }
         Nivel nivel = retardos >= umbral + 2 ? Nivel.ALTA : Nivel.MEDIA;
-        return List.of(Alerta.de(nivel, empleado, retardos + " llegadas tarde en " + periodo + ".", ahora));
+        LocalDate primero = empleado.getHistorial().asistenciasEn(periodo).stream()
+                .filter(RegistroAsistencia::isTarde).map(RegistroAsistencia::getFecha).min(LocalDate::compareTo).orElse(hoy);
+        return List.of(Alerta.de(nivel, empleado, retardos + " llegadas tarde en " + periodo + ".",
+                primero.atStartOfDay(), ahora));
     }
 }

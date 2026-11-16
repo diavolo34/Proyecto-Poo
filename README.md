@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml/badge.svg)](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=openjdk)
-![Pruebas](https://img.shields.io/badge/JUnit%205-26%20pruebas-brightgreen)
+![Pruebas](https://img.shields.io/badge/JUnit%205-40%20pruebas-brightgreen)
 ![Arquitectura](https://img.shields.io/badge/arquitectura-MVC%20%2B%20SOLID-blue)
 ![Dependencias](https://img.shields.io/badge/dependencias-0-brightgreen)
 [![Demo en vivo](https://img.shields.io/badge/demo-en%20vivo-0052CC?logo=netlify)](https://startling-toffee-914e34.netlify.app)
@@ -36,14 +36,17 @@ herencia, polimorfismo, interfaces, composición y los principios **SOLID**, en 
 |-----|-----------------|
 | **Visitante** | Ver la portada, consultar a **Arqui**, el asistente virtual, y **crear su cuenta** con correo, nombre, apellido, cédula o DNI y teléfono. |
 | **Empleado** | Unirse a la empresa con un **código de invitación**, marcar entrada y salida (puntualidad con 10 min de tolerancia), ver su historial y **reportar incidencias**. |
-| **Supervisor** | Todo lo anterior + **tablero Kanban** para aprobar o rechazar las incidencias de su equipo, **alertas automáticas**, **estadísticas** y **reportes** en CSV o texto. |
-| **Jefe** | Todo lo anterior para toda la empresa + **gestionar al personal** y **crear invitaciones** de un solo uso con rol, supervisor y obra. |
+| **Supervisor** | Todo lo anterior + **tablero Kanban** para aprobar o rechazar las incidencias de su equipo, **aprobar horas extra**, **alertas automáticas** (de la más antigua a la más reciente), **tabla de puntualidad** con horas trabajadas, **gestionar obras** y **reportes** en CSV o texto. |
+| **Jefe** | Todo lo anterior para toda la empresa + **gestionar al personal** y **crear invitaciones** de un solo uso con rol, supervisor y obra, que se **envían por correo**. |
 
 Reglas destacadas:
 - Un **reposo médico aprobado** justifica la falta; si está pendiente o rechazado, el día cuenta como ausencia.
 - Las **alertas** se generan solas: 3 o más retardos en la semana, faltas sin justificar e incidencias sin resolver por más de 48 h.
 - Los **permisos se validan en el servidor**: un supervisor solo ve y revisa a su equipo.
 - Las claves se guardan como **resumen SHA-256 con sal**, nunca en texto plano.
+- Las **horas extra** se calculan solas (lo que pasa de la jornada o un día libre completo) y solo cuentan al aprobarse.
+- El **Historial** de cada persona reúne su asistencia y sus incidencias; las faltas se cuentan desde su ingreso.
+- La **cédula** nueva solo admite números; la hora es la de Venezuela aunque el servidor esté en UTC.
 
 ## Arquitectura
 
@@ -157,11 +160,13 @@ con códigos 400, 401, 403, 404 o 409.
 | `PUT` | `/api/incidencias/{id}/revision` | Supervisor del afectado · Jefe |
 | `GET` | `/api/estadisticas` · `/api/supervision/alertas` · `/api/reportes/{tipo}` | Supervisor (su equipo) · Jefe |
 | `GET` `POST` `PUT` `DELETE` | `/api/usuarios[/{cedula}]` · `GET /api/personal/opciones` | Jefe (Supervisor: solo lectura de su equipo) |
-| `GET` `POST` `DELETE` | `/api/invitaciones[/{codigo}]` | Jefe |
+| `GET` `PUT` | `/api/horas-extra` · `/api/horas-extra/{cedula}/{fecha}` | Supervisor (su equipo) · Jefe |
+| `GET` `POST` `PUT` `DELETE` | `/api/obras[/{codigo}]` · `PUT /api/usuarios/{cedula}/obra` | Supervisor · Jefe |
+| `GET` `POST` `DELETE` | `/api/invitaciones[/{codigo}]` · `POST /api/invitaciones/{codigo}/enviar` | Jefe |
 
 ## Calidad
 
-- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **26 pruebas JUnit 5** y una prueba de humo de la API.
+- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **40 pruebas JUnit 5** y una prueba de humo de la API.
 - **Pruebas** del modelo, la persistencia y los servicios con reloj fijo; se comprobó que detectan errores introducidos a propósito.
 - Verificado en la interfaz real: recorridos de la web con Playwright, de Swing en pantalla virtual, y despliegue con Docker y CORS.
 

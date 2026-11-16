@@ -70,6 +70,22 @@ public class Supervisor extends Usuario implements RevisorIncidencias {
     }
 
     @Override
+    public boolean puedeGestionarObras() {
+        return true;
+    }
+
+    /** Su equipo y él mismo (puede moverse de obra junto con su gente). */
+    @Override
+    public boolean puedeAsignarObraA(Usuario otro) {
+        return otro == this || supervisa(otro);
+    }
+
+    @Override
+    public boolean puedeAprobarHorasDe(Usuario otro) {
+        return supervisa(otro) && otro != this;
+    }
+
+    @Override
     public boolean puedeRevisar(Incidencia incidencia) {
         return supervisa(incidencia.getAfectado()) && incidencia.getAfectado() != this;
     }

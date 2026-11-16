@@ -25,6 +25,7 @@ public class ServidorWeb {
                 new ControladorReportes(servicios.supervision()),
                 new ControladorRegistro(servicios.registro(), sesiones),
                 new ControladorInvitaciones(servicios.invitaciones()),
+                new ControladorObras(servicios.obras()),
                 new ControladorPublico(servicios.personal()));
         servidor = HttpServer.create(new InetSocketAddress(puerto), 0);
         servidor.createContext("/api/", new ManejadorApi(sesiones, controladores, origenPermitido));

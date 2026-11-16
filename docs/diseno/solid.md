@@ -99,8 +99,10 @@ abstract class ServicioBase {
 - En producción `App` inyecta `RepositorioTexto` con un `Almacen` (archivo en NetBeans, Upstash en Render); en las pruebas, `RepositorioMemoria` (`ServiciosTest` comprueba que
   se guardó sin tocar el disco).
 - `MonitorSupervision(List<ReglaAlerta> reglas)` recibe sus reglas; las pruebas le pasan reglas con otros umbrales.
-- `ServicioInvitaciones` depende de `Notificador`. Hoy la implementación es `NotificadorConsola`; un `NotificadorCorreo`
-  (SMTP) se conectaría sin cambiar el servicio, igual que el `IMensajero` del material.
+- `ServicioInvitaciones` depende de `Notificador`, igual que el `IMensajero` del material. Hay dos implementaciones:
+  `NotificadorConsola` (en NetBeans, solo registra) y `NotificadorBrevo` (en el servidor publicado, envía el correo
+  real por la API de Brevo). Se agregó el correo real **sin cambiar una línea del servicio**: `App` elige cuál inyectar
+  según la configuración (DIP y, a la vez, OCP).
 - El reloj (`java.time.Clock`) también se inyecta: las pruebas usan `Clock.fixed` y obtienen siempre el mismo resultado.
 
 `App.main` es la **raíz de composición**: el único lugar donde se eligen las clases concretas.

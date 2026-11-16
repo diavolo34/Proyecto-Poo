@@ -144,7 +144,7 @@ tbody tr:hover { background: #fafbfc; }
 @keyframes entrar { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 .modal-fondo { position: fixed; inset: 0; background: rgba(9, 30, 66, .54); z-index: 50; display: flex; align-items: flex-start; justify-content: center; padding: 6vh 16px; overflow-y: auto; }
-.modal { background: var(--superficie); border-radius: 10px; box-shadow: var(--sombra-alta); width: 100%; max-width: 620px; padding: 24px 28px; }
+.modal { background: var(--superficie); border-radius: 10px; box-shadow: var(--sombra-alta); width: 100%; max-width: 760px; padding: 24px 28px; }
 .modal-cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .modal-cabecera h2 { margin: 0; font-size: 20px; }
 .acciones { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
@@ -229,7 +229,7 @@ tbody tr:hover { background: #fafbfc; }
 .codigo-grande { font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
 
 /* ----------------------------------------------------------------- aplicación */
-.app { display: grid; grid-template-columns: 248px 1fr; grid-template-rows: 56px 1fr; min-height: 100vh; }
+.app { display: grid; grid-template-columns: 248px minmax(0, 1fr); grid-template-rows: 56px 1fr; min-height: 100vh; }
 .barra-superior {
   grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 0 16px;
   background: var(--superficie); border-bottom: 1px solid var(--borde); position: sticky; top: 0; z-index: 20;
@@ -253,6 +253,17 @@ tbody tr:hover { background: #fafbfc; }
 .rejilla-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .rejilla-incidencias { display: grid; grid-template-columns: 360px 1fr; gap: 16px; align-items: start; }
 .pila > * + * { margin-top: 16px; }
+/* Las columnas de una rejilla pueden encogerse: las tablas anchas se desplazan dentro de su caja, no la página */
+.rejilla-2 > *, .rejilla-incidencias > *, .rejilla-obras > *, .cifras > * { min-width: 0; }
+.codigo { white-space: nowrap; font-family: ui-monospace, Consolas, monospace; letter-spacing: .5px; }
+/* Pestañas (Historial: asistencia / incidencias) */
+.pestanas { display: flex; gap: 4px; border-bottom: 1px solid var(--borde); margin: 8px 0 12px; }
+.pestana { font: inherit; font-weight: 600; font-size: 14px; background: none; border: 0; padding: 8px 12px; cursor: pointer;
+  color: var(--texto-suave); border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.pestana.activa { color: var(--azul-oscuro); border-bottom-color: var(--azul); }
+.pestana:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+/* En Netlify su insignia ocupa la esquina inferior derecha: espacio libre al final para que no tape las tablas */
+.con-insignia-netlify .contenido, .con-insignia-netlify main { padding-bottom: 90px; }
 .estado-jornada { display: flex; align-items: center; gap: 10px; margin: 6px 0 12px; }
 
 .barras { display: flex; flex-direction: column; gap: 10px; }
@@ -305,7 +316,8 @@ tbody tr:hover { background: #fafbfc; }
   .nav-publica { display: none; }
 }
 @media (max-width: 760px) {
-  .app { grid-template-columns: 1fr; }
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .lateral { min-width: 0; }
   .lateral { display: flex; overflow-x: auto; gap: 4px; padding: 8px; border-right: 0; border-bottom: 1px solid var(--borde); }
   .lateral .titulo-lateral { display: none; }
   .lateral a { white-space: nowrap; }
@@ -316,9 +328,19 @@ tbody tr:hover { background: #fafbfc; }
   .barra-superior .ocultar-movil { display: none; }
   .barra-superior { gap: 8px; padding: 0 10px; }
   .barra-superior .marca { font-size: 16px; }
+  /* Portada: en el celular solo queda «Crear cuenta» arriba (iniciar sesión sigue en el formulario de la portada) */
+  .cabecera-publica .contenedor { gap: 10px; }
+  .cabecera-acciones .btn-enlace { display: none; }
+  .cabecera-acciones .btn { padding: 8px 12px; }
+  .titulo-vista input { width: 100% !important; }
   .cifras-3 { grid-template-columns: repeat(3, 1fr); }
   .cifra .valor { font-size: 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ----------------------------------------------------------------- obras */
+.rejilla-obras { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.lista-personas { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lista-personas li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }

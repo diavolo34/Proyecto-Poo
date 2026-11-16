@@ -10,17 +10,21 @@ public final class Alerta {
     private final String nombre;
     private final String mensaje;
     private final LocalDateTime generada;
+    /** Desde cuándo existe el problema: permite atender primero lo más antiguo. */
+    private final LocalDateTime desde;
 
-    private Alerta(Nivel nivel, String cedula, String nombre, String mensaje, LocalDateTime generada) {
+    private Alerta(Nivel nivel, String cedula, String nombre, String mensaje, LocalDateTime desde, LocalDateTime generada) {
         this.nivel = nivel;
         this.cedula = cedula;
         this.nombre = nombre;
         this.mensaje = mensaje;
         this.generada = generada;
+        this.desde = desde;
     }
 
-    public static Alerta de(Nivel nivel, construtrack.modelo.Usuario empleado, String mensaje, LocalDateTime ahora) {
-        return new Alerta(nivel, empleado.getCedula(), empleado.getNombre(), mensaje, ahora);
+    public static Alerta de(Nivel nivel, construtrack.modelo.Usuario empleado, String mensaje, LocalDateTime desde,
+            LocalDateTime ahora) {
+        return new Alerta(nivel, empleado.getCedula(), empleado.getNombre(), mensaje, desde, ahora);
     }
 
     public Nivel getNivel() {
@@ -37,6 +41,10 @@ public final class Alerta {
 
     public String getMensaje() {
         return mensaje;
+    }
+
+    public LocalDateTime getDesde() {
+        return desde;
     }
 
     public LocalDateTime getGenerada() {
