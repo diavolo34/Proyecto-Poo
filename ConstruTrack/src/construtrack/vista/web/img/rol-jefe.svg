@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <!-- ConstruTrack · Rol Jefe: casco blanco, chaqueta y planos enrollados -->
+  <defs><clipPath id="circulo"><circle cx="80" cy="80" r="80"/></clipPath></defs>
+  <circle cx="80" cy="80" r="80" fill="#f3f0ff"/>
+  <g clip-path="url(#circulo)">
+    <path d="M18 172c0-38 27-60 62-60s62 22 62 60z" fill="#09326c"/>
+    <path d="M66 113 L80 140 L94 113 Z" fill="#fff"/>
+    <path d="M77 120 h6 l2 30 -5 6 -5 -6 z" fill="#fca700"/>
+    <rect x="70" y="96" width="20" height="20" rx="6" fill="#c9955a"/>
+    <circle cx="55" cy="84" r="5" fill="#e0ac69"/><circle cx="105" cy="84" r="5" fill="#e0ac69"/>
+    <circle cx="80" cy="80" r="25" fill="#e0ac69"/>
+    <circle cx="71" cy="84" r="2.6" fill="#172b4d"/><circle cx="89" cy="84" r="2.6" fill="#172b4d"/>
+    <path d="M72 93q8 6 16 0" fill="none" stroke="#172b4d" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M53 74a27 26 0 0 1 54 0z" fill="#fff" stroke="#c1c7d0" stroke-width="1.5"/>
+    <rect x="48" y="70" width="64" height="9" rx="4.5" fill="#dcdfe4"/>
+    <rect x="75" y="49" width="10" height="24" rx="5" fill="#f1f2f4"/>
+    <!-- Planos enrollados -->
+    <g transform="rotate(-22 104 142)">
+      <rect x="72" y="134" width="70" height="17" rx="8.5" fill="#cce0ff"/>
+      <path d="M84 134v17 M98 134v17 M112 134v17" stroke="#0c66e4" stroke-width="1.6" opacity=".6"/>
+      <ellipse cx="141" cy="142.5" rx="4.5" ry="8.5" fill="#85b8ff"/>
+    </g>
+  </g>
+</svg>

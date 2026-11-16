@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 440" width="520" height="440" font-family="'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif">
+  <!-- ConstruTrack · Ilustración: marcar la entrada desde el celular con 10 minutos de tolerancia -->
+  <defs>
+    <filter id="sombra" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#091e42" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <circle cx="264" cy="222" r="188" fill="#fff" opacity=".5"/>
+  <path d="M86 72l5 12 12 5-12 5-5 12-5-12-12-5 12-5z" fill="#fca700"/>
+  <path d="M452 292l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#0c66e4"/>
+  <circle cx="462" cy="70" r="7" fill="#fca700"/>
+  <circle cx="66" cy="350" r="6" fill="#0c66e4"/>
+
+  <!-- Celular -->
+  <g filter="url(#sombra)">
+    <rect x="176" y="30" width="176" height="378" rx="30" fill="#09326c"/>
+  </g>
+  <rect x="186" y="42" width="156" height="354" rx="22" fill="#fff"/>
+  <rect x="238" y="50" width="52" height="8" rx="4" fill="#09326c"/>
+  <rect x="202" y="76" width="22" height="22" rx="6" fill="#0c66e4"/>
+  <path transform="translate(202 76) scale(.6875)" d="M8 23V13l8-5 8 5v10h-5v-6h-6v6z" fill="#fff"/>
+  <rect x="232" y="82" width="70" height="10" rx="5" fill="#dcdfe4"/>
+  <text x="202" y="124" font-size="15" font-weight="700" fill="#172b4d">Hola, José</text>
+  <circle cx="264" cy="186" r="48" fill="#dcfff1"/>
+  <circle cx="264" cy="186" r="34" fill="#22a06b"/>
+  <path d="M249 186l10 10 21-22" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="264" y="260" text-anchor="middle" font-size="16" font-weight="700" fill="#172b4d">Entrada marcada</text>
+  <text x="264" y="282" text-anchor="middle" font-size="13.5" font-weight="600" fill="#216e4e">06:58 · Puntual</text>
+  <rect x="202" y="304" width="124" height="34" rx="8" fill="#0c66e4"/>
+  <text x="264" y="326" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Marcar salida</text>
+  <rect x="226" y="356" width="76" height="8" rx="4" fill="#dcdfe4"/>
+  <rect x="240" y="372" width="48" height="8" rx="4" fill="#dcdfe4"/>
+
+  <!-- Reloj: entrada a las 7:00 y la tolerancia de 10 minutos resaltada -->
+  <g filter="url(#sombra)">
+    <circle cx="124" cy="166" r="62" fill="#fff" stroke="#09326c" stroke-width="6"/>
+  </g>
+  <path d="M124 166 L124 114 A52 52 0 0 1 169.03 140 Z" fill="#fca700"/>
+  <g fill="#8590a2">
+    <circle cx="124" cy="120" r="3"/><circle cx="147" cy="126.2" r="2"/><circle cx="163.8" cy="143" r="2"/>
+    <circle cx="170" cy="166" r="3"/><circle cx="163.8" cy="189" r="2"/><circle cx="147" cy="205.8" r="2"/>
+    <circle cx="124" cy="212" r="3"/><circle cx="101" cy="205.8" r="2"/><circle cx="84.2" cy="189" r="2"/>
+    <circle cx="78" cy="166" r="3"/><circle cx="84.2" cy="143" r="2"/><circle cx="101" cy="126.2" r="2"/>
+  </g>
+  <path d="M124 166 V124" stroke="#172b4d" stroke-width="5" stroke-linecap="round"/>
+  <path d="M124 166 L109 192" stroke="#172b4d" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="124" cy="166" r="6" fill="#172b4d"/>
+  <g filter="url(#sombra)">
+    <rect x="16" y="246" width="164" height="34" rx="17" fill="#fff7d6" stroke="#fca700" stroke-width="2"/>
+  </g>
+  <text x="98" y="268" text-anchor="middle" font-size="13" font-weight="700" fill="#7f5f01">+10 min de tolerancia</text>
+
+  <!-- Estado: en la obra -->
+  <g filter="url(#sombra)">
+    <rect x="330" y="118" width="140" height="38" rx="19" fill="#fff"/>
+  </g>
+  <circle cx="352" cy="137" r="6" fill="#22a06b"/>
+  <text x="366" y="142" font-size="14" font-weight="700" fill="#216e4e">En la obra</text>
+
+  <!-- Casco -->
+  <g transform="translate(352 300)">
+    <path d="M12 56a58 50 0 0 1 116 0z" fill="#fca700"/>
+    <rect x="0" y="52" width="140" height="14" rx="7" fill="#e08e00"/>
+    <rect x="62" y="10" width="16" height="44" rx="8" fill="#ffc94d"/>
+  </g>
+</svg>
