@@ -38,11 +38,14 @@ class Chatbot {
     if (tiene('quien falta', 'ausente', 'no vino', 'falta hoy')) return this.consultarPersonal('ausentes');
     if (tiene('cuantos', 'total de empleados')) return this.consultarPersonal('total');
 
+    if (tiene('crear mi empresa', 'crear empresa', 'crear una empresa', 'soy jefe', 'mi empresa')) {
+      return 'Si eres jefe: en «Crear cuenta» elige «Soy jefe: crear mi empresa» y escribe su nombre. Entras de una vez como Jefe; luego crea tus obras y, en «Invitaciones», genera un código para cada supervisor o empleado (se lo puedes enviar por correo).';
+    }
     if (tiene('codigo', 'invitacion', 'unirme', 'unirse')) {
       return 'El código de invitación (formato CT-XXXX-XXXX) te lo da tu jefe. Sirve una sola vez y define tu rol, tu supervisor y tu obra. Lo escribes después de crear tu cuenta, en la pantalla «Únete a tu empresa».';
     }
     if (tiene('registr', 'crear cuenta', 'inscrib', 'cuenta nueva')) {
-      return 'Pulsa «Crear cuenta», escribe tu correo, nombre, apellido, cédula o DNI, teléfono y una clave. Después ingresa el código de invitación que te dé tu jefe y listo.';
+      return 'Pulsa «Crear cuenta» y elige cómo empezar: si eres jefe, «Soy jefe: crear mi empresa» (escribes el nombre de tu empresa y luego invitas a tu equipo); si no, «Me uno a una empresa» y después escribes el código de invitación que te dé tu jefe.';
     }
     if (tiene('reporto', 'reportar', 'falta', 'reposo', 'enfermo', 'permiso')) {
       return 'Ve a «Incidencias», elige el tipo (reposo médico, permiso personal, retardo, accidente…), las fechas y una descripción. Tu supervisor la revisa y la aprueba o la rechaza; un reposo aprobado no cuenta como falta.';

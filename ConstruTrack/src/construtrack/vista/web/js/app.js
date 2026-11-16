@@ -55,6 +55,7 @@ function dibujarApp(vista) {
     <div class="app">
       <header class="barra-superior">
         <a class="marca" href="index.html">${LOGO} ConstruTrack</a>
+        ${u.empresa ? `<span class="empresa-actual ocultar-movil" title="Tu empresa">${esc(u.empresa)}</span>` : ''}
         <span class="espacio"></span>
         <span class="ocultar-movil">${esc(u.nombre)}</span><span class="ocultar-movil">${chipRol(u.rol)}</span>
         <span class="avatar" aria-hidden="true">${esc(iniciales(u.nombre))}</span>

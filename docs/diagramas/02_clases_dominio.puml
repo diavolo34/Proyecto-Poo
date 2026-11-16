@@ -4,6 +4,7 @@ title Diagrama de Clases · Modelo de Dominio
 hide members
 hide circle
 
+class Plataforma
 class Empresa
 class Obra
 class Cuenta
@@ -24,9 +25,10 @@ class Ausencia
 interface Justificable
 interface RevisorIncidencias
 
-Empresa "1" o-- "0..*" Usuario : registra >
+Plataforma "1" *-- "1..*" Empresa : agrupa >
+Plataforma "1" *-- "0..*" Cuenta : registra >
+Empresa "1" o-- "0..*" Usuario : emplea >
 Empresa "1" *-- "0..*" Obra : ejecuta >
-Empresa "1" o-- "0..*" Cuenta : conoce >
 Empresa "1" *-- "0..*" Invitacion : guarda >
 Usuario <|-- Empleado
 Usuario <|-- Supervisor

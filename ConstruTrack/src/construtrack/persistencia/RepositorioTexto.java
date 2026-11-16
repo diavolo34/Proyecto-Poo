@@ -7,6 +7,7 @@ import construtrack.modelo.EstadoInvitacion;
 import construtrack.modelo.Invitacion;
 import construtrack.modelo.Jefe;
 import construtrack.modelo.Obra;
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.incidencias.DatosIncidencia;
 import construtrack.modelo.incidencias.EstadoIncidencia;
 import construtrack.modelo.incidencias.FabricaIncidencias;
@@ -22,13 +23,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Guarda y carga la empresa como texto (un registro por línea, campos separados por |) en un {@link Almacen}:
- * un archivo local o una base Redis en la nube.
+ * Guarda y carga la plataforma (todas las empresas y las cuentas) como texto, un registro por línea y campos
+ * separados por |, en un {@link Almacen}: un archivo local o una base Redis en la nube.
+ *
+ * Cada empresa es un bloque que empieza con su línea EMPRESA; las líneas U, S, A, O, Y, I y V que siguen son suyas.
+ * Las cuentas (C) son de la plataforma. Un archivo de la versión con una sola empresa se lee igual.
  *
  * <pre>
  *   EMPRESA|nombre
@@ -76,48 +81,67 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
     }
 
     @Override
-    public Empresa cargar() {
+    public Plataforma cargar() {
         String contenido = almacen.leer().orElse(null);
         if (contenido == null || contenido.isBlank()) {
-            Empresa empresa = datosIniciales.get();
-            actualizarContador(empresa);
-            guardar(empresa);
-            return empresa;
+            Plataforma plataforma = datosIniciales.get().getPlataforma();
+            actualizarContador(plataforma);
+            guardar(plataforma);
+            return plataforma;
         }
+        Plataforma plataforma = new Plataforma();
         Empresa empresa = null;
+        // Las cuentas y las invitaciones se procesan al final: necesitan a todas las personas y cuentas cargadas
+        List<String[]> cuentas = new ArrayList<>();
+        Map<String[], Empresa> invitaciones = new LinkedHashMap<>();
         for (String linea : contenido.split("\\R")) {
             String[] c = linea.split("\\|", -1);
             switch (c[0]) {
-                case "EMPRESA" -> empresa = new Empresa(c[1]);
+                case "EMPRESA" -> empresa = plataforma.crearEmpresa(Campos.desescapar(c[1]));
                 case "U" -> empresa.agregarUsuario(leerUsuario(c));
                 case "S" -> leerSupervision(empresa, c);
                 case "A" -> empresa.buscarUsuario(c[1]).agregarAsistencia(leerAsistencia(c));
                 case "O" -> empresa.agregarObra(leerObra(c));
                 case "Y" -> leerAsignacionObra(empresa, c);
                 case "I" -> leerIncidencia(empresa, c);
-                case "C" -> leerCuenta(empresa, c);
-                case "V" -> leerInvitacion(empresa, c);
+                case "C" -> cuentas.add(c);
+                case "V" -> invitaciones.put(c, empresa);
                 default -> {
                     // Líneas vacías o de versiones futuras: se ignoran
                 }
             }
         }
-        return empresa;
+        cuentas.forEach(c -> leerCuenta(plataforma, c));
+        invitaciones.forEach((c, e) -> leerInvitacion(e, c));
+        return plataforma;
     }
 
     /** El siguiente número libre es el mayor id existente + 1 (los datos iniciales ya traen incidencias). */
-    private void actualizarContador(Empresa empresa) {
-        for (Usuario u : empresa.listarUsuarios()) {
-            for (Incidencia i : u.getHistorial().getIncidencias()) {
-                contadorIds = Math.max(contadorIds, i.getId() + 1);
+    private void actualizarContador(Plataforma plataforma) {
+        for (Empresa empresa : plataforma.listarEmpresas()) {
+            for (Usuario u : empresa.listarUsuarios()) {
+                for (Incidencia i : u.getHistorial().getIncidencias()) {
+                    contadorIds = Math.max(contadorIds, i.getId() + 1);
+                }
             }
         }
     }
 
     @Override
-    public void guardar(Empresa empresa) {
+    public void guardar(Plataforma plataforma) {
         List<String> lineas = new ArrayList<>();
-        lineas.add("EMPRESA" + SEPARADOR + empresa.getNombre());
+        for (Empresa empresa : plataforma.listarEmpresas()) {
+            escribirEmpresa(empresa, lineas);
+        }
+        for (Cuenta c : plataforma.listarCuentas()) {
+            lineas.add(unir("C", c.getCorreo(), c.getClaveResumen(), c.getNombre(), c.getApellido(), c.getDocumento(),
+                    c.getTelefono(), c.getRegistrada(), c.getUsuario() == null ? "-" : c.getUsuario().getCedula()));
+        }
+        almacen.escribir(String.join("\n", lineas) + "\n");
+    }
+
+    private void escribirEmpresa(Empresa empresa, List<String> lineas) {
+        lineas.add("EMPRESA" + SEPARADOR + Campos.escapar(empresa.getNombre()));
         for (Usuario u : empresa.listarUsuarios()) {
             Horario h = u.getHorario();
             lineas.add(unir("U", u.getRol(), u.getCedula(), u.getNombre(), u.getClaveResumen(),
@@ -144,17 +168,12 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
                 lineas.add(escribirIncidencia(i));
             }
         }
-        for (Cuenta c : empresa.listarCuentas()) {
-            lineas.add(unir("C", c.getCorreo(), c.getClaveResumen(), c.getNombre(), c.getApellido(), c.getDocumento(),
-                    c.getTelefono(), c.getRegistrada(), c.getUsuario() == null ? "-" : c.getUsuario().getCedula()));
-        }
         for (Invitacion v : empresa.listarInvitaciones()) {
             lineas.add(unir("V", v.getCodigo(), v.getRol(), v.getSupervisor() == null ? "-" : v.getSupervisor().getCedula(),
                     v.getObra() == null ? "-" : v.getObra().getCodigo(), v.getCreadaPor().getCedula(), v.getCreada(),
                     v.getVence(), v.getEstadoGuardado().name(), v.getUsadaPor() == null ? "-" : v.getUsadaPor().getCorreo(),
                     v.getUsada() == null ? "-" : v.getUsada()));
         }
-        almacen.escribir(String.join("\n", lineas) + "\n");
     }
 
     private Usuario leerUsuario(String[] c) {
@@ -225,11 +244,11 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
                 Campos.extrasATexto(i.getExtras()));
     }
 
-    private void leerCuenta(Empresa empresa, String[] c) {
+    private void leerCuenta(Plataforma plataforma, String[] c) {
         Cuenta cuenta = new Cuenta(c[1], "temporal", c[3], c[4], c[5], c[6], LocalDateTime.parse(c[7]));
         cuenta.restaurarClaveResumen(c[2]);
-        empresa.agregarCuenta(cuenta);
-        Usuario usuario = "-".equals(c[8]) ? null : empresa.buscarUsuario(c[8]);
+        plataforma.agregarCuenta(cuenta);
+        Usuario usuario = "-".equals(c[8]) ? null : plataforma.buscarUsuario(c[8]);
         if (usuario != null) {
             usuario.vincularCuenta(cuenta);
         }

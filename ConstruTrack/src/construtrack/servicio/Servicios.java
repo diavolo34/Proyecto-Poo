@@ -1,5 +1,6 @@
 package construtrack.servicio;
 
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.alertas.MonitorSupervision;
 import construtrack.modelo.incidencias.FabricaIncidencias;
@@ -28,24 +29,24 @@ public class Servicios {
     private final ServicioObras obras;
 
     public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia) {
-        this(empresa, escritor, reloj, siguienteIdIncidencia, new NotificadorConsola());
+        this(empresa.getPlataforma(), escritor, reloj, siguienteIdIncidencia, new NotificadorConsola());
     }
 
     /** El notificador se inyecta: correo real con Brevo en el servidor publicado, registro en consola en local. */
-    public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia,
+    public Servicios(Plataforma plataforma, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia,
             Notificador notificador) {
-        this.autenticacion = new ServicioAutenticacion(empresa, escritor, reloj);
-        this.asistencia = new ServicioAsistencia(empresa, escritor, reloj);
-        this.personal = new ServicioPersonal(empresa, escritor, reloj);
-        this.incidencias = new ServicioIncidencias(empresa, escritor, reloj,
+        this.autenticacion = new ServicioAutenticacion(plataforma, escritor, reloj);
+        this.asistencia = new ServicioAsistencia(plataforma, escritor, reloj);
+        this.personal = new ServicioPersonal(plataforma, escritor, reloj);
+        this.incidencias = new ServicioIncidencias(plataforma, escritor, reloj,
                 FabricaIncidencias.conTiposPorDefecto(), siguienteIdIncidencia);
-        this.supervision = new ServicioSupervision(empresa, escritor, reloj, MonitorSupervision.porDefecto(),
+        this.supervision = new ServicioSupervision(plataforma, escritor, reloj, MonitorSupervision.porDefecto(),
                 Map.of("asistencia", new ReporteAsistencia(), "puntualidad", new ReportePuntualidad(),
                         "incidencias", new ReporteIncidencias()),
                 Map.of("txt", new FormateadorTexto(), "csv", new FormateadorCSV()));
-        this.registro = new ServicioRegistro(empresa, escritor, reloj);
-        this.invitaciones = new ServicioInvitaciones(empresa, escritor, reloj, notificador);
-        this.obras = new ServicioObras(empresa, escritor, reloj);
+        this.registro = new ServicioRegistro(plataforma, escritor, reloj);
+        this.invitaciones = new ServicioInvitaciones(plataforma, escritor, reloj, notificador);
+        this.obras = new ServicioObras(plataforma, escritor, reloj);
     }
 
     public ServicioObras obras() {

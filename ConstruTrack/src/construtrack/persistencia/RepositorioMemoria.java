@@ -1,24 +1,30 @@
 package construtrack.persistencia;
 
 import construtrack.modelo.Empresa;
+import construtrack.modelo.Plataforma;
 
 /** Repositorio que no escribe en disco. Útil para pruebas y demostraciones. */
 public class RepositorioMemoria implements LectorDatos, EscritorDatos {
 
-    private final Empresa empresa;
+    private final Plataforma plataforma;
     private int guardados;
 
+    public RepositorioMemoria(Plataforma plataforma) {
+        this.plataforma = plataforma;
+    }
+
+    /** Atajo para una sola empresa: usa su plataforma. */
     public RepositorioMemoria(Empresa empresa) {
-        this.empresa = empresa;
+        this(empresa.getPlataforma());
     }
 
     @Override
-    public Empresa cargar() {
-        return empresa;
+    public Plataforma cargar() {
+        return plataforma;
     }
 
     @Override
-    public void guardar(Empresa empresa) {
+    public void guardar(Plataforma plataforma) {
         guardados++;
     }
 

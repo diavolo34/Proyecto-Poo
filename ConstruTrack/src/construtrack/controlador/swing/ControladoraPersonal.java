@@ -82,7 +82,7 @@ public final class ControladoraPersonal {
         Frame dueno = (Frame) SwingUtilities.getWindowAncestor(vista);
         DialogoUsuario dialogo = new DialogoUsuario(dueno, cedula != null);
         List<Opcion> supervisores = new ArrayList<>();
-        for (Supervisor s : personal.listarSupervisores()) {
+        for (Supervisor s : personal.listarSupervisores(usuario)) {
             supervisores.add(new Opcion(s.getCedula(), s.getNombre()));
         }
         dialogo.cargarSupervisores(supervisores);

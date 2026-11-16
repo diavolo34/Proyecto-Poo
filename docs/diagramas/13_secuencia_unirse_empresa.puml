@@ -4,6 +4,7 @@ title Secuencia: Unirse a la empresa con un código de invitación
 autoactivate on
 actor "Persona registrada" as A
 participant "c:CodigoInvitacion" as CO
+participant "plat:Plataforma" as P
 participant "emp:Empresa" as EM
 participant "inv:Invitacion" as I
 participant "nuevo:Empleado" as N
@@ -11,9 +12,13 @@ participant "cta:Cuenta" as C
 
 A -> CO : CodigoInvitacion.de(" ct-rq7k-4m2p ")
 CO --> A : c (normalizado CT-RQ7K-4M2P)
-A -> EM : buscarInvitacion(c)
-EM --> A : inv
-A -> I : canjear(cta, emp, ahora)
+A -> P : buscarInvitacion(c)
+P -> EM : buscarInvitacion(c)
+note right: busca en cada empresa:\nel código es único en el sistema
+EM --> P : inv
+P --> A : inv
+A -> I : canjear(cta, ahora)
+note right of I: se canjea en la empresa\ndel jefe que creó la invitación
 I -> I : estadoEn(ahora)
 I --> I : estado
 alt usada, cancelada o vencida

@@ -18,7 +18,7 @@ public class ControladorPublico implements ControladorWeb {
         enrutador.get("/api/publico", p -> {
             LocalDate hoy = personal.hoy();
             int[] cifras = personal.contarPersonalYPresentes();
-            String obras = Json.lista(personal.listarObras(), o -> new JsonObjeto()
+            String obras = Json.lista(personal.listarObrasDemo(), o -> new JsonObjeto()
                     .texto("nombre", o.getNombre())
                     .texto("ubicacion", o.getUbicacion())
                     .numero("avance", o.porcentajeTranscurrido(hoy))
@@ -27,6 +27,7 @@ public class ControladorPublico implements ControladorWeb {
             return Respuesta.json(new JsonObjeto()
                     .numero("personal", cifras[0])
                     .numero("presentes", cifras[1])
+                    .numero("empresas", cifras[2])
                     .crudo("obras", obras)
                     .toString());
         });

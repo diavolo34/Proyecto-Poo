@@ -52,10 +52,16 @@ public final class AplicacionSwing {
         login.setVisible(true);
     }
 
-    /** Registro de una cuenta nueva; al terminar se pide el código para unirse. */
+    /** Registro de una cuenta nueva: el jefe entra con su empresa; los demás pasan a escribir el código. */
     private void mostrarRegistro(Window dueno, Consumer<Usuario> entrar) {
         DialogoRegistro registro = new DialogoRegistro(dueno);
-        new ControladoraRegistro(registro, servicios.registro(), cuenta -> mostrarUnirse(dueno, cuenta, entrar));
+        new ControladoraRegistro(registro, servicios.registro(), cuenta -> {
+            if (cuenta.perteneceAEmpresa()) {
+                entrar.accept(cuenta.getUsuario());
+            } else {
+                mostrarUnirse(dueno, cuenta, entrar);
+            }
+        });
         registro.setVisible(true);
     }
 
@@ -68,7 +74,7 @@ public final class AplicacionSwing {
 
     /** Arma la ventana principal. Lo que cada rol ve depende de las interfaces que implementa. */
     public VentanaPrincipal crearVentanaPrincipal(Usuario usuario) {
-        VentanaPrincipal ventana = new VentanaPrincipal(servicios.autenticacion().getNombreEmpresa(),
+        VentanaPrincipal ventana = new VentanaPrincipal(usuario.getEmpresa().getNombre(),
                 usuario.getNombre(), usuario.getRol());
         List<Runnable> refrescos = new ArrayList<>();
         Runnable refrescarTodo = () -> refrescos.forEach(Runnable::run);

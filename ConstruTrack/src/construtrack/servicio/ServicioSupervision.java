@@ -1,5 +1,6 @@
 package construtrack.servicio;
 
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoHorasExtra;
@@ -35,9 +36,9 @@ public class ServicioSupervision extends ServicioBase {
     private final Map<String, Reporte> reportes;
     private final Map<String, FormateadorReporte> formatos;
 
-    public ServicioSupervision(Empresa empresa, EscritorDatos escritor, Clock reloj,
+    public ServicioSupervision(Plataforma plataforma, EscritorDatos escritor, Clock reloj,
             MonitorSupervision monitor, Map<String, Reporte> reportes, Map<String, FormateadorReporte> formatos) {
-        super(empresa, escritor, reloj);
+        super(plataforma, escritor, reloj);
         this.monitor = monitor;
         this.reportes = Map.copyOf(reportes);
         this.formatos = Map.copyOf(formatos);
@@ -96,7 +97,7 @@ public class ServicioSupervision extends ServicioBase {
             throw new DatoInvalidoException("El estado debe ser APROBADAS o RECHAZADAS.");
         }
         return modificar(() -> {
-            Usuario persona = empresa.buscarUsuario(cedula);
+            Usuario persona = empresaDe(actual).buscarUsuario(cedula);
             if (persona == null) {
                 throw new NoEncontradoException("No existe una persona con la cédula " + cedula + ".");
             }
@@ -107,7 +108,7 @@ public class ServicioSupervision extends ServicioBase {
     /** Personas que el usuario puede ver en reportes y alertas (sin incluir a los jefes). */
     private List<Usuario> alcance(Usuario actual) {
         if (actual instanceof Jefe) {
-            return empresa.listarUsuarios().stream().filter(u -> !(u instanceof Jefe)).toList();
+            return empresaDe(actual).listarUsuarios().stream().filter(u -> !(u instanceof Jefe)).toList();
         }
         if (actual instanceof Supervisor supervisor) {
             return new ArrayList<Usuario>(supervisor.verEmpleadosACargo());

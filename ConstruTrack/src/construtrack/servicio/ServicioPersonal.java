@@ -1,5 +1,6 @@
 package construtrack.servicio;
 
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.Jefe;
@@ -17,15 +18,15 @@ import java.util.Map;
 /** Casos de uso sobre el personal: consultar, registrar, modificar y eliminar. */
 public class ServicioPersonal extends ServicioBase {
 
-    public ServicioPersonal(Empresa empresa, EscritorDatos escritor, Clock reloj) {
-        super(empresa, escritor, reloj);
+    public ServicioPersonal(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
+        super(plataforma, escritor, reloj);
     }
 
     /** El Jefe ve a todo el personal; el Supervisor solo a sus empleados; el Empleado no tiene acceso. */
     public List<Usuario> listarVisibles(Usuario actual) {
         return leer(() -> {
             if (actual instanceof Jefe) {
-                return empresa.listarUsuarios();
+                return empresaDe(actual).listarUsuarios();
             }
             if (actual instanceof Supervisor supervisor) {
                 return new ArrayList<Usuario>(supervisor.verEmpleadosACargo());
@@ -37,7 +38,7 @@ public class ServicioPersonal extends ServicioBase {
     /** Detalle de un usuario, respetando los permisos de quien consulta. */
     public Usuario ver(Usuario actual, String cedula) {
         return leer(() -> {
-            Usuario usuario = buscarExistente(cedula);
+            Usuario usuario = buscarExistente(actual, cedula);
             if (actual instanceof Supervisor supervisor && usuario instanceof Empleado empleado) {
                 supervisor.consultarAsistencia(empleado); // lanza PermisoDenegado si no es su empleado
             } else if (!(actual instanceof Jefe) && usuario != actual) {
@@ -47,10 +48,10 @@ public class ServicioPersonal extends ServicioBase {
         });
     }
 
-    public List<Supervisor> listarSupervisores() {
+    public List<Supervisor> listarSupervisores(Usuario actual) {
         return leer(() -> {
             List<Supervisor> supervisores = new ArrayList<>();
-            for (Usuario u : empresa.listarUsuarios()) {
+            for (Usuario u : empresaDe(actual).listarUsuarios()) {
                 if (u instanceof Supervisor s) {
                     supervisores.add(s);
                 }
@@ -59,20 +60,31 @@ public class ServicioPersonal extends ServicioBase {
         });
     }
 
-    /** Cifras públicas para la portada: total de personas y cuántas están ahora en la obra. */
+    /** Cifras públicas para la portada (empresa de demostración) y cuántas empresas usan el sistema. */
     public int[] contarPersonalYPresentes() {
-        return leer(() -> new int[] {empresa.listarUsuarios().size(), empresa.contarPresentes()});
+        return leer(() -> {
+            Empresa demo = plataforma.empresaDemo();
+            return new int[] {demo == null ? 0 : demo.listarUsuarios().size(), demo == null ? 0 : demo.contarPresentes(),
+                plataforma.listarEmpresas().size()};
+        });
     }
 
     public java.time.LocalDate hoy() {
         return java.time.LocalDate.now(reloj);
     }
 
-    public List<Obra> listarObras() {
-        return leer(empresa::listarObras);
+    /** Obras de la empresa de quien consulta. */
+    public List<Obra> listarObras(Usuario actual) {
+        return leer(() -> empresaDe(actual).listarObras());
+    }
+
+    /** Obras públicas de la portada: solo las de la empresa de demostración (no expone otras empresas). */
+    public List<Obra> listarObrasDemo() {
+        return leer(() -> plataforma.empresaDemo() == null ? List.<Obra>of() : plataforma.empresaDemo().listarObras());
     }
 
     public Usuario registrar(Usuario actual, Map<String, String> datos) {
+        // La cédula es única en todo el sistema (Empresa.agregarUsuario también lo comprueba)
         return modificar(() -> comoJefe(actual).registrarUsuario(datos));
     }
 
@@ -87,8 +99,9 @@ public class ServicioPersonal extends ServicioBase {
         });
     }
 
-    private Usuario buscarExistente(String cedula) {
-        Usuario usuario = empresa.buscarUsuario(cedula);
+    /** Busca solo en la empresa de quien consulta: una cédula de otra empresa «no existe». */
+    private Usuario buscarExistente(Usuario actual, String cedula) {
+        Usuario usuario = empresaDe(actual).buscarUsuario(cedula);
         if (usuario == null) {
             throw new NoEncontradoException("No existe un usuario con la cédula " + cedula + ".");
         }

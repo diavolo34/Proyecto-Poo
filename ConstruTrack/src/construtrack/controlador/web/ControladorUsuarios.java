@@ -16,9 +16,9 @@ public class ControladorUsuarios implements ControladorWeb {
     public void registrarRutas(Enrutador enrutador) {
         enrutador.get("/api/personal/opciones", p -> {
                     p.usuario();
-                    String supervisores = Json.lista(personal.listarSupervisores(), s -> new JsonObjeto()
+                    String supervisores = Json.lista(personal.listarSupervisores(p.usuario()), s -> new JsonObjeto()
                             .texto("cedula", s.getCedula()).texto("nombre", s.getNombre()).toString());
-                    String obras = Json.lista(personal.listarObras(), o -> new JsonObjeto()
+                    String obras = Json.lista(personal.listarObras(p.usuario()), o -> new JsonObjeto()
                             .texto("codigo", o.getCodigo()).texto("nombre", o.getNombre()).toString());
                     return Respuesta.json(new JsonObjeto().crudo("supervisores", supervisores).crudo("obras", obras).toString());
                 })

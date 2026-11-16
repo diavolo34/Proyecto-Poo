@@ -46,11 +46,11 @@ class RepositorioTextoTest {
 
         d.laura.setFechaIngreso(HOY.minusDays(3));
         Path archivo = carpeta.resolve("datos.txt");
-        new RepositorioTexto(archivo, () -> d.empresa, fabrica).guardar(d.empresa);
+        new RepositorioTexto(archivo, () -> d.empresa, fabrica).guardar(d.empresa.getPlataforma());
         RepositorioTexto repositorio = new RepositorioTexto(archivo, () -> {
             throw new AssertionError("El archivo existe: no debe crear datos iniciales");
         }, fabrica);
-        Empresa cargada = repositorio.cargar();
+        Empresa cargada = repositorio.cargar().empresaDemo();
 
         Usuario jose = cargada.buscarUsuario("30000001");
         assertTrue(jose.estaPresente());
@@ -66,7 +66,7 @@ class RepositorioTextoTest {
         Usuario pablo = cargada.buscarUsuario("28555111");
         assertNotNull(pablo.getCuenta());
         assertEquals(AHORA.toLocalDate(), pablo.getFechaIngreso(), "Al unirse con invitación se guarda el día de ingreso");
-        assertNotNull(cargada.autenticar("28555111", "pablo123"));
+        assertNotNull(cargada.getPlataforma().autenticar("28555111", "pablo123"));
         assertTrue(cargada.buscarCuenta("pablo@correo.com").verificarClave("pablo123"));
         assertEquals(EstadoInvitacion.USADA, cargada.listarInvitaciones().get(0).estadoEn(AHORA));
     }
@@ -76,7 +76,7 @@ class RepositorioTextoTest {
     void datosIniciales() {
         Path archivo = carpeta.resolve("nuevo.txt");
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
-        Empresa empresa = new RepositorioTexto(archivo, new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica).cargar();
+        Empresa empresa = new RepositorioTexto(archivo, new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica).cargar().empresaDemo();
         assertEquals(9, empresa.listarUsuarios().size());
         assertTrue(archivo.toFile().exists());
         assertNotNull(empresa.buscarCuenta("carlos.mendez@construtrack.demo"));
@@ -91,7 +91,7 @@ class RepositorioTextoTest {
                 "U|Supervisor|V29955199|Persona Vieja|" + "a".repeat(64) + "|LU,MA,MI,JU,VI|07:00|16:00|false",
                 "A|V29955199|2026-11-16|06:45|18:10|false"));
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
-        Empresa empresa = new RepositorioTexto(archivo, () -> null, fabrica).cargar();
+        Empresa empresa = new RepositorioTexto(archivo, () -> null, fabrica).cargar().empresaDemo();
         Usuario vieja = empresa.buscarUsuario("V29955199");
         assertEquals(construtrack.modelo.EstadoHorasExtra.NO_APLICA, vieja.getAsistencias().get(0).getEstadoExtra());
         assertTrue(vieja.getHistorial().horasExtraPendientes(vieja.getHorario()).isEmpty());
@@ -103,7 +103,7 @@ class RepositorioTextoTest {
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
         RepositorioTexto repositorio = new RepositorioTexto(carpeta.resolve("nuevo.txt"),
                 new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica);
-        Empresa empresa = repositorio.cargar();
+        Empresa empresa = repositorio.cargar().empresaDemo();
         int mayor = empresa.listarUsuarios().stream()
                 .flatMap(u -> u.getHistorial().getIncidencias().stream())
                 .mapToInt(Incidencia::getId).max().orElse(0);
@@ -136,7 +136,7 @@ class RepositorioTextoTest {
         new RepositorioTexto(memoria, new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica).cargar();
         Empresa otra = new RepositorioTexto(memoria, () -> {
             throw new AssertionError("Ya hay datos: no debe generarlos otra vez");
-        }, fabrica).cargar();
+        }, fabrica).cargar().empresaDemo();
         assertEquals(9, otra.listarUsuarios().size());
         assertNotNull(otra.autenticar("10000001", "jefe123"));
     }

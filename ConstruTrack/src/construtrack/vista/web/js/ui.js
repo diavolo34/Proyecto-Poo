@@ -89,7 +89,7 @@ const LOGO = `<svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect wid
 document.addEventListener('input', (evento) => {
   const campo = evento.target;
   if (campo.matches && campo.matches('[data-solo-numeros]')) {
-    const limpio = campo.value.replace(/[^0-9]/g, '');
+    const limpio = campo.value.replace(/[^0-9]/g, '').slice(0, 10); // primero limpia y luego limita a 10 dígitos
     if (limpio !== campo.value) campo.value = limpio;
   }
 });

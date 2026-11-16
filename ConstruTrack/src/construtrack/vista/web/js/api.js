@@ -89,6 +89,7 @@ const Api = {
   estado: () => Api.pedir('GET', '/api/estado'),
   publico: () => Api.pedir('GET', '/api/publico'),
   yo: () => Api.pedir('GET', '/api/yo'),
+  crearEmpresa: (nombre) => Api.pedir('POST', '/api/empresas', { nombre }),
 
   // ---- asistencia y personal
   marcarEntrada: () => Api.pedir('POST', '/api/asistencia/entrada'),
