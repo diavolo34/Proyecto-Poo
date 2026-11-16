@@ -9,15 +9,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Horario de trabajo de un usuario: los días que trabaja y su hora de entrada y salida.
- */
 public class Horario {
-
-    /** Minutos de tolerancia antes de considerar una llegada como tarde. */
     public static final int TOLERANCIA_MINUTOS = 10;
 
-    /** Códigos de los días en el orden de DayOfWeek (lunes = 1). */
     private static final List<String> CODIGOS = Arrays.asList("LU", "MA", "MI", "JU", "VI", "SA", "DO");
 
     private String dias;
@@ -29,7 +23,6 @@ public class Horario {
         setHoras(horaEntrada, horaSalida);
     }
 
-    /** Crea un horario a partir de texto, por ejemplo ("LU,MA,MI", "07:00", "16:00"). */
     public static Horario desdeTexto(String dias, String horaEntrada, String horaSalida) {
         try {
             return new Horario(dias, LocalTime.parse(horaEntrada), LocalTime.parse(horaSalida));
@@ -38,17 +31,14 @@ public class Horario {
         }
     }
 
-    /** Indica si el horario incluye el día de la semana recibido. */
     public boolean incluyeDia(DayOfWeek dia) {
         return Arrays.asList(dias.split(",")).contains(CODIGOS.get(dia.getValue() - 1));
     }
 
-    /** Indica si una hora de llegada supera la hora de entrada más la tolerancia. */
     public boolean esLlegadaTarde(LocalTime hora) {
         return hora.isAfter(horaEntrada.plusMinutes(TOLERANCIA_MINUTOS));
     }
 
-    /** Minutos que dura la jornada según el horario (por ejemplo, de 07:00 a 16:00 son 540). */
     public long minutosJornada() {
         return java.time.Duration.between(horaEntrada, horaSalida).toMinutes();
     }
@@ -57,7 +47,6 @@ public class Horario {
         return dias;
     }
 
-    /** Recibe los días separados por coma, los valida y los guarda en orden de la semana. */
     public final void setDias(String dias) {
         if (dias == null || dias.trim().isEmpty()) {
             throw new DatoInvalidoException("El horario debe tener al menos un día.");
@@ -87,7 +76,6 @@ public class Horario {
         return horaSalida;
     }
 
-    /** Cambia ambas horas a la vez para poder validar que la entrada sea antes de la salida. */
     public final void setHoras(LocalTime horaEntrada, LocalTime horaSalida) {
         if (horaEntrada == null || horaSalida == null || !horaEntrada.isBefore(horaSalida)) {
             throw new DatoInvalidoException("La hora de entrada debe ser anterior a la hora de salida.");

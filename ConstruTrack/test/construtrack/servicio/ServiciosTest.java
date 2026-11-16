@@ -16,9 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Los servicios se prueban con un repositorio en memoria gracias a la inversión de dependencias. */
 class ServiciosTest {
-
     private final Datos d = new Datos();
     private final RepositorioMemoria repositorio = new RepositorioMemoria(d.empresa);
     private final Servicios servicios = new Servicios(d.empresa, repositorio, Datos.RELOJ, 1);
@@ -88,7 +86,7 @@ class ServiciosTest {
         assertEquals("OB-02", servicios.obras().crear(d.jefe, Map.of("nombre", "Puente Norte", "ubicacion", "",
                 "inicio", HOY.toString(), "fin", HOY.plusMonths(2).toString())).getCodigo());
 
-        servicios.obras().asignar(d.ana, "30000001", "OB-01"); // José es de Ana
+        servicios.obras().asignar(d.ana, "30000001", "OB-01");
         assertEquals(obra, d.jose.getObra());
         assertThrows(PermisoDenegadoException.class, () -> servicios.obras().asignar(d.ana, "30000004", "OB-01"),
                 "Laura no es de su equipo");

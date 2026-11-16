@@ -2,9 +2,7 @@ package construtrack.modelo.reportes;
 
 import java.util.List;
 
-/** Tabla de texto alineada, legible en cualquier editor. */
 public class FormateadorTexto implements FormateadorReporte {
-
     @Override
     public String formatear(Documento documento) {
         List<String> columnas = documento.getColumnas();

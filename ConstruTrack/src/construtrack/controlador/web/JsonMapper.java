@@ -11,14 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Traduce los objetos del modelo a JSON para la vista web.
- * Antes cada entidad tenía su propio toJson(): el modelo dependía del formato de la vista.
- * Ahora esa responsabilidad vive aquí (principio de responsabilidad única).
- */
 public final class JsonMapper {
-
-    /** Máximo de jornadas que se envían en el historial detallado. */
     private static final int MAX_HISTORIAL = 30;
 
     private JsonMapper() {
@@ -54,7 +47,7 @@ public final class JsonMapper {
             Collections.reverse(recientes);
             json.crudo("asistencias", Json.lista(recientes.subList(0, Math.min(MAX_HISTORIAL, recientes.size())),
                     r -> registro(r, u.getHorario())));
-            // El Historial reúne asistencia e incidencias (reposos, permisos, faltas…), la más reciente primero
+
             List<Incidencia> incidencias = new ArrayList<>(u.getHistorial().getIncidencias());
             incidencias.sort(java.util.Comparator.comparing(Incidencia::getDesde).reversed());
             json.crudo("incidencias", Json.lista(incidencias, i -> incidencia(i, false)));
@@ -71,7 +64,6 @@ public final class JsonMapper {
                 .toString();
     }
 
-    /** Una jornada con sus horas extra (que dependen del horario de la persona). */
     public static String registro(RegistroAsistencia r, Horario horario) {
         long extra = r.getEstadoExtra() == construtrack.modelo.EstadoHorasExtra.NO_APLICA ? 0 : r.minutosExtra(horario);
         return new JsonObjeto()
@@ -86,7 +78,6 @@ public final class JsonMapper {
                 .toString();
     }
 
-    /** Jornada con horas extra por aprobar, con los datos de la persona para la tarjeta del supervisor. */
     public static String horasExtra(Usuario u, RegistroAsistencia r) {
         return new JsonObjeto()
                 .texto("cedula", u.getCedula())
@@ -95,7 +86,6 @@ public final class JsonMapper {
                 .toString();
     }
 
-    /** Respuesta de inicio de sesión o registro: token, si falta unirse, cuenta y ficha (si existe). */
     public static String sesion(String token, construtrack.servicio.Ingreso ingreso) {
         return new JsonObjeto()
                 .texto("token", token)

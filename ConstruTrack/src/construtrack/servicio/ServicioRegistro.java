@@ -16,21 +16,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-/** Casos de uso públicos: crear una cuenta con correo, crear una empresa (jefe) o unirse a una con un código. */
 public class ServicioRegistro extends ServicioBase {
-
     public ServicioRegistro(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
         super(plataforma, escritor, reloj);
     }
 
-    /**
-     * Crea una cuenta. Datos: correo, clave, confirmacion, nombre, apellido, documento, telefono y tipo:
-     * <ul>
-     *   <li>«unirme» (por defecto): la cuenta queda sin empresa hasta que canjee una invitación;</li>
-     *   <li>«jefe»: además crea la empresa indicada en «empresa» y la persona queda como su Jefe.</li>
-     * </ul>
-     * Supervisores y empleados no eligen su rol: lo define el código de invitación.
-     */
     public Cuenta registrar(Map<String, String> datos) {
         String clave = datos.get("clave");
         if (clave == null || !clave.equals(datos.get("confirmacion"))) {
@@ -40,7 +30,7 @@ public class ServicioRegistro extends ServicioBase {
         boolean esJefe = "jefe".equals(datos.get("tipo"));
         return modificar(() -> {
             if (esJefe) {
-                plataforma.verificarNombreDisponible(datos.get("empresa")); // antes de crear nada
+                plataforma.verificarNombreDisponible(datos.get("empresa"));
             }
             if (plataforma.existeCedula(datos.get("documento"))) {
                 throw new OperacionInvalidaException("Ya hay una persona con el documento " + datos.get("documento")
@@ -56,7 +46,6 @@ public class ServicioRegistro extends ServicioBase {
         });
     }
 
-    /** Una cuenta ya registrada (sin empresa) crea su empresa y queda como su Jefe. */
     public Jefe crearEmpresa(Cuenta cuenta, String nombre) {
         if (cuenta == null) {
             throw new PermisoDenegadoException("Inicia sesión para crear tu empresa.");
@@ -64,10 +53,6 @@ public class ServicioRegistro extends ServicioBase {
         return modificar(() -> plataforma.fundarEmpresa(nombre, cuenta, LocalDate.now(reloj)));
     }
 
-    /**
-     * Canjea un código de invitación: busca la invitación en todas las empresas y crea la ficha de la persona
-     * en la empresa del jefe que la emitió, con el rol, supervisor y obra definidos.
-     */
     public Usuario unirse(Cuenta cuenta, String textoCodigo) {
         CodigoInvitacion codigo = CodigoInvitacion.de(textoCodigo);
         return modificar(() -> {

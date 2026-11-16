@@ -3,15 +3,7 @@ package construtrack.modelo;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import java.time.LocalDateTime;
 
-/**
- * Cuenta personal creada al registrarse con correo. Existe aunque la persona todavía no pertenezca
- * a la empresa; cuando canjea una invitación queda vinculada a su ficha de Usuario.
- *
- * La clave se guarda como resumen con el documento como sal (igual que Usuario), así ambos
- * comparten el mismo resumen y se puede iniciar sesión con correo o con cédula.
- */
 public class Cuenta {
-
     private final String correo;
     private final String documento;
     private final LocalDateTime registrada;
@@ -33,7 +25,6 @@ public class Cuenta {
         this.claveResumen = CifradoClave.resumir(this.documento, clave);
     }
 
-    /** Correo en minúsculas y con formato válido. */
     public static String validarCorreo(String correo) {
         String limpio = correo == null ? "" : correo.trim().toLowerCase();
         if (!limpio.matches("[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}") || limpio.length() > 80) {
@@ -42,7 +33,6 @@ public class Cuenta {
         return limpio;
     }
 
-    /** Teléfono con 7 a 15 dígitos; se permiten +, espacios, guiones y paréntesis. */
     public static String validarTelefono(String telefono) {
         String limpio = telefono == null ? "" : telefono.trim();
         String digitos = limpio.replaceAll("[^0-9]", "");
@@ -64,17 +54,14 @@ public class Cuenta {
         return clave != null && claveResumen.equals(CifradoClave.resumir(documento, clave));
     }
 
-    /** Une la cuenta con su ficha en la empresa (y viceversa). */
     void vincular(Usuario usuario) {
         this.usuario = usuario;
     }
 
-    /** La ficha fue eliminada por el Jefe: la cuenta sigue existiendo, pero sin empresa. */
     void desvincular() {
         this.usuario = null;
     }
 
-    /** Mantiene sincronizado el resumen de clave con el de la ficha de Usuario. */
     void sincronizarClave(String resumen) {
         this.claveResumen = resumen;
     }

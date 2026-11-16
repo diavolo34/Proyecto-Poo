@@ -6,12 +6,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Objeto de parámetros con los datos comunes para crear cualquier incidencia,
- * más los campos propios de cada tipo en "extras" (por ejemplo, el centro médico de un reposo).
- */
 public class DatosIncidencia {
-
     final int id;
     final Usuario afectado;
     final Usuario reportadoPor;

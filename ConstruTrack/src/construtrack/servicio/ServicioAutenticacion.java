@@ -8,9 +8,7 @@ import construtrack.modelo.excepciones.CredencialesInvalidasException;
 import construtrack.persistencia.EscritorDatos;
 import java.time.Clock;
 
-/** Caso de uso: iniciar sesión con cédula y clave. */
 public class ServicioAutenticacion extends ServicioBase {
-
     public ServicioAutenticacion(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
         super(plataforma, escritor, reloj);
     }
@@ -25,10 +23,6 @@ public class ServicioAutenticacion extends ServicioBase {
         });
     }
 
-    /**
-     * Inicia sesión con correo (si contiene @) o con cédula, y la clave.
-     * Devuelve la cuenta y, si ya pertenece a la empresa, su ficha.
-     */
     public Ingreso ingresar(String identificador, String clave) {
         return leer(() -> {
             String id = identificador == null ? "" : identificador.trim();

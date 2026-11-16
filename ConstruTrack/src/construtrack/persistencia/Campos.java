@@ -4,12 +4,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Escapa y desescapa los textos libres del archivo, para que el separador | y los saltos de línea
- * no rompan el formato. Los pares clave=valor de los datos propios se separan con ';'.
- */
 final class Campos {
-
     private Campos() {
     }
 

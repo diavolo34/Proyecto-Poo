@@ -4,9 +4,7 @@ import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Usuario;
 import construtrack.servicio.ServicioAsistencia;
 
-/** Rutas para marcar entrada y salida de la obra. */
 public class ControladorAsistencia implements ControladorWeb {
-
     private final ServicioAsistencia asistencia;
 
     public ControladorAsistencia(ServicioAsistencia asistencia) {
@@ -16,7 +14,7 @@ public class ControladorAsistencia implements ControladorWeb {
     @Override
     public void registrarRutas(Enrutador enrutador) {
         enrutador.post("/api/asistencia/entrada", this::entrada)
-                .post("/api/obra/checkin", this::entrada) // ruta de la primera versión, se mantiene por compatibilidad
+                .post("/api/obra/checkin", this::entrada)
                 .post("/api/asistencia/salida", this::salida);
     }
 

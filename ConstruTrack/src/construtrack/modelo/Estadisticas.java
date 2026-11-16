@@ -8,13 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Indicadores de asistencia y puntualidad de un grupo de personas en un período.
- * Solo consulta el historial: no modifica datos. Un Empleado la usa con él mismo y un Supervisor o Jefe con su equipo.
- */
 public final class Estadisticas {
-
-    /** Resumen de una persona en el período. */
     public record Resumen(String cedula, String nombre, String rol, int laborables, int asistencias,
             double tasaAsistencia, int retardos, int ausencias, int justificadas,
             double puntualidad, long minutos, long minutosEsperados, long extraDiaria, long extraDiaLibre,
@@ -29,13 +23,13 @@ public final class Estadisticas {
         this.periodo = periodo;
         for (Usuario u : personas) {
             Historial h = u.getHistorial();
-            // Hoy todavía no cuenta como falta, pero si ya marcó entrada se suma a los días esperados (evita "11 / 10")
+
             boolean vinoHoy = periodo.contiene(hoy) && h.asistenciaDel(hoy) != null;
             int laborables = h.diasLaborables(u.getHorario(), periodo, hoy).size() + (vinoHoy ? 1 : 0);
             int asistencias = h.asistenciasEn(periodo).size();
             double tasa = laborables == 0 ? 100.0 : Math.min(100.0, 100.0 * asistencias / laborables);
             Horario horario = u.getHorario();
-            // Horas que debía cumplir: solo los días de su horario (un sábado libre no suma horas esperadas)
+
             int diasConHorario = h.diasLaborables(horario, periodo, hoy).size() + (vinoHoy && u.trabajaEl(hoy) ? 1 : 0);
             long esperados = diasConHorario * horario.minutosJornada();
             resumenes.add(new Resumen(u.getCedula(), u.getNombre(), u.getRol(), laborables, asistencias, tasa,
@@ -49,14 +43,12 @@ public final class Estadisticas {
         }
     }
 
-    /** Tasa de asistencia del grupo: jornadas registradas frente a días laborables. */
     public double tasaAsistencia() {
         int laborables = resumenes.stream().mapToInt(Resumen::laborables).sum();
         int asistencias = resumenes.stream().mapToInt(Resumen::asistencias).sum();
         return laborables == 0 ? 100.0 : Math.min(100.0, 100.0 * asistencias / laborables);
     }
 
-    /** Porcentaje de llegadas puntuales del grupo. */
     public double porcentajePuntualidad() {
         int jornadas = resumenes.stream().mapToInt(Resumen::asistencias).sum();
         int retardos = resumenes.stream().mapToInt(Resumen::retardos).sum();
@@ -67,7 +59,6 @@ public final class Estadisticas {
         return resumenes.stream().mapToLong(Resumen::minutos).sum();
     }
 
-    /** Personas ordenadas de más a menos retardos y ausencias: el primero es quien más requiere atención. */
     public List<Resumen> ranking() {
         return resumenes.stream()
                 .sorted(Comparator.comparingInt(Resumen::retardos).thenComparingInt(Resumen::ausencias).reversed())
@@ -78,7 +69,6 @@ public final class Estadisticas {
         return List.copyOf(resumenes);
     }
 
-    /** Número de incidencias del período por tipo (Retardo, Reposo médico...). */
     public Map<String, Integer> incidenciasPorTipo() {
         return new LinkedHashMap<>(incidenciasPorTipo);
     }

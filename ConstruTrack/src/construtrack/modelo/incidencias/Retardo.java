@@ -4,9 +4,7 @@ import construtrack.modelo.excepciones.DatoInvalidoException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Llegada tarde con su motivo (tráfico, transporte...). Explica el retraso pero no una falta. */
 public class Retardo extends Incidencia {
-
     public static final String CODIGO = "RETARDO";
 
     private final int minutos;

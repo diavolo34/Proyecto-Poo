@@ -10,9 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/** Vista: una tarjeta del tablero Kanban. La franja izquierda indica la gravedad (además del texto). */
 public final class TarjetaIncidencia extends JPanel {
-
     private static final long serialVersionUID = 1L;
 
     private final JPanel acciones = new JPanel(new java.awt.GridLayout(1, 0, 4, 0));

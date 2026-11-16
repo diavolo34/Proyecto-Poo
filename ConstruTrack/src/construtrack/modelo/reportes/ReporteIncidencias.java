@@ -5,9 +5,7 @@ import construtrack.modelo.Usuario;
 import java.time.LocalDate;
 import java.util.List;
 
-/** Una fila por incidencia del período: quién, qué tipo, cuándo y en qué estado está. */
 public class ReporteIncidencias extends Reporte {
-
     @Override
     protected String titulo() {
         return "Reporte de incidencias";

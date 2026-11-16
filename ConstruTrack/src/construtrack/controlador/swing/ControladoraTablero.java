@@ -16,12 +16,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-/**
- * Controladora del tablero Kanban: reparte las incidencias en columnas según su estado y agrega
- * a cada tarjeta solo las acciones que el usuario puede realizar sobre ella.
- */
 public final class ControladoraTablero {
-
     private final PanelTablero vista;
     private final ServicioIncidencias incidencias;
     private final Usuario usuario;
@@ -35,7 +30,6 @@ public final class ControladoraTablero {
         this.alCambiar = alCambiar;
     }
 
-    /** Nombres de las columnas, en el orden del ciclo de vida de una incidencia. */
     public static String[] columnas() {
         EstadoIncidencia[] estados = EstadoIncidencia.values();
         String[] nombres = new String[estados.length];
@@ -81,7 +75,7 @@ public final class ControladoraTablero {
                         "¿Por qué se rechaza la incidencia #" + incidencia.getId() + "?\nEl trabajador verá este motivo.",
                         "Motivo del rechazo", JOptionPane.QUESTION_MESSAGE);
                 if (comentario == null) {
-                    return; // canceló: no se cambia nada (control y libertad del usuario)
+                    return;
                 }
             }
             try {

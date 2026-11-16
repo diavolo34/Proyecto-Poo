@@ -1,5 +1,3 @@
-// Pantallas de acceso: iniciar sesión, crear cuenta y unirse a la empresa con un código.
-
 const ILUSTRACION_IZQUIERDA = `<svg viewBox="0 0 400 420" aria-hidden="true">
   <rect x="0" y="250" width="400" height="170" fill="#1d7afc"/><rect x="0" y="300" width="400" height="120" fill="#0c66e4"/>
   <rect x="40" y="150" width="70" height="150" fill="#e9f2ff"/><rect x="130" y="90" width="80" height="210" fill="#fff"/>
@@ -137,7 +135,7 @@ function pantallaRegistro(parametros) {
   const alternarTipo = () => {
     const esJefe = formulario.querySelector('input[name=tipo]:checked').value === 'jefe';
     $('#campo-empresa').classList.toggle('oculto', !esJefe);
-    empresa.required = esJefe; // solo el jefe escribe el nombre de su empresa
+    empresa.required = esJefe;
     formulario.querySelector('button[type=submit]').textContent = esJefe ? 'Crear cuenta y empresa' : 'Crear cuenta';
   };
   formulario.querySelectorAll('input[name=tipo]').forEach((r) => r.addEventListener('change', alternarTipo));
@@ -145,7 +143,7 @@ function pantallaRegistro(parametros) {
   alternarTipo();
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
-    // Revisa primero en el navegador qué falta, para decirlo todo de una vez y llevar el foco al primer campo
+
     const faltan = [...formulario.querySelectorAll('[required]')].filter((c) => !c.value.trim());
     if (faltan.length) {
       const nombres = faltan.map((c) => formulario.querySelector(`label[for="${c.id}"]`).textContent.replace(' *', '').toLowerCase());

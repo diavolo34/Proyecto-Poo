@@ -1,7 +1,3 @@
-/* ConstruTrack · Portada pública (index.html).
-   Solo la carga la portada. Todas las clases llevan el prefijo lp- para no chocar con las de la aplicación
-   (estilos.css). Misma paleta: azul #0c66e4, ámbar de obra y neutros. Textos con contraste de al menos 4.5:1. */
-
 .lp {
   --lp-ambar: #fca700;
   --lp-ambar-claro: #ffd57a;
@@ -17,7 +13,6 @@
 .lp-main:focus { outline: none; }
 .lp section[id] { scroll-margin-top: 72px; }
 
-/* ----------------------------------------------------------------- textos comunes */
 .lp-etiqueta {
   display: inline-block; margin: 0 0 18px; padding: 6px 14px; border-radius: 999px;
   background: var(--lp-ambar-suave); color: #7a4b00; font-size: 14px; font-weight: 700;
@@ -39,7 +34,6 @@
   background: var(--verde-suave) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-5' fill='none' stroke='%23216e4e' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 12px no-repeat;
 }
 
-/* ----------------------------------------------------------------- botones propios de la portada */
 .lp-btn-ambar { background: var(--lp-ambar); color: var(--texto); }
 .lp-btn-ambar:hover { background: #ffb933; }
 .lp-btn-claro { background: #fff; color: var(--azul-oscuro); }
@@ -47,7 +41,6 @@
 .lp-btn-transparente { background: transparent; color: #fff; border-color: rgba(255, 255, 255, .75); }
 .lp-btn-transparente:hover { background: rgba(255, 255, 255, .12); }
 
-/* ----------------------------------------------------------------- cabecera */
 .lp-cabecera {
   position: sticky; top: 0; z-index: 30; background: rgba(255, 255, 255, .94);
   border-bottom: 1px solid var(--borde);
@@ -81,7 +74,6 @@
 .lp-menu-abierto .lp-menu-boton span::before { transform: translateY(6px) rotate(45deg); }
 .lp-menu-abierto .lp-menu-boton span::after { transform: translateY(-6px) rotate(-45deg); }
 
-/* ----------------------------------------------------------------- hero */
 .lp-hero {
   position: relative; overflow: hidden; padding: 72px 0 96px;
   background:
@@ -108,7 +100,6 @@
 .lp-ya-tengo a { font-weight: 700; }
 .lp-estado { min-height: 26px; margin: 14px 0 0; font-size: 14px; color: var(--texto-suave); display: flex; align-items: center; gap: 8px; }
 
-/* Composición: manchas de color, ilustración de la obra, navegador y celular con capturas reales */
 .lp-hero-visual { position: relative; aspect-ratio: 600 / 540; }
 .lp-mancha { position: absolute; border-radius: var(--lp-blob); }
 .lp-mancha-ambar { width: 80%; height: 86%; right: -4%; top: 0; background: linear-gradient(140deg, var(--lp-ambar-claro), var(--lp-ambar)); }
@@ -140,7 +131,6 @@
 }
 .lp-celular img { display: block; width: 100%; height: auto; border-radius: 10% / 4.8%; }
 
-/* ----------------------------------------------------------------- secciones y filas alternadas */
 .lp-seccion { position: relative; padding: 112px 0; }
 .lp-fila { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.15fr); gap: 72px; align-items: center; }
 .lp-fila + .lp-fila { margin-top: 120px; }
@@ -159,14 +149,12 @@
 .lp-fondo-ambar { background: linear-gradient(145deg, #fff7d6 0%, #ffe2a8 100%); }
 .lp-fondo-rosa { background: linear-gradient(145deg, #fff1ef 0%, #ffd9d4 100%); }
 
-/* Captura que se sale del panel por la derecha y por abajo, con una ilustración encima */
 .lp-visual-producto { padding: 48px 0 0 48px; min-height: 360px; }
 .lp-visual-producto .lp-navegador { width: 118%; border-radius: 12px 0 0 0; }
 .lp-fila-visual > .lp-pegatina { position: absolute; z-index: 1; filter: drop-shadow(0 16px 24px rgba(9, 30, 66, .22)); height: auto; }
 .lp-fila-visual > .lp-pegatina-izquierda { width: 38%; left: 5%; bottom: 7%; }
 .lp-fila-visual > .lp-pegatina-derecha { width: 38%; right: 5%; bottom: 6%; }
 
-/* ----------------------------------------------------------------- franja en vivo (cifras y obras) */
 .lp-envivo { position: relative; overflow: hidden; isolation: isolate; background: var(--lp-marino); color: #fff; padding: 104px 0; }
 .lp-envivo::before, .lp-envivo::after { content: ""; position: absolute; z-index: -1; border-radius: var(--lp-blob); }
 .lp-envivo::before { width: 520px; height: 460px; right: -160px; top: -200px; background: #0c66e4; opacity: .55; }
@@ -198,7 +186,6 @@
 .lp-obra-pie strong { color: var(--texto); }
 .lp-cargando, .lp-obras > p { color: #cfe1fd; margin: 0; display: flex; gap: 8px; align-items: center; }
 
-/* ----------------------------------------------------------------- roles */
 .lp-roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .lp-rol {
   --lp-rol-fondo: var(--lp-ambar-suave);
@@ -215,7 +202,6 @@
 .lp-rol .lp-lista li { font-weight: 500; }
 .lp-rol:hover { transform: translateY(-4px); box-shadow: 0 24px 44px -26px rgba(9, 30, 66, .45); }
 
-/* ----------------------------------------------------------------- dos formas de empezar */
 .lp-empezar { overflow: hidden; background: linear-gradient(180deg, var(--lp-cielo) 0%, #fff 100%); }
 .lp-empezar::before {
   content: ""; position: absolute; width: 380px; height: 340px; left: -150px; top: 80px;
@@ -241,7 +227,6 @@
 .lp-camino .btn { align-self: flex-start; }
 .lp-empezar .lp-ya-tengo { margin-top: 36px; }
 
-/* ----------------------------------------------------------------- llamado final */
 .lp-cta {
   position: relative; overflow: hidden; isolation: isolate; color: #fff; text-align: center; padding: 104px 0 168px;
   background: linear-gradient(120deg, var(--lp-marino) 0%, #0b4fb3 55%, var(--azul) 100%);
@@ -258,10 +243,8 @@
 .lp-cta p { color: #fff; font-size: 18px; max-width: 640px; margin: 0 auto 34px; }
 .lp-cta-acciones { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
-/* Foco visible también sobre los fondos oscuros */
 .lp-envivo :focus-visible, .lp-cta :focus-visible, .lp-pie :focus-visible { outline-color: var(--lp-ambar-claro); }
 
-/* ----------------------------------------------------------------- pie de página */
 .lp-pie { background: var(--lp-noche); color: #c7d1db; padding: 72px 0 96px; font-size: 15px; }
 .lp-pie-rejilla { display: grid; grid-template-columns: 1.6fr repeat(3, minmax(0, 1fr)); gap: 40px; }
 .lp-pie .marca { color: #fff; font-size: 22px; }
@@ -275,15 +258,14 @@
   position: relative; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13.5px;
   margin-top: 56px; padding-top: 24px;
 }
-/* La línea divisoria respeta el margen del contenedor */
+
 .lp-pie-final::before {
   content: ""; position: absolute; left: 24px; right: 24px; top: 0; height: 1px; background: rgba(255, 255, 255, .14);
 }
-/* En Netlify su insignia ocupa la esquina inferior derecha: el espacio libre va al final del pie, no del contenido */
+
 .con-insignia-netlify .lp-main { padding-bottom: 0; }
 .con-insignia-netlify .lp-pie { padding-bottom: 120px; }
 
-/* ----------------------------------------------------------------- animaciones sutiles (opcionales) */
 @media (prefers-reduced-motion: no-preference) {
   .lp-mancha-ambar { animation: lp-flotar 14s ease-in-out infinite alternate; }
   .lp-mancha-azul { animation: lp-flotar 18s ease-in-out infinite alternate-reverse; }
@@ -298,14 +280,12 @@
 }
 @keyframes lp-subir { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
-/* ----------------------------------------------------------------- adaptable */
 @media (max-width: 1100px) {
   .lp-hero-rejilla, .lp-fila { gap: 48px; }
   .lp-pie-rejilla { grid-template-columns: 1fr 1fr 1fr; }
   .lp-pie-marca { grid-column: 1 / -1; }
 }
 @media (max-width: 980px) {
-  /* Menú desplegable en tabletas y celulares */
   .lp-cabecera-fila { gap: 12px; }
   .lp-menu-boton { display: grid; }
   .lp-nav {
@@ -364,7 +344,7 @@
   .lp-cabecera-acciones .btn-primario { padding: 8px 10px; font-size: 13px; }
   .lp-cabecera .marca { font-size: 18px; }
 }
-/* En pantallas muy angostas «Crear cuenta» queda en el menú y en el formulario de la portada */
+
 @media (max-width: 359px) {
   .lp-cabecera-acciones .btn-primario { display: none; }
 }

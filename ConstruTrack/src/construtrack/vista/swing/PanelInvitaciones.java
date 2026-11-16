@@ -13,9 +13,7 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 
-/** Vista del Jefe: crear invitaciones de un solo uso y ver su estado. */
 public final class PanelInvitaciones extends JPanel {
-
     private static final long serialVersionUID = 1L;
 
     private final JComboBox<String> cboRol = new JComboBox<>(new String[] {"Empleado", "Supervisor"});

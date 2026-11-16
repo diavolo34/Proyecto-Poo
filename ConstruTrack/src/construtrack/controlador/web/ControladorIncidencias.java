@@ -10,9 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Rutas de incidencias: listar, reportar y revisar (aprobar o rechazar). */
 public class ControladorIncidencias implements ControladorWeb {
-
     private final ServicioIncidencias incidencias;
 
     public ControladorIncidencias(ServicioIncidencias incidencias) {
@@ -34,7 +32,6 @@ public class ControladorIncidencias implements ControladorWeb {
         return Respuesta.json(Json.lista(lista, i -> JsonMapper.incidencia(i, incidencias.puedeRevisar(actual, i))));
     }
 
-    /** Tipos de incidencia y personas para las que el usuario puede reportar (llenan los selectores). */
     private Respuesta opciones(Peticion p) {
         Usuario actual = p.usuario();
         JsonObjeto tipos = new JsonObjeto();
@@ -72,7 +69,7 @@ public class ControladorIncidencias implements ControladorWeb {
 
     private static LocalDate fecha(String texto) {
         if (texto == null || texto.isBlank()) {
-            return null; // la fecha final es opcional: si falta, la incidencia dura un día
+            return null;
         }
         try {
             return LocalDate.parse(texto);

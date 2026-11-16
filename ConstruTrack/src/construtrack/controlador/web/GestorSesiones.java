@@ -8,13 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Sesiones de la vista web: cada inicio de sesión recibe un token aleatorio que el navegador envía
- * en la cabecera Authorization. Una sesión puede ser de una cuenta que aún no se une a la empresa
- * (se guarda su correo) o de una persona de la empresa (se guarda su cédula).
- */
 public class GestorSesiones {
-
     private static final String CUENTA = "c:";
     private static final String USUARIO = "u:";
 
@@ -32,7 +26,6 @@ public class GestorSesiones {
         return token;
     }
 
-    /** Ficha en la empresa del dueño del token, o null si no tiene (o el token no es válido). */
     public Usuario obtenerUsuario(String token) {
         String id = token == null ? null : sesiones.get(token);
         if (id == null) {
@@ -45,7 +38,6 @@ public class GestorSesiones {
         return cuenta == null ? null : cuenta.getUsuario();
     }
 
-    /** Cuenta personal del dueño del token, o null. */
     public Cuenta obtenerCuenta(String token) {
         String id = token == null ? null : sesiones.get(token);
         if (id == null) {

@@ -5,9 +5,7 @@ import construtrack.modelo.Usuario;
 import java.time.LocalDate;
 import java.util.List;
 
-/** Jornadas, retardos, porcentaje de puntualidad y horas trabajadas por persona. */
 public class ReportePuntualidad extends Reporte {
-
     @Override
     protected String titulo() {
         return "Reporte de puntualidad";

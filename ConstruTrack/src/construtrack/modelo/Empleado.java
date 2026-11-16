@@ -1,10 +1,6 @@
 package construtrack.modelo;
 
-/**
- * Trabajador de la obra. Puede tener un Supervisor asignado.
- */
 public class Empleado extends Usuario {
-
     public static final String ROL = "Empleado";
 
     private Supervisor supervisor;
@@ -22,7 +18,6 @@ public class Empleado extends Usuario {
         return supervisor;
     }
 
-    /** Cambia de supervisor manteniendo actualizada la lista del supervisor anterior y del nuevo. */
     public void setSupervisor(Supervisor nuevo) {
         if (supervisor != null) {
             supervisor.quitarEmpleado(this);

@@ -8,12 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import javax.swing.JPanel;
 
-/**
- * Ilustración decorativa dibujada con Java2D: edificios en construcción, una grúa y un tablero.
- * No necesita archivos de imagen, así funciona igual en cualquier computadora.
- */
 public final class Ilustracion extends JPanel {
-
     private static final long serialVersionUID = 1L;
 
     public Ilustracion() {
@@ -29,13 +24,11 @@ public final class Ilustracion extends JPanel {
         g2.setPaint(new GradientPaint(0, 0, Tema.AZUL, w, h, new Color(0x1D7AFC)));
         g2.fillRect(0, 0, w, h);
 
-        // Bloques de color al estilo de las ilustraciones de producto (detrás del tablero, sin tapar la obra)
         g2.setColor(new Color(0xFCA700));
         g2.fillRect(w - 150, 24, 120, 90);
         g2.setColor(new Color(0x09326C));
         g2.fillRect(w - 130, 44, 120, 90);
 
-        // Edificios
         int base = h - 70;
         int[][] edificios = {{40, 150}, {120, 230}, {200, 180}, {330, 120}};
         for (int[] e : edificios) {
@@ -48,7 +41,7 @@ public final class Ilustracion extends JPanel {
                 g2.fillRect(x + 36, fy, 14, 10);
             }
         }
-        // Grúa (amarillo claro para que contraste con el fondo azul)
+
         g2.setColor(new Color(0xFFE380));
         g2.setStroke(new BasicStroke(5));
         int gx = w * 290 / 420;
@@ -57,11 +50,10 @@ public final class Ilustracion extends JPanel {
         g2.setStroke(new BasicStroke(2));
         g2.drawLine(gx - 100, base - 250, gx - 100, base - 180);
         g2.fillRect(gx - 112, base - 180, 24, 18);
-        // Suelo
+
         g2.setColor(new Color(255, 255, 255, 120));
         g2.fillRect(0, base, w, 4);
 
-        // Tablero (como las tarjetas de un tablero Kanban)
         int tx = 40;
         int ty = 40;
         g2.setColor(Color.WHITE);

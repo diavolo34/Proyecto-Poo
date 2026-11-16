@@ -15,14 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Casos de uso sobre el personal: consultar, registrar, modificar y eliminar. */
 public class ServicioPersonal extends ServicioBase {
-
     public ServicioPersonal(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
         super(plataforma, escritor, reloj);
     }
 
-    /** El Jefe ve a todo el personal; el Supervisor solo a sus empleados; el Empleado no tiene acceso. */
     public List<Usuario> listarVisibles(Usuario actual) {
         return leer(() -> {
             if (actual instanceof Jefe) {
@@ -35,12 +32,11 @@ public class ServicioPersonal extends ServicioBase {
         });
     }
 
-    /** Detalle de un usuario, respetando los permisos de quien consulta. */
     public Usuario ver(Usuario actual, String cedula) {
         return leer(() -> {
             Usuario usuario = buscarExistente(actual, cedula);
             if (actual instanceof Supervisor supervisor && usuario instanceof Empleado empleado) {
-                supervisor.consultarAsistencia(empleado); // lanza PermisoDenegado si no es su empleado
+                supervisor.consultarAsistencia(empleado);
             } else if (!(actual instanceof Jefe) && usuario != actual) {
                 throw new PermisoDenegadoException("No tienes permiso para ver a este usuario.");
             }
@@ -60,7 +56,6 @@ public class ServicioPersonal extends ServicioBase {
         });
     }
 
-    /** Cifras públicas para la portada (empresa de demostración) y cuántas empresas usan el sistema. */
     public int[] contarPersonalYPresentes() {
         return leer(() -> {
             Empresa demo = plataforma.empresaDemo();
@@ -73,18 +68,15 @@ public class ServicioPersonal extends ServicioBase {
         return java.time.LocalDate.now(reloj);
     }
 
-    /** Obras de la empresa de quien consulta. */
     public List<Obra> listarObras(Usuario actual) {
         return leer(() -> empresaDe(actual).listarObras());
     }
 
-    /** Obras públicas de la portada: solo las de la empresa de demostración (no expone otras empresas). */
     public List<Obra> listarObrasDemo() {
         return leer(() -> plataforma.empresaDemo() == null ? List.<Obra>of() : plataforma.empresaDemo().listarObras());
     }
 
     public Usuario registrar(Usuario actual, Map<String, String> datos) {
-        // La cédula es única en todo el sistema (Empresa.agregarUsuario también lo comprueba)
         return modificar(() -> comoJefe(actual).registrarUsuario(datos));
     }
 
@@ -99,7 +91,6 @@ public class ServicioPersonal extends ServicioBase {
         });
     }
 
-    /** Busca solo en la empresa de quien consulta: una cédula de otra empresa «no existe». */
     private Usuario buscarExistente(Usuario actual, String cedula) {
         Usuario usuario = empresaDe(actual).buscarUsuario(cedula);
         if (usuario == null) {

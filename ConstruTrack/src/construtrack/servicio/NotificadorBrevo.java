@@ -12,13 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.logging.Logger;
 
-/**
- * Envía la invitación por correo con la API de Brevo (antes Sendinblue), sin librerías: java.net.http.
- * Se usa la API HTTP porque los servidores gratuitos (como Render) bloquean el envío por SMTP.
- * Otra implementación de Notificador: el servicio de invitaciones no cambia (inversión de dependencias).
- */
 public class NotificadorBrevo implements Notificador {
-
     public static final String API = "https://api.brevo.com/v3/smtp/email";
     private static final Logger LOG = Logger.getLogger(NotificadorBrevo.class.getName());
 
@@ -28,12 +22,6 @@ public class NotificadorBrevo implements Notificador {
     private final MensajeInvitacion mensaje;
     private final HttpClient cliente = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
-    /**
-     * @param api       dirección de la API (la de Brevo; en las pruebas, un servidor falso)
-     * @param clave     API key de Brevo
-     * @param remitente correo verificado en Brevo desde el que salen las invitaciones
-     * @param urlSitio  dirección pública de la página, para el botón «Unirme»
-     */
     public NotificadorBrevo(String api, String clave, String remitente, String urlSitio) {
         this.api = api;
         this.clave = clave;
@@ -75,5 +63,4 @@ public class NotificadorBrevo implements Notificador {
             throw new OperacionInvalidaException("Se interrumpió el envío del correo.");
         }
     }
-
 }

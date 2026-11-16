@@ -4,12 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Convierte una clave en un resumen SHA-256 con "sal" (la cédula), para no guardar claves en texto plano.
- * Es una clase de utilidad: no se instancia.
- */
 public final class CifradoClave {
-
     private CifradoClave() {
     }
 

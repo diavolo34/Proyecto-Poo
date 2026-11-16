@@ -17,9 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Casos de uso: reportar, listar y revisar incidencias (faltas, retardos, reposos, permisos). */
 public class ServicioIncidencias extends ServicioBase {
-
     private final FabricaIncidencias fabrica;
     private int siguienteId;
 
@@ -30,7 +28,6 @@ public class ServicioIncidencias extends ServicioBase {
         this.siguienteId = siguienteId;
     }
 
-    /** Reporta una incidencia para el afectado. Quien reporta debe tener autoridad sobre él. */
     public Incidencia reportar(Usuario reporta, String codigoTipo, String cedulaAfectado,
             LocalDate desde, LocalDate hasta, String descripcion, Map<String, String> extras) {
         return modificar(() -> {
@@ -44,12 +41,10 @@ public class ServicioIncidencias extends ServicioBase {
         });
     }
 
-    /** Tipos de incidencia disponibles (código → nombre), para llenar listas desplegables. */
     public Map<String, String> tipos() {
         return fabrica.tipos();
     }
 
-    /** Personas para las que el usuario puede reportar: él mismo, su equipo (supervisor) o todos (jefe). */
     public List<Usuario> personasReportables(Usuario actual) {
         return leer(() -> {
             List<Usuario> personas = new ArrayList<>();
@@ -62,13 +57,11 @@ public class ServicioIncidencias extends ServicioBase {
         });
     }
 
-    /** Indica si el usuario tiene autoridad para revisar esa incidencia (y si todavía se puede revisar). */
     public boolean puedeRevisar(Usuario actual, Incidencia incidencia) {
         return actual instanceof construtrack.modelo.RevisorIncidencias r && r.puedeRevisar(incidencia)
                 && !incidencia.getEstado().esFinal();
     }
 
-    /** Incidencias que el usuario puede ver: las suyas, las de su equipo (supervisor) o todas (jefe). */
     public List<Incidencia> listarVisibles(Usuario actual) {
         return leer(() -> {
             List<Incidencia> visibles = new ArrayList<>();
@@ -81,7 +74,6 @@ public class ServicioIncidencias extends ServicioBase {
         });
     }
 
-    /** Pendientes de revisión que el usuario tiene autoridad para resolver. */
     public List<Incidencia> pendientesDeRevisar(Usuario revisor) {
         return leer(() -> {
             List<Incidencia> pendientes = new ArrayList<>();
@@ -118,7 +110,6 @@ public class ServicioIncidencias extends ServicioBase {
         return actual instanceof construtrack.modelo.Supervisor s && s.supervisa(afectado);
     }
 
-    /** Busca solo en la empresa de quien hace la operación. */
     private Usuario buscar(Usuario actual, String cedula) {
         Usuario u = empresaDe(actual).buscarUsuario(cedula);
         if (u == null) {

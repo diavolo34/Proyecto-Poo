@@ -11,13 +11,7 @@ import java.net.URI;
 import java.util.function.Consumer;
 import javax.swing.JOptionPane;
 
-/**
- * Controladora del inicio de sesión: recibe la vista por constructor, registra sus eventos
- * y delega la validación de credenciales en el servicio (la vista no conoce reglas de negocio).
- * Si la persona aún no pertenece a la empresa, la envía a unirse con un código.
- */
 public final class ControladoraLogin {
-
     private final VentanaLogin vista;
     private final ServicioAutenticacion autenticacion;
     private final Consumer<Usuario> alEntrar;
@@ -70,7 +64,6 @@ public final class ControladoraLogin {
                 return;
             }
         } catch (java.io.IOException | RuntimeException e) {
-            // Si el sistema no permite abrir el navegador, se muestra la dirección para copiarla
         }
         JOptionPane.showMessageDialog(vista, "Abre esta dirección en tu navegador:\n" + urlWeb,
                 "Versión web", JOptionPane.INFORMATION_MESSAGE);

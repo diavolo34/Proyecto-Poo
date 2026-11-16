@@ -4,12 +4,7 @@ import construtrack.modelo.excepciones.NoEncontradoException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Tabla de rutas de la API. Cada controlador registra sus propias rutas, así que agregar un recurso
- * nuevo no obliga a modificar esta clase (abierta a extensión, cerrada a modificación).
- */
 public class Enrutador {
-
     private final List<Ruta> rutas = new ArrayList<>();
 
     public Enrutador get(String patron, Accion accion) {
@@ -42,9 +37,7 @@ public class Enrutador {
         throw new NoEncontradoException("Ruta no encontrada: " + peticion.metodo() + " " + peticion.ruta());
     }
 
-    /** Una ruta con segmentos variables entre llaves, por ejemplo /api/usuarios/{cedula}. */
     private static final class Ruta {
-
         private final String metodo;
         private final String[] segmentos;
         private final Accion accion;

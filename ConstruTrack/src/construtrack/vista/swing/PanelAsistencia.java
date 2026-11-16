@@ -10,9 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-/** Vista: estado de asistencia del usuario, botones de entrada y salida, resumen semanal e historial. */
 public final class PanelAsistencia extends JPanel {
-
     private static final long serialVersionUID = 1L;
 
     private final JLabel lblSaludo = Tema.titulo(" ");
@@ -96,7 +94,6 @@ public final class PanelAsistencia extends JPanel {
         return panel;
     }
 
-    /** Muestra el estado con texto y color a la vez (no depende solo del color). */
     public void mostrarEstado(boolean presente) {
         lblEstado.setText(presente ? "● En la obra" : "○ Fuera de la obra");
         lblEstado.setBackground(presente ? Tema.VERDE_SUAVE : Tema.GRIS_SUAVE);

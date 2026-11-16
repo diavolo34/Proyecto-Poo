@@ -3,9 +3,7 @@ package construtrack.controlador.web;
 import construtrack.servicio.Exportacion;
 import construtrack.servicio.ServicioSupervision;
 
-/** Ruta de descarga de reportes: /api/reportes/{tipo}?formato=csv|txt&periodo=semana|mes. */
 public class ControladorReportes implements ControladorWeb {
-
     private final ServicioSupervision supervision;
 
     public ControladorReportes(ServicioSupervision supervision) {

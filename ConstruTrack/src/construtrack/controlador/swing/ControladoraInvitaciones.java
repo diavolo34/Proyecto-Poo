@@ -15,9 +15,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.swing.JOptionPane;
 
-/** Controladora de invitaciones (solo Jefe): crear, copiar el código y cancelar. */
 public final class ControladoraInvitaciones {
-
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final PanelInvitaciones vista;

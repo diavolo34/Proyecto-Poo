@@ -22,7 +22,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class AlertasYReportesTest {
-
     private final Datos d = new Datos();
     private final Periodo semana = Periodo.semanaDe(HOY);
     private final LocalDate lunes = LocalDate.of(2026, 11, 16);
@@ -47,7 +46,7 @@ class AlertasYReportesTest {
     @DisplayName("El monitor aplica todas las reglas solo a empleados; a igual antigüedad, primero la más grave")
     void monitorConReglasInyectadas() {
         tardeLunesYMartes(d.jose);
-        // Laura no vino ni lunes ni martes: dos faltas sin justificar → alerta ALTA
+
         MonitorSupervision monitor = new MonitorSupervision(List.<ReglaAlerta>of(new RetardosReiterados(2), new AusenciaSinJustificar()));
         List<Alerta> alertas = monitor.evaluar(d.empresa.listarUsuarios(), semana, HOY, AHORA);
         assertEquals(Nivel.ALTA, alertas.get(0).getNivel());
@@ -58,7 +57,6 @@ class AlertasYReportesTest {
     @Test
     @DisplayName("Las alertas salen de la más antigua a la más reciente, aunque la nueva sea más grave")
     void alertasPorAntiguedad() {
-        // Regla de prueba (OCP: se agrega sin tocar el monitor): Laura tiene un problema desde el lunes, José desde el martes
         ReglaAlerta regla = (empleado, periodo, hoy, ahora) -> switch (empleado.getNombre()) {
             case "Laura Torres" -> List.of(Alerta.de(Nivel.MEDIA, empleado, "Desde el lunes", lunes.atStartOfDay(), ahora));
             case "José García" -> List.of(Alerta.de(Nivel.ALTA, empleado, "Desde el martes", martes.atStartOfDay(), ahora));
@@ -74,7 +72,7 @@ class AlertasYReportesTest {
         tardeLunesYMartes(d.jose);
         Documento doc = new ReporteAsistencia().generar(List.of(d.jose, d.laura), semana, HOY);
         assertEquals(13, doc.getColumnas().size(), "8 de asistencia + 5 de horas trabajadas y extra");
-        // Jornadas abiertas (sin salida): 0 h trabajadas de 18 h esperadas (lunes y martes de 9 h)
+
         assertEquals(List.of("30000001", "José García", "Empleado", "2", "2", "100.0", "0", "0", "0.0", "18.0", "0.0", "0.0", "0.0"),
                 doc.getFilas().get(0).stream().map(c -> c.replace(',', '.')).toList());
         assertEquals("2", doc.getFilas().get(1).get(6), "Laura tiene 2 ausencias sin justificar");

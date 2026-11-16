@@ -13,31 +13,18 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.logging.Logger;
 
-/**
- * Envía la invitación desde el Gmail del jefe usando un Google Apps Script publicado como aplicación web
- * (tools/correo-gmail/Codigo.gs). No necesita cuentas de terceros ni tarjeta: Google permite unos 100 correos
- * al día. El script solo acepta pedidos que traen la clave secreta compartida.
- *
- * Otra implementación de Notificador: el servicio de invitaciones no cambia (inversión de dependencias).
- */
 public class NotificadorGmail implements Notificador {
-
     private static final Logger LOG = Logger.getLogger(NotificadorGmail.class.getName());
 
     private final String urlScript;
     private final String clave;
     private final MensajeInvitacion mensaje;
-    // Apps Script responde con una redirección (302) hacia el resultado: hay que seguirla
+
     private final HttpClient cliente = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
-    /**
-     * @param urlScript dirección /exec de la aplicación web de Apps Script
-     * @param clave     clave secreta escrita también en el script
-     * @param urlSitio  dirección pública de la página, para el botón «Unirme»
-     */
     public NotificadorGmail(String urlScript, String clave, String urlSitio) {
         this.urlScript = urlScript;
         this.clave = clave;

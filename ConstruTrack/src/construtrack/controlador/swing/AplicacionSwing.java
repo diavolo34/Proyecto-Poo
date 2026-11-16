@@ -21,12 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * Coordina la vista de escritorio: muestra el inicio de sesión y, al entrar, arma la ventana
- * principal con las pestañas que corresponden al rol. Usa los mismos servicios que la web.
- */
 public final class AplicacionSwing {
-
     private final Servicios servicios;
     private final String urlWeb;
 
@@ -52,7 +47,6 @@ public final class AplicacionSwing {
         login.setVisible(true);
     }
 
-    /** Registro de una cuenta nueva: el jefe entra con su empresa; los demás pasan a escribir el código. */
     private void mostrarRegistro(Window dueno, Consumer<Usuario> entrar) {
         DialogoRegistro registro = new DialogoRegistro(dueno);
         new ControladoraRegistro(registro, servicios.registro(), cuenta -> {
@@ -65,14 +59,12 @@ public final class AplicacionSwing {
         registro.setVisible(true);
     }
 
-    /** Pide el código de invitación; si la persona elige "Más tarde", vuelve al inicio de sesión. */
     private void mostrarUnirse(Window dueno, Cuenta cuenta, Consumer<Usuario> entrar) {
         DialogoUnirse unirse = new DialogoUnirse(dueno, cuenta.getNombre());
         new ControladoraUnirse(unirse, servicios.registro(), cuenta, entrar);
         unirse.setVisible(true);
     }
 
-    /** Arma la ventana principal. Lo que cada rol ve depende de las interfaces que implementa. */
     public VentanaPrincipal crearVentanaPrincipal(Usuario usuario) {
         VentanaPrincipal ventana = new VentanaPrincipal(usuario.getEmpresa().getNombre(),
                 usuario.getNombre(), usuario.getRol());

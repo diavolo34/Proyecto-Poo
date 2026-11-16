@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
 
-/** Controladora de supervisión: indicadores, gráfico, alertas y exportación de reportes a archivo. */
 public final class ControladoraSupervision {
-
     private final PanelSupervision vista;
     private final ServicioSupervision supervision;
     private final Usuario usuario;

@@ -28,31 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-/**
- * Guarda y carga la plataforma (todas las empresas y las cuentas) como texto, un registro por línea y campos
- * separados por |, en un {@link Almacen}: un archivo local o una base Redis en la nube.
- *
- * Cada empresa es un bloque que empieza con su línea EMPRESA; las líneas U, S, A, O, Y, I y V que siguen son suyas.
- * Las cuentas (C) son de la plataforma. Un archivo de la versión con una sola empresa se lee igual.
- *
- * <pre>
- *   EMPRESA|nombre
- *   U|rol|cedula|nombre|resumenClave|dias|horaEntrada|horaSalida|presente|fechaIngreso(o -)
- *   S|cedulaEmpleado|cedulaSupervisor
- *   A|cedula|fecha|horaEntrada|horaSalida(o -)|tarde|estadoHorasExtra
- *   O|codigo|nombre|ubicacion|fechaInicio|fechaFinEstimada
- *   Y|cedulaEmpleado|cedulaObra
- *   I|id|tipo|cedulaAfectado|cedulaReporta|desde|hasta|descripcion|fechaReporte|estado|cedulaRevisor|comentario|fechaRevision|extras
- *   C|correo|resumenClave|nombre|apellido|documento|telefono|registrada|cedulaUsuario(o -)
- *   V|codigo|rol|cedulaSupervisor(o -)|codigoObra(o -)|cedulaJefe|creada|vence|estado|correoUsadaPor(o -)|usada(o -)
- * </pre>
- *
- * Los campos de texto libre se escapan (\\p, \\n, \\\\) para que el separador | y los saltos de línea no rompan el archivo.
- *
- * Si el almacén está vacío, pide los datos iniciales a un proveedor externo (por ejemplo, GeneradorDatosPrueba).
- */
 public class RepositorioTexto implements LectorDatos, EscritorDatos {
-
     private static final String SEPARADOR = "|";
 
     private final Almacen almacen;
@@ -66,7 +42,6 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         this.fabrica = fabrica;
     }
 
-    /** Atajo para guardar en un archivo local. */
     public RepositorioTexto(Path archivo, Supplier<Empresa> datosIniciales, FabricaIncidencias fabrica) {
         this(new AlmacenArchivo(archivo), datosIniciales, fabrica);
     }
@@ -75,7 +50,6 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         return almacen;
     }
 
-    /** Siguiente número de incidencia libre según lo cargado (evita repetir ids al reiniciar). */
     public int siguienteIdIncidencia() {
         return contadorIds;
     }
@@ -91,7 +65,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         }
         Plataforma plataforma = new Plataforma();
         Empresa empresa = null;
-        // Las cuentas y las invitaciones se procesan al final: necesitan a todas las personas y cuentas cargadas
+
         List<String[]> cuentas = new ArrayList<>();
         Map<String[], Empresa> invitaciones = new LinkedHashMap<>();
         for (String linea : contenido.split("\\R")) {
@@ -107,7 +81,6 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
                 case "C" -> cuentas.add(c);
                 case "V" -> invitaciones.put(c, empresa);
                 default -> {
-                    // Líneas vacías o de versiones futuras: se ignoran
                 }
             }
         }
@@ -116,7 +89,6 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         return plataforma;
     }
 
-    /** El siguiente número libre es el mayor id existente + 1 (los datos iniciales ya traen incidencias). */
     private void actualizarContador(Plataforma plataforma) {
         for (Empresa empresa : plataforma.listarEmpresas()) {
             for (Usuario u : empresa.listarUsuarios()) {
@@ -180,7 +152,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         Usuario usuario = Usuario.crear(c[1], c[2], c[3], "temporal", Horario.desdeTexto(c[5], c[6], c[7]));
         usuario.restaurarClaveResumen(c[4]);
         usuario.setPresente(Boolean.parseBoolean(c[8]));
-        if (c.length > 9 && !"-".equals(c[9])) { // campo agregado después: los archivos viejos no lo tienen
+        if (c.length > 9 && !"-".equals(c[9])) {
             usuario.setFechaIngreso(LocalDate.parse(c[9]));
         }
         return usuario;
@@ -199,7 +171,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         if (!"-".equals(c[4])) {
             registro.registrarSalida(LocalTime.parse(c[4]));
         }
-        // Campo agregado después: las jornadas de archivos viejos no entran en el control de horas extra
+
         registro.restaurarEstadoExtra(c.length > 6 ? EstadoHorasExtra.valueOf(c[6]) : EstadoHorasExtra.NO_APLICA);
         return registro;
     }

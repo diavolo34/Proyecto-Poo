@@ -11,9 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-/** Ayuda para armar formularios verticales con etiqueta arriba, campo y texto de ayuda debajo. */
 final class Formulario {
-
     private final JPanel panel = new JPanel(new GridBagLayout());
     private int fila;
 
@@ -21,12 +19,10 @@ final class Formulario {
         panel.setOpaque(false);
     }
 
-    /** Agrega un campo ocupando todo el ancho. */
     Formulario campo(String etiqueta, JComponent campo, String ayuda) {
         return campo(etiqueta, campo, ayuda, 0, 2);
     }
 
-    /** Agrega un campo en una de dos columnas (columna 0 o 1) para poner datos cortos lado a lado. */
     Formulario campo(String etiqueta, JComponent campo, String ayuda, int columna, int ancho) {
         JPanel bloque = new JPanel(new BorderLayout(0, 3));
         bloque.setOpaque(false);

@@ -14,12 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Controladora de incidencias. Igual que en el ejemplo de combos dependientes, al cambiar el tipo
- * en un combo se actualiza el resto del formulario (aquí, los campos propios de cada tipo).
- */
 public final class ControladoraIncidencias {
-
     private static final DateTimeFormatter FECHA_CORTA = DateTimeFormatter.ofPattern("dd/MM");
 
     private final PanelIncidencias vista;
@@ -76,7 +71,6 @@ public final class ControladoraIncidencias {
         }
     }
 
-    /** Datos propios del tipo elegido, con las claves que espera cada subclase de Incidencia. */
     private Map<String, String> extras(String codigoTipo) {
         Map<String, String> extras = new HashMap<>();
         switch (codigoTipo) {
@@ -90,7 +84,6 @@ public final class ControladoraIncidencias {
                 extras.put("requirioAtencion", String.valueOf(vista.getChkAtencion().isSelected()));
             }
             default -> {
-                // Los demás tipos no tienen datos propios
             }
         }
         return extras;

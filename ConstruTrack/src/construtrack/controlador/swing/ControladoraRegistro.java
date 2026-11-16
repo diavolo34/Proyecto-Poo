@@ -6,9 +6,7 @@ import construtrack.servicio.ServicioRegistro;
 import construtrack.vista.swing.DialogoRegistro;
 import java.util.function.Consumer;
 
-/** Controladora del registro: valida con el servicio y, si todo va bien, pasa a unirse a la empresa. */
 public final class ControladoraRegistro {
-
     public ControladoraRegistro(DialogoRegistro vista, ServicioRegistro registro, Consumer<Cuenta> alRegistrarse) {
         vista.getBtnCancelar().addActionListener(e -> vista.dispose());
         vista.getBtnCrear().addActionListener(e -> {

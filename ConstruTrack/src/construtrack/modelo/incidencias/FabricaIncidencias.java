@@ -6,17 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
- * Crea incidencias a partir de su código de tipo. Los tipos se registran con su constructor, así que
- * agregar un tipo nuevo (por ejemplo, "Vacaciones") solo requiere registrarlo: no hay un switch que
- * modificar en el resto del sistema (principio abierto/cerrado).
- */
 public class FabricaIncidencias {
-
     private final Map<String, Function<DatosIncidencia, Incidencia>> creadores = new LinkedHashMap<>();
     private final Map<String, String> nombres = new LinkedHashMap<>();
 
-    /** Fábrica con los cinco tipos que maneja ConstruTrack. */
     public static FabricaIncidencias conTiposPorDefecto() {
         return new FabricaIncidencias()
                 .registrar(ReposoMedico.CODIGO, "Reposo médico", ReposoMedico::new)
@@ -40,7 +33,6 @@ public class FabricaIncidencias {
         return creador.apply(datos);
     }
 
-    /** Código → nombre legible, en el orden en que se registraron (para llenar listas desplegables). */
     public Map<String, String> tipos() {
         return Collections.unmodifiableMap(nombres);
     }

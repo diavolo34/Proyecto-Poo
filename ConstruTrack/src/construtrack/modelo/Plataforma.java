@@ -8,25 +8,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Raíz del modelo: todas las empresas que usan ConstruTrack y las cuentas personales.
- *
- * Las cuentas son de la plataforma (no de una empresa) porque existen antes de unirse a una: la persona se
- * registra con su correo y después crea su empresa (si es jefe) o se une a una con un código de invitación.
- * Cada empresa solo ve sus propios datos; la cédula es única en todo el sistema porque una persona
- * pertenece a una sola empresa.
- */
 public class Plataforma {
-
     private final List<Empresa> empresas = new ArrayList<>();
     private final Map<String, Cuenta> cuentas = new LinkedHashMap<>();
 
-    /** Crea una empresa nueva con nombre único (sin distinguir mayúsculas). */
     public Empresa crearEmpresa(String nombre) {
         return new Empresa(nombre, this);
     }
 
-    /** La empresa se registra sola al construirse (ver Empresa). */
     void registrar(Empresa empresa) {
         for (Empresa e : empresas) {
             if (e.getNombre().equalsIgnoreCase(empresa.getNombre())) {
@@ -37,7 +26,6 @@ public class Plataforma {
         empresas.add(empresa);
     }
 
-    /** Comprueba, sin crear nada, que el nombre es válido y está libre. */
     public void verificarNombreDisponible(String nombre) {
         String limpio = validarNombreEmpresa(nombre);
         for (Empresa e : empresas) {
@@ -47,10 +35,6 @@ public class Plataforma {
         }
     }
 
-    /**
-     * Un jefe funda su empresa: se crea la empresa y su ficha de Jefe (cédula = documento de la cuenta,
-     * horario de oficina por defecto que luego puede cambiar) vinculada a la cuenta.
-     */
     public Jefe fundarEmpresa(String nombre, Cuenta cuenta, LocalDate hoy) {
         if (cuenta.perteneceAEmpresa()) {
             throw new OperacionInvalidaException("Tu cuenta ya pertenece a una empresa.");
@@ -69,7 +53,6 @@ public class Plataforma {
         return jefe;
     }
 
-    /** Nombre de empresa: entre 3 y 60 caracteres. */
     public static String validarNombreEmpresa(String nombre) {
         String limpio = nombre == null ? "" : nombre.trim().replaceAll("\\s+", " ");
         if (limpio.length() < 3 || limpio.length() > 60) {
@@ -82,12 +65,9 @@ public class Plataforma {
         return new ArrayList<>(empresas);
     }
 
-    /** La primera empresa: la de demostración que se muestra en la portada. */
     public Empresa empresaDemo() {
         return empresas.isEmpty() ? null : empresas.get(0);
     }
-
-    // ------------------------------------------------------------------ personas (en todas las empresas)
 
     public Usuario buscarUsuario(String cedula) {
         for (Empresa e : empresas) {
@@ -103,15 +83,11 @@ public class Plataforma {
         return buscarUsuario(cedula) != null;
     }
 
-    /** Devuelve el usuario si la cédula y la clave coinciden; si no, null. */
     public Usuario autenticar(String cedula, String clave) {
         Usuario usuario = buscarUsuario(cedula);
         return usuario != null && usuario.verificarClave(clave) ? usuario : null;
     }
 
-    // ------------------------------------------------------------------ cuentas
-
-    /** Registra una cuenta nueva: el correo y el documento no pueden repetirse. */
     public void agregarCuenta(Cuenta cuenta) {
         if (cuentas.containsKey(cuenta.getCorreo())) {
             throw new OperacionInvalidaException("Ya existe una cuenta con el correo " + cuenta.getCorreo() + ". Inicia sesión.");
@@ -131,8 +107,6 @@ public class Plataforma {
     public List<Cuenta> listarCuentas() {
         return new ArrayList<>(cuentas.values());
     }
-
-    // ------------------------------------------------------------------ invitaciones (códigos únicos en todo el sistema)
 
     public Invitacion buscarInvitacion(CodigoInvitacion codigo) {
         for (Empresa e : empresas) {

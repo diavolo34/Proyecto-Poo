@@ -11,9 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Datos de una petición HTTP ya interpretados: ruta, parámetros, cuerpo JSON y usuario de la sesión. */
 public class Peticion {
-
     private final HttpExchange exchange;
     private final GestorSesiones sesiones;
     private final Map<String, String> parametrosRuta = new HashMap<>();
@@ -36,12 +34,10 @@ public class Peticion {
         parametrosRuta.put(nombre, valor);
     }
 
-    /** Valor de un segmento variable de la ruta, por ejemplo {cedula} en /api/usuarios/{cedula}. */
     public String parametro(String nombre) {
         return parametrosRuta.get(nombre);
     }
 
-    /** Valor de un parámetro de consulta (?clave=valor), o el valor por defecto. */
     public String consulta(String nombre, String porDefecto) {
         String query = exchange.getRequestURI().getRawQuery();
         if (query != null) {
@@ -55,7 +51,6 @@ public class Peticion {
         return porDefecto;
     }
 
-    /** Cuerpo JSON como mapa de textos (se lee una sola vez). */
     public Map<String, String> cuerpo() {
         if (cuerpo == null) {
             try (InputStream entrada = exchange.getRequestBody()) {
@@ -73,7 +68,6 @@ public class Peticion {
         return cabecera != null && cabecera.startsWith("Bearer ") ? cabecera.substring(7) : null;
     }
 
-    /** Cuenta personal con sesión iniciada (haya o no canjeado una invitación); lanza 401 si no hay. */
     public construtrack.modelo.Cuenta cuenta() {
         construtrack.modelo.Cuenta cuenta = sesiones.obtenerCuenta(token());
         if (cuenta == null) {
@@ -82,7 +76,6 @@ public class Peticion {
         return cuenta;
     }
 
-    /** Persona de la empresa con sesión iniciada; lanza 401 si no hay sesión. */
     public Usuario usuario() {
         Usuario usuario = sesiones.obtenerUsuario(token());
         if (usuario == null) {

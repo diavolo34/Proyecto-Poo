@@ -7,9 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-/** Servidor HTTP nativo de Java: publica la API REST y los archivos de la vista web. */
 public class ServidorWeb {
-
     private final HttpServer servidor;
     private final int puerto;
 

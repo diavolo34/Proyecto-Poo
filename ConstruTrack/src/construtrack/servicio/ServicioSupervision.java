@@ -26,12 +26,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Casos de uso de apoyo al supervisor: alertas, estadísticas y reportes descargables.
- * Solo consulta datos (no los modifica), y cada rol ve únicamente lo que le corresponde.
- */
 public class ServicioSupervision extends ServicioBase {
-
     private final MonitorSupervision monitor;
     private final Map<String, Reporte> reportes;
     private final Map<String, FormateadorReporte> formatos;
@@ -44,21 +39,18 @@ public class ServicioSupervision extends ServicioBase {
         this.formatos = Map.copyOf(formatos);
     }
 
-    /** Alertas de los empleados que el usuario puede supervisar (el Jefe, todos). */
     public List<Alerta> alertas(Usuario actual, String nombrePeriodo) {
         LocalDate hoy = LocalDate.now(reloj);
         Periodo periodo = periodo(nombrePeriodo, hoy);
         return leer(() -> monitor.evaluar(alcance(actual), periodo, hoy, LocalDateTime.now(reloj)));
     }
 
-    /** Estadísticas del grupo visible; un Empleado solo ve las suyas. */
     public Estadisticas estadisticas(Usuario actual, String nombrePeriodo) {
         LocalDate hoy = LocalDate.now(reloj);
         Periodo periodo = periodo(nombrePeriodo, hoy);
         return leer(() -> new Estadisticas(actual instanceof Empleado ? List.of(actual) : alcance(actual), periodo, hoy));
     }
 
-    /** Genera un reporte del grupo visible en el formato pedido. */
     public Exportacion exportar(Usuario actual, String tipo, String nombreFormato, String nombrePeriodo) {
         Reporte reporte = reportes.get(tipo);
         FormateadorReporte formateador = formatos.get(nombreFormato);
@@ -75,11 +67,9 @@ public class ServicioSupervision extends ServicioBase {
         return new Exportacion(contenido, formateador.mime(), nombre);
     }
 
-    /** Una jornada con horas extra por aprobar y la persona a la que pertenece. */
     public record HorasExtraPendientes(Usuario persona, RegistroAsistencia jornada) {
     }
 
-    /** Horas extra por aprobar del grupo visible, de la más antigua a la más reciente. */
     public List<HorasExtraPendientes> horasExtraPendientes(Usuario actual) {
         return leer(() -> alcance(actual).stream()
                 .flatMap(u -> u.getHistorial().horasExtraPendientes(u.getHorario()).stream()
@@ -88,7 +78,6 @@ public class ServicioSupervision extends ServicioBase {
                 .toList());
     }
 
-    /** Aprueba o rechaza las horas extra de una jornada; el modelo decide si el usuario tiene autoridad. */
     public RegistroAsistencia revisarHorasExtra(Usuario actual, String cedula, LocalDate fecha, String estado) {
         EstadoHorasExtra nuevo;
         try {
@@ -105,7 +94,6 @@ public class ServicioSupervision extends ServicioBase {
         });
     }
 
-    /** Personas que el usuario puede ver en reportes y alertas (sin incluir a los jefes). */
     private List<Usuario> alcance(Usuario actual) {
         if (actual instanceof Jefe) {
             return empresaDe(actual).listarUsuarios().stream().filter(u -> !(u instanceof Jefe)).toList();
@@ -116,10 +104,6 @@ public class ServicioSupervision extends ServicioBase {
         throw new PermisoDenegadoException("Tu rol no tiene acceso a los reportes del equipo.");
     }
 
-    /**
-     * Convierte el nombre del período en un rango de fechas. Por defecto, los últimos 7 días: así un lunes
-     * por la mañana también hay datos que revisar (la semana calendario apenas empieza).
-     */
     public static Periodo periodo(String nombre, LocalDate hoy) {
         if (nombre == null || nombre.isBlank() || "ultimos7".equals(nombre)) {
             return Periodo.ultimosDias(hoy, 7);

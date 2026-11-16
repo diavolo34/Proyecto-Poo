@@ -1,10 +1,7 @@
-// Capa de acceso a datos: todas las llamadas al servidor Java pasan por aquí.
-// No hay modo demostración: si el servidor no responde, la página lo dice y reintenta.
 const Api = {
   base: CONFIG.api,
   token: null,
 
-  /** Espera a que el servidor responda. El plan gratuito de Render "duerme" y tarda hasta ~1 minuto en despertar. */
   async conectar(alEsperar) {
     try { this.token = sessionStorage.getItem('construtrack-token'); } catch (e) { this.token = null; }
     const inicio = Date.now();
@@ -13,7 +10,7 @@ const Api = {
         const respuesta = await fetch(this.base + '/api/estado', { signal: AbortSignal.timeout(8000) });
         const estado = await respuesta.json();
         if (estado.servidor === 'Java') return estado;
-      } catch (e) { /* sigue esperando */ }
+      } catch (e) {  }
       const segundos = Math.round((Date.now() - inicio) / 1000);
       if (alEsperar) alEsperar(intento, segundos);
       await new Promise((r) => setTimeout(r, Math.min(2000 * intento, 5000)));
@@ -25,10 +22,9 @@ const Api = {
     try {
       if (token) sessionStorage.setItem('construtrack-token', token);
       else sessionStorage.removeItem('construtrack-token');
-    } catch (e) { /* sesión solo en memoria */ }
+    } catch (e) {  }
   },
 
-  /** Envía una petición y devuelve los datos; lanza un Error con el mensaje del servidor si falla. */
   async pedir(metodo, ruta, cuerpo) {
     const cabeceras = { 'Content-Type': 'application/json' };
     if (this.token) cabeceras.Authorization = 'Bearer ' + this.token;
@@ -52,7 +48,6 @@ const Api = {
     return datos;
   },
 
-  /** Descarga un archivo (reportes) respetando el nombre que propone el servidor. */
   async descargar(ruta) {
     const respuesta = await fetch(this.base + ruta, { headers: { Authorization: 'Bearer ' + this.token } });
     if (!respuesta.ok) {
@@ -70,7 +65,6 @@ const Api = {
     return nombre;
   },
 
-  // ---- sesión y registro
   async iniciarSesion(identificador, clave) {
     const datos = await this.pedir('POST', '/api/login', { identificador, clave });
     this.guardarToken(datos.token);
@@ -83,7 +77,7 @@ const Api = {
   },
   unirse: (codigo) => Api.pedir('POST', '/api/unirse', { codigo }),
   async cerrarSesion() {
-    try { await this.pedir('POST', '/api/logout'); } catch (e) { /* la sesión ya no existía */ }
+    try { await this.pedir('POST', '/api/logout'); } catch (e) {  }
     this.guardarToken(null);
   },
   estado: () => Api.pedir('GET', '/api/estado'),
@@ -91,7 +85,6 @@ const Api = {
   yo: () => Api.pedir('GET', '/api/yo'),
   crearEmpresa: (nombre) => Api.pedir('POST', '/api/empresas', { nombre }),
 
-  // ---- asistencia y personal
   marcarEntrada: () => Api.pedir('POST', '/api/asistencia/entrada'),
   marcarSalida: () => Api.pedir('POST', '/api/asistencia/salida'),
   listarUsuarios: () => Api.pedir('GET', '/api/usuarios'),
@@ -101,14 +94,12 @@ const Api = {
   eliminarUsuario: (cedula) => Api.pedir('DELETE', '/api/usuarios/' + encodeURIComponent(cedula)),
   opcionesPersonal: () => Api.pedir('GET', '/api/personal/opciones'),
 
-  // ---- incidencias
   incidencias: () => Api.pedir('GET', '/api/incidencias'),
   opcionesIncidencias: () => Api.pedir('GET', '/api/incidencias/opciones'),
   reportarIncidencia: (datos) => Api.pedir('POST', '/api/incidencias', datos),
   revisarIncidencia: (id, estado, comentario) =>
     Api.pedir('PUT', `/api/incidencias/${id}/revision`, { estado, comentario }),
 
-  // ---- supervisión
   estadisticas: (periodo) => Api.pedir('GET', '/api/estadisticas?periodo=' + periodo),
   alertas: (periodo) => Api.pedir('GET', '/api/supervision/alertas?periodo=' + periodo),
   horasExtra: () => Api.pedir('GET', '/api/horas-extra'),
@@ -117,14 +108,12 @@ const Api = {
   descargarReporte: (tipo, formato, periodo) =>
     Api.descargar(`/api/reportes/${tipo}?formato=${formato}&periodo=${periodo}`),
 
-  // ---- obras
   obras: () => Api.pedir('GET', '/api/obras'),
   crearObra: (datos) => Api.pedir('POST', '/api/obras', datos),
   editarObra: (codigo, datos) => Api.pedir('PUT', '/api/obras/' + encodeURIComponent(codigo), datos),
   eliminarObra: (codigo) => Api.pedir('DELETE', '/api/obras/' + encodeURIComponent(codigo)),
   asignarObra: (cedula, obra) => Api.pedir('PUT', `/api/usuarios/${encodeURIComponent(cedula)}/obra`, { obra }),
 
-  // ---- invitaciones
   invitaciones: () => Api.pedir('GET', '/api/invitaciones'),
   crearInvitacion: (datos) => Api.pedir('POST', '/api/invitaciones', datos),
   configuracionInvitaciones: () => Api.pedir('GET', '/api/invitaciones/configuracion'),

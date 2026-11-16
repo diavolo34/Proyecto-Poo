@@ -17,9 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Servidor falso que imita a Apps Script: el POST responde 302 y el resultado se lee con un GET. */
 class NotificadorGmailTest {
-
     private final Datos d = new Datos();
     private final AtomicReference<String> cuerpo = new AtomicReference<>();
     private HttpServer servidor;

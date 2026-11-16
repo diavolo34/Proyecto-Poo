@@ -12,7 +12,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class HorarioTest {
-
     private final Horario horario = Horario.desdeTexto("vi,lu,mi", "07:00", "16:00");
 
     @Test

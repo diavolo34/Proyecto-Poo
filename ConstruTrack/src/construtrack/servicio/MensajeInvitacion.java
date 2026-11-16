@@ -5,17 +5,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Contenido del correo de invitación (asunto, HTML y texto). Lo comparten todos los notificadores que envían
- * correos reales: cada uno solo sabe cómo entregarlo (SRP).
- */
 public class MensajeInvitacion {
-
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final String urlSitio;
 
-    /** @param urlSitio dirección pública de la página, para el botón «Unirme» */
     public MensajeInvitacion(String urlSitio) {
         this.urlSitio = urlSitio.endsWith("/") ? urlSitio.substring(0, urlSitio.length() - 1) : urlSitio;
     }
@@ -26,7 +20,6 @@ public class MensajeInvitacion {
         return "Tu invitación a " + empresa + " en ConstruTrack: " + invitacion.getCodigo();
     }
 
-    /** Enlace que abre la página de registro con el correo ya escrito. */
     public String enlace(String correo) {
         return urlSitio + "/app.html#registro?correo=" + URLEncoder.encode(correo, StandardCharsets.UTF_8);
     }

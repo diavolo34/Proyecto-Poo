@@ -23,23 +23,13 @@ import java.util.Arrays;
 import java.util.TimeZone;
 import javax.swing.SwingUtilities;
 
-/**
- * Punto de entrada de ConstruTrack. Arma todas las piezas (composición de dependencias),
- * levanta el servidor web y abre la ventana de escritorio. Las dos vistas comparten el mismo modelo.
- *
- * Variables de entorno opcionales:
- *   PORT          puerto HTTP (por defecto 8080; los hostings como Render lo definen solos)
- *   DATOS         archivo de datos (por defecto datos_construtrack.txt)
- *   CORS_ORIGEN   dominio autorizado a usar la API (por defecto *)
- */
 public final class App {
-
     private App() {
     }
 
     public static void main(String[] args) throws Exception {
         int puerto = Integer.parseInt(entorno("PORT", "8080"));
-        // La hora de la obra, no la del servidor: Render y Docker usan UTC (4 h adelantado respecto a Venezuela)
+
         ZoneId zona = ZoneId.of(entorno("ZONA", "America/Caracas"));
         TimeZone.setDefault(TimeZone.getTimeZone(zona));
         Clock reloj = Clock.system(zona);
@@ -63,17 +53,12 @@ public final class App {
                 + " (" + plataforma.listarEmpresas().size() + " empresa(s), datos en " + repositorio.getAlmacen().descripcion()
                 + ", correo " + (servicios.invitaciones().correoReal() ? "real activado" : "solo registrado en consola") + ")");
 
-        // Vista de escritorio: se abre salvo que no haya pantalla (servidor) o se pida --sin-ventana
         boolean sinVentana = Arrays.asList(args).contains("--sin-ventana");
         if (!sinVentana && !GraphicsEnvironment.isHeadless()) {
             SwingUtilities.invokeLater(() -> new AplicacionSwing(servicios, web.getUrl()).iniciar());
         }
     }
 
-    /**
-     * Cómo se envían las invitaciones: desde Gmail con el Apps Script (GMAIL_SCRIPT_URL y GMAIL_SCRIPT_CLAVE),
-     * con Brevo (BREVO_API_KEY y CORREO_REMITENTE) o, sin configuración (NetBeans), solo registradas en la consola.
-     */
     private static Notificador notificador() {
         String sitio = entorno("URL_SITIO", "https://startling-toffee-914e34.netlify.app");
         String script = entorno("GMAIL_SCRIPT_URL", "");
@@ -89,10 +74,6 @@ public final class App {
         return new NotificadorConsola();
     }
 
-    /**
-     * Dónde se guardan los datos: en Upstash si están sus variables (servidores sin disco permanente, como Render),
-     * o en un archivo local (NetBeans, terminal).
-     */
     private static Almacen almacen() {
         String url = entorno("UPSTASH_REDIS_REST_URL", "");
         String token = entorno("UPSTASH_REDIS_REST_TOKEN", "");

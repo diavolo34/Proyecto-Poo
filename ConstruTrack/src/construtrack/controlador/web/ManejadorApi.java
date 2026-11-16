@@ -14,12 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Punto de entrada de las peticiones /api/...: agrega las cabeceras CORS, delega en el enrutador
- * y convierte las excepciones del dominio en códigos HTTP con un mensaje claro para el usuario.
- */
 public class ManejadorApi implements HttpHandler {
-
     private static final Logger LOG = Logger.getLogger(ManejadorApi.class.getName());
 
     private final Enrutador enrutador = new Enrutador();
@@ -36,7 +31,6 @@ public class ManejadorApi implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        // CORS: permite que la página publicada en otro dominio (Netlify) use esta API
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", origenPara(exchange));
         exchange.getResponseHeaders().add("Vary", "Origin");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -50,10 +44,6 @@ public class ManejadorApi implements HttpHandler {
         enviar(exchange, atender(new Peticion(exchange, sesiones)));
     }
 
-    /**
-     * Origen autorizado para esta petición: "*" si se permite cualquiera, o el mismo origen del navegador
-     * si está en la lista configurada (CORS_ORIGEN admite varios separados por coma).
-     */
     private String origenPara(HttpExchange exchange) {
         if ("*".equals(origenPermitido)) {
             return "*";

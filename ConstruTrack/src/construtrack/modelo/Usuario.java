@@ -10,13 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
-/**
- * Persona registrada en la empresa. Es abstracta: cada usuario es un Empleado, un Supervisor o un Jefe.
- * Las subclases amplían lo que puede hacer, sin romper lo que promete la clase base
- * (cualquiera puede marcar asistencia y reportar sus propias incidencias).
- */
 public abstract class Usuario {
-
     private String cedula;
     private String nombre;
     private String claveResumen;
@@ -34,7 +28,6 @@ public abstract class Usuario {
         setHorario(horario);
     }
 
-    /** Fábrica: crea el tipo de usuario que corresponde al rol indicado. */
     public static Usuario crear(String rol, String cedula, String nombre, String clave, Horario horario) {
         if (rol == null) {
             throw new DatoInvalidoException("Selecciona un rol.");
@@ -47,12 +40,8 @@ public abstract class Usuario {
         };
     }
 
-    /** Nombre del rol que desempeña en la empresa. */
     public abstract String getRol();
 
-    // ------------------------------------------------------------------ asistencia
-
-    /** Registra la llegada a la obra y marca al usuario como presente. */
     public RegistroAsistencia marcarEntrada(LocalDateTime ahora) {
         if (presente) {
             throw new OperacionInvalidaException(nombre + " ya registró su entrada y sigue en la obra.");
@@ -64,7 +53,6 @@ public abstract class Usuario {
         return registro;
     }
 
-    /** Registra la salida de la obra y marca al usuario como ausente. */
     public RegistroAsistencia marcarSalida(LocalDateTime ahora) {
         RegistroAsistencia ultima = historial.ultimaAsistencia();
         if (!presente || ultima == null || !ultima.estaAbierto()) {
@@ -79,17 +67,14 @@ public abstract class Usuario {
         return presente;
     }
 
-    /** Solo la usan la persistencia y los datos de prueba para restaurar el estado guardado. */
     public void setPresente(boolean presente) {
         this.presente = presente;
     }
 
-    /** Jornada de la fecha indicada, o null si ese día no entró. */
     public RegistroAsistencia getAsistenciaDel(LocalDate fecha) {
         return historial.asistenciaDel(fecha);
     }
 
-    /** Indica si la fecha es un día laborable según su horario. */
     public boolean trabajaEl(LocalDate fecha) {
         return horario.incluyeDia(fecha.getDayOfWeek());
     }
@@ -102,17 +87,10 @@ public abstract class Usuario {
         return historial.getAsistencias();
     }
 
-    // ------------------------------------------------------------------ incidencias
-
-    /**
-     * Indica si puede reportar una incidencia que afecta a otra persona.
-     * Por defecto cada quien solo reporta las suyas; Supervisor y Jefe amplían este permiso.
-     */
     public boolean puedeReportarPara(Usuario afectado) {
         return afectado == this;
     }
 
-    /** Reporta una incidencia y la agrega al historial de la persona afectada. */
     public void reportar(Incidencia incidencia) {
         if (incidencia.getReportadoPor() != this || !puedeReportarPara(incidencia.getAfectado())) {
             throw new PermisoDenegadoException("No puedes reportar incidencias de " + incidencia.getAfectado().getNombre() + ".");
@@ -120,7 +98,6 @@ public abstract class Usuario {
         incidencia.getAfectado().historial.agregarIncidencia(incidencia);
     }
 
-    /** Implementación común para los revisores (Supervisor y Jefe). */
     protected void revisarComo(RevisorIncidencias revisor, Incidencia incidencia, EstadoIncidencia nuevo,
             String comentario, LocalDateTime ahora) {
         if (!revisor.puedeRevisar(incidencia)) {
@@ -129,19 +106,14 @@ public abstract class Usuario {
         incidencia.registrarRevision(nuevo, this, comentario, ahora);
     }
 
-    // ------------------------------------------------------------------ obras
-
-    /** Indica si puede crear, editar y eliminar obras. Solo Supervisor y Jefe (lo redefinen). */
     public boolean puedeGestionarObras() {
         return false;
     }
 
-    /** Indica si puede cambiar la obra de otra persona: el Jefe a cualquiera, el Supervisor a su equipo. */
     public boolean puedeAsignarObraA(Usuario otro) {
         return false;
     }
 
-    /** Asigna (o quita, con null) la obra de otra persona si tiene autoridad. */
     public void asignarObra(Usuario persona, Obra obra) {
         if (!puedeAsignarObraA(persona)) {
             throw new PermisoDenegadoException("No puedes cambiar la obra de " + persona.getNombre() + ".");
@@ -149,17 +121,10 @@ public abstract class Usuario {
         persona.setObra(obra);
     }
 
-    // ------------------------------------------------------------------ horas extra
-
-    /**
-     * Indica si puede aprobar las horas extra de otra persona. Por defecto nadie puede;
-     * Supervisor (su equipo) y Jefe (todos menos otros jefes) lo redefinen (polimorfismo).
-     */
     public boolean puedeAprobarHorasDe(Usuario otro) {
         return false;
     }
 
-    /** Aprueba o rechaza las horas extra de la jornada de otra persona en una fecha. */
     public RegistroAsistencia revisarHorasExtra(Usuario empleado, LocalDate fecha, EstadoHorasExtra nuevo) {
         if (!puedeAprobarHorasDe(empleado)) {
             throw new PermisoDenegadoException("No puedes aprobar las horas extra de " + empleado.getNombre() + ".");
@@ -172,7 +137,6 @@ public abstract class Usuario {
         return jornada;
     }
 
-    /** Empresa a la que pertenece (la asigna Empresa.agregarUsuario). */
     public Empresa getEmpresa() {
         return empresa;
     }
@@ -181,7 +145,6 @@ public abstract class Usuario {
         this.empresa = empresa;
     }
 
-    /** Indica si otra persona es de su misma empresa (base de todos los permisos sobre terceros). */
     public boolean mismaEmpresaQue(Usuario otro) {
         return otro != null && empresa != null && otro.empresa == empresa;
     }
@@ -190,7 +153,6 @@ public abstract class Usuario {
         return historial;
     }
 
-    /** Fecha en que entró a la empresa (null en datos anteriores a este campo). */
     public LocalDate getFechaIngreso() {
         return historial.getInicio();
     }
@@ -199,7 +161,6 @@ public abstract class Usuario {
         historial.setInicio(fecha);
     }
 
-    /** Copia historial y presencia de otro usuario (se usa cuando el Jefe le cambia el rol). */
     void copiarEstadoDe(Usuario otro) {
         historial.copiarDe(otro.historial);
         presente = otro.presente;
@@ -210,7 +171,6 @@ public abstract class Usuario {
         }
     }
 
-    /** Une la ficha con la cuenta personal: ambas comparten el resumen de la clave. */
     public void vincularCuenta(Cuenta cuenta) {
         if (!cuenta.getDocumento().equals(cedula)) {
             throw new DatoInvalidoException("El documento de la cuenta no coincide con la cédula de la ficha.");
@@ -220,7 +180,6 @@ public abstract class Usuario {
         cuenta.vincular(this);
     }
 
-    /** Lo usa la empresa al eliminar la ficha: la cuenta queda sin empresa. */
     void desvincularCuenta() {
         if (cuenta != null) {
             cuenta.desvincular();
@@ -231,8 +190,6 @@ public abstract class Usuario {
     public Cuenta getCuenta() {
         return cuenta;
     }
-
-    // ------------------------------------------------------------------ datos personales
 
     public boolean verificarClave(String clave) {
         return clave != null && claveResumen.equals(CifradoClave.resumir(cedula, clave));
@@ -246,10 +203,6 @@ public abstract class Usuario {
         this.cedula = validarDocumento(cedula);
     }
 
-    /**
-     * Formato admitido al guardar y cargar: 6 a 12 letras o números. Es más amplio que el de un alta nueva
-     * para que los datos guardados antes de exigir solo números (por ejemplo, «V12345678») sigan cargando.
-     */
     public static String validarDocumento(String documento) {
         String limpio = documento == null ? "" : documento.trim().toUpperCase();
         if (!limpio.matches("[0-9A-Z]{6,12}")) {
@@ -258,10 +211,6 @@ public abstract class Usuario {
         return limpio;
     }
 
-    /**
-     * Regla para registrar una persona nueva: solo números, entre 6 y 10 dígitos (sin V, E, puntos ni guiones).
-     * Evita duplicar a una misma persona escribiendo «V12345678» y «12345678».
-     */
     public static String validarCedulaNueva(String documento) {
         String limpio = documento == null ? "" : documento.trim();
         if (!limpio.matches("[0-9]{6,10}")) {
@@ -278,7 +227,6 @@ public abstract class Usuario {
         this.nombre = validarNombre(nombre);
     }
 
-    /** Devuelve el nombre sin espacios sobrantes, o lanza un error si no es válido. */
     public static String validarNombre(String nombre) {
         String limpio = nombre == null ? "" : nombre.trim().replaceAll("\\s+", " ");
         if (!limpio.matches("[\\p{L} .'-]{3,60}")) {
@@ -301,12 +249,10 @@ public abstract class Usuario {
         }
     }
 
-    /** Resumen SHA-256 de la clave: lo usa la capa de persistencia para guardarlo. */
     public String getClaveResumen() {
         return claveResumen;
     }
 
-    /** Restaura un resumen ya calculado (al cargar desde el archivo). */
     public void restaurarClaveResumen(String resumen) {
         if (resumen == null || !resumen.matches("[0-9a-f]{64}")) {
             throw new DatoInvalidoException("Resumen de clave inválido.");

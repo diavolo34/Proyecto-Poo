@@ -2,15 +2,13 @@ package construtrack.modelo.alertas;
 
 import java.time.LocalDateTime;
 
-/** Aviso que el sistema genera para el supervisor sobre un empleado concreto. Es inmutable. */
 public final class Alerta {
-
     private final Nivel nivel;
     private final String cedula;
     private final String nombre;
     private final String mensaje;
     private final LocalDateTime generada;
-    /** Desde cuándo existe el problema: permite atender primero lo más antiguo. */
+
     private final LocalDateTime desde;
 
     private Alerta(Nivel nivel, String cedula, String nombre, String mensaje, LocalDateTime desde, LocalDateTime generada) {

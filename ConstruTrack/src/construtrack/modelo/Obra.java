@@ -3,9 +3,7 @@ package construtrack.modelo;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import java.time.LocalDate;
 
-/** Proyecto de construcción en el que trabaja el personal. */
 public class Obra {
-
     private final String codigo;
     private String nombre;
     private String ubicacion;
@@ -22,7 +20,6 @@ public class Obra {
         setFechas(fechaInicio, fechaFinEstimada);
     }
 
-    /** Porcentaje de tiempo transcurrido de la obra según sus fechas (0 a 100). */
     public int porcentajeTranscurrido(LocalDate hoy) {
         if (!hoy.isAfter(fechaInicio)) {
             return 0;

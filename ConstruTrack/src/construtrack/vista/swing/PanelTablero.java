@@ -10,12 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-/**
- * Vista: tablero Kanban de incidencias con una columna por estado (Pendiente, En revisión, Aprobada, Rechazada).
- * Inspirado en los tableros ágiles: el supervisor ve de un vistazo qué falta por revisar.
- */
 public final class PanelTablero extends JPanel {
-
     private static final long serialVersionUID = 1L;
 
     private final transient Map<String, JPanel> columnas = new LinkedHashMap<>();
@@ -72,7 +67,6 @@ public final class PanelTablero extends JPanel {
         columna.add(Box.createVerticalStrut(8));
     }
 
-    /** Actualiza los contadores de cada columna y repinta. */
     public void actualizar() {
         for (Map.Entry<String, JPanel> e : columnas.entrySet()) {
             long n = e.getValue().getComponentCount() / 2;
@@ -82,9 +76,7 @@ public final class PanelTablero extends JPanel {
         repaint();
     }
 
-    /** Contenedor que siempre toma el ancho visible de la columna, para que las tarjetas no se corten. */
     private static final class AnchoDeColumna extends JPanel implements javax.swing.Scrollable {
-
         private static final long serialVersionUID = 1L;
 
         AnchoDeColumna() {

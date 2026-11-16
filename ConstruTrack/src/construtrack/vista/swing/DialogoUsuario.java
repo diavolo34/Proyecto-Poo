@@ -20,12 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-/**
- * Vista: formulario modal para registrar o editar a una persona.
- * Usa listas desplegables y casillas para que el usuario elija en lugar de escribir (prevención de errores).
- */
 public final class DialogoUsuario extends JDialog {
-
     private static final long serialVersionUID = 1L;
     private static final String[] DIAS = {"LU", "MA", "MI", "JU", "VI", "SA", "DO"};
 
@@ -138,7 +133,6 @@ public final class DialogoUsuario extends JDialog {
         supervisores.forEach(cboSupervisor::addItem);
     }
 
-    /** Llena el formulario con los datos de una persona existente (modo edición). */
     public void cargar(String rol, String cedula, String nombre, String dias, String entrada, String salida,
             String cedulaSupervisor, boolean presente) {
         cboRol.setSelectedItem(rol);
@@ -157,7 +151,6 @@ public final class DialogoUsuario extends JDialog {
         chkPresente.setSelected(presente);
     }
 
-    /** Datos del formulario con las claves que espera el modelo (Jefe.registrarUsuario / modificarUsuario). */
     public Map<String, String> datos() {
         Map<String, String> datos = new LinkedHashMap<>();
         datos.put("rol", String.valueOf(cboRol.getSelectedItem()));
