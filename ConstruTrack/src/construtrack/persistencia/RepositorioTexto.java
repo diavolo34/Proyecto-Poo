@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  *
  * <pre>
  *   EMPRESA|nombre
- *   U|rol|cedula|nombre|resumenClave|dias|horaEntrada|horaSalida|presente
+ *   U|rol|cedula|nombre|resumenClave|dias|horaEntrada|horaSalida|presente|fechaIngreso(o -)
  *   S|cedulaEmpleado|cedulaSupervisor
  *   A|cedula|fecha|horaEntrada|horaSalida(o -)|tarde
  *   O|codigo|nombre|ubicacion|fechaInicio|fechaFinEstimada
@@ -120,7 +120,8 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         for (Usuario u : empresa.listarUsuarios()) {
             Horario h = u.getHorario();
             lineas.add(unir("U", u.getRol(), u.getCedula(), u.getNombre(), u.getClaveResumen(),
-                    h.getDias(), h.getHoraEntrada(), h.getHoraSalida(), u.estaPresente()));
+                    h.getDias(), h.getHoraEntrada(), h.getHoraSalida(), u.estaPresente(),
+                    u.getFechaIngreso() == null ? "-" : u.getFechaIngreso()));
         }
         for (Obra o : empresa.listarObras()) {
             lineas.add(unir("O", o.getCodigo(), o.getNombre(), o.getUbicacion(), o.getFechaInicio(), o.getFechaFinEstimada()));
@@ -159,6 +160,9 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         Usuario usuario = Usuario.crear(c[1], c[2], c[3], "temporal", Horario.desdeTexto(c[5], c[6], c[7]));
         usuario.restaurarClaveResumen(c[4]);
         usuario.setPresente(Boolean.parseBoolean(c[8]));
+        if (c.length > 9 && !"-".equals(c[9])) { // campo agregado después: los archivos viejos no lo tienen
+            usuario.setFechaIngreso(LocalDate.parse(c[9]));
+        }
         return usuario;
     }
 

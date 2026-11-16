@@ -44,6 +44,7 @@ class RepositorioTextoTest {
         Invitacion inv = d.jefe.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(5));
         inv.canjear(cuenta, d.empresa, AHORA);
 
+        d.laura.setFechaIngreso(HOY.minusDays(3));
         Path archivo = carpeta.resolve("datos.txt");
         new RepositorioTexto(archivo, () -> d.empresa, fabrica).guardar(d.empresa);
         RepositorioTexto repositorio = new RepositorioTexto(archivo, () -> {
@@ -60,8 +61,11 @@ class RepositorioTextoTest {
         assertEquals("Clínica | Central", i.getExtras().get("centroMedico"), "El separador | no rompe el archivo");
         assertEquals(8, repositorio.siguienteIdIncidencia());
 
+        assertEquals(HOY.minusDays(3), cargada.buscarUsuario("30000004").getFechaIngreso());
+        assertEquals(null, jose.getFechaIngreso(), "Sin fecha de ingreso sigue sin límite");
         Usuario pablo = cargada.buscarUsuario("28555111");
         assertNotNull(pablo.getCuenta());
+        assertEquals(AHORA.toLocalDate(), pablo.getFechaIngreso(), "Al unirse con invitación se guarda el día de ingreso");
         assertNotNull(cargada.autenticar("28555111", "pablo123"));
         assertTrue(cargada.buscarCuenta("pablo@correo.com").verificarClave("pablo123"));
         assertEquals(EstadoInvitacion.USADA, cargada.listarInvitaciones().get(0).estadoEn(AHORA));

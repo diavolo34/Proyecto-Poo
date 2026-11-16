@@ -133,6 +133,15 @@ public abstract class Usuario {
     }
 
     /** Copia historial y presencia de otro usuario (se usa cuando el Jefe le cambia el rol). */
+    /** Fecha en que entró a la empresa (null en datos anteriores a este campo). */
+    public LocalDate getFechaIngreso() {
+        return historial.getInicio();
+    }
+
+    public void setFechaIngreso(LocalDate fecha) {
+        historial.setInicio(fecha);
+    }
+
     void copiarEstadoDe(Usuario otro) {
         historial.copiarDe(otro.historial);
         presente = otro.presente;

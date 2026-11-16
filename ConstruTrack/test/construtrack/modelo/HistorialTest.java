@@ -31,6 +31,19 @@ class HistorialTest {
     }
 
     @Test
+    @DisplayName("No se cuentan faltas de los días anteriores a su ingreso a la empresa")
+    void sinFaltasAntesDelIngreso() {
+        d.jose.setFechaIngreso(HOY);
+        Periodo mes = Periodo.mesDe(HOY);
+        assertEquals(List.of(), d.jose.getHistorial().ausenciasSinJustificar(d.jose.getHorario(), mes, HOY));
+        assertEquals(List.of(), d.jose.getHistorial().diasLaborables(d.jose.getHorario(), mes, HOY));
+
+        d.jose.setFechaIngreso(martes);
+        assertEquals(List.of(martes), d.jose.getHistorial().ausenciasSinJustificar(d.jose.getHorario(), mes, HOY),
+                "Desde el martes sí se espera que trabaje");
+    }
+
+    @Test
     @DisplayName("Un reposo médico aprobado justifica la falta; uno pendiente no")
     void reposoAprobadoJustifica() {
         ReposoMedico reposo = new ReposoMedico(Datos.incidencia(1, d.jose, d.jose, martes, martes,

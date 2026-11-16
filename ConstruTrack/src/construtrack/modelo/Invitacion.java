@@ -70,6 +70,7 @@ public class Invitacion {
         Horario horario = Horario.desdeTexto(DIAS_POR_DEFECTO, "07:00", "16:00");
         Usuario nuevo = Usuario.crear(rol, cuenta.getDocumento(), cuenta.getNombreCompleto(), CLAVE_TEMPORAL, horario);
         nuevo.vincularCuenta(cuenta);
+        nuevo.setFechaIngreso(ahora.toLocalDate());
         if (nuevo instanceof Empleado empleado && supervisor != null) {
             empleado.setSupervisor(supervisor);
         }
