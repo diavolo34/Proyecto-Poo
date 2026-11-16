@@ -20,10 +20,17 @@ public class ManejadorApi implements HttpHandler {
     private final Enrutador enrutador = new Enrutador();
     private final GestorSesiones sesiones;
     private final String origenPermitido;
+    private final String prefijo;
 
     public ManejadorApi(GestorSesiones sesiones, List<ControladorWeb> controladores, String origenPermitido) {
+        this(sesiones, controladores, origenPermitido, "");
+    }
+
+    public ManejadorApi(GestorSesiones sesiones, List<ControladorWeb> controladores, String origenPermitido,
+            String prefijo) {
         this.sesiones = sesiones;
         this.origenPermitido = origenPermitido;
+        this.prefijo = prefijo;
         for (ControladorWeb controlador : controladores) {
             controlador.registrarRutas(enrutador);
         }
@@ -41,7 +48,7 @@ public class ManejadorApi implements HttpHandler {
             exchange.close();
             return;
         }
-        enviar(exchange, atender(new Peticion(exchange, sesiones)));
+        enviar(exchange, atender(new Peticion(exchange, sesiones, prefijo)));
     }
 
     private String origenPara(HttpExchange exchange) {

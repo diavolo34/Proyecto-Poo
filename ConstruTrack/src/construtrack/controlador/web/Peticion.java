@@ -14,12 +14,18 @@ import java.util.Map;
 public class Peticion {
     private final HttpExchange exchange;
     private final GestorSesiones sesiones;
+    private final String prefijo;
     private final Map<String, String> parametrosRuta = new HashMap<>();
     private Map<String, String> cuerpo;
 
     Peticion(HttpExchange exchange, GestorSesiones sesiones) {
+        this(exchange, sesiones, "");
+    }
+
+    Peticion(HttpExchange exchange, GestorSesiones sesiones, String prefijo) {
         this.exchange = exchange;
         this.sesiones = sesiones;
+        this.prefijo = prefijo;
     }
 
     public String metodo() {
@@ -27,7 +33,8 @@ public class Peticion {
     }
 
     public String ruta() {
-        return exchange.getRequestURI().getPath().replaceAll("/+$", "");
+        String ruta = exchange.getRequestURI().getPath().replaceAll("/+$", "");
+        return !prefijo.isEmpty() && ruta.startsWith(prefijo + "/") ? ruta.substring(prefijo.length()) : ruta;
     }
 
     void agregarParametroRuta(String nombre, String valor) {

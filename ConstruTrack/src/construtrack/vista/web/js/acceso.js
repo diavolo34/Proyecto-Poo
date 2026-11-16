@@ -51,12 +51,12 @@ function pantallaLogin() {
     </form>
     <div class="separador">¿Primera vez en ConstruTrack?</div>
     <a class="btn btn-contorno btn-bloque" href="#registro">Crear una cuenta</a>
-    <div class="demo-usuarios"><strong>Usuarios de prueba</strong> (clic para completar):<br>
+    ${Api.servidor.demo ? `<div class="demo-usuarios"><strong>Usuarios de prueba</strong> (clic para completar):<br>
       <button class="btn btn-enlace" data-demo="carlos.mendez@construtrack.demo|jefe123">Jefe</button>·
       <button class="btn btn-enlace" data-demo="20000001|super123">Supervisor</button>·
       <button class="btn btn-enlace" data-demo="30000001|emp123">Empleado</button>·
       <button class="btn btn-enlace" data-demo="rosa.gutierrez@correo.com|rosa1234">Sin empresa</button>
-    </div>`);
+    </div>` : ''}`);
   const formulario = $('#form-login');
   document.querySelectorAll('[data-demo]').forEach((boton) => boton.addEventListener('click', () => {
     const [id, clave] = boton.dataset.demo.split('|');
@@ -186,7 +186,7 @@ function pantallaUnirse() {
       <div class="mensaje mensaje-error oculto" role="alert"></div>
       <button class="btn btn-primario btn-bloque" type="submit">Unirme a la empresa</button>
     </form>
-    <p class="pequeno suave" style="margin-top:14px">¿No tienes código? Pídeselo a tu jefe. Para probar: <strong>CT-RQ7K-4M2P</strong></p>
+    <p class="pequeno suave" style="margin-top:14px">¿No tienes código? Pídeselo a tu jefe.${Api.servidor.demo ? ' Para probar: <strong>CT-RQ7K-4M2P</strong>' : ''}</p>
     <div class="separador">¿Eres jefe?</div>
     <details class="crear-empresa">
       <summary class="btn btn-contorno btn-bloque">Crear mi empresa</summary>
@@ -227,4 +227,46 @@ function pantallaUnirse() {
   });
   $('#salir-unirse').addEventListener('click', cerrarSesion);
   $('#codigo').focus();
+}
+
+function pantallaDemo() {
+  const activa = Boolean(Api.servidor.demoPrivada);
+  marcoAcceso(`
+    <h1>Demostración privada</h1>
+    <p class="bajada">Entra a una empresa de prueba con datos de ejemplo. Los cambios se borran cuando el servidor se reinicia.</p>
+    ${activa ? `<form id="form-demo" novalidate>
+      <div class="campo"><label for="clave-demo">Clave de demostración *</label>
+        <input id="clave-demo" name="clave" type="password" autocomplete="off" required></div>
+      <div class="campo"><label for="rol-demo">Entrar como</label>
+        <select id="rol-demo" name="rol"><option>Jefe</option><option>Supervisor</option><option>Empleado</option></select></div>
+      <div class="mensaje mensaje-error oculto" role="alert"></div>
+      <button class="btn btn-primario btn-bloque" type="submit">Entrar a la demo</button>
+    </form>` : '<p class="mensaje mensaje-info">La demostración privada no está activada en este servidor.</p>'}
+    <div class="separador">¿Tienes una cuenta real?</div>
+    <a class="btn btn-contorno btn-bloque" href="#login">Iniciar sesión</a>`);
+  if (!activa) return;
+  const formulario = $('#form-demo');
+  formulario.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    if (!$('#clave-demo').value) {
+      mostrarErrorFormulario(formulario, 'Escribe la clave de demostración.');
+      return;
+    }
+    const boton = formulario.querySelector('button[type=submit]');
+    boton.disabled = true;
+    try {
+      const sesion = await Api.entrarDemo($('#clave-demo').value, $('#rol-demo').value);
+      estado.usuario = sesion.usuario;
+      estado.cuenta = sesion.cuenta;
+      aviso('Entraste a la demostración como ' + sesion.usuario.rol.toLowerCase() + '.');
+      location.hash = 'asistencia';
+      enrutar();
+    } catch (e) {
+      mostrarErrorFormulario(formulario, e.codigo === 401 ? 'Clave de demostración incorrecta.' : e.message);
+      $('#clave-demo').select();
+    } finally {
+      boton.disabled = false;
+    }
+  });
+  $('#clave-demo').focus();
 }

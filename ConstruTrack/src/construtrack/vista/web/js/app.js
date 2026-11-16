@@ -34,6 +34,7 @@ function enrutar() {
   const { nombre, parametros } = ruta();
   if (!estado.usuario && !estado.cuenta) {
     if (nombre === 'registro') pantallaRegistro(parametros);
+    else if (nombre === 'demo') pantallaDemo();
     else pantallaLogin();
     return;
   }
@@ -54,6 +55,7 @@ function dibujarApp(vista) {
     <div class="app">
       <header class="barra-superior">
         <a class="marca" href="index.html">${LOGO} ConstruTrack</a>
+        ${Api.esDemo() ? '<span class="chip chip-amarillo" title="Datos de prueba que se reinician con el servidor">Demo privada</span>' : ''}
         ${u.empresa ? `<span class="empresa-actual ocultar-movil" title="Tu empresa">${esc(u.empresa)}</span>` : ''}
         <span class="espacio"></span>
         <span class="ocultar-movil">${esc(u.nombre)}</span><span class="ocultar-movil">${chipRol(u.rol)}</span>

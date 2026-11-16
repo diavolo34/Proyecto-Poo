@@ -33,7 +33,7 @@ public final class DialogoUnirse extends JDialog {
 
         txtCodigo.setFont(Tema.SUBTITULO.deriveFont(18f));
         txtCodigo.setToolTipText("Puedes escribirlo en minúsculas; los espacios se ignoran");
-        contenido.add(new Formulario().campo("Código de invitación *", txtCodigo, "Ej.: CT-RQ7K-4M2P").panel(),
+        contenido.add(new Formulario().campo("Código de invitación *", txtCodigo, "Formato: CT-XXXX-XXXX").panel(),
                 BorderLayout.CENTER);
 
         JPanel abajo = new JPanel(new BorderLayout());

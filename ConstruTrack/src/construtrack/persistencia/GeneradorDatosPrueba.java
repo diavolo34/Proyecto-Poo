@@ -33,7 +33,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
 
     @Override
     public Empresa get() {
-        Empresa empresa = new Empresa("ConstruTrack");
+        Empresa empresa = new Empresa("Constructora Demo");
         Horario oficina = Horario.desdeTexto("LU,MA,MI,JU,VI", "08:00", "17:00");
         Horario obra = Horario.desdeTexto("LU,MA,MI,JU,VI", "07:00", "16:00");
         Horario sabados = Horario.desdeTexto("MA,MI,JU,VI,SA", "07:00", "15:00");
