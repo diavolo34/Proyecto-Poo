@@ -57,7 +57,7 @@ La vista (`PanelIncidencias`) solo crea los componentes y ofrece *getters*; nunc
 - **Independencia:** se reescribió por completo la vista web (Sprint 5) sin tocar una línea del modelo.
 - **Reutilización:** las reglas (por ejemplo, «solo el supervisor del empleado puede aprobar») están una sola vez,
   en `Supervisor.puedeRevisar`, y las dos vistas las respetan.
-- **Pruebas:** el modelo y los servicios se prueban sin interfaz gráfica (`ConstruTrack/test`, 40 pruebas JUnit).
+- **Pruebas:** el modelo y los servicios se prueban sin interfaz gráfica (`ConstruTrack/test`, 46 pruebas JUnit).
 
 ## Varias empresas en el mismo modelo
 
