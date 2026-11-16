@@ -128,10 +128,9 @@ def construir() -> str:
 <h1>1. Corrección de la entrega 1 y cómo se atendió</h1>
 <table><tr><th>Observación de la profesora</th><th>Solución en la entrega 2</th></tr>{filas}</table>
 
-<h2>Dirección de publicación y código</h2>
+<h2>Dirección de publicación</h2>
 <div class="destacado">
-  <p><b>Página publicada (con el chatbot):</b> <a href="{e(url)}">{e(url)}</a><br>
-  <b>Repositorio:</b> <a href="{e(DATOS['repositorio'])}">{e(DATOS['repositorio'])}</a></p>
+  <p><b>Página publicada (con el chatbot):</b> <a href="{e(url)}">{e(url)}</a></p>
   <p>La página de Netlify llama al servidor Java publicado en Render. En local, al ejecutar el proyecto en NetBeans,
   se abren la ventana de escritorio y la web en http://localhost:8080. La página publicada arranca vacía y lista para
   clientes; los datos de ejemplo solo están en la demostración privada (sección 8).</p>
