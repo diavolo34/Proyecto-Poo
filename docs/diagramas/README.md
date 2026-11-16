@@ -30,6 +30,7 @@ atributos como `nombre : Tipo [multiplicidad] = valorInicial` y métodos como `n
 | 11 | Evaluar alertas automáticas | [ver](img/secuencia_evaluar_alertas.svg) |
 | 12 | Generar reporte de asistencia en CSV | [ver](img/secuencia_generar_reporte.svg) |
 | 13 | Unirse a la empresa con un código | [ver](img/secuencia_unirse_empresa.svg) |
+| 14 | Un jefe se registra y crea su empresa | [ver](img/secuencia_crear_empresa.svg) |
 
 ## Regenerar las imágenes
 

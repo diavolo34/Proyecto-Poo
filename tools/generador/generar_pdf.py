@@ -72,6 +72,7 @@ DIAGRAMAS = [
     ("secuencia_evaluar_alertas", "Secuencia · Evaluar alertas"),
     ("secuencia_generar_reporte", "Secuencia · Generar reporte"),
     ("secuencia_unirse_empresa", "Secuencia · Unirse con invitación"),
+    ("secuencia_crear_empresa", "Secuencia · Un jefe crea su empresa"),
 ]
 
 CAPTURAS = [

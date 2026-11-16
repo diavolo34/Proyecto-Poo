@@ -3,11 +3,12 @@
 title Diagrama de Clases Detallado (4/4) · Servicios y persistencia
 
 abstract class ServicioBase {
-  # empresa : Empresa
+  # plataforma : Plataforma
   # escritor : EscritorDatos
   # reloj : Clock
   # leer(consulta : Supplier<T>) : T
   # modificar(cambio : Supplier<T>) : T
+  # empresaDe(actual : Usuario) : Empresa
 }
 class Servicios {
   + autenticacion() : ServicioAutenticacion
@@ -53,10 +54,10 @@ class ServicioObras {
   + asignar(actual, cedula, codigoObra) : Usuario
 }
 interface LectorDatos {
-  + cargar() : Empresa
+  + cargar() : Plataforma
 }
 interface EscritorDatos {
-  + guardar(e : Empresa) : void
+  + guardar(p : Plataforma) : void
 }
 class RepositorioTexto {
   - almacen : Almacen

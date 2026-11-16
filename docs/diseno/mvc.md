@@ -10,7 +10,7 @@ servicios**, en el mismo proceso: lo que el Jefe aprueba en la ventana Swing apa
 
 | Capa | Paquete | Responsabilidad | Ejemplos |
 |------|---------|-----------------|----------|
-| **Modelo · dominio** | `construtrack.modelo` (+ `incidencias`, `alertas`, `reportes`, `excepciones`) | Reglas del negocio. No conoce Swing, HTTP ni JSON. | `Usuario`, `Historial`, `Incidencia`, `Invitacion`, `MonitorSupervision` |
+| **Modelo · dominio** | `construtrack.modelo` (+ `incidencias`, `alertas`, `reportes`, `excepciones`) | Reglas del negocio. No conoce Swing, HTTP ni JSON. | `Plataforma`, `Empresa`, `Usuario`, `Historial`, `Incidencia`, `Invitacion`, `MonitorSupervision` |
 | **Modelo · casos de uso** | `construtrack.servicio` | Orquesta el dominio, aplica permisos, sincroniza y guarda. | `ServicioIncidencias`, `ServicioSupervision`, `ServicioRegistro` |
 | **Modelo · persistencia** | `construtrack.persistencia` | Lee y escribe los datos detrás de interfaces. | `EscritorDatos`, `RepositorioTexto`, `Almacen` |
 | **Controlador** (escritorio) | `construtrack.controlador.swing` | Recibe la vista, registra sus eventos y llama a los servicios. | `ControladoraIncidencias`, `ControladoraTablero` |
@@ -58,3 +58,17 @@ La vista (`PanelIncidencias`) solo crea los componentes y ofrece *getters*; nunc
 - **Reutilización:** las reglas (por ejemplo, «solo el supervisor del empleado puede aprobar») están una sola vez,
   en `Supervisor.puedeRevisar`, y las dos vistas las respetan.
 - **Pruebas:** el modelo y los servicios se prueban sin interfaz gráfica (`ConstruTrack/test`, 40 pruebas JUnit).
+
+## Varias empresas en el mismo modelo
+
+`Plataforma` es la raíz del modelo: agrupa las empresas y las cuentas personales (una cuenta existe antes de pertenecer
+a una empresa). Un jefe crea su empresa al registrarse (`Plataforma.fundarEmpresa`) y sus empleados se unen con un
+código. El aislamiento se garantiza en dos capas:
+
+- **Servicios:** toda consulta o cambio se hace dentro de `empresaDe(actual)`: un jefe nunca recibe personas, obras,
+  incidencias o reportes de otra empresa; una cédula de otra empresa simplemente «no existe».
+- **Modelo:** los permisos del Jefe (`puedeRevisar`, `puedeAprobarHorasDe`, `puedeAsignarObraA`, `puedeReportarPara`)
+  exigen además `mismaEmpresaQue(otro)`, por si algún día otro controlador llamara al modelo directamente.
+
+Ver la secuencia [Un jefe se registra y crea su empresa](../diagramas/img/secuencia_crear_empresa.svg).
+

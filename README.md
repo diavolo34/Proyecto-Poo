@@ -34,14 +34,15 @@ herencia, polimorfismo, interfaces, composición y los principios **SOLID**, en 
 
 | Rol | Qué puede hacer |
 |-----|-----------------|
-| **Visitante** | Ver la portada, consultar a **Arqui**, el asistente virtual, y **crear su cuenta** con correo, nombre, apellido, cédula o DNI y teléfono. |
+| **Visitante** | Ver la portada, consultar a **Arqui**, el asistente virtual, y **crear su cuenta** con correo, nombre, apellido, cédula o DNI y teléfono, eligiendo **«Soy jefe: crear mi empresa»** o **«Me uno a una empresa»**. |
 | **Empleado** | Unirse a la empresa con un **código de invitación**, marcar entrada y salida (puntualidad con 10 min de tolerancia), ver su historial y **reportar incidencias**. |
 | **Supervisor** | Todo lo anterior + **tablero Kanban** para aprobar o rechazar las incidencias de su equipo, **aprobar horas extra**, **alertas automáticas** (de la más antigua a la más reciente), **tabla de puntualidad** con horas trabajadas, **gestionar obras** y **reportes** en CSV o texto. |
-| **Jefe** | Todo lo anterior para toda la empresa + **gestionar al personal** y **crear invitaciones** de un solo uso con rol, supervisor y obra, que se **envían por correo**. |
+| **Jefe** | **Crea su empresa** al registrarse. Todo lo anterior para toda su empresa + **gestionar al personal** y **crear invitaciones** de un solo uso con rol, supervisor y obra, que se **envían por correo**. |
 
 Reglas destacadas:
 - Un **reposo médico aprobado** justifica la falta; si está pendiente o rechazado, el día cuenta como ausencia.
 - Las **alertas** se generan solas: 3 o más retardos en la semana, faltas sin justificar e incidencias sin resolver por más de 48 h.
+- **Varias empresas**: cada jefe crea la suya y solo ve sus datos (personal, obras, incidencias, reportes). Los empleados y supervisores entran con el código que les da su jefe, y el código define su rol.
 - Los **permisos se validan en el servidor**: un supervisor solo ve y revisa a su equipo.
 - Las claves se guardan como **resumen SHA-256 con sal**, nunca en texto plano.
 - Las **horas extra** se calculan solas (lo que pasa de la jornada o un día libre completo) y solo cuentan al aprobarse.
@@ -153,7 +154,7 @@ con códigos 400, 401, 403, 404 o 409.
 |--------|------|--------|
 | `GET` | `/api/estado` · `/api/publico` | Público |
 | `POST` | `/api/login` (correo o cédula) · `/api/registro` | Público |
-| `POST` | `/api/unirse` | Cuenta registrada |
+| `POST` | `/api/unirse` · `/api/empresas` (crear la empresa y quedar como Jefe) | Cuenta registrada |
 | `POST` | `/api/logout` · `GET /api/yo` | Con sesión |
 | `POST` | `/api/asistencia/entrada` · `/api/asistencia/salida` | Con sesión |
 | `GET` `POST` | `/api/incidencias` · `GET /api/incidencias/opciones` | Con sesión (cada uno ve lo suyo o su equipo) |

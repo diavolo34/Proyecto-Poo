@@ -92,7 +92,7 @@ class Invitacion {
   - vence : LocalDateTime
   - estado : EstadoInvitacion = VIGENTE
   + estadoEn(ahora : LocalDateTime) : EstadoInvitacion
-  + canjear(c : Cuenta, e : Empresa, ahora : LocalDateTime) : Usuario
+  + canjear(c : Cuenta, ahora : LocalDateTime) : Usuario
   + cancelar(ahora : LocalDateTime) : void
 }
 class CodigoInvitacion <<valor>> {
@@ -106,12 +106,18 @@ enum EstadoInvitacion {
   CANCELADA
   VENCIDA
 }
+class Plataforma {
+  + crearEmpresa(nombre : String) : Empresa
+  + fundarEmpresa(nombre : String, c : Cuenta, hoy : LocalDate) : Jefe
+  + buscarUsuario(cedula : String) : Usuario
+  + autenticar(cedula : String, clave : String) : Usuario
+  + agregarCuenta(c : Cuenta) : void
+  + buscarInvitacion(c : CodigoInvitacion) : Invitacion
+}
 class Empresa {
   - nombre : String
   + agregarUsuario(u : Usuario) : void
   + buscarUsuario(cedula : String) : Usuario
-  + autenticar(cedula : String, clave : String) : Usuario
-  + agregarCuenta(c : Cuenta) : void
   + buscarInvitacion(c : CodigoInvitacion) : Invitacion
   + listarObras() : List<Obra>
 }
@@ -143,9 +149,11 @@ Cuenta "1" -- "0..1" Usuario
 Invitacion "1" *-- "1" CodigoInvitacion
 Invitacion --> EstadoInvitacion
 Invitacion "0..*" --> "1" Jefe : creadaPor
+Plataforma "1" *-- "1..*" Empresa
+Plataforma "1" *-- "0..*" Cuenta
 Empresa "1" o-- "0..*" Usuario
+Usuario --> Empresa : getEmpresa()
 Empresa "1" *-- "0..*" Obra
-Empresa "1" o-- "0..*" Cuenta
 Empresa "1" *-- "0..*" Invitacion
 Historial ..> Periodo
 @enduml
