@@ -61,6 +61,43 @@ public class Empresa {
         obras.put(obra.getCodigo(), obra);
     }
 
+    /** Código libre para una obra nueva: OB-01, OB-02… (sigue al mayor número usado). */
+    public String siguienteCodigoObra() {
+        int mayor = 0;
+        for (String codigo : obras.keySet()) {
+            String numero = codigo.substring(codigo.indexOf('-') + 1);
+            if (numero.matches("\\d+")) {
+                mayor = Math.max(mayor, Integer.parseInt(numero));
+            }
+        }
+        return String.format("OB-%02d", mayor + 1);
+    }
+
+    /** Personas asignadas a la obra. */
+    public List<Usuario> personasEn(Obra obra) {
+        List<Usuario> personas = new ArrayList<>();
+        for (Usuario u : usuarios.values()) {
+            if (u.getObra() == obra) {
+                personas.add(u);
+            }
+        }
+        return personas;
+    }
+
+    /** Elimina una obra; no se permite mientras tenga personas asignadas. */
+    public void eliminarObra(String codigo) {
+        Obra obra = obras.get(codigo);
+        if (obra == null) {
+            throw new OperacionInvalidaException("No existe la obra " + codigo + ".");
+        }
+        int personas = personasEn(obra).size();
+        if (personas > 0) {
+            throw new OperacionInvalidaException("La obra «" + obra.getNombre() + "» tiene " + personas
+                    + " persona(s) asignada(s). Cámbialas de obra antes de eliminarla.");
+        }
+        obras.remove(codigo);
+    }
+
     public Obra buscarObra(String codigo) {
         return codigo == null ? null : obras.get(codigo);
     }

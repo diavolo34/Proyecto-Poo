@@ -322,3 +322,8 @@ tbody tr:hover { background: #fafbfc; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ----------------------------------------------------------------- obras */
+.rejilla-obras { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.lista-personas { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lista-personas li { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }

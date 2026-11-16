@@ -15,6 +15,7 @@ const VISTAS = [
   { id: 'incidencias', titulo: 'Incidencias', grupo: 'Mi trabajo', icono: '✚', disponible: () => true, dibujar: vistaIncidencias },
   { id: 'tablero', titulo: 'Tablero', grupo: 'Equipo', icono: '▦', disponible: esRevisor, dibujar: vistaTablero },
   { id: 'supervision', titulo: 'Supervisión', grupo: 'Equipo', icono: '▤', disponible: esRevisor, dibujar: vistaSupervision },
+  { id: 'obras', titulo: 'Obras', grupo: 'Equipo', icono: '⌂', disponible: esRevisor, dibujar: vistaObras },
   { id: 'personal', titulo: 'Personal', grupo: 'Equipo', icono: '☰', disponible: esRevisor, dibujar: vistaPersonal },
   { id: 'invitaciones', titulo: 'Invitaciones', grupo: 'Administración', icono: '✉', disponible: esJefe, dibujar: vistaInvitaciones },
 ];
@@ -338,6 +339,9 @@ async function formularioPersona(cedula) {
     <div class="campo" id="campo-supervisor"><label for="supervisor">Supervisor</label><select id="supervisor" name="supervisor">
       <option value="">— Sin supervisor —</option>${opciones.supervisores.map((s) =>
         `<option value="${esc(s.cedula)}" ${u && u.supervisor && u.supervisor.cedula === s.cedula ? 'selected' : ''}>${esc(s.nombre)}</option>`).join('')}</select></div>
+    <div class="campo"><label for="p-obra">Obra</label><select id="p-obra" name="obra">
+      <option value="">— Sin obra —</option>${opciones.obras.map((o) =>
+        `<option value="${esc(o.codigo)}" ${u && u.obra === o.nombre ? 'selected' : ''}>${esc(o.nombre)}</option>`).join('')}</select></div>
     <div class="mensaje mensaje-error oculto" role="alert"></div>
     <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
       <button class="btn btn-primario" type="submit">Guardar</button></div></form>`);
@@ -352,7 +356,11 @@ async function formularioPersona(cedula) {
     datos.dias = datos.dias || '';
     if (!datos.clave) delete datos.clave;
     try {
+      const obra = datos.obra || '';
+      delete datos.obra;
       const guardado = cedula ? await Api.modificarUsuario(cedula, datos) : await Api.registrarUsuario(datos);
+      const obraAnterior = (opciones.obras.find((o) => u && o.nombre === u.obra) || {}).codigo || '';
+      if (obra !== obraAnterior) await Api.asignarObra(guardado.cedula, obra);
       Modal.cerrar();
       aviso((cedula ? 'Se actualizó a ' : 'Se registró a ') + guardado.nombre + '.');
       await vistaPersonal();
@@ -376,6 +384,85 @@ async function historialPersona(cedula) {
 }
 
 // ------------------------------------------------------------------ Invitaciones (Jefe)
+// ------------------------------------------------------------------ Obras (Supervisor y Jefe)
+async function vistaObras() {
+  const [obras, visibles] = await Promise.all([Api.obras(), Api.listarUsuarios()]);
+  // A quién puede mover de obra: el Jefe a todos; el Supervisor a su equipo y a sí mismo
+  const asignables = esJefe() ? visibles : [estado.usuario, ...visibles];
+  contenido().innerHTML = encabezado('Equipo /', 'Obras', '<button class="btn btn-primario" id="nueva-obra">+ Nueva obra</button>') + `
+    <p class="suave" style="margin-top:-8px">Los lugares donde trabaja el personal. Las gestionan el supervisor y el jefe.</p>
+    <div class="rejilla-obras">${obras.map((o) => `<section class="tarjeta" aria-labelledby="obra-${esc(o.codigo)}">
+      <div class="titulo-vista" style="margin:0 0 4px"><h2 id="obra-${esc(o.codigo)}" style="margin:0">${esc(o.nombre)}</h2>${chip(o.codigo, 'gris')}</div>
+      <p class="suave pequeno" style="margin:0 0 10px">${esc(o.ubicacion || 'Sin ubicación')} · ${fecha(o.inicio)} → ${fecha(o.fin)}</p>
+      <div class="barra-pista" role="img" aria-label="${o.avance}% del plazo transcurrido"><span style="width:${o.avance}%;background:#0c66e4"></span></div>
+      <p class="pequeno suave" style="margin:4px 0 12px">${o.avance}% del plazo</p>
+      <h3 class="pequeno" style="margin:0 0 6px">Personas (${o.personas.length})</h3>
+      <ul class="lista-personas">${o.personas.map((p) => `<li>${esc(p.nombre)} ${chipRol(p.rol)}
+        ${asignables.some((a) => a.cedula === p.cedula) ? `<button class="btn btn-enlace btn-chico" data-quitar="${esc(p.cedula)}" aria-label="Quitar a ${esc(p.nombre)} de la obra">Quitar</button>` : ''}</li>`).join('')
+        || '<li class="suave">Nadie asignado todavía.</li>'}</ul>
+      <div class="acciones" style="justify-content:flex-start;flex-wrap:wrap">
+        <label class="solo-lector" for="sumar-${esc(o.codigo)}">Sumar persona a ${esc(o.nombre)}</label>
+        <select id="sumar-${esc(o.codigo)}" data-sumar="${esc(o.codigo)}" style="width:auto;max-width:100%">
+          <option value="">+ Sumar persona…</option>${asignables.filter((a) => !o.personas.some((p) => p.cedula === a.cedula))
+            .map((a) => `<option value="${esc(a.cedula)}">${esc(a.nombre)}${a.obra ? ' (en ' + esc(a.obra) + ')' : ''}</option>`).join('')}</select>
+        <button class="btn btn-secundario btn-chico" data-editar-obra="${esc(o.codigo)}">Editar</button>
+        <button class="btn btn-peligro btn-chico" data-eliminar-obra="${esc(o.codigo)}">Eliminar</button>
+      </div></section>`).join('') || '<p class="suave">Aún no hay obras. Crea la primera.</p>'}</div>`;
+  const recargar = async (mensaje) => { aviso(mensaje); await vistaObras(); };
+  const intentar = (accion) => async (evento) => {
+    try {
+      await accion(evento);
+    } catch (e) {
+      aviso(e.message, 'error');
+    }
+  };
+  $('#nueva-obra').addEventListener('click', () => formularioObra(null));
+  contenido().querySelectorAll('[data-editar-obra]').forEach((b) => b.addEventListener('click',
+    () => formularioObra(obras.find((o) => o.codigo === b.dataset.editarObra))));
+  contenido().querySelectorAll('[data-eliminar-obra]').forEach((b) => b.addEventListener('click', intentar(async () => {
+    const obra = obras.find((o) => o.codigo === b.dataset.eliminarObra);
+    if (!confirm(`¿Eliminar la obra «${obra.nombre}»? Esta acción no se puede deshacer.`)) return;
+    await Api.eliminarObra(obra.codigo);
+    await recargar('Obra eliminada.');
+  })));
+  contenido().querySelectorAll('[data-sumar]').forEach((s) => s.addEventListener('change', intentar(async () => {
+    if (!s.value) return;
+    const persona = await Api.asignarObra(s.value, s.dataset.sumar);
+    await recargar(persona.nombre + ' ahora trabaja en esta obra.');
+  })));
+  contenido().querySelectorAll('[data-quitar]').forEach((b) => b.addEventListener('click', intentar(async () => {
+    const persona = await Api.asignarObra(b.dataset.quitar, '');
+    await recargar(persona.nombre + ' quedó sin obra asignada.');
+  })));
+}
+
+function formularioObra(obra) {
+  const hoy = new Date().toISOString().slice(0, 10);
+  const modal = Modal.abrir(obra ? 'Editar obra' : 'Nueva obra', `<form novalidate>
+    <div class="campo"><label for="o-nombre">Nombre *</label><input id="o-nombre" name="nombre" required value="${esc(obra ? obra.nombre : '')}" placeholder="Ej.: Edificio Las Acacias"></div>
+    <div class="campo"><label for="o-ubicacion">Ubicación</label><input id="o-ubicacion" name="ubicacion" value="${esc(obra ? obra.ubicacion : '')}" placeholder="Ej.: Av. Libertador, Caracas"></div>
+    <div class="fila">
+      <div class="campo"><label for="o-inicio">Inicio *</label><input id="o-inicio" name="inicio" type="date" required value="${esc(obra ? obra.inicio : hoy)}"></div>
+      <div class="campo"><label for="o-fin">Fin estimado *</label><input id="o-fin" name="fin" type="date" required value="${esc(obra ? obra.fin : '')}"></div>
+    </div>
+    <div class="mensaje mensaje-error oculto" role="alert"></div>
+    <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
+      <button class="btn btn-primario" type="submit">Guardar</button></div></form>`);
+  const formulario = modal.querySelector('form');
+  formulario.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    try {
+      const datos = datosFormulario(formulario);
+      const guardada = obra ? await Api.editarObra(obra.codigo, datos) : await Api.crearObra(datos);
+      Modal.cerrar();
+      aviso((obra ? 'Se actualizó la obra ' : 'Se creó la obra ') + guardada.nombre + '.');
+      await vistaObras();
+    } catch (e) {
+      mostrarErrorFormulario(formulario, e.message);
+    }
+  });
+}
+
 async function vistaInvitaciones() {
   const [opciones, lista] = await Promise.all([Api.opcionesPersonal(), Api.invitaciones()]);
   contenido().innerHTML = encabezado('Administración /', 'Invitaciones') + `

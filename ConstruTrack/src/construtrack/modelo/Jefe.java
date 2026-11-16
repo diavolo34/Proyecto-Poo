@@ -204,6 +204,16 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     }
 
     @Override
+    public boolean puedeGestionarObras() {
+        return true;
+    }
+
+    @Override
+    public boolean puedeAsignarObraA(Usuario otro) {
+        return true;
+    }
+
+    @Override
     public boolean puedeAprobarHorasDe(Usuario otro) {
         return !(otro instanceof Jefe);
     }

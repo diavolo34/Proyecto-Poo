@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import construtrack.Datos;
 import construtrack.modelo.excepciones.CredencialesInvalidasException;
 import construtrack.modelo.excepciones.DatoInvalidoException;
+import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.modelo.incidencias.Incidencia;
 import construtrack.persistencia.RepositorioMemoria;
@@ -74,5 +75,28 @@ class ServiciosTest {
         var periodo = ServicioSupervision.periodo(null, HOY);
         assertEquals(HOY.minusDays(6), periodo.getDesde());
         assertEquals(HOY, periodo.getHasta());
+    }
+
+    @Test
+    @DisplayName("Obras: supervisor y jefe las gestionan; no se elimina una obra con personas")
+    void gestionDeObras() {
+        Map<String, String> datos = Map.of("nombre", "Edificio Las Acacias", "ubicacion", "Caracas",
+                "inicio", HOY.toString(), "fin", HOY.plusMonths(6).toString());
+        assertThrows(PermisoDenegadoException.class, () -> servicios.obras().crear(d.jose, datos));
+        var obra = servicios.obras().crear(d.ana, datos);
+        assertEquals("OB-01", obra.getCodigo());
+        assertEquals("OB-02", servicios.obras().crear(d.jefe, Map.of("nombre", "Puente Norte", "ubicacion", "",
+                "inicio", HOY.toString(), "fin", HOY.plusMonths(2).toString())).getCodigo());
+
+        servicios.obras().asignar(d.ana, "30000001", "OB-01"); // José es de Ana
+        assertEquals(obra, d.jose.getObra());
+        assertThrows(PermisoDenegadoException.class, () -> servicios.obras().asignar(d.ana, "30000004", "OB-01"),
+                "Laura no es de su equipo");
+        assertThrows(OperacionInvalidaException.class, () -> servicios.obras().eliminar(d.jefe, "OB-01"));
+        servicios.obras().asignar(d.jefe, "30000001", "");
+        servicios.obras().eliminar(d.jefe, "OB-01");
+        assertEquals(1, servicios.obras().listar(d.jefe).size());
+        assertThrows(DatoInvalidoException.class, () -> servicios.obras().crear(d.jefe, Map.of("nombre", "Mal",
+                "inicio", HOY.toString(), "fin", HOY.minusDays(1).toString())));
     }
 }

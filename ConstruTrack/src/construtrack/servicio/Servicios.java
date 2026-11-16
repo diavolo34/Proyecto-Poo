@@ -25,6 +25,7 @@ public class Servicios {
     private final ServicioSupervision supervision;
     private final ServicioRegistro registro;
     private final ServicioInvitaciones invitaciones;
+    private final ServicioObras obras;
 
     public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia) {
         this.autenticacion = new ServicioAutenticacion(empresa, escritor, reloj);
@@ -38,6 +39,11 @@ public class Servicios {
                 Map.of("txt", new FormateadorTexto(), "csv", new FormateadorCSV()));
         this.registro = new ServicioRegistro(empresa, escritor, reloj);
         this.invitaciones = new ServicioInvitaciones(empresa, escritor, reloj, new NotificadorConsola());
+        this.obras = new ServicioObras(empresa, escritor, reloj);
+    }
+
+    public ServicioObras obras() {
+        return obras;
     }
 
     public ServicioRegistro registro() {

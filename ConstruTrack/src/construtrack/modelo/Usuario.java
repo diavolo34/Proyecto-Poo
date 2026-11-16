@@ -128,6 +128,26 @@ public abstract class Usuario {
         incidencia.registrarRevision(nuevo, this, comentario, ahora);
     }
 
+    // ------------------------------------------------------------------ obras
+
+    /** Indica si puede crear, editar y eliminar obras. Solo Supervisor y Jefe (lo redefinen). */
+    public boolean puedeGestionarObras() {
+        return false;
+    }
+
+    /** Indica si puede cambiar la obra de otra persona: el Jefe a cualquiera, el Supervisor a su equipo. */
+    public boolean puedeAsignarObraA(Usuario otro) {
+        return false;
+    }
+
+    /** Asigna (o quita, con null) la obra de otra persona si tiene autoridad. */
+    public void asignarObra(Usuario persona, Obra obra) {
+        if (!puedeAsignarObraA(persona)) {
+            throw new PermisoDenegadoException("No puedes cambiar la obra de " + persona.getNombre() + ".");
+        }
+        persona.setObra(obra);
+    }
+
     // ------------------------------------------------------------------ horas extra
 
     /**

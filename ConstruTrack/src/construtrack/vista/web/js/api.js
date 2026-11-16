@@ -116,6 +116,13 @@ const Api = {
   descargarReporte: (tipo, formato, periodo) =>
     Api.descargar(`/api/reportes/${tipo}?formato=${formato}&periodo=${periodo}`),
 
+  // ---- obras
+  obras: () => Api.pedir('GET', '/api/obras'),
+  crearObra: (datos) => Api.pedir('POST', '/api/obras', datos),
+  editarObra: (codigo, datos) => Api.pedir('PUT', '/api/obras/' + encodeURIComponent(codigo), datos),
+  eliminarObra: (codigo) => Api.pedir('DELETE', '/api/obras/' + encodeURIComponent(codigo)),
+  asignarObra: (cedula, obra) => Api.pedir('PUT', `/api/usuarios/${encodeURIComponent(cedula)}/obra`, { obra }),
+
   // ---- invitaciones
   invitaciones: () => Api.pedir('GET', '/api/invitaciones'),
   crearInvitacion: (datos) => Api.pedir('POST', '/api/invitaciones', datos),
