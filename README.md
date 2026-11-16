@@ -142,6 +142,8 @@ Para volver a empezar en local, borra `datos_construtrack.txt` y reinicia (vací
 | ![](docs/capturas/web_02_login_error.png) | ![](docs/capturas/web_07_tablero.png) |
 | **Supervisión: alertas y estadísticas** | **Invitaciones (Jefe)** |
 | ![](docs/capturas/web_08_supervision.png) | ![](docs/capturas/web_11_invitaciones.png) |
+| **Obras** | **Historial con incidencias** |
+| ![](docs/capturas/web_16_obras.png) | ![](docs/capturas/web_15_historial.png) |
 | **Escritorio (Swing): supervisión** | **Escritorio (Swing): tablero** |
 | ![](docs/capturas/swing_02_supervision.png) | ![](docs/capturas/swing_03_tablero.png) |
 

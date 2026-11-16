@@ -76,11 +76,14 @@ DIAGRAMAS = [
 ]
 
 CAPTURAS = [
-    ("web_01_portada", "Portada pública"), ("web_02_login_error", "Inicio de sesión con mensaje de error"),
-    ("web_03_registro", "Crear cuenta"), ("web_04_unirse", "Unirse con código de invitación"),
+    ("web_01_portada", "Portada pública"), ("web_14_dos_formas", "Portada: dos formas de empezar"),
+    ("web_02_login_error", "Inicio de sesión con mensaje de error"),
+    ("web_03_registro", "Crear cuenta: el jefe crea su empresa"), ("web_04_unirse", "Unirse con código de invitación"),
     ("web_05_empleado_asistencia", "Empleado: Mi asistencia"), ("web_06_incidencias", "Reportar incidencia (reposo médico)"),
     ("web_07_tablero", "Supervisor: tablero de incidencias"), ("web_08_supervision", "Supervisor: alertas, estadísticas y reportes"),
-    ("web_09_personal", "Jefe: personal"), ("web_11_invitaciones", "Jefe: invitaciones"),
+    ("web_09_personal", "Jefe: personal"), ("web_15_historial", "Historial con incidencias"),
+    ("web_16_obras", "Obras: gestión por supervisor y jefe"), ("web_11_invitaciones", "Jefe: invitaciones por correo"),
+    ("web_17_demo_privada", "Demostración privada con clave"),
     ("swing_02_supervision", "Escritorio (Swing): supervisión"), ("swing_03_tablero", "Escritorio (Swing): tablero"),
 ]
 
@@ -144,8 +147,12 @@ def construir() -> str:
 <h1>6. Diagramas UML</h1>
 <p>Los diagramas de secuencia usan solo objetos de clases del modelo, como pidió la corrección.</p>{diagramas}
 <h1>7. Capturas del sistema</h1>{capturas}
-<h1>8. Ejecución y usuarios de prueba</h1>
+<h1>8. Ejecución y modo demostración</h1>
 <p><b>NetBeans:</b> abrir el proyecto <code>ConstruTrack</code> → Run (F6). Requiere JDK 17 o superior.</p>
+<p>El sistema arranca <b>vacío (modo producción)</b>, listo para clientes: el primer usuario se registra como jefe y crea su
+empresa. Para verlo con datos de ejemplo, agregar el argumento <code>--demo</code> (Project Properties → Run → Arguments).
+En la página publicada, la <b>demostración privada</b> está en <code>app.html#demo</code> y solo se entra con la clave de
+demostración. Usuarios del modo demostración (empresa «Constructora Demo»):</p>
 <table><tr><th>Rol</th><th>Correo</th><th>Cédula</th><th>Clave</th></tr>
 <tr><td>Jefe</td><td>carlos.mendez@construtrack.demo</td><td>10000001</td><td>jefe123</td></tr>
 <tr><td>Supervisora</td><td>ana.rodriguez@construtrack.demo</td><td>20000001</td><td>super123</td></tr>
