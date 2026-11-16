@@ -34,7 +34,7 @@ herencia, polimorfismo, interfaces, composición y los principios **SOLID**, en 
 
 | Rol | Qué puede hacer |
 |-----|-----------------|
-| **Visitante** | Ver la portada, consultar al asistente «Ayuda RRHH» y **crear su cuenta** con correo, nombre, apellido, cédula o DNI y teléfono. |
+| **Visitante** | Ver la portada, consultar a **Arqui**, el asistente virtual, y **crear su cuenta** con correo, nombre, apellido, cédula o DNI y teléfono. |
 | **Empleado** | Unirse a la empresa con un **código de invitación**, marcar entrada y salida (puntualidad con 10 min de tolerancia), ver su historial y **reportar incidencias**. |
 | **Supervisor** | Todo lo anterior + **tablero Kanban** para aprobar o rechazar las incidencias de su equipo, **alertas automáticas**, **estadísticas** y **reportes** en CSV o texto. |
 | **Jefe** | Todo lo anterior para toda la empresa + **gestionar al personal** y **crear invitaciones** de un solo uso con rol, supervisor y obra. |

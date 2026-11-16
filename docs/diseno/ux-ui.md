@@ -87,7 +87,7 @@ Los errores se muestran con texto rojo **y** con la palabra «Error:» o el íco
 ### 10. Ayuda y documentación
 - Textos de ayuda debajo de cada campo («Sin puntos ni guiones», «Vacío = un día»).
 - *Tooltips* en Swing.
-- El asistente **«Ayuda RRHH»** en todas las pantallas, con respuestas sobre registro, códigos, incidencias, nómina y seguridad.
+- **Arqui**, el asistente virtual, en todas las pantallas, con respuestas sobre registro, códigos, roles, incidencias y seguridad. Está abajo a la izquierda para no tapar los botones de acción, que en las tablas quedan a la derecha.
 
 ![Chatbot](../capturas/web_12_chatbot.png)
 
