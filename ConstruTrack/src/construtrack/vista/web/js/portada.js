@@ -1,11 +1,33 @@
-// Portada pública: formulario de inicio, cifras y obras en vivo, y el asistente.
+// Portada pública: menú, formulario de inicio, cifras y obras en vivo, animaciones suaves y el asistente.
 $('#logo-cabecera').outerHTML = LOGO;
 
+// ---- Menú desplegable (tabletas y celulares)
+const cabecera = $('#lp-cabecera');
+const botonMenu = $('#lp-menu-boton');
+function abrirMenu(abrir) {
+  cabecera.classList.toggle('lp-menu-abierto', abrir);
+  botonMenu.setAttribute('aria-expanded', String(abrir));
+  botonMenu.setAttribute('aria-label', abrir ? 'Cerrar el menú' : 'Abrir el menú');
+}
+botonMenu.addEventListener('click', () => abrirMenu(!cabecera.classList.contains('lp-menu-abierto')));
+$('#lp-menu').addEventListener('click', (evento) => { if (evento.target.closest('a')) abrirMenu(false); });
+document.addEventListener('keydown', (evento) => {
+  if (evento.key === 'Escape' && cabecera.classList.contains('lp-menu-abierto')) {
+    abrirMenu(false);
+    botonMenu.focus();
+  }
+});
+
+// ---- Formulario del hero: el correo pasa al registro
 $('#form-empezar').addEventListener('submit', (evento) => {
   evento.preventDefault();
   const correo = $('#correo-empezar').value.trim();
   location.href = 'app.html#registro' + (correo ? '?correo=' + encodeURIComponent(correo) : '');
 });
+
+// ---- Cifras y obras en vivo (GET /api/publico)
+const cifra = (valor, texto) =>
+  `<div class="lp-cifra"><span class="lp-cifra-valor">${esc(valor)}</span><span class="lp-cifra-texto">${esc(texto)}</span></div>`;
 
 (async function cargarDatosEnVivo() {
   const estado = $('#estado-servidor');
@@ -19,21 +41,45 @@ $('#form-empezar').addEventListener('submit', (evento) => {
   estado.innerHTML = '<span class="chip chip-verde">● Sistema en línea</span>';
   try {
     const datos = await Api.publico();
-    $('#cifras').innerHTML = [
+    const promedio = Math.round(datos.obras.reduce((s, o) => s + o.avance, 0) / Math.max(1, datos.obras.length));
+    const cifras = [
       [datos.personal, 'Personas registradas'],
       [datos.presentes, 'En la obra ahora'],
       [datos.obras.length, 'Obras activas'],
-      [Math.round(datos.obras.reduce((s, o) => s + o.avance, 0) / Math.max(1, datos.obras.length)) + '%', 'Avance promedio'],
-    ].map(([valor, texto]) => `<div class="cifra"><div class="valor">${esc(valor)}</div><div class="descripcion">${esc(texto)}</div></div>`).join('');
+      [promedio + '%', 'Avance promedio del plazo'],
+    ];
+    // Servidores más nuevos también cuentan las empresas; si el dato no viene, no se muestra
+    if (typeof datos.empresas === 'number') cifras.unshift([datos.empresas, datos.empresas === 1 ? 'Empresa usa ConstruTrack' : 'Empresas usan ConstruTrack']);
+    $('#cifras').innerHTML = cifras.map(([valor, texto]) => cifra(valor, texto)).join('');
     $('#lista-obras').innerHTML = datos.obras.map((o) => `
-      <article class="obra"><h3>${esc(o.nombre)}</h3><p class="suave pequeno" style="margin:0">${esc(o.ubicacion)}</p>
+      <article class="lp-obra">
+        <div class="lp-obra-cabeza"><img src="img/icono-obra.svg" width="48" height="48" alt="">
+          <div><h4>${esc(o.nombre)}</h4><p>${esc(o.ubicacion)}</p></div></div>
         <div class="barra-avance" role="progressbar" aria-valuenow="${o.avance}" aria-valuemin="0" aria-valuemax="100"
-          aria-label="Avance de ${esc(o.nombre)}"><span style="width:${o.avance}%"></span></div>
-        <p class="pequeno suave" style="margin:6px 0 0">${o.avance}% del plazo · fin estimado ${fecha(o.finEstimado)}</p></article>`).join('')
-      || '<p class="suave">Aún no hay obras registradas.</p>';
+          aria-label="Avance del plazo de ${esc(o.nombre)}"><span style="width:${o.avance}%"></span></div>
+        <p class="lp-obra-pie"><strong>${o.avance}%</strong> del plazo · fin estimado ${fecha(o.finEstimado)}</p>
+      </article>`).join('')
+      || '<p>Aún no hay obras registradas.</p>';
   } catch (e) {
-    $('#lista-obras').innerHTML = `<p class="suave">${esc(e.message)}</p>`;
+    $('#lista-obras').innerHTML = `<p>${esc(e.message)}</p>`;
   }
 }());
 
+// ---- Aparición suave de las secciones (solo si la persona no pidió reducir el movimiento)
+if ('IntersectionObserver' in window && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+  document.documentElement.classList.add('lp-animar');
+  const observador = new IntersectionObserver((entradas) => entradas.forEach((entrada) => {
+    if (entrada.isIntersecting) {
+      entrada.target.classList.add('lp-visible');
+      observador.unobserve(entrada.target);
+    }
+  }), { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.lp-aparece').forEach((elemento) => observador.observe(elemento));
+}
+
+// ---- Asistente Arqui (abajo a la izquierda) y botón del llamado final que lo abre
 ChatUI.montar({ usuario: () => null, alCambiar: () => {} });
+$('#lp-abrir-arqui').addEventListener('click', () => {
+  if ($('#chat-panel').classList.contains('oculto')) ChatUI.alternar();
+  else $('#chat-texto').focus();
+});

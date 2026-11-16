@@ -4,139 +4,318 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ConstruTrack · Gestión de personal en obra</title>
-  <meta name="description" content="Asistencia, incidencias, alertas y reportes del personal de obra en un solo lugar.">
+  <meta name="description" content="Asistencia con tolerancia, incidencias en tablero, alertas automáticas, horas extra y obras: el personal de construcción en un solo lugar.">
+  <meta name="theme-color" content="#0c66e4">
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/estilos.css">
+  <link rel="stylesheet" href="css/portada.css">
 </head>
-<body>
+<body class="lp">
   <a class="saltar" href="#principal">Saltar al contenido</a>
 
-  <header class="cabecera-publica">
-    <div class="contenedor">
+  <header class="lp-cabecera" id="lp-cabecera">
+    <div class="lp-contenedor lp-cabecera-fila">
       <a class="marca" href="index.html" aria-label="ConstruTrack, inicio"><span id="logo-cabecera"></span>ConstruTrack</a>
-      <nav class="nav-publica" aria-label="Secciones">
+      <nav class="lp-nav" id="lp-menu" aria-label="Secciones">
         <a href="#funciones">Funciones</a>
-        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#roles">Roles</a>
+        <a href="#empezar">Cómo empezar</a>
         <a href="#obras">Obras</a>
-        <a href="#ayuda">Ayuda</a>
+        <a class="lp-solo-menu" href="app.html#login">Iniciar sesión</a>
+        <a class="lp-solo-menu" href="app.html#registro">Crear cuenta</a>
       </nav>
-      <div class="cabecera-acciones">
-        <a class="btn btn-enlace" href="app.html#login">Iniciar sesión</a>
+      <div class="lp-cabecera-acciones">
+        <a class="btn btn-enlace lp-ocultar-movil" href="app.html#login">Iniciar sesión</a>
         <a class="btn btn-primario" href="app.html#registro">Crear cuenta</a>
+        <button class="lp-menu-boton" id="lp-menu-boton" type="button" aria-expanded="false" aria-controls="lp-menu" aria-label="Abrir el menú">
+          <span aria-hidden="true"></span>
+        </button>
       </div>
     </div>
   </header>
 
-  <main id="principal">
-    <section class="hero">
-      <div class="contenedor">
-        <div>
-          <h1>Controla tu obra, no el papeleo</h1>
-          <p class="bajada">Asistencia, incidencias, alertas y reportes de tu personal en un solo lugar.
-            Hecho para jefes, supervisores y trabajadores de la construcción.</p>
-          <p class="suave pequeno" id="estado-servidor" aria-live="polite"></p>
-        </div>
-        <form class="hero-formulario" id="form-empezar" novalidate>
-          <div class="campo">
-            <label for="correo-empezar">Correo electrónico</label>
-            <input id="correo-empezar" name="correo" type="email" autocomplete="email" placeholder="tunombre@empresa.com">
-            <span class="ayuda">Con tu correo creas tu cuenta; luego tu jefe te da un código para unirte a la empresa.</span>
-          </div>
-          <button class="btn btn-primario btn-bloque btn-grande" type="submit">Crear cuenta</button>
-          <div class="separador">o</div>
-          <a class="btn btn-contorno btn-bloque" href="app.html#login">Ya tengo cuenta: iniciar sesión</a>
-        </form>
-      </div>
-    </section>
-
-    <section class="vista-previa" aria-label="Vista previa del tablero">
-      <div class="contenedor">
-        <div class="lienzo">
-          <div class="bloque-azul" aria-hidden="true"></div>
-          <div class="bloque-naranja" aria-hidden="true"></div>
-          <div class="tarjeta" style="position:relative;max-width:900px;margin:0 auto;box-shadow:var(--sombra-alta)">
-            <div class="titulo-vista" style="margin-bottom:12px">
-              <div><div class="migas">Torre Residencial Este /</div><h2 style="margin:0">Tablero de incidencias</h2></div>
-              <span class="chip chip-azul">Semana actual</span>
+  <main id="principal" class="lp-main" tabindex="-1">
+    <!-- Portada: titular, correo para empezar e imagen del producto -->
+    <section class="lp-hero" aria-labelledby="lp-titulo">
+      <div class="lp-contenedor lp-hero-rejilla">
+        <div class="lp-hero-texto">
+          <p class="lp-etiqueta">Para empleados, supervisores y jefes de obra</p>
+          <h1 id="lp-titulo">Controla tu obra, <span class="lp-resalte">no el papeleo</span></h1>
+          <p class="lp-bajada">Asistencia, incidencias, alertas y horas extra de tu personal en un solo lugar.
+            Cada quien marca desde su celular y el supervisor lo ve al instante.</p>
+          <form class="lp-hero-formulario" id="form-empezar" novalidate>
+            <label for="correo-empezar">Tu correo electrónico</label>
+            <div class="lp-hero-campo">
+              <input id="correo-empezar" name="correo" type="email" autocomplete="email" placeholder="tunombre@empresa.com" aria-describedby="ayuda-empezar">
+              <button class="btn btn-primario btn-grande" type="submit">Crear cuenta</button>
             </div>
-            <div class="kanban" style="grid-template-columns:repeat(4,1fr)">
-              <div class="kanban-columna"><h3>Pendiente <span>2</span></h3>
-                <div class="tarjeta-kanban gravedad-media"><h4>Reposo médico</h4><p>José García · 2 días</p><span class="chip chip-amarillo">Gravedad media</span></div>
-                <div class="tarjeta-kanban"><h4>Retardo</h4><p>Pedro Ramírez · 35 min</p><span class="chip chip-azul">Gravedad baja</span></div>
-              </div>
-              <div class="kanban-columna"><h3>En revisión <span>1</span></h3>
-                <div class="tarjeta-kanban"><h4>Permiso personal</h4><p>María López · 1 día</p><span class="chip chip-azul">Gravedad baja</span></div>
-              </div>
-              <div class="kanban-columna"><h3>Aprobada <span>1</span></h3>
-                <div class="tarjeta-kanban gravedad-alta"><h4>Accidente laboral</h4><p>Luis Pérez · Andamio 3</p><span class="chip chip-rojo">Gravedad alta</span></div>
-              </div>
-              <div class="kanban-columna"><h3>Rechazada <span>0</span></h3></div>
-            </div>
+            <p class="lp-ayuda" id="ayuda-empezar">Después eliges: crear tu empresa o unirte con el código de tu jefe.</p>
+          </form>
+          <p class="lp-ya-tengo">¿Ya tienes cuenta? <a href="app.html#login">Iniciar sesión</a></p>
+          <p class="lp-estado" id="estado-servidor" aria-live="polite"></p>
+        </div>
+
+        <div class="lp-hero-visual">
+          <div class="lp-mancha lp-mancha-ambar" aria-hidden="true"></div>
+          <div class="lp-mancha lp-mancha-azul" aria-hidden="true"></div>
+          <img class="lp-hero-escena" src="img/ilustracion-obra.svg" width="600" height="520" alt="">
+          <figure class="lp-navegador lp-hero-navegador">
+            <div class="lp-navegador-barra" aria-hidden="true"><span></span><span></span><span></span>
+              <div class="lp-navegador-url">ConstruTrack · Supervisión</div></div>
+            <img src="img/producto-supervision.png" width="1280" height="760"
+              alt="Pantalla de Supervisión de ConstruTrack: asistencia, puntualidad y horas trabajadas de la semana, alertas automáticas y la tabla de puntualidad con horas extra por aprobar.">
+          </figure>
+          <div class="lp-celular lp-hero-celular">
+            <img src="img/producto-asistencia-movil.png" width="390" height="820"
+              alt="ConstruTrack en el celular: un empleado aparece «En la obra» tras marcar su entrada a las 06:58.">
           </div>
         </div>
       </div>
     </section>
 
-    <section class="seccion" id="funciones">
-      <div class="contenedor">
-        <h2>Todo lo que tu obra necesita</h2>
-        <p class="intro">Menos planillas y llamadas: cada persona ve lo que le corresponde según su rol.</p>
-        <div class="rejilla-4">
-          <article class="funcion"><div class="icono" style="background:var(--azul-suave);color:var(--azul-oscuro)" aria-hidden="true">⏱</div>
-            <h3>Asistencia en un clic</h3><p>Marca entrada y salida; la puntualidad se calcula sola con 10 minutos de tolerancia.</p></article>
-          <article class="funcion"><div class="icono" style="background:var(--amarillo-suave);color:var(--amarillo)" aria-hidden="true">✚</div>
-            <h3>Incidencias con soporte</h3><p>Reposos médicos, permisos, retardos y accidentes con su revisión y aprobación.</p></article>
-          <article class="funcion"><div class="icono" style="background:var(--rojo-suave);color:var(--rojo)" aria-hidden="true">!</div>
-            <h3>Alertas automáticas</h3><p>El supervisor recibe avisos de retardos repetidos, faltas sin justificar e incidencias sin resolver.</p></article>
-          <article class="funcion"><div class="icono" style="background:var(--verde-suave);color:var(--verde)" aria-hidden="true">▤</div>
-            <h3>Reportes listos</h3><p>Estadísticas de asistencia y puntualidad, y reportes en Excel (CSV) o texto en segundos.</p></article>
-        </div>
-      </div>
-    </section>
+    <!-- Funciones: filas alternadas de imagen y texto -->
+    <section class="lp-seccion" id="funciones" aria-labelledby="t-funciones">
+      <div class="lp-contenedor">
+        <header class="lp-encabezado lp-aparece">
+          <p class="lp-antetitulo">Funciones</p>
+          <h2 id="t-funciones">Todo lo que pasa en la obra, ordenado</h2>
+          <p class="lp-intro">Menos planillas, llamadas y mensajes perdidos. Cada persona ve lo que le toca según su rol.</p>
+        </header>
 
-    <section class="seccion seccion-alterna" id="como-funciona">
-      <div class="contenedor">
-        <h2>Cómo funciona</h2>
-        <p class="intro">Tres pasos y ya estás dentro.</p>
-        <div class="rejilla-3">
-          <div class="paso"><span class="numero">1</span><div><h3>Crea tu cuenta</h3>
-            <p class="suave">Con tu correo, nombre, cédula o DNI y teléfono.</p></div></div>
-          <div class="paso"><span class="numero">2</span><div><h3>Únete con un código</h3>
-            <p class="suave">Tu jefe te da un código de invitación (CT-XXXX-XXXX) con tu rol y tu obra.</p></div></div>
-          <div class="paso"><span class="numero">3</span><div><h3>Trabaja</h3>
-            <p class="suave">Marca tu asistencia, reporta novedades y sigue a tu equipo desde cualquier dispositivo.</p></div></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="seccion" id="obras">
-      <div class="contenedor">
-        <h2>Obras en curso</h2>
-        <p class="intro">Datos en vivo desde el sistema.</p>
-        <div class="cifras" id="cifras" style="margin-bottom:18px"></div>
-        <div class="rejilla-3" id="lista-obras"><p class="suave"><span class="girando"></span> Cargando obras…</p></div>
-      </div>
-    </section>
-
-    <section class="seccion" id="ayuda" style="padding-top:0">
-      <div class="contenedor">
-        <div class="franja-cta">
-          <div><h2>¿Listo para ordenar tu obra?</h2>
-            <p style="margin:0">Crea tu cuenta o pregúntale a «Arqui», el asistente (abajo a la izquierda).</p></div>
-          <div class="acciones" style="margin:0">
-            <a class="btn btn-contorno btn-grande" href="app.html#login">Iniciar sesión</a>
-            <a class="btn btn-secundario btn-grande" href="app.html#registro">Crear cuenta</a>
+        <article class="lp-fila lp-aparece">
+          <div class="lp-fila-texto">
+            <p class="lp-antetitulo">Asistencia</p>
+            <h3>Marca tu entrada en un toque</h3>
+            <p>Cada persona marca su entrada y su salida desde el celular o el computador. ConstruTrack lo compara con
+              su horario y da <strong>10 minutos de tolerancia</strong>: pasado ese margen, la llegada cuenta como retardo.</p>
+            <ul class="lp-lista">
+              <li>Horario y días laborables de cada persona</li>
+              <li>Historial con las horas trabajadas</li>
+              <li>También desde Arqui: escribe «marcar entrada»</li>
+            </ul>
           </div>
+          <div class="lp-fila-visual lp-fondo-azul">
+            <img src="img/ilustracion-asistencia.svg" width="520" height="440"
+              alt="Ilustración: un celular confirma «Entrada marcada, 06:58, puntual» junto a un reloj que resalta los 10 minutos de tolerancia.">
+          </div>
+        </article>
+
+        <article class="lp-fila lp-fila-invertida lp-aparece">
+          <div class="lp-fila-texto">
+            <p class="lp-antetitulo">Incidencias</p>
+            <h3>Incidencias con seguimiento, no perdidas en el chat</h3>
+            <p>Reposos médicos, permisos, retardos, accidentes y ausencias se reportan con fechas y descripción.
+              El supervisor las mueve en un <strong>tablero</strong>: pendiente, en revisión, aprobada o rechazada.</p>
+            <ul class="lp-lista">
+              <li>La gravedad se ve de un vistazo</li>
+              <li>Un reposo aprobado no cuenta como falta</li>
+              <li>Búsqueda por persona o por tipo</li>
+            </ul>
+          </div>
+          <div class="lp-fila-visual lp-fondo-ambar lp-visual-producto">
+            <figure class="lp-navegador">
+              <div class="lp-navegador-barra" aria-hidden="true"><span></span><span></span><span></span>
+                <div class="lp-navegador-url">ConstruTrack · Tablero</div></div>
+              <img src="img/producto-tablero.png" width="1280" height="720" loading="lazy"
+                alt="Tablero de incidencias de ConstruTrack con columnas Pendiente, En revisión, Aprobada y Rechazada; hay un retardo y un permiso pendientes y un reposo médico aprobado.">
+            </figure>
+            <img class="lp-pegatina lp-pegatina-izquierda" src="img/ilustracion-kanban.svg" width="280" height="210" loading="lazy" alt="">
+          </div>
+        </article>
+
+        <article class="lp-fila lp-aparece">
+          <div class="lp-fila-texto">
+            <p class="lp-antetitulo">Alertas y horas</p>
+            <h3>Alertas automáticas y horas que cuadran</h3>
+            <p>El supervisor recibe una alerta cuando alguien acumula tres retardos, falta sin justificar o tiene una
+              incidencia sin resolver por más de 48 horas, <strong>de la más antigua a la más reciente</strong>.
+              La tabla de puntualidad muestra las horas trabajadas y las horas extra, que solo cuentan cuando el
+              supervisor o el jefe las aprueba.</p>
+            <ul class="lp-lista">
+              <li>Últimos 7 días, esta semana o este mes</li>
+              <li>Reportes en Excel (CSV) o en texto</li>
+            </ul>
+          </div>
+          <div class="lp-fila-visual lp-fondo-rosa">
+            <img src="img/ilustracion-alertas.svg" width="520" height="480" loading="lazy"
+              alt="Ilustración: gráfico de horas de lunes a sábado con las horas extra en ámbar, una campana con tres alertas, un aviso de «3 llegadas tarde» y otro de «+2,5 h extra aprobadas».">
+          </div>
+        </article>
+
+        <article class="lp-fila lp-fila-invertida lp-aparece">
+          <div class="lp-fila-texto">
+            <p class="lp-antetitulo">Obras e invitaciones</p>
+            <h3>Tus obras y tu equipo, cada uno en su lugar</h3>
+            <p>Registra las obras con su ubicación y su plazo, y asigna a cada persona; las gestionan el supervisor y el jefe.
+              Para sumar a alguien, el jefe crea una <strong>invitación</strong> con su rol, su supervisor y su obra, y se la
+              envía por correo con un código de un solo uso.</p>
+            <ul class="lp-lista">
+              <li>Avance del plazo de cada obra</li>
+              <li>Códigos con vencimiento (CT-XXXX-XXXX)</li>
+              <li>También se comparten por WhatsApp</li>
+            </ul>
+          </div>
+          <div class="lp-fila-visual lp-fondo-azul lp-visual-producto">
+            <figure class="lp-navegador">
+              <div class="lp-navegador-barra" aria-hidden="true"><span></span><span></span><span></span>
+                <div class="lp-navegador-url">ConstruTrack · Obras</div></div>
+              <img src="img/producto-obras.png" width="1280" height="640" loading="lazy"
+                alt="Pantalla de Obras de ConstruTrack: dos obras con su ubicación, su avance del plazo y las personas asignadas a cada una.">
+            </figure>
+            <img class="lp-pegatina lp-pegatina-derecha" src="img/ilustracion-invitacion.svg" width="300" height="250" loading="lazy"
+              alt="Ilustración: sobre con un código de invitación de un solo uso.">
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Franja en vivo: cifras y obras desde /api/publico -->
+    <section class="lp-envivo" id="obras" aria-labelledby="t-obras">
+      <div class="lp-contenedor">
+        <div class="lp-envivo-cabeza lp-aparece">
+          <div>
+            <p class="lp-antetitulo lp-antetitulo-claro">En vivo</p>
+            <h2 id="t-obras">Lo que está pasando en las obras</h2>
+          </div>
+          <p class="lp-envivo-nota">Datos reales del sistema, sin información personal.</p>
+        </div>
+        <div class="lp-cifras" id="cifras">
+          <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">Personas registradas</span></div>
+          <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">En la obra ahora</span></div>
+          <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">Obras activas</span></div>
+          <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">Avance promedio del plazo</span></div>
+        </div>
+        <h3 class="lp-subtitulo">Obras en curso</h3>
+        <div class="lp-obras" id="lista-obras"><p class="lp-cargando"><span class="girando"></span> Cargando obras…</p></div>
+      </div>
+    </section>
+
+    <!-- Casos de uso por rol -->
+    <section class="lp-seccion" id="roles" aria-labelledby="t-roles">
+      <div class="lp-contenedor">
+        <header class="lp-encabezado lp-aparece">
+          <p class="lp-antetitulo">Roles</p>
+          <h2 id="t-roles">Hecho para cada persona de la obra</h2>
+          <p class="lp-intro">Tres roles, tres vistas. Nadie ve más de lo que necesita.</p>
+        </header>
+        <div class="lp-roles">
+          <article class="lp-rol lp-rol-empleado lp-aparece">
+            <img src="img/rol-empleado.svg" width="160" height="160" loading="lazy" alt="">
+            <h3>Empleado</h3>
+            <p class="lp-rol-lema">Marca y reporta sin papeles.</p>
+            <ul class="lp-lista">
+              <li>Marca su entrada y su salida</li>
+              <li>Reporta reposos, permisos y retardos</li>
+              <li>Consulta su horario y su historial</li>
+            </ul>
+          </article>
+          <article class="lp-rol lp-rol-supervisor lp-aparece">
+            <img src="img/rol-supervisor.svg" width="160" height="160" loading="lazy" alt="">
+            <h3>Supervisor</h3>
+            <p class="lp-rol-lema">Su equipo, al día y sin sorpresas.</p>
+            <ul class="lp-lista">
+              <li>Revisa las incidencias en el tablero</li>
+              <li>Recibe alertas y aprueba horas extra</li>
+              <li>Gestiona obras y descarga reportes</li>
+            </ul>
+          </article>
+          <article class="lp-rol lp-rol-jefe lp-aparece">
+            <img src="img/rol-jefe.svg" width="160" height="160" loading="lazy" alt="">
+            <h3>Jefe</h3>
+            <p class="lp-rol-lema">Toda la empresa en una sola vista.</p>
+            <ul class="lp-lista">
+              <li>Todo lo del supervisor, para toda la empresa</li>
+              <li>Gestiona al personal</li>
+              <li>Crea invitaciones y las envía por correo</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dos formas de empezar -->
+    <section class="lp-seccion lp-empezar" id="empezar" aria-labelledby="t-empezar">
+      <div class="lp-contenedor">
+        <header class="lp-encabezado lp-aparece">
+          <p class="lp-antetitulo">Cómo empezar</p>
+          <h2 id="t-empezar">Dos formas de empezar</h2>
+          <p class="lp-intro">Al crear tu cuenta eliges cómo entrar. Las dos toman pocos minutos.</p>
+        </header>
+        <div class="lp-caminos">
+          <article class="lp-camino lp-camino-jefe lp-aparece">
+            <img src="img/camino-jefe.svg" width="360" height="220" loading="lazy" alt="">
+            <p class="lp-camino-para">Para dueños y jefes de obra</p>
+            <h3>Soy jefe: crear mi empresa</h3>
+            <ol class="lp-pasos" role="list">
+              <li>Crea tu cuenta con tu correo.</li>
+              <li>Crea tu empresa: quedas como su jefe.</li>
+              <li>Agrega tus obras e invita a tu equipo con un código por correo.</li>
+            </ol>
+            <a class="btn btn-primario btn-grande" href="app.html#registro?tipo=jefe">Crear mi empresa</a>
+          </article>
+          <article class="lp-camino lp-camino-unirme lp-aparece">
+            <img src="img/camino-unirme.svg" width="360" height="220" loading="lazy" alt="">
+            <p class="lp-camino-para">Para empleados y supervisores</p>
+            <h3>Me uno a una empresa</h3>
+            <ol class="lp-pasos" role="list">
+              <li>Pide a tu jefe tu código de invitación (CT-XXXX-XXXX).</li>
+              <li>Crea tu cuenta con tu correo.</li>
+              <li>Escribe el código y entras con tu rol y tu obra.</li>
+            </ol>
+            <a class="btn lp-btn-ambar btn-grande" href="app.html#registro?tipo=unirme">Unirme con un código</a>
+          </article>
+        </div>
+        <p class="lp-ya-tengo lp-centro">¿Ya tienes cuenta? <a href="app.html#login">Iniciar sesión</a></p>
+      </div>
+    </section>
+
+    <!-- Llamado final a todo el ancho -->
+    <section class="lp-cta" id="ayuda" aria-labelledby="t-cta">
+      <div class="lp-contenedor lp-cta-caja lp-aparece">
+        <h2 id="t-cta">¿Listo para ordenar tu obra?</h2>
+        <p>Crea tu empresa o únete a la tuya en minutos. ¿Tienes dudas? Pregúntale a Arqui, el asistente, abajo a la izquierda.</p>
+        <div class="lp-cta-acciones">
+          <a class="btn lp-btn-ambar btn-grande" href="app.html#registro?tipo=jefe">Crear mi empresa</a>
+          <a class="btn lp-btn-claro btn-grande" href="app.html#registro?tipo=unirme">Unirme con un código</a>
+          <button class="btn lp-btn-transparente btn-grande" type="button" id="lp-abrir-arqui">Preguntar a Arqui</button>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="pie">
-    <div class="contenedor">
-      <div><strong style="color:#fff">ConstruTrack</strong><br>Proyecto académico · Programación Orientada a Objetos · UCAB</div>
-      <div><a href="app.html#login">Iniciar sesión</a> · <a href="app.html#registro">Crear cuenta</a> ·
-        <a href="https://github.com/diavolo34/Proyecto-Poo">Código en GitHub</a></div>
+  <footer class="lp-pie">
+    <div class="lp-contenedor lp-pie-rejilla">
+      <div class="lp-pie-marca">
+        <a class="marca" href="index.html"><img src="img/logo.svg" width="30" height="30" alt="">ConstruTrack</a>
+        <p>Asistencia, incidencias, horas y obras del personal de construcción, en un solo lugar.</p>
+      </div>
+      <nav aria-labelledby="pie-producto">
+        <h2 id="pie-producto">Producto</h2>
+        <ul>
+          <li><a href="#funciones">Funciones</a></li>
+          <li><a href="#roles">Roles</a></li>
+          <li><a href="#obras">Obras en curso</a></li>
+        </ul>
+      </nav>
+      <nav aria-labelledby="pie-cuenta">
+        <h2 id="pie-cuenta">Tu cuenta</h2>
+        <ul>
+          <li><a href="app.html#login">Iniciar sesión</a></li>
+          <li><a href="app.html#registro?tipo=jefe">Crear mi empresa</a></li>
+          <li><a href="app.html#registro?tipo=unirme">Unirme con un código</a></li>
+        </ul>
+      </nav>
+      <div>
+        <h2 id="pie-proyecto">Proyecto</h2>
+        <ul aria-labelledby="pie-proyecto">
+          <li>Programación Orientada a Objetos · UCAB</li>
+          <li><a href="https://github.com/diavolo34/Proyecto-Poo">Código en GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="lp-contenedor lp-pie-final">
+      <span>ConstruTrack · Proyecto académico</span>
+      <span>Java, HTML, CSS y JavaScript propios, sin librerías externas</span>
     </div>
   </footer>
 
