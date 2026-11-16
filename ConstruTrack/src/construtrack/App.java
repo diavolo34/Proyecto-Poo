@@ -12,6 +12,7 @@ import construtrack.persistencia.RepositorioTexto;
 import construtrack.servicio.Notificador;
 import construtrack.servicio.NotificadorBrevo;
 import construtrack.servicio.NotificadorConsola;
+import construtrack.servicio.NotificadorGmail;
 import construtrack.servicio.Servicios;
 import java.awt.GraphicsEnvironment;
 import java.net.BindException;
@@ -60,7 +61,7 @@ public final class App {
         web.iniciar();
         System.out.println("ConstruTrack listo en " + web.getUrl()
                 + " (" + plataforma.listarEmpresas().size() + " empresa(s), datos en " + repositorio.getAlmacen().descripcion()
-                + ", correo " + (servicios.invitaciones().correoReal() ? "con Brevo" : "solo registrado en consola") + ")");
+                + ", correo " + (servicios.invitaciones().correoReal() ? "real activado" : "solo registrado en consola") + ")");
 
         // Vista de escritorio: se abre salvo que no haya pantalla (servidor) o se pida --sin-ventana
         boolean sinVentana = Arrays.asList(args).contains("--sin-ventana");
@@ -70,17 +71,22 @@ public final class App {
     }
 
     /**
-     * Cómo se envían las invitaciones: por correo real con Brevo si están BREVO_API_KEY y CORREO_REMITENTE
-     * (servidor publicado), o solo registradas en la consola (NetBeans, sin configuración).
+     * Cómo se envían las invitaciones: desde Gmail con el Apps Script (GMAIL_SCRIPT_URL y GMAIL_SCRIPT_CLAVE),
+     * con Brevo (BREVO_API_KEY y CORREO_REMITENTE) o, sin configuración (NetBeans), solo registradas en la consola.
      */
     private static Notificador notificador() {
+        String sitio = entorno("URL_SITIO", "https://startling-toffee-914e34.netlify.app");
+        String script = entorno("GMAIL_SCRIPT_URL", "");
+        String claveScript = entorno("GMAIL_SCRIPT_CLAVE", "");
+        if (!script.isEmpty() && !claveScript.isEmpty()) {
+            return new NotificadorGmail(script, claveScript, sitio);
+        }
         String clave = entorno("BREVO_API_KEY", "");
         String remitente = entorno("CORREO_REMITENTE", "");
-        if (clave.isEmpty() || remitente.isEmpty()) {
-            return new NotificadorConsola();
+        if (!clave.isEmpty() && !remitente.isEmpty()) {
+            return new NotificadorBrevo(NotificadorBrevo.API, clave, remitente, sitio);
         }
-        return new NotificadorBrevo(NotificadorBrevo.API, clave, remitente,
-                entorno("URL_SITIO", "https://startling-toffee-914e34.netlify.app"));
+        return new NotificadorConsola();
     }
 
     /**
