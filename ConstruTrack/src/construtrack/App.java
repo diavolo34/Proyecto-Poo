@@ -14,7 +14,9 @@ import java.awt.GraphicsEnvironment;
 import java.net.BindException;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.TimeZone;
 import javax.swing.SwingUtilities;
 
 /**
@@ -33,7 +35,10 @@ public final class App {
 
     public static void main(String[] args) throws Exception {
         int puerto = Integer.parseInt(entorno("PORT", "8080"));
-        Clock reloj = Clock.systemDefaultZone();
+        // La hora de la obra, no la del servidor: Render y Docker usan UTC (4 h adelantado respecto a Venezuela)
+        ZoneId zona = ZoneId.of(entorno("ZONA", "America/Caracas"));
+        TimeZone.setDefault(TimeZone.getTimeZone(zona));
+        Clock reloj = Clock.system(zona);
 
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
         RepositorioTexto repositorio = new RepositorioTexto(almacen(), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
