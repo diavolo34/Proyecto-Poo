@@ -21,8 +21,17 @@ Prioridad: **A** (alta, pedido por la profesora o imprescindible) · **M** (medi
 | HU-15 | Como **profesora**, quiero diagramas UML actualizados, con secuencias que usen solo clases del modelo. | A | 6 | Hecho |
 | HU-16 | Como **profesora**, quiero que se justifiquen los principios de UX/UI aplicados. | A | 6 | Hecho |
 | HU-17 | Como **equipo**, queremos pruebas automáticas que eviten regresiones. | M | 6 | Hecho |
-| HU-18 | Como **jefe**, quiero recibir las invitaciones por correo electrónico real. | B | — | Pendiente (se dejó la interfaz `Notificador`) |
-| HU-19 | Como **jefe**, quiero gestionar las obras (crear y editar) desde la aplicación. | B | — | Pendiente |
+| HU-18 | Como **jefe**, quiero que las invitaciones lleguen por correo electrónico real. | B | 7 | Hecho (desde Gmail con Apps Script) |
+| HU-19 | Como **jefe** o **supervisor**, quiero gestionar las obras (crear, editar, asignar personas) desde la aplicación. | M | 7 | Hecho |
+| HU-20 | Como **usuario**, quiero que mis datos no se pierdan cuando el servidor se reinicia. | A | 7 | Hecho (Upstash) |
+| HU-21 | Como **supervisor**, quiero ver horas trabajadas y aprobar las horas extra (diarias y de días libres). | A | 7 | Hecho |
+| HU-22 | Como **supervisor**, quiero las alertas ordenadas de la más antigua a la más reciente. | M | 7 | Hecho |
+| HU-23 | Como **supervisor**, quiero ver en el Historial de cada persona sus incidencias, no solo su asistencia. | A | 7 | Hecho |
+| HU-24 | Como **empleado**, quiero que la hora de mis marcas sea la de Venezuela. | A | 7 | Hecho |
+| HU-25 | Como **jefe**, quiero que la cédula solo admita números para no duplicar personas. | M | 7 | Hecho |
+| HU-26 | Como **jefe**, quiero crear mi empresa al registrarme e invitar a mi equipo; cada empresa ve solo sus datos. | A | 7 | Hecho |
+| HU-27 | Como **visitante**, quiero una portada atractiva que muestre el producto y las dos formas de empezar. | M | 7 | Hecho |
+| HU-28 | Como **dueño del producto**, quiero una versión para clientes sin datos de prueba y una demo privada con clave. | A | 7 | Hecho |
 
 ## Criterios de aceptación (historias principales)
 

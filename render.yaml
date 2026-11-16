@@ -20,6 +20,9 @@ services:
         sync: false
       - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
+      # Demo privada en app.html#demo: solo entra quien conoce esta clave (sin ella, la demo queda apagada)
+      - key: DEMO_CLAVE
+        sync: false
       # Invitaciones por correo desde Gmail con Google Apps Script (tools/correo-gmail/Codigo.gs)
       - key: GMAIL_SCRIPT_URL
         sync: false

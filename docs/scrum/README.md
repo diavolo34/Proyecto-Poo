@@ -1,6 +1,6 @@
 # Scrum en ConstruTrack
 
-La entrega 2 se trabajó con **Scrum**: un Product Backlog priorizado, seis sprints cortos con un objetivo cada uno,
+La entrega 2 se trabajó con **Scrum**: un Product Backlog priorizado, siete sprints cortos con un objetivo cada uno,
 un incremento funcionando al final de cada sprint (subido a GitHub con la integración continua en verde) y una
 revisión y retrospectiva por sprint.
 
@@ -16,7 +16,7 @@ revisión y retrospectiva por sprint.
 
 - [Product Backlog](product-backlog.md): historias de usuario priorizadas con criterios de aceptación.
 - Sprint Backlog e incremento de cada sprint: [Sprint 1](sprint-1.md) · [Sprint 2](sprint-2.md) · [Sprint 3](sprint-3.md) ·
-  [Sprint 4](sprint-4.md) · [Sprint 5](sprint-5.md) · [Sprint 6](sprint-6.md).
+  [Sprint 4](sprint-4.md) · [Sprint 5](sprint-5.md) · [Sprint 6](sprint-6.md) · [Sprint 7](sprint-7.md).
 - **Definición de terminado (DoD)**, que aplica a toda historia:
   1. Compila sin advertencias (`-Xlint:all -Werror`) desde una copia limpia del repositorio.
   2. Las pruebas (JUnit y prueba de humo de la API) pasan en el CI de GitHub.
