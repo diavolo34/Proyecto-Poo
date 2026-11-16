@@ -81,7 +81,9 @@ class MultiempresaTest {
         assertFalse(marta.puedeAprobarHorasDe(d.jose));
         assertThrows(PermisoDenegadoException.class, () -> marta.revisarHorasExtra(d.jose, HOY, EstadoHorasExtra.APROBADAS));
         assertThrows(NoEncontradoException.class, () -> servicios.obras().asignar(marta, "30000001", ""));
-        assertTrue(servicios.supervision().estadisticas(marta, "mes").resumenes().isEmpty());
+        var tabla = servicios.supervision().estadisticas(marta, "mes").resumenes();
+        assertEquals(1, tabla.size(), "En la tabla solo aparece ella");
+        assertEquals(marta.getCedula(), tabla.get(0).cedula());
         assertTrue(servicios.invitaciones().listar(marta).isEmpty());
     }
 

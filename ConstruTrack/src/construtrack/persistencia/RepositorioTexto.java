@@ -152,7 +152,6 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
     private Usuario leerUsuario(String[] c) {
         Usuario usuario = Usuario.crear(c[1], c[2], c[3], "temporal", Horario.desdeTexto(c[5], c[6], c[7]));
         usuario.restaurarClaveResumen(c[4]);
-        usuario.setPresente(Boolean.parseBoolean(c[8]));
         if (c.length > 9 && !"-".equals(c[9])) {
             usuario.setFechaIngreso(LocalDate.parse(c[9]));
         }

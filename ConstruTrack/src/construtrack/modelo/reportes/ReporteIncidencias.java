@@ -13,14 +13,18 @@ public class ReporteIncidencias extends Reporte {
 
     @Override
     protected List<String> columnas() {
-        return List.of("Id", "Tipo", "Persona", "Desde", "Hasta", "Gravedad", "Estado", "Detalle");
+        return List.of("Id", "Tipo", "Persona", "Desde", "Hasta", "Gravedad", "Estado", "Detalle", "Descripción",
+                "Reportada", "Revisada por", "Fecha de revisión", "Comentario");
     }
 
     @Override
     protected void agregarFilas(Usuario persona, Periodo periodo, LocalDate hoy, Documento documento) {
         for (var i : persona.getHistorial().incidenciasEn(periodo)) {
             documento.agregarFila(i.getId(), i.getNombreTipo(), persona.getNombre(), i.getDesde(), i.getHasta(),
-                    i.getGravedad().getNombre(), i.getEstado().getNombre(), i.getDetalle());
+                    i.getGravedad().getNombre(), i.getEstado().getNombre(), i.getDetalle(), i.getDescripcion(),
+                    i.getFechaReporte().toLocalDate(), i.getRevisor() == null ? "" : i.getRevisor().getNombre(),
+                    i.getFechaRevision() == null ? "" : i.getFechaRevision().toLocalDate(),
+                    i.getComentarioRevision() == null ? "" : i.getComentarioRevision());
         }
     }
 }

@@ -38,7 +38,8 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         Horario obra = Horario.desdeTexto("LU,MA,MI,JU,VI", "07:00", "16:00");
         Horario sabados = Horario.desdeTexto("MA,MI,JU,VI,SA", "07:00", "15:00");
 
-        empresa.agregarUsuario(new Jefe("10000001", "Carlos Méndez", "jefe123", oficina));
+        Jefe carlos = new Jefe("10000001", "Carlos Méndez", "jefe123", oficina);
+        empresa.agregarUsuario(carlos);
         Supervisor ana = new Supervisor("20000001", "Ana Rodríguez", "super123", obra);
         Supervisor luis = new Supervisor("20000002", "Luis Pérez", "super123", sabados);
         empresa.agregarUsuario(ana);
@@ -58,15 +59,17 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         ana.setObra(torre);
         luis.setObra(puente);
 
-        for (Supervisor s : new Supervisor[] {ana, luis}) {
+        for (Usuario lider : new Usuario[] {carlos, ana, luis}) {
+            LocalTime entrada = lider.getHorario().getHoraEntrada().minusMinutes(10);
             for (LocalDate dia : hoy.minusDays(14).datesUntil(hoy).toList()) {
-                if (s.trabajaEl(dia)) {
-                    s.agregarAsistencia(registro(dia, "06:50", s.getHorario().getHoraSalida().toString(), false));
+                if (lider.trabajaEl(dia)) {
+                    lider.agregarAsistencia(registro(dia, entrada.toString(), lider.getHorario().getHoraSalida().toString(), false));
                 }
             }
+        }
+        for (Supervisor s : new Supervisor[] {ana, luis}) {
             if (s.trabajaEl(hoy)) {
                 s.agregarAsistencia(registro(hoy, "06:40", null, false));
-                s.setPresente(true);
             }
         }
 
@@ -112,7 +115,6 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             }
             if (i % 2 == 0 && e.trabajaEl(hoy)) {
                 e.agregarAsistencia(registro(hoy, i == 4 ? "07:25" : "06:58", null, i == 4));
-                e.setPresente(true);
             }
         }
         agregarIncidenciasDemo(empresa, fabrica, hoy);

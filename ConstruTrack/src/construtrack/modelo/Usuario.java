@@ -15,7 +15,6 @@ public abstract class Usuario {
     private String nombre;
     private String claveResumen;
     private Horario horario;
-    private boolean presente;
     private Obra obra;
     private Cuenta cuenta;
     private final Historial historial = new Historial();
@@ -43,32 +42,39 @@ public abstract class Usuario {
     public abstract String getRol();
 
     public RegistroAsistencia marcarEntrada(LocalDateTime ahora) {
-        if (presente) {
+        if (estaPresente()) {
             throw new OperacionInvalidaException(nombre + " ya registró su entrada y sigue en la obra.");
         }
         LocalTime hora = ahora.toLocalTime().withSecond(0).withNano(0);
         RegistroAsistencia registro = new RegistroAsistencia(ahora.toLocalDate(), hora, horario.esLlegadaTarde(hora));
         historial.agregarAsistencia(registro);
-        presente = true;
         return registro;
     }
 
     public RegistroAsistencia marcarSalida(LocalDateTime ahora) {
-        RegistroAsistencia ultima = historial.ultimaAsistencia();
-        if (!presente || ultima == null || !ultima.estaAbierto()) {
+        RegistroAsistencia abierta = historial.jornadaAbierta();
+        if (abierta == null) {
             throw new OperacionInvalidaException(nombre + " no tiene una entrada abierta.");
         }
-        ultima.registrarSalida(ahora.toLocalTime().withSecond(0).withNano(0));
-        presente = false;
-        return ultima;
+        LocalTime hora = ahora.toLocalTime().withSecond(0).withNano(0);
+        LocalTime entrada = abierta.getHoraEntrada();
+        LocalTime salida;
+        if (!abierta.getFecha().equals(ahora.toLocalDate())) {
+            salida = horario.getHoraSalida().isAfter(entrada) ? horario.getHoraSalida() : entrada;
+        } else {
+            salida = hora.isBefore(entrada) ? entrada : hora;
+        }
+        abierta.registrarSalida(salida);
+        return abierta;
     }
 
     public boolean estaPresente() {
-        return presente;
+        return historial.jornadaAbierta() != null;
     }
 
-    public void setPresente(boolean presente) {
-        this.presente = presente;
+    public RegistroAsistencia jornadaDeHoy(LocalDate hoy) {
+        RegistroAsistencia abierta = historial.jornadaAbierta();
+        return abierta != null ? abierta : historial.asistenciaDel(hoy);
     }
 
     public RegistroAsistencia getAsistenciaDel(LocalDate fecha) {
@@ -163,7 +169,6 @@ public abstract class Usuario {
 
     void copiarEstadoDe(Usuario otro) {
         historial.copiarDe(otro.historial);
-        presente = otro.presente;
         obra = otro.obra;
         claveResumen = otro.claveResumen;
         if (otro.cuenta != null) {

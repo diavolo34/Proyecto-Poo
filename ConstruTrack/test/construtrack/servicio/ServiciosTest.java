@@ -2,6 +2,7 @@ package construtrack.servicio;
 
 import static construtrack.Datos.HOY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -10,8 +11,14 @@ import construtrack.modelo.excepciones.CredencialesInvalidasException;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
+import construtrack.modelo.RegistroAsistencia;
+import construtrack.modelo.incidencias.EstadoIncidencia;
 import construtrack.modelo.incidencias.Incidencia;
 import construtrack.persistencia.RepositorioMemoria;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -96,5 +103,51 @@ class ServiciosTest {
         assertEquals(1, servicios.obras().listar(d.jefe).size());
         assertThrows(DatoInvalidoException.class, () -> servicios.obras().crear(d.jefe, Map.of("nombre", "Mal",
                 "inicio", HOY.toString(), "fin", HOY.minusDays(1).toString())));
+    }
+
+    @Test
+    @DisplayName("Las revisadas salen del tablero a las 3 horas, pero siguen en el reporte de incidencias")
+    void tableroArchivaYReporteConserva() {
+        Incidencia aprobada = servicios.incidencias().reportar(d.jose, "PERMISO_PERSONAL", "30000001", HOY, null, "Trámite", Map.of());
+        Incidencia rechazada = servicios.incidencias().reportar(d.laura, "PERMISO_PERSONAL", "30000004", HOY, null, "Viaje", Map.of());
+        Incidencia pendiente = servicios.incidencias().reportar(d.ana, "AUSENCIA", "30000001", HOY.minusDays(40), null, "Faltó", Map.of());
+        servicios.incidencias().revisar(d.jefe, aprobada.getId(), EstadoIncidencia.APROBADA, "Ok");
+        servicios.incidencias().revisar(d.jefe, rechazada.getId(), EstadoIncidencia.RECHAZADA, "Sin soporte");
+        assertEquals(3, servicios.incidencias().listarTablero(d.jefe).size(), "Recién revisadas siguen visibles");
+
+        Servicios tresHorasDespues = new Servicios(d.empresa, repositorio,
+                Clock.offset(Datos.RELOJ, Duration.ofHours(Incidencia.HORAS_EN_TABLERO)), 100);
+        List<Incidencia> tablero = tresHorasDespues.incidencias().listarTablero(d.jefe);
+        assertEquals(List.of(pendiente), tablero);
+        tablero.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
+        assertEquals(3, tresHorasDespues.incidencias().listarVisibles(d.jefe).size());
+
+        String todo = tresHorasDespues.supervision().exportar(d.jefe, "incidencias", "csv", "todo").contenido();
+        assertTrue(todo.contains("Sin soporte") && todo.contains("Faltó") && todo.contains("Carlos Méndez"), todo);
+        String semana = tresHorasDespues.supervision().exportar(d.jefe, "incidencias", "csv", "semana").contenido();
+        assertFalse(semana.contains("Faltó"), "Un período corto no trae lo de hace 40 días");
+    }
+
+    @Test
+    @DisplayName("La tabla de puntualidad del jefe incluye al jefe y a los supervisores; la del supervisor, a él y su equipo")
+    void tablaIncluyeLideres() {
+        var delJefe = servicios.supervision().estadisticas(d.jefe, "semana").resumenes().stream().map(r -> r.cedula()).toList();
+        assertEquals(5, delJefe.size());
+        assertTrue(delJefe.containsAll(List.of("10000001", "20000001", "20000002")));
+        var deAna = servicios.supervision().estadisticas(d.ana, "semana").resumenes().stream().map(r -> r.cedula()).toList();
+        assertEquals(List.of("20000001", "30000001"), deAna);
+    }
+
+    @Test
+    @DisplayName("Cada líder solo ve las horas extra que puede aprobar")
+    void horasExtraSegunPermiso() {
+        for (var persona : List.of(d.ana, d.jose)) {
+            RegistroAsistencia r = new RegistroAsistencia(HOY.minusDays(1), LocalTime.of(7, 0), false);
+            r.registrarSalida(LocalTime.of(19, 0));
+            persona.agregarAsistencia(r);
+        }
+        assertEquals(List.of("José García"), servicios.supervision().horasExtraPendientes(d.ana).stream()
+                .map(h -> h.persona().getNombre()).toList(), "Ana no aprueba sus propias horas");
+        assertEquals(2, servicios.supervision().horasExtraPendientes(d.jefe).size());
     }
 }
