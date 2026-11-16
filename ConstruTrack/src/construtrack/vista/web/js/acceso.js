@@ -106,8 +106,8 @@ function pantallaRegistro(parametros) {
         <div class="campo"><label for="apellido">Apellido *</label><input id="apellido" name="apellido" autocomplete="family-name" required></div>
       </div>
       <div class="fila">
-        <div class="campo"><label for="documento">Cédula o DNI *</label><input id="documento" name="documento" required>
-          <span class="ayuda">Sin puntos ni guiones.</span></div>
+        <div class="campo"><label for="documento">Cédula o DNI *</label><input id="documento" name="documento" required inputmode="numeric" pattern="[0-9]{6,10}" maxlength="10" data-solo-numeros>
+          <span class="ayuda">Solo números, sin V, puntos ni guiones.</span></div>
         <div class="campo"><label for="telefono">Teléfono *</label><input id="telefono" name="telefono" type="tel" autocomplete="tel" required>
           <span class="ayuda">Ej.: +58 412 1234567</span></div>
       </div>
@@ -125,6 +125,14 @@ function pantallaRegistro(parametros) {
   $('#correo').value = parametros.get('correo') || '';
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
+    // Revisa primero en el navegador qué falta, para decirlo todo de una vez y llevar el foco al primer campo
+    const faltan = [...formulario.querySelectorAll('[required]')].filter((c) => !c.value.trim());
+    if (faltan.length) {
+      const nombres = faltan.map((c) => formulario.querySelector(`label[for="${c.id}"]`).textContent.replace(' *', '').toLowerCase());
+      mostrarErrorFormulario(formulario, 'Completa: ' + nombres.join(', ') + '.');
+      faltan[0].focus();
+      return;
+    }
     const boton = formulario.querySelector('button[type=submit]');
     boton.disabled = true;
     try {

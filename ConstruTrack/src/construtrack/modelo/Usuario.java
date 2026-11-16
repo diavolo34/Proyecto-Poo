@@ -132,7 +132,6 @@ public abstract class Usuario {
         return historial;
     }
 
-    /** Copia historial y presencia de otro usuario (se usa cuando el Jefe le cambia el rol). */
     /** Fecha en que entró a la empresa (null en datos anteriores a este campo). */
     public LocalDate getFechaIngreso() {
         return historial.getInicio();
@@ -142,6 +141,7 @@ public abstract class Usuario {
         historial.setInicio(fecha);
     }
 
+    /** Copia historial y presencia de otro usuario (se usa cuando el Jefe le cambia el rol). */
     void copiarEstadoDe(Usuario otro) {
         historial.copiarDe(otro.historial);
         presente = otro.presente;
@@ -188,11 +188,26 @@ public abstract class Usuario {
         this.cedula = validarDocumento(cedula);
     }
 
-    /** Cédula o DNI: entre 6 y 12 letras o números, sin puntos ni guiones (se guarda en mayúsculas). */
+    /**
+     * Formato admitido al guardar y cargar: 6 a 12 letras o números. Es más amplio que el de un alta nueva
+     * para que los datos guardados antes de exigir solo números (por ejemplo, «V12345678») sigan cargando.
+     */
     public static String validarDocumento(String documento) {
         String limpio = documento == null ? "" : documento.trim().toUpperCase();
         if (!limpio.matches("[0-9A-Z]{6,12}")) {
-            throw new DatoInvalidoException("La cédula o DNI debe tener entre 6 y 12 caracteres (letras y números, sin puntos).");
+            throw new DatoInvalidoException("La cédula o DNI debe tener solo números, entre 6 y 10 dígitos.");
+        }
+        return limpio;
+    }
+
+    /**
+     * Regla para registrar una persona nueva: solo números, entre 6 y 10 dígitos (sin V, E, puntos ni guiones).
+     * Evita duplicar a una misma persona escribiendo «V12345678» y «12345678».
+     */
+    public static String validarCedulaNueva(String documento) {
+        String limpio = documento == null ? "" : documento.trim();
+        if (!limpio.matches("[0-9]{6,10}")) {
+            throw new DatoInvalidoException("La cédula o DNI debe tener solo números, entre 6 y 10 dígitos (sin V, puntos ni guiones).");
         }
         return limpio;
     }

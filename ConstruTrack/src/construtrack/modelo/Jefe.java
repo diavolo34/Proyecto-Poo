@@ -43,6 +43,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     public Usuario registrarUsuario(Map<String, String> datos) {
         String rol = datos.get("rol");
         verificarRolGestionable(rol);
+        validarCedulaNueva(datos.get("cedula"));
         if (empresa.existeCedula(datos.get("cedula"))) {
             throw new OperacionInvalidaException("Ya existe un usuario con la cédula " + datos.get("cedula") + ".");
         }

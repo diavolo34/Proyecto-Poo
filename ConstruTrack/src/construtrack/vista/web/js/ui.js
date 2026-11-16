@@ -79,6 +79,15 @@ const LOGO = `<svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect wid
   <path d="M8 23V13l8-5 8 5v10h-5v-6h-6v6z" fill="#fff"/><rect x="21" y="6" width="3" height="7" fill="#fca700"/></svg>`;
 
 /** Lee los campos de un formulario como objeto { nombre: valor } (las casillas marcadas se unen con coma). */
+// Campos de cédula: se descartan letras, puntos y guiones mientras se escribe o se pega
+document.addEventListener('input', (evento) => {
+  const campo = evento.target;
+  if (campo.matches && campo.matches('[data-solo-numeros]')) {
+    const limpio = campo.value.replace(/[^0-9]/g, '');
+    if (limpio !== campo.value) campo.value = limpio;
+  }
+});
+
 function datosFormulario(formulario) {
   const datos = {};
   new FormData(formulario).forEach((valor, clave) => {
