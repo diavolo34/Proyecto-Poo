@@ -29,7 +29,7 @@ jobs:
 
       - name: Prueba de humo de la API
         run: |
-          java -cp out construtrack.App --sin-ventana &
+          java -cp out construtrack.App --sin-ventana --demo &
           for i in $(seq 1 20); do curl -sf http://localhost:8080/api/estado && break; sleep 0.5; done
           echo
           curl -sf http://localhost:8080/ -o /dev/null
@@ -41,4 +41,15 @@ jobs:
           token=$(curl -sf -X POST http://localhost:8080/api/login \
             -d '{"cedula":"30000001","clave":"emp123"}' | python3 -c 'import sys,json; print(json.load(sys.stdin)["token"])')
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/usuarios -H "Authorization: Bearer $token")" = 403
-          echo "API OK"
+          echo "API OK (modo demostración)"
+          # Modo producción: arranca vacío y la demo privada solo entra con la clave
+          DEMO_CLAVE=clave-ci PORT=8081 DATOS=/tmp/produccion.txt java -cp out construtrack.App --sin-ventana &
+          for i in $(seq 1 20); do curl -sf http://localhost:8081/api/estado && break; sleep 0.5; done
+          echo
+          test "$(curl -sf http://localhost:8081/api/publico | python3 -c 'import sys,json; print(json.load(sys.stdin)["empresas"])')" = 0
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8081/api/login -d '{"cedula":"10000001","clave":"jefe123"}')" = 401
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8081/demo/api/demo/acceso -d '{"clave":"mala","rol":"Jefe"}')" = 401
+          token=$(curl -sf -X POST http://localhost:8081/demo/api/demo/acceso \
+            -d '{"clave":"clave-ci","rol":"Jefe"}' | python3 -c 'import sys,json; print(json.load(sys.stdin)["token"])')
+          curl -sf http://localhost:8081/demo/api/usuarios -H "Authorization: Bearer $token" -o /dev/null
+          echo "API OK (modo producción y demo privada)"

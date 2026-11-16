@@ -58,7 +58,8 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
     public Plataforma cargar() {
         String contenido = almacen.leer().orElse(null);
         if (contenido == null || contenido.isBlank()) {
-            Plataforma plataforma = datosIniciales.get().getPlataforma();
+            Empresa inicial = datosIniciales.get();
+            Plataforma plataforma = inicial == null ? new Plataforma() : inicial.getPlataforma();
             actualizarContador(plataforma);
             guardar(plataforma);
             return plataforma;

@@ -6,6 +6,7 @@ import construtrack.modelo.Plataforma;
 import construtrack.modelo.incidencias.FabricaIncidencias;
 import construtrack.persistencia.Almacen;
 import construtrack.persistencia.AlmacenArchivo;
+import construtrack.persistencia.AlmacenMemoria;
 import construtrack.persistencia.AlmacenUpstash;
 import construtrack.persistencia.GeneradorDatosPrueba;
 import construtrack.persistencia.RepositorioTexto;
@@ -34,14 +35,19 @@ public final class App {
         TimeZone.setDefault(TimeZone.getTimeZone(zona));
         Clock reloj = Clock.system(zona);
 
+        boolean modoDemo = Arrays.asList(args).contains("--demo") || "true".equalsIgnoreCase(entorno("DEMO", "false"));
+        String claveDemo = entorno("DEMO_CLAVE", "");
+
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
-        RepositorioTexto repositorio = new RepositorioTexto(almacen(), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
+        RepositorioTexto repositorio = new RepositorioTexto(almacen(),
+                modoDemo ? new GeneradorDatosPrueba(reloj, fabrica) : () -> null, fabrica);
         Plataforma plataforma = repositorio.cargar();
         Servicios servicios = new Servicios(plataforma, repositorio, reloj, repositorio.siguienteIdIncidencia(), notificador());
+        Servicios demo = claveDemo.isEmpty() ? null : demoPrivada(reloj, fabrica);
 
         ServidorWeb web;
         try {
-            web = new ServidorWeb(servicios, puerto, entorno("CORS_ORIGEN", "*"));
+            web = new ServidorWeb(servicios, modoDemo, demo, claveDemo, puerto, entorno("CORS_ORIGEN", "*"));
         } catch (BindException e) {
             System.err.println("El puerto " + puerto + " ya está en uso. ¿Tienes ConstruTrack abierto en otra ventana?"
                     + " Ciérralo y vuelve a ejecutar, o define otro puerto con la variable de entorno PORT.");
@@ -51,12 +57,20 @@ public final class App {
         web.iniciar();
         System.out.println("ConstruTrack listo en " + web.getUrl()
                 + " (" + plataforma.listarEmpresas().size() + " empresa(s), datos en " + repositorio.getAlmacen().descripcion()
-                + ", correo " + (servicios.invitaciones().correoReal() ? "real activado" : "solo registrado en consola") + ")");
+                + ", correo " + (servicios.invitaciones().correoReal() ? "real activado" : "solo registrado en consola")
+                + ", " + (modoDemo ? "modo demostración" : "modo producción")
+                + (demo == null ? "" : ", demo privada en /demo") + ")");
 
         boolean sinVentana = Arrays.asList(args).contains("--sin-ventana");
         if (!sinVentana && !GraphicsEnvironment.isHeadless()) {
-            SwingUtilities.invokeLater(() -> new AplicacionSwing(servicios, web.getUrl()).iniciar());
+            SwingUtilities.invokeLater(() -> new AplicacionSwing(servicios, web.getUrl(), modoDemo).iniciar());
         }
+    }
+
+    private static Servicios demoPrivada(Clock reloj, FabricaIncidencias fabrica) {
+        RepositorioTexto memoria = new RepositorioTexto(new AlmacenMemoria(), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
+        Plataforma plataforma = memoria.cargar();
+        return new Servicios(plataforma, memoria, reloj, memoria.siguienteIdIncidencia(), new NotificadorConsola());
     }
 
     private static Notificador notificador() {

@@ -348,3 +348,9 @@
 @media (max-width: 359px) {
   .lp-cabecera-acciones .btn-primario { display: none; }
 }
+
+.lp-sin-obras { grid-column: 1 / -1; color: #fff; font-size: 16px; line-height: 1.6; max-width: 640px; margin: 0; }
+.lp-primera { grid-column: 1 / -1; padding: 28px 0; color: #fff; }
+.lp-primera p { margin: 0 0 16px; font-size: 17px; line-height: 1.6; max-width: 620px; }
+.lp-primera .lp-primera-titulo { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+.lp-sin-obras a { color: #fff; font-weight: 700; text-decoration: underline; }

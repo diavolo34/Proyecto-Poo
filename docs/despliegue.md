@@ -49,6 +49,17 @@ Ambos implementan la interfaz `Almacen`, así que el resto del sistema no cambia
 
 Sin esas variables (por ejemplo, en NetBeans) los datos se guardan en `datos_construtrack.txt`.
 
+### Versión para clientes, modo demostración y demo privada
+
+- Sin configuración, el servidor arranca en **modo producción**: vacío, sin usuarios de prueba. El primer cliente se
+  registra como jefe y crea su empresa.
+- `DEMO=true` (o el argumento `--demo`) carga la empresa «Constructora Demo» con datos de ejemplo. **No** lo actives en
+  el servidor de clientes: es para presentaciones en local.
+- `DEMO_CLAVE` activa la **demo privada** en la misma página (`app.html#demo`): una empresa de prueba en memoria, aparte
+  de los clientes, a la que solo se entra con esa clave. Elige una frase larga y guárdala solo en Render.
+- **Empezar de cero:** borra la clave `construtrack:datos` en Upstash (*Data Browser* → la clave → *Delete*) y reinicia el
+  servicio en Render. Antes, guarda una copia si la necesitas.
+
 ### Invitaciones por correo desde Gmail (recomendado, gratis y sin teléfono)
 
 Brevo exige verificar un teléfono y no acepta números de Venezuela; por eso la opción principal es enviar desde tu propio

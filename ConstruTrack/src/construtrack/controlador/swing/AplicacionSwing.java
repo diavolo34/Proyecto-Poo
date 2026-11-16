@@ -24,10 +24,16 @@ import java.util.function.Consumer;
 public final class AplicacionSwing {
     private final Servicios servicios;
     private final String urlWeb;
+    private final boolean modoDemo;
 
     public AplicacionSwing(Servicios servicios, String urlWeb) {
+        this(servicios, urlWeb, false);
+    }
+
+    public AplicacionSwing(Servicios servicios, String urlWeb, boolean modoDemo) {
         this.servicios = servicios;
         this.urlWeb = urlWeb;
+        this.modoDemo = modoDemo;
     }
 
     public void iniciar() {
@@ -36,7 +42,7 @@ public final class AplicacionSwing {
     }
 
     private void mostrarLogin() {
-        VentanaLogin login = new VentanaLogin(servicios.autenticacion().getNombreEmpresa());
+        VentanaLogin login = new VentanaLogin(servicios.autenticacion().getNombreEmpresa(), modoDemo);
         Consumer<Usuario> entrar = usuario -> {
             login.dispose();
             mostrarPrincipal(usuario);

@@ -138,4 +138,16 @@ class MultiempresaTest {
         assertSame(norte, cargada.autenticar("15111222", "clave123").getEmpresa());
         assertSame(norte, cargada.buscarCuenta("marta@correo.com").getUsuario().getEmpresa());
     }
+
+    @Test
+    @DisplayName("Las cifras de la portada suman todas las empresas sin exponer sus datos")
+    void cifrasPublicasAgregadas() {
+        Jefe marta = registrarJefaNorte();
+        servicios.obras().crear(marta, Map.of("nombre", "Galpón Norte", "ubicacion", "Maracay",
+                "inicio", HOY.toString(), "fin", HOY.plusMonths(3).toString()));
+        var cifras = servicios.personal().cifrasPublicas();
+        assertEquals(2, cifras.empresas());
+        assertEquals(6, cifras.personas());
+        assertEquals(1, cifras.obras());
+    }
 }

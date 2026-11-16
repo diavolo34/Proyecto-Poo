@@ -1,6 +1,14 @@
 const Api = {
   base: CONFIG.api,
   token: null,
+  servidor: {},
+
+  prefijo() {
+    try { return sessionStorage.getItem('construtrack-demo') === '1' ? '/demo' : ''; } catch (e) { return ''; }
+  },
+  esDemo() {
+    return this.prefijo() === '/demo';
+  },
 
   async conectar(alEsperar) {
     try { this.token = sessionStorage.getItem('construtrack-token'); } catch (e) { this.token = null; }
@@ -9,8 +17,11 @@ const Api = {
       try {
         const respuesta = await fetch(this.base + '/api/estado', { signal: AbortSignal.timeout(8000) });
         const estado = await respuesta.json();
-        if (estado.servidor === 'Java') return estado;
-      } catch (e) {  }
+        if (estado.servidor === 'Java') {
+          this.servidor = estado;
+          return estado;
+        }
+      } catch (e) { }
       const segundos = Math.round((Date.now() - inicio) / 1000);
       if (alEsperar) alEsperar(intento, segundos);
       await new Promise((r) => setTimeout(r, Math.min(2000 * intento, 5000)));
@@ -21,8 +32,11 @@ const Api = {
     this.token = token;
     try {
       if (token) sessionStorage.setItem('construtrack-token', token);
-      else sessionStorage.removeItem('construtrack-token');
-    } catch (e) {  }
+      else {
+        sessionStorage.removeItem('construtrack-token');
+        sessionStorage.removeItem('construtrack-demo');
+      }
+    } catch (e) { }
   },
 
   async pedir(metodo, ruta, cuerpo) {
@@ -30,7 +44,7 @@ const Api = {
     if (this.token) cabeceras.Authorization = 'Bearer ' + this.token;
     let respuesta;
     try {
-      respuesta = await fetch(this.base + ruta, {
+      respuesta = await fetch(this.base + this.prefijo() + ruta, {
         method: metodo, headers: cabeceras, body: cuerpo ? JSON.stringify(cuerpo) : undefined,
       });
     } catch (e) {
@@ -49,7 +63,7 @@ const Api = {
   },
 
   async descargar(ruta) {
-    const respuesta = await fetch(this.base + ruta, { headers: { Authorization: 'Bearer ' + this.token } });
+    const respuesta = await fetch(this.base + this.prefijo() + ruta, { headers: { Authorization: 'Bearer ' + this.token } });
     if (!respuesta.ok) {
       const datos = await respuesta.json().catch(() => ({}));
       throw new Error(datos.error || 'No se pudo descargar el reporte.');
@@ -70,6 +84,17 @@ const Api = {
     this.guardarToken(datos.token);
     return datos;
   },
+  async entrarDemo(clave, rol) {
+    try { sessionStorage.setItem('construtrack-demo', '1'); } catch (e) { throw new Error('Tu navegador no permite guardar la sesión.'); }
+    try {
+      const datos = await this.pedir('POST', '/api/demo/acceso', { clave, rol });
+      this.guardarToken(datos.token);
+      return datos;
+    } catch (e) {
+      sessionStorage.removeItem('construtrack-demo');
+      throw e;
+    }
+  },
   async registrar(datos) {
     const respuesta = await this.pedir('POST', '/api/registro', datos);
     this.guardarToken(respuesta.token);
@@ -77,7 +102,7 @@ const Api = {
   },
   unirse: (codigo) => Api.pedir('POST', '/api/unirse', { codigo }),
   async cerrarSesion() {
-    try { await this.pedir('POST', '/api/logout'); } catch (e) {  }
+    try { await this.pedir('POST', '/api/logout'); } catch (e) { }
     this.guardarToken(null);
   },
   estado: () => Api.pedir('GET', '/api/estado'),

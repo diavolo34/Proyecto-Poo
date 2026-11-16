@@ -2,12 +2,14 @@
 
 [![CI](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml/badge.svg)](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=openjdk)
-![Pruebas](https://img.shields.io/badge/JUnit%205-48%20pruebas-brightgreen)
+![Pruebas](https://img.shields.io/badge/JUnit%205-50%20pruebas-brightgreen)
 ![Arquitectura](https://img.shields.io/badge/arquitectura-MVC%20%2B%20SOLID-blue)
 ![Dependencias](https://img.shields.io/badge/dependencias-0-brightgreen)
 [![Demo en vivo](https://img.shields.io/badge/demo-en%20vivo-0052CC?logo=netlify)](https://startling-toffee-914e34.netlify.app)
 
-> **Pruébalo en línea:** https://startling-toffee-914e34.netlify.app (usuarios de prueba [más abajo](#usuarios-de-prueba)).
+> **Pruébalo en línea:** https://startling-toffee-914e34.netlify.app. La versión publicada está **lista para clientes**: arranca
+> vacía y cada constructora crea su empresa al registrarse como jefe. Para verla con datos de ejemplo, usa el
+> [modo demostración](#modo-demostración).
 > El servidor usa el plan gratuito de Render: si nadie lo usó en un rato, la primera carga tarda unos 50 segundos.
 
 Sistema para una empresa de construcción que **controla la asistencia del personal de obra, gestiona sus incidencias
@@ -24,7 +26,7 @@ herencia, polimorfismo, interfaces, composición y los principios **SOLID**, en 
 - [Funcionalidades](#funcionalidades)
 - [Arquitectura](#arquitectura)
 - [Cómo ejecutarlo](#cómo-ejecutarlo)
-- [Usuarios de prueba](#usuarios-de-prueba)
+- [Modo demostración](#modo-demostración)
 - [Capturas](#capturas)
 - [Documentación](#documentación)
 - [API REST](#api-rest)
@@ -105,10 +107,22 @@ java -cp out construtrack.App            # servidor + ventana (usa --sin-ventana
 | Página web (Netlify) | https://startling-toffee-914e34.netlify.app |
 | Servidor Java / API (Render) | https://construtrack-api.onrender.com/api/estado |
 
-El servidor Java se publica en **Render** (`Dockerfile` + `render.yaml`) y se vuelve a desplegar solo con cada cambio en `main`.
+El servidor Java se publica en **Render** (`Dockerfile` + `render.yaml`) a partir de `main`.
 La página se sirve desde **Netlify** (`netlify.toml`). Pasos en [docs/despliegue.md](docs/despliegue.md).
 
-## Usuarios de prueba
+## Modo demostración
+
+Por defecto ConstruTrack arranca **vacío (modo producción)**: no existen usuarios de prueba y el primer cliente se registra
+como jefe y crea su empresa. Para presentaciones hay dos formas de ver el sistema con datos de ejemplo:
+
+- **En local (NetBeans o terminal):** arranca con el argumento `--demo` (en NetBeans: *Project Properties → Run →
+  Arguments* → `--demo`) o con la variable `DEMO=true`. Se crea la empresa «Constructora Demo» con los usuarios de abajo.
+- **Demo privada en la página publicada:** con la variable `DEMO_CLAVE` en Render, se abre
+  `https://startling-toffee-914e34.netlify.app/app.html#demo`, se escribe la clave y se elige entrar como Jefe, Supervisor o
+  Empleado. Es una empresa de prueba **separada de los clientes**, en memoria (se reinicia con el servidor), que no envía
+  correos reales ni aparece en las cifras de la portada. Sin la clave no se puede entrar.
+
+Usuarios del modo demostración:
 
 | Rol | Correo | Cédula | Clave |
 |-----|--------|--------|-------|
@@ -119,7 +133,7 @@ La página se sirve desde **Netlify** (`netlify.toml`). Pasos en [docs/despliegu
 | Registrada sin empresa | `rosa.gutierrez@correo.com` | — | `rosa1234` |
 
 Código de invitación de prueba: **`CT-RQ7K-4M2P`** (Empleado, supervisora Ana, obra Torre Residencial Este).
-Para volver a los datos iniciales, borra `datos_construtrack.txt` y reinicia.
+Para volver a empezar en local, borra `datos_construtrack.txt` y reinicia (vacío, o con los datos de ejemplo si usas `--demo`).
 
 ## Capturas
 
@@ -128,6 +142,8 @@ Para volver a los datos iniciales, borra `datos_construtrack.txt` y reinicia.
 | ![](docs/capturas/web_02_login_error.png) | ![](docs/capturas/web_07_tablero.png) |
 | **Supervisión: alertas y estadísticas** | **Invitaciones (Jefe)** |
 | ![](docs/capturas/web_08_supervision.png) | ![](docs/capturas/web_11_invitaciones.png) |
+| **Obras** | **Historial con incidencias** |
+| ![](docs/capturas/web_16_obras.png) | ![](docs/capturas/web_15_historial.png) |
 | **Escritorio (Swing): supervisión** | **Escritorio (Swing): tablero** |
 | ![](docs/capturas/swing_02_supervision.png) | ![](docs/capturas/swing_03_tablero.png) |
 
@@ -167,7 +183,7 @@ con códigos 400, 401, 403, 404 o 409.
 
 ## Calidad
 
-- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **48 pruebas JUnit 5** y una prueba de humo de la API.
+- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **50 pruebas JUnit 5** y pruebas de humo de la API en modo demostración, en modo producción y de la demo privada.
 - **Pruebas** del modelo, la persistencia y los servicios con reloj fijo; se comprobó que detectan errores introducidos a propósito.
 - Verificado en la interfaz real: recorridos de la web con Playwright, de Swing en pantalla virtual, y despliegue con Docker y CORS.
 

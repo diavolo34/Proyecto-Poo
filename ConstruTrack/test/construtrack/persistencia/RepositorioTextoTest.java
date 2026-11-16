@@ -139,4 +139,15 @@ class RepositorioTextoTest {
         assertEquals(9, otra.listarUsuarios().size());
         assertNotNull(otra.autenticar("10000001", "jefe123"));
     }
+
+    @Test
+    @DisplayName("En modo producción arranca vacío: sin empresas ni usuarios de prueba")
+    void produccionArrancaVacio() {
+        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        AlmacenMemoria memoria = new AlmacenMemoria();
+        var plataforma = new RepositorioTexto(memoria, () -> null, fabrica).cargar();
+        assertEquals(0, plataforma.listarEmpresas().size());
+        assertEquals(null, plataforma.autenticar("10000001", "jefe123"));
+        assertEquals(0, new RepositorioTexto(memoria, () -> null, fabrica).cargar().listarEmpresas().size());
+    }
 }

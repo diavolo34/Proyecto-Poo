@@ -56,11 +56,26 @@ public class ServicioPersonal extends ServicioBase {
         });
     }
 
-    public int[] contarPersonalYPresentes() {
+    public record CifrasPublicas(int empresas, int personas, int presentes, int obras, int avancePromedio) {
+    }
+
+    public CifrasPublicas cifrasPublicas() {
         return leer(() -> {
-            Empresa demo = plataforma.empresaDemo();
-            return new int[] {demo == null ? 0 : demo.listarUsuarios().size(), demo == null ? 0 : demo.contarPresentes(),
-                plataforma.listarEmpresas().size()};
+            int personas = 0;
+            int presentes = 0;
+            int obras = 0;
+            int avance = 0;
+            java.time.LocalDate hoy = java.time.LocalDate.now(reloj);
+            for (Empresa e : plataforma.listarEmpresas()) {
+                personas += e.listarUsuarios().size();
+                presentes += e.contarPresentes();
+                for (Obra o : e.listarObras()) {
+                    obras++;
+                    avance += o.porcentajeTranscurrido(hoy);
+                }
+            }
+            return new CifrasPublicas(plataforma.listarEmpresas().size(), personas, presentes, obras,
+                    obras == 0 ? 0 : Math.round((float) avance / obras));
         });
     }
 
@@ -72,7 +87,7 @@ public class ServicioPersonal extends ServicioBase {
         return leer(() -> empresaDe(actual).listarObras());
     }
 
-    public List<Obra> listarObrasDemo() {
+    public List<Obra> listarObrasPublicas() {
         return leer(() -> plataforma.empresaDemo() == null ? List.<Obra>of() : plataforma.empresaDemo().listarObras());
     }
 

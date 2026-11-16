@@ -28,18 +28,22 @@ public final class VentanaLogin extends JFrame {
     private final JLabel lblError = Tema.textoSuave(" ");
 
     public VentanaLogin(String nombreEmpresa) {
+        this(nombreEmpresa, false);
+    }
+
+    public VentanaLogin(String nombreEmpresa, boolean modoDemo) {
         super(nombreEmpresa + " · Iniciar sesión");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new GridLayout(1, 2));
         add(new Ilustracion());
-        add(formulario(nombreEmpresa));
+        add(formulario(nombreEmpresa, modoDemo));
         setSize(new Dimension(920, 560));
         setMinimumSize(new Dimension(760, 500));
         setLocationRelativeTo(null);
         getRootPane().setDefaultButton(btnEntrar);
     }
 
-    private JPanel formulario(String nombreEmpresa) {
+    private JPanel formulario(String nombreEmpresa, boolean modoDemo) {
         JPanel contenedor = new JPanel(new GridBagLayout());
         contenedor.setBackground(Tema.SUPERFICIE);
 
@@ -72,10 +76,12 @@ public final class VentanaLogin extends JFrame {
         form.add(btnCrearCuenta, c);
         btnWeb.setToolTipText("Abre la página web de ConstruTrack en tu navegador");
         form.add(btnWeb, c);
-        c.insets = new Insets(18, 0, 0, 0);
-        form.add(Tema.textoSuave("<html><div style='width:300px'><b>Usuarios de prueba</b><br>"
-                + "Jefe: 10000001 / jefe123<br>Supervisor: 20000001 / super123<br>"
-                + "Empleado: 30000001 / emp123</div></html>"), c);
+        if (modoDemo) {
+            c.insets = new Insets(18, 0, 0, 0);
+            form.add(Tema.textoSuave("<html><div style='width:300px'><b>Usuarios de prueba</b><br>"
+                    + "Jefe: 10000001 / jefe123<br>Supervisor: 20000001 / super123<br>"
+                    + "Empleado: 30000001 / emp123</div></html>"), c);
+        }
 
         contenedor.add(form);
         return contenedor;

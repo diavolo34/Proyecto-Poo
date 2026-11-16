@@ -7,14 +7,14 @@ Proyecto Java SE (Ant) sin dependencias externas. La clase principal es `constru
 1. Abrir esta carpeta en NetBeans (`File → Open Project…`).
 2. **Run** (F6). Se abre la ventana de escritorio y el servidor queda en http://localhost:8080
    (portada en `/`, sistema en `/app.html`).
-3. Los datos se guardan en `datos_construtrack.txt` (en esta carpeta). Si lo borras, se regeneran los datos de prueba.
+3. Los datos se guardan en `datos_construtrack.txt` (en esta carpeta). Si lo borras, el sistema vuelve a empezar vacío (o con los datos de ejemplo si arrancas con `--demo`).
 
 Variables de entorno opcionales: `PORT` (puerto, 8080), `DATOS` (archivo de datos) y `CORS_ORIGEN` (dominios autorizados,
 separados por coma). Argumento `--sin-ventana` para levantar solo el servidor.
 
 ## Pruebas
 
-`test/construtrack/` contiene 48 pruebas JUnit 5. En NetBeans: *Test Project* (Alt+F6) con la biblioteca **JUnit 5**.
+`test/construtrack/` contiene 50 pruebas JUnit 5. En NetBeans: *Test Project* (Alt+F6) con la biblioteca **JUnit 5**.
 Por terminal:
 
 ```bash

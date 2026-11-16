@@ -37,16 +37,22 @@ const cifra = (valor, texto) =>
   estado.innerHTML = '<span class="chip chip-verde">● Sistema en línea</span>';
   try {
     const datos = await Api.publico();
-    const promedio = Math.round(datos.obras.reduce((s, o) => s + o.avance, 0) / Math.max(1, datos.obras.length));
+    const promedio = typeof datos.avancePromedio === 'number' ? datos.avancePromedio
+      : Math.round(datos.obras.reduce((s, o) => s + o.avance, 0) / Math.max(1, datos.obras.length));
+    const obrasActivas = typeof datos.obrasActivas === 'number' ? datos.obrasActivas : datos.obras.length;
     const cifras = [
       [datos.personal, 'Personas registradas'],
       [datos.presentes, 'En la obra ahora'],
-      [datos.obras.length, 'Obras activas'],
+      [obrasActivas, 'Obras activas'],
       [promedio + '%', 'Avance promedio del plazo'],
     ];
 
     if (typeof datos.empresas === 'number') cifras.unshift([datos.empresas, datos.empresas === 1 ? 'Empresa usa ConstruTrack' : 'Empresas usan ConstruTrack']);
-    $('#cifras').innerHTML = cifras.map(([valor, texto]) => cifra(valor, texto)).join('');
+    $('#cifras').innerHTML = datos.empresas === 0
+      ? `<div class="lp-primera"><p class="lp-primera-titulo">Sé la primera empresa en usar ConstruTrack</p>
+          <p>Crea tu empresa en dos minutos, registra tus obras e invita a tu equipo con un código.</p>
+          <a class="btn btn-primario" href="app.html#registro?tipo=jefe">Crear mi empresa</a></div>`
+      : cifras.map(([valor, texto]) => cifra(valor, texto)).join('');
     $('#lista-obras').innerHTML = datos.obras.map((o) => `
       <article class="lp-obra">
         <div class="lp-obra-cabeza"><img src="img/icono-obra.svg" width="48" height="48" alt="">
@@ -55,7 +61,10 @@ const cifra = (valor, texto) =>
           aria-label="Avance del plazo de ${esc(o.nombre)}"><span style="width:${o.avance}%"></span></div>
         <p class="lp-obra-pie"><strong>${o.avance}%</strong> del plazo · fin estimado ${fecha(o.finEstimado)}</p>
       </article>`).join('')
-      || '<p>Aún no hay obras registradas.</p>';
+      || `<p class="lp-sin-obras">Las obras de cada empresa son privadas: solo las ve su equipo.
+        <a href="app.html#registro?tipo=jefe">Crea tu empresa</a> y registra la primera.</p>`;
+    $('#titulo-obras').hidden = datos.obras.length === 0;
+    if (datos.empresas === 0) $('#lista-obras').innerHTML = '';
   } catch (e) {
     $('#lista-obras').innerHTML = `<p>${esc(e.message)}</p>`;
   }
