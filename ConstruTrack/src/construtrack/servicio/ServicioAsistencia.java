@@ -1,5 +1,6 @@
 package construtrack.servicio;
 
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Usuario;
@@ -10,8 +11,8 @@ import java.time.LocalDateTime;
 /** Casos de uso: marcar entrada y salida de la obra. */
 public class ServicioAsistencia extends ServicioBase {
 
-    public ServicioAsistencia(Empresa empresa, EscritorDatos escritor, Clock reloj) {
-        super(empresa, escritor, reloj);
+    public ServicioAsistencia(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
+        super(plataforma, escritor, reloj);
     }
 
     public RegistroAsistencia marcarEntrada(Usuario usuario) {

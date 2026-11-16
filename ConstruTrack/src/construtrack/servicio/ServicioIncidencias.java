@@ -1,5 +1,6 @@
 package construtrack.servicio;
 
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.NoEncontradoException;
@@ -22,9 +23,9 @@ public class ServicioIncidencias extends ServicioBase {
     private final FabricaIncidencias fabrica;
     private int siguienteId;
 
-    public ServicioIncidencias(Empresa empresa, EscritorDatos escritor, Clock reloj,
+    public ServicioIncidencias(Plataforma plataforma, EscritorDatos escritor, Clock reloj,
             FabricaIncidencias fabrica, int siguienteId) {
-        super(empresa, escritor, reloj);
+        super(plataforma, escritor, reloj);
         this.fabrica = fabrica;
         this.siguienteId = siguienteId;
     }
@@ -33,7 +34,7 @@ public class ServicioIncidencias extends ServicioBase {
     public Incidencia reportar(Usuario reporta, String codigoTipo, String cedulaAfectado,
             LocalDate desde, LocalDate hasta, String descripcion, Map<String, String> extras) {
         return modificar(() -> {
-            Usuario afectado = buscar(cedulaAfectado);
+            Usuario afectado = buscar(reporta, cedulaAfectado);
             DatosIncidencia datos = new DatosIncidencia(siguienteId, afectado, reporta, desde, hasta,
                     descripcion, LocalDateTime.now(reloj), extras);
             Incidencia incidencia = fabrica.crear(codigoTipo, datos);
@@ -52,7 +53,7 @@ public class ServicioIncidencias extends ServicioBase {
     public List<Usuario> personasReportables(Usuario actual) {
         return leer(() -> {
             List<Usuario> personas = new ArrayList<>();
-            for (Usuario u : empresa.listarUsuarios()) {
+            for (Usuario u : empresaDe(actual).listarUsuarios()) {
                 if (actual.puedeReportarPara(u)) {
                     personas.add(u);
                 }
@@ -71,7 +72,7 @@ public class ServicioIncidencias extends ServicioBase {
     public List<Incidencia> listarVisibles(Usuario actual) {
         return leer(() -> {
             List<Incidencia> visibles = new ArrayList<>();
-            for (Usuario u : empresa.listarUsuarios()) {
+            for (Usuario u : empresaDe(actual).listarUsuarios()) {
                 if (puedeVer(actual, u)) {
                     visibles.addAll(u.getHistorial().getIncidencias());
                 }
@@ -84,7 +85,7 @@ public class ServicioIncidencias extends ServicioBase {
     public List<Incidencia> pendientesDeRevisar(Usuario revisor) {
         return leer(() -> {
             List<Incidencia> pendientes = new ArrayList<>();
-            for (Usuario u : empresa.listarUsuarios()) {
+            for (Usuario u : empresaDe(revisor).listarUsuarios()) {
                 for (Incidencia i : u.getHistorial().getIncidencias()) {
                     if (!i.getEstado().esFinal() && revisor instanceof construtrack.modelo.RevisorIncidencias r
                             && r.puedeRevisar(i)) {
@@ -101,7 +102,7 @@ public class ServicioIncidencias extends ServicioBase {
             if (!(revisor instanceof construtrack.modelo.RevisorIncidencias r)) {
                 throw new PermisoDenegadoException("Tu rol no puede revisar incidencias.");
             }
-            Incidencia incidencia = buscarIncidencia(id);
+            Incidencia incidencia = buscarIncidencia(revisor, id);
             r.revisar(incidencia, nuevo, comentario, LocalDateTime.now(reloj));
             return null;
         });
@@ -117,16 +118,17 @@ public class ServicioIncidencias extends ServicioBase {
         return actual instanceof construtrack.modelo.Supervisor s && s.supervisa(afectado);
     }
 
-    private Usuario buscar(String cedula) {
-        Usuario u = empresa.buscarUsuario(cedula);
+    /** Busca solo en la empresa de quien hace la operación. */
+    private Usuario buscar(Usuario actual, String cedula) {
+        Usuario u = empresaDe(actual).buscarUsuario(cedula);
         if (u == null) {
             throw new NoEncontradoException("No existe un usuario con la cédula " + cedula + ".");
         }
         return u;
     }
 
-    private Incidencia buscarIncidencia(int id) {
-        for (Usuario u : empresa.listarUsuarios()) {
+    private Incidencia buscarIncidencia(Usuario actual, int id) {
+        for (Usuario u : empresaDe(actual).listarUsuarios()) {
             for (Incidencia i : u.getHistorial().getIncidencias()) {
                 if (i.getId() == id) {
                     return i;

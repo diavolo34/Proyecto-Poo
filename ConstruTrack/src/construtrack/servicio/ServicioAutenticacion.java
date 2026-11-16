@@ -1,5 +1,6 @@
 package construtrack.servicio;
 
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.Usuario;
@@ -10,13 +11,13 @@ import java.time.Clock;
 /** Caso de uso: iniciar sesión con cédula y clave. */
 public class ServicioAutenticacion extends ServicioBase {
 
-    public ServicioAutenticacion(Empresa empresa, EscritorDatos escritor, Clock reloj) {
-        super(empresa, escritor, reloj);
+    public ServicioAutenticacion(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
+        super(plataforma, escritor, reloj);
     }
 
     public Usuario autenticar(String cedula, String clave) {
         return leer(() -> {
-            Usuario usuario = empresa.autenticar(cedula, clave);
+            Usuario usuario = plataforma.autenticar(cedula, clave);
             if (usuario == null) {
                 throw new CredencialesInvalidasException();
             }
@@ -32,13 +33,13 @@ public class ServicioAutenticacion extends ServicioBase {
         return leer(() -> {
             String id = identificador == null ? "" : identificador.trim();
             if (id.contains("@")) {
-                Cuenta cuenta = empresa.buscarCuenta(id);
+                Cuenta cuenta = plataforma.buscarCuenta(id);
                 if (cuenta == null || !cuenta.verificarClave(clave)) {
                     throw new CredencialesInvalidasException();
                 }
                 return new Ingreso(cuenta, cuenta.getUsuario());
             }
-            Usuario usuario = empresa.autenticar(id, clave);
+            Usuario usuario = plataforma.autenticar(id, clave);
             if (usuario == null) {
                 throw new CredencialesInvalidasException();
             }
@@ -47,14 +48,15 @@ public class ServicioAutenticacion extends ServicioBase {
     }
 
     public Cuenta buscarCuenta(String correo) {
-        return leer(() -> empresa.buscarCuenta(correo));
+        return leer(() -> plataforma.buscarCuenta(correo));
     }
 
     public Usuario buscar(String cedula) {
-        return leer(() -> empresa.buscarUsuario(cedula));
+        return leer(() -> plataforma.buscarUsuario(cedula));
     }
 
     public String getNombreEmpresa() {
-        return empresa.getNombre();
+        Empresa demo = plataforma.empresaDemo();
+        return demo == null ? "ConstruTrack" : demo.getNombre();
     }
 }

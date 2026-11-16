@@ -1,5 +1,6 @@
 package construtrack.servicio;
 
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.CodigoInvitacion;
 import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empresa;
@@ -23,8 +24,8 @@ public class ServicioInvitaciones extends ServicioBase {
     private final Notificador notificador;
     private final SecureRandom azar = new SecureRandom();
 
-    public ServicioInvitaciones(Empresa empresa, EscritorDatos escritor, Clock reloj, Notificador notificador) {
-        super(empresa, escritor, reloj);
+    public ServicioInvitaciones(Plataforma plataforma, EscritorDatos escritor, Clock reloj, Notificador notificador) {
+        super(plataforma, escritor, reloj);
         this.notificador = notificador;
     }
 
@@ -62,7 +63,7 @@ public class ServicioInvitaciones extends ServicioBase {
     public String enviar(Usuario actual, String codigo, String correoDestino) {
         comoJefe(actual);
         String correo = Cuenta.validarCorreo(correoDestino);
-        Invitacion invitacion = leer(() -> empresa.buscarInvitacion(CodigoInvitacion.de(codigo)));
+        Invitacion invitacion = leer(() -> empresaDe(actual).buscarInvitacion(CodigoInvitacion.de(codigo)));
         if (invitacion == null) {
             throw new NoEncontradoException("No existe la invitación " + codigo + ".");
         }
@@ -86,7 +87,7 @@ public class ServicioInvitaciones extends ServicioBase {
     /** Invitaciones de la empresa, las más recientes primero. */
     public List<Invitacion> listar(Usuario actual) {
         comoJefe(actual);
-        return leer(() -> empresa.listarInvitaciones().stream()
+        return leer(() -> empresaDe(actual).listarInvitaciones().stream()
                 .sorted(Comparator.comparing(Invitacion::getCreada).reversed()).toList());
     }
 

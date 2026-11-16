@@ -2,7 +2,7 @@ package construtrack;
 
 import construtrack.controlador.swing.AplicacionSwing;
 import construtrack.controlador.web.ServidorWeb;
-import construtrack.modelo.Empresa;
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.incidencias.FabricaIncidencias;
 import construtrack.persistencia.Almacen;
 import construtrack.persistencia.AlmacenArchivo;
@@ -45,8 +45,8 @@ public final class App {
 
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
         RepositorioTexto repositorio = new RepositorioTexto(almacen(), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
-        Empresa empresa = repositorio.cargar();
-        Servicios servicios = new Servicios(empresa, repositorio, reloj, repositorio.siguienteIdIncidencia(), notificador());
+        Plataforma plataforma = repositorio.cargar();
+        Servicios servicios = new Servicios(plataforma, repositorio, reloj, repositorio.siguienteIdIncidencia(), notificador());
 
         ServidorWeb web;
         try {
@@ -59,7 +59,7 @@ public final class App {
         }
         web.iniciar();
         System.out.println("ConstruTrack listo en " + web.getUrl()
-                + " (" + empresa.listarUsuarios().size() + " usuarios, datos en " + repositorio.getAlmacen().descripcion()
+                + " (" + plataforma.listarEmpresas().size() + " empresa(s), datos en " + repositorio.getAlmacen().descripcion()
                 + ", correo " + (servicios.invitaciones().correoReal() ? "con Brevo" : "solo registrado en consola") + ")");
 
         // Vista de escritorio: se abre salvo que no haya pantalla (servidor) o se pida --sin-ventana

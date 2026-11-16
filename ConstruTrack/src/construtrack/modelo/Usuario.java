@@ -25,6 +25,7 @@ public abstract class Usuario {
     private Obra obra;
     private Cuenta cuenta;
     private final Historial historial = new Historial();
+    private Empresa empresa;
 
     protected Usuario(String cedula, String nombre, String clave, Horario horario) {
         setCedula(cedula);
@@ -169,6 +170,20 @@ public abstract class Usuario {
         }
         jornada.revisarHorasExtra(nuevo, empleado.getHorario());
         return jornada;
+    }
+
+    /** Empresa a la que pertenece (la asigna Empresa.agregarUsuario). */
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
+
+    /** Indica si otra persona es de su misma empresa (base de todos los permisos sobre terceros). */
+    public boolean mismaEmpresaQue(Usuario otro) {
+        return otro != null && empresa != null && otro.empresa == empresa;
     }
 
     public Historial getHistorial() {

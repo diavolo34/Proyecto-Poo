@@ -88,7 +88,7 @@ public final class ControladoraInvitaciones {
         Object supervisorElegido = vista.getCboSupervisor().getSelectedItem();
         vista.getCboSupervisor().removeAllItems();
         vista.getCboSupervisor().addItem(new Opcion("", "— Sin supervisor —"));
-        for (Supervisor s : personal.listarSupervisores()) {
+        for (Supervisor s : personal.listarSupervisores(usuario)) {
             vista.getCboSupervisor().addItem(new Opcion(s.getCedula(), s.getNombre()));
         }
         if (supervisorElegido != null) {
@@ -96,7 +96,7 @@ public final class ControladoraInvitaciones {
         }
         if (vista.getCboObra().getItemCount() == 0) {
             vista.getCboObra().addItem(new Opcion("", "— Sin obra —"));
-            for (Obra o : personal.listarObras()) {
+            for (Obra o : personal.listarObras(usuario)) {
                 vista.getCboObra().addItem(new Opcion(o.getCodigo(), o.getNombre()));
             }
         }

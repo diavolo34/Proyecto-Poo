@@ -19,7 +19,6 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     /** Clave de paso al recrear un usuario con otro rol; se reemplaza enseguida por su resumen real. */
     private static final String CLAVE_TEMPORAL = "temporal";
 
-    private Empresa empresa;
     private java.time.Clock reloj = java.time.Clock.systemDefaultZone();
 
     public Jefe(String cedula, String nombre, String clave, Horario horario) {
@@ -31,10 +30,6 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         return ROL;
     }
 
-    /** La empresa la asigna al agregar al jefe con Empresa.agregarUsuario. */
-    void setEmpresa(Empresa empresa) {
-        this.empresa = empresa;
-    }
 
     /**
      * Registra un empleado o supervisor nuevo.
@@ -44,7 +39,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         String rol = datos.get("rol");
         verificarRolGestionable(rol);
         validarCedulaNueva(datos.get("cedula"));
-        if (empresa.existeCedula(datos.get("cedula"))) {
+        if (getEmpresa().existeCedula(datos.get("cedula"))) {
             throw new OperacionInvalidaException("Ya existe un usuario con la cédula " + datos.get("cedula") + ".");
         }
         Horario horario = Horario.desdeTexto(datos.get("dias"), datos.get("horaEntrada"), datos.get("horaSalida"));
@@ -53,7 +48,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         if (nuevo instanceof Empleado) {
             asignarSupervisor((Empleado) nuevo, datos.get("supervisor"));
         }
-        empresa.agregarUsuario(nuevo);
+        getEmpresa().agregarUsuario(nuevo);
         if ("true".equals(datos.get("presente"))) {
             nuevo.marcarEntrada(LocalDateTime.now(reloj));
         }
@@ -85,7 +80,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
             if (cedulaSupervisor.equals(cedula)) {
                 throw new DatoInvalidoException("Un empleado no puede ser su propio supervisor.");
             }
-            if (!(empresa.buscarUsuario(cedulaSupervisor) instanceof Supervisor)) {
+            if (!(getEmpresa().buscarUsuario(cedulaSupervisor) instanceof Supervisor)) {
                 throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor.");
             }
         }
@@ -117,7 +112,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     /** Elimina a un empleado o supervisor. Los empleados de un supervisor eliminado quedan sin supervisor. */
     public void eliminarUsuario(String cedula) {
         buscarGestionable(cedula);
-        empresa.eliminarUsuario(cedula);
+        getEmpresa().eliminarUsuario(cedula);
     }
 
     /** Asigna (o quita, si la cédula viene vacía) el supervisor de un empleado. */
@@ -126,7 +121,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
             empleado.setSupervisor(null);
             return;
         }
-        Usuario supervisor = empresa.buscarUsuario(cedulaSupervisor);
+        Usuario supervisor = getEmpresa().buscarUsuario(cedulaSupervisor);
         if (!(supervisor instanceof Supervisor)) {
             throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor.");
         }
@@ -137,14 +132,14 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         verificarRolGestionable(rol);
         Usuario nuevo = Usuario.crear(rol, anterior.getCedula(), anterior.getNombre(), CLAVE_TEMPORAL, anterior.getHorario());
         nuevo.copiarEstadoDe(anterior);
-        empresa.eliminarUsuario(anterior.getCedula());
-        empresa.agregarUsuario(nuevo);
+        getEmpresa().eliminarUsuario(anterior.getCedula());
+        getEmpresa().agregarUsuario(nuevo);
         return nuevo;
     }
 
     /** El jefe solo gestiona empleados y supervisores, no a otros jefes. */
     private Usuario buscarGestionable(String cedula) {
-        Usuario usuario = empresa.buscarUsuario(cedula);
+        Usuario usuario = getEmpresa().buscarUsuario(cedula);
         if (usuario == null) {
             throw new DatoInvalidoException("No existe un usuario con la cédula " + cedula + ".");
         }
@@ -159,7 +154,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     }
 
     /**
-     * Genera una invitación personal de un solo uso para que alguien con cuenta se una a la empresa.
+     * Genera una invitación personal de un solo uso para que alguien con cuenta se una a la getEmpresa().
      * El supervisor (solo para empleados) y la obra son opcionales; la invitación vence en {@code dias} días.
      */
     public Invitacion crearInvitacion(String rol, String cedulaSupervisor, String codigoObra, int dias,
@@ -169,14 +164,14 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         }
         Supervisor supervisor = null;
         if (cedulaSupervisor != null && !cedulaSupervisor.isBlank()) {
-            if (!(empresa.buscarUsuario(cedulaSupervisor) instanceof Supervisor s)) {
+            if (!(getEmpresa().buscarUsuario(cedulaSupervisor) instanceof Supervisor s)) {
                 throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor.");
             }
             supervisor = s;
         }
         Obra obra = null;
         if (codigoObra != null && !codigoObra.isBlank()) {
-            obra = empresa.buscarObra(codigoObra);
+            obra = getEmpresa().buscarObra(codigoObra);
             if (obra == null) {
                 throw new DatoInvalidoException("No existe la obra " + codigoObra + ".");
             }
@@ -184,14 +179,14 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         CodigoInvitacion codigo;
         do {
             codigo = CodigoInvitacion.generar(azar);
-        } while (empresa.existeInvitacion(codigo));
+        } while (getEmpresa().existeInvitacion(codigo));
         Invitacion invitacion = new Invitacion(codigo, rol, supervisor, obra, this, ahora, ahora.plusDays(dias));
-        empresa.agregarInvitacion(invitacion);
+        getEmpresa().agregarInvitacion(invitacion);
         return invitacion;
     }
 
     public void cancelarInvitacion(CodigoInvitacion codigo, LocalDateTime ahora) {
-        Invitacion invitacion = empresa.buscarInvitacion(codigo);
+        Invitacion invitacion = getEmpresa().buscarInvitacion(codigo);
         if (invitacion == null) {
             throw new DatoInvalidoException("No existe la invitación " + codigo + ".");
         }
@@ -200,7 +195,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
 
     @Override
     public boolean puedeReportarPara(Usuario afectado) {
-        return true;
+        return mismaEmpresaQue(afectado);
     }
 
     @Override
@@ -210,17 +205,17 @@ public class Jefe extends Usuario implements RevisorIncidencias {
 
     @Override
     public boolean puedeAsignarObraA(Usuario otro) {
-        return true;
+        return mismaEmpresaQue(otro);
     }
 
     @Override
     public boolean puedeAprobarHorasDe(Usuario otro) {
-        return !(otro instanceof Jefe);
+        return !(otro instanceof Jefe) && mismaEmpresaQue(otro);
     }
 
     @Override
     public boolean puedeRevisar(Incidencia incidencia) {
-        return !(incidencia.getAfectado() instanceof Jefe);
+        return !(incidencia.getAfectado() instanceof Jefe) && mismaEmpresaQue(incidencia.getAfectado());
     }
 
     @Override

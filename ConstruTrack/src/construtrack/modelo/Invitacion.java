@@ -54,7 +54,15 @@ public class Invitacion {
      * Canjea la invitación: crea la ficha de la persona en la empresa con el rol, supervisor y obra definidos.
      * Solo funciona una vez y antes de vencer.
      */
+    public Usuario canjear(Cuenta cuenta, LocalDateTime ahora) {
+        return canjear(cuenta, creadaPor.getEmpresa(), ahora);
+    }
+
+    /** Canjea en la empresa indicada, que debe ser la del jefe que creó la invitación. */
     public Usuario canjear(Cuenta cuenta, Empresa empresa, LocalDateTime ahora) {
+        if (creadaPor.getEmpresa() != null && creadaPor.getEmpresa() != empresa) {
+            throw new OperacionInvalidaException("Esta invitación es de otra empresa.");
+        }
         EstadoInvitacion actual = estadoEn(ahora);
         if (actual != EstadoInvitacion.VIGENTE) {
             throw new OperacionInvalidaException("Esta invitación está " + actual.getNombre().toLowerCase()
@@ -65,7 +73,7 @@ public class Invitacion {
         }
         if (empresa.existeCedula(cuenta.getDocumento())) {
             throw new OperacionInvalidaException("Ya hay una persona con el documento " + cuenta.getDocumento()
-                    + " en la empresa. Habla con tu jefe para vincularla a tu cuenta.");
+                    + " registrada en ConstruTrack. Habla con tu jefe para vincularla a tu cuenta.");
         }
         Horario horario = Horario.desdeTexto(DIAS_POR_DEFECTO, "07:00", "16:00");
         Usuario nuevo = Usuario.crear(rol, cuenta.getDocumento(), cuenta.getNombreCompleto(), CLAVE_TEMPORAL, horario);

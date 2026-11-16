@@ -1,6 +1,6 @@
 package construtrack.persistencia;
 
-import construtrack.modelo.Empresa;
+import construtrack.modelo.Plataforma;
 
 /**
  * Destino donde se guardan los cambios. Los servicios solo dependen de esta interfaz
@@ -8,5 +8,5 @@ import construtrack.modelo.Empresa;
  */
 public interface EscritorDatos {
 
-    void guardar(Empresa empresa);
+    void guardar(Plataforma plataforma);
 }

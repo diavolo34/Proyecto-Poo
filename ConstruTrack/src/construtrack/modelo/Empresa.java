@@ -7,36 +7,54 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * La empresa (la obra) y todo su personal registrado.
+ * Una constructora que usa ConstruTrack: su personal, sus obras y sus invitaciones.
+ * Pertenece a una Plataforma, que guarda las cuentas personales y las demás empresas.
  */
-public class Empresa {
+public final class Empresa {
 
     private final String nombre;
+    private final Plataforma plataforma;
     private final Map<String, Usuario> usuarios = new LinkedHashMap<>();
     private final Map<String, Obra> obras = new LinkedHashMap<>();
-    private final Map<String, Cuenta> cuentas = new LinkedHashMap<>();
     private final Map<CodigoInvitacion, Invitacion> invitaciones = new LinkedHashMap<>();
 
+    /** Empresa en una plataforma propia (una sola empresa: pruebas y uso local). */
     public Empresa(String nombre) {
-        this.nombre = nombre;
+        this(nombre, new Plataforma());
     }
 
+    /** La crea Plataforma.crearEmpresa: queda registrada en la plataforma. */
+    Empresa(String nombre, Plataforma plataforma) {
+        this.nombre = Plataforma.validarNombreEmpresa(nombre);
+        this.plataforma = plataforma;
+        plataforma.registrar(this);
+    }
+
+    public Plataforma getPlataforma() {
+        return plataforma;
+    }
+
+    /** Agrega una persona; la cédula no puede existir en ninguna empresa. */
     public void agregarUsuario(Usuario usuario) {
-        if (existeCedula(usuario.getCedula())) {
-            throw new OperacionInvalidaException("Ya existe un usuario con la cédula " + usuario.getCedula() + ".");
+        if (plataforma.existeCedula(usuario.getCedula())) {
+            throw new OperacionInvalidaException("Ya existe una persona con la cédula " + usuario.getCedula() + ".");
         }
         usuarios.put(usuario.getCedula(), usuario);
-        if (usuario instanceof Jefe) {
-            ((Jefe) usuario).setEmpresa(this);
-        }
+        usuario.setEmpresa(this);
     }
 
+    /** Persona de esta empresa (null si no existe o es de otra empresa). */
     public Usuario buscarUsuario(String cedula) {
+        return buscarUsuarioLocal(cedula);
+    }
+
+    Usuario buscarUsuarioLocal(String cedula) {
         return cedula == null ? null : usuarios.get(cedula.trim().toUpperCase());
     }
 
+    /** Indica si la cédula ya está registrada en el sistema (en esta o en otra empresa). */
     public boolean existeCedula(String cedula) {
-        return cedula != null && usuarios.containsKey(cedula.trim().toUpperCase());
+        return plataforma.existeCedula(cedula);
     }
 
     /** Quita al usuario y deshace sus relaciones de supervisión. */
@@ -44,6 +62,7 @@ public class Empresa {
         Usuario usuario = usuarios.remove(cedula);
         if (usuario != null) {
             usuario.desvincularCuenta();
+            usuario.setEmpresa(null);
         }
         if (usuario instanceof Empleado) {
             ((Empleado) usuario).setSupervisor(null);
@@ -108,29 +127,17 @@ public class Empresa {
 
     // ------------------------------------------------------------------ cuentas e invitaciones
 
-    /** Registra una cuenta nueva: el correo y el documento no pueden repetirse. */
+    /** Las cuentas son de la plataforma: la empresa solo delega (atajo para quien ya tiene la empresa). */
     public void agregarCuenta(Cuenta cuenta) {
-        if (cuentas.containsKey(cuenta.getCorreo())) {
-            throw new OperacionInvalidaException("Ya existe una cuenta con el correo " + cuenta.getCorreo() + ". Inicia sesión.");
-        }
-        for (Cuenta c : cuentas.values()) {
-            if (c.getDocumento().equals(cuenta.getDocumento())) {
-                throw new OperacionInvalidaException("Ya existe una cuenta con el documento " + cuenta.getDocumento() + ".");
-            }
-        }
-        cuentas.put(cuenta.getCorreo(), cuenta);
+        plataforma.agregarCuenta(cuenta);
     }
 
     public Cuenta buscarCuenta(String correo) {
-        return correo == null ? null : cuentas.get(correo.trim().toLowerCase());
-    }
-
-    public List<Cuenta> listarCuentas() {
-        return new ArrayList<>(cuentas.values());
+        return plataforma.buscarCuenta(correo);
     }
 
     public void agregarInvitacion(Invitacion invitacion) {
-        if (invitaciones.containsKey(invitacion.getCodigo())) {
+        if (plataforma.existeInvitacion(invitacion.getCodigo())) {
             throw new OperacionInvalidaException("Ya existe una invitación con el código " + invitacion.getCodigo() + ".");
         }
         invitaciones.put(invitacion.getCodigo(), invitacion);
@@ -140,8 +147,9 @@ public class Empresa {
         return invitaciones.get(codigo);
     }
 
+    /** Los códigos son únicos en todo el sistema: se busca en todas las empresas. */
     public boolean existeInvitacion(CodigoInvitacion codigo) {
-        return invitaciones.containsKey(codigo);
+        return plataforma.existeInvitacion(codigo);
     }
 
     public List<Invitacion> listarInvitaciones() {
@@ -152,10 +160,15 @@ public class Empresa {
         return new ArrayList<>(usuarios.values());
     }
 
-    /** Devuelve el usuario si la cédula y la clave coinciden; si no, null. */
+    /** Devuelve el usuario de esta empresa si la cédula y la clave coinciden; si no, null. */
     public Usuario autenticar(String cedula, String clave) {
         Usuario usuario = buscarUsuario(cedula);
         return usuario != null && usuario.verificarClave(clave) ? usuario : null;
+    }
+
+    /** Indica si la persona pertenece a esta empresa. */
+    public boolean incluye(Usuario usuario) {
+        return usuario != null && usuario.getEmpresa() == this;
     }
 
     public int contarPresentes() {

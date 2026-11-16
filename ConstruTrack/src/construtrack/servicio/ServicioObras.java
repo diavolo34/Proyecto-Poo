@@ -1,5 +1,6 @@
 package construtrack.servicio;
 
+import construtrack.modelo.Plataforma;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.Obra;
 import construtrack.modelo.Usuario;
@@ -19,8 +20,8 @@ import java.util.Map;
  */
 public class ServicioObras extends ServicioBase {
 
-    public ServicioObras(Empresa empresa, EscritorDatos escritor, Clock reloj) {
-        super(empresa, escritor, reloj);
+    public ServicioObras(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
+        super(plataforma, escritor, reloj);
     }
 
     /** Una obra con las personas asignadas, para mostrarla en la vista. */
@@ -28,6 +29,7 @@ public class ServicioObras extends ServicioBase {
     }
 
     public List<ObraConPersonas> listar(Usuario actual) {
+        Empresa empresa = empresaDe(actual);
         return leer(() -> empresa.listarObras().stream()
                 .map(o -> new ObraConPersonas(o, empresa.personasEn(o))).toList());
     }
@@ -35,6 +37,7 @@ public class ServicioObras extends ServicioBase {
     /** Datos: nombre, ubicacion, inicio, fin (AAAA-MM-DD). */
     public Obra crear(Usuario actual, Map<String, String> datos) {
         verificarGestion(actual);
+        Empresa empresa = empresaDe(actual);
         return modificar(() -> {
             Obra obra = new Obra(empresa.siguienteCodigoObra(), datos.get("nombre"), datos.get("ubicacion"),
                     fecha(datos.get("inicio"), "inicio"), fecha(datos.get("fin"), "fin estimado"));
@@ -46,7 +49,7 @@ public class ServicioObras extends ServicioBase {
     public Obra editar(Usuario actual, String codigo, Map<String, String> datos) {
         verificarGestion(actual);
         return modificar(() -> {
-            Obra obra = buscar(codigo);
+            Obra obra = buscar(actual, codigo);
             obra.setNombre(datos.get("nombre"));
             obra.setUbicacion(datos.get("ubicacion"));
             obra.setFechas(fecha(datos.get("inicio"), "inicio"), fecha(datos.get("fin"), "fin estimado"));
@@ -57,7 +60,7 @@ public class ServicioObras extends ServicioBase {
     public void eliminar(Usuario actual, String codigo) {
         verificarGestion(actual);
         modificar(() -> {
-            empresa.eliminarObra(codigo);
+            empresaDe(actual).eliminarObra(codigo);
             return null;
         });
     }
@@ -65,11 +68,11 @@ public class ServicioObras extends ServicioBase {
     /** Asigna una persona a una obra; con código vacío la deja sin obra. */
     public Usuario asignar(Usuario actual, String cedula, String codigoObra) {
         return modificar(() -> {
-            Usuario persona = empresa.buscarUsuario(cedula);
+            Usuario persona = empresaDe(actual).buscarUsuario(cedula);
             if (persona == null) {
                 throw new NoEncontradoException("No existe una persona con la cédula " + cedula + ".");
             }
-            Obra obra = codigoObra == null || codigoObra.isBlank() ? null : buscar(codigoObra);
+            Obra obra = codigoObra == null || codigoObra.isBlank() ? null : buscar(actual, codigoObra);
             actual.asignarObra(persona, obra);
             return persona;
         });
@@ -79,8 +82,8 @@ public class ServicioObras extends ServicioBase {
         return LocalDate.now(reloj);
     }
 
-    private Obra buscar(String codigo) {
-        Obra obra = empresa.buscarObra(codigo);
+    private Obra buscar(Usuario actual, String codigo) {
+        Obra obra = empresaDe(actual).buscarObra(codigo);
         if (obra == null) {
             throw new NoEncontradoException("No existe la obra " + codigo + ".");
         }
