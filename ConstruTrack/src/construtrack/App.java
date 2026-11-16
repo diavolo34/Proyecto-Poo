@@ -74,7 +74,7 @@ public final class App {
     }
 
     private static Notificador notificador() {
-        String sitio = entorno("URL_SITIO", "https://startling-toffee-914e34.netlify.app");
+        String sitio = entorno("URL_SITIO", "https://construtrackfm.netlify.app");
         String script = entorno("GMAIL_SCRIPT_URL", "");
         String claveScript = entorno("GMAIL_SCRIPT_CLAVE", "");
         if (!script.isEmpty() && !claveScript.isEmpty()) {
