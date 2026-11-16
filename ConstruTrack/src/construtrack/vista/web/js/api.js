@@ -120,6 +120,7 @@ const Api = {
   opcionesPersonal: () => Api.pedir('GET', '/api/personal/opciones'),
 
   incidencias: () => Api.pedir('GET', '/api/incidencias'),
+  incidenciasTablero: () => Api.pedir('GET', '/api/incidencias?vista=tablero'),
   opcionesIncidencias: () => Api.pedir('GET', '/api/incidencias/opciones'),
   reportarIncidencia: (datos) => Api.pedir('POST', '/api/incidencias', datos),
   revisarIncidencia: (id, estado, comentario) =>

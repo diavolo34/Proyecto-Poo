@@ -18,7 +18,7 @@ public final class JsonMapper {
     }
 
     public static String usuario(Usuario u, boolean detalle) {
-        RegistroAsistencia hoy = u.getAsistenciaDel(java.time.LocalDate.now());
+        RegistroAsistencia hoy = u.jornadaDeHoy(java.time.LocalDate.now());
         JsonObjeto json = new JsonObjeto()
                 .texto("cedula", u.getCedula())
                 .texto("nombre", u.getNombre())

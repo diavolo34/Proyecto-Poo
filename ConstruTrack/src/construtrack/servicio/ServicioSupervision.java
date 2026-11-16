@@ -61,8 +61,11 @@ public class ServicioSupervision extends ServicioBase {
             throw new DatoInvalidoException("Formato no válido. Usa txt o csv.");
         }
         LocalDate hoy = LocalDate.now(reloj);
-        Periodo periodo = periodo(nombrePeriodo, hoy);
-        String contenido = leer(() -> formateador.formatear(reporte.generar(alcance(actual), periodo, hoy)));
+        String contenido = leer(() -> {
+            List<Usuario> personas = alcance(actual);
+            Periodo periodo = "todo".equals(nombrePeriodo) ? historialCompleto(personas, hoy) : periodo(nombrePeriodo, hoy);
+            return formateador.formatear(reporte.generar(personas, periodo, hoy));
+        });
         String nombre = "construtrack-" + tipo + "-" + hoy + "." + formateador.extension();
         return new Exportacion(contenido, formateador.mime(), nombre);
     }
@@ -72,6 +75,7 @@ public class ServicioSupervision extends ServicioBase {
 
     public List<HorasExtraPendientes> horasExtraPendientes(Usuario actual) {
         return leer(() -> alcance(actual).stream()
+                .filter(actual::puedeAprobarHorasDe)
                 .flatMap(u -> u.getHistorial().horasExtraPendientes(u.getHorario()).stream()
                         .map(r -> new HorasExtraPendientes(u, r)))
                 .sorted(Comparator.comparing((HorasExtraPendientes h) -> h.jornada().getFecha()))
@@ -96,12 +100,33 @@ public class ServicioSupervision extends ServicioBase {
 
     private List<Usuario> alcance(Usuario actual) {
         if (actual instanceof Jefe) {
-            return empresaDe(actual).listarUsuarios().stream().filter(u -> !(u instanceof Jefe)).toList();
+            return empresaDe(actual).listarUsuarios();
         }
         if (actual instanceof Supervisor supervisor) {
-            return new ArrayList<Usuario>(supervisor.verEmpleadosACargo());
+            List<Usuario> grupo = new ArrayList<>();
+            grupo.add(supervisor);
+            grupo.addAll(supervisor.verEmpleadosACargo());
+            return grupo;
         }
         throw new PermisoDenegadoException("Tu rol no tiene acceso a los reportes del equipo.");
+    }
+
+    static Periodo historialCompleto(List<Usuario> personas, LocalDate hoy) {
+        LocalDate desde = hoy;
+        LocalDate hasta = hoy;
+        for (Usuario u : personas) {
+            if (u.getFechaIngreso() != null && u.getFechaIngreso().isBefore(desde)) {
+                desde = u.getFechaIngreso();
+            }
+            for (RegistroAsistencia r : u.getAsistencias()) {
+                desde = r.getFecha().isBefore(desde) ? r.getFecha() : desde;
+            }
+            for (var i : u.getHistorial().getIncidencias()) {
+                desde = i.getDesde().isBefore(desde) ? i.getDesde() : desde;
+                hasta = i.getHasta().isAfter(hasta) ? i.getHasta() : hasta;
+            }
+        }
+        return new Periodo(desde, hasta);
     }
 
     public static Periodo periodo(String nombre, LocalDate hoy) {

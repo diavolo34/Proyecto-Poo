@@ -32,6 +32,8 @@ Prioridad: **A** (alta, pedido por la profesora o imprescindible) · **M** (medi
 | HU-26 | Como **jefe**, quiero crear mi empresa al registrarme e invitar a mi equipo; cada empresa ve solo sus datos. | A | 7 | Hecho |
 | HU-27 | Como **visitante**, quiero una portada atractiva que muestre el producto y las dos formas de empezar. | M | 7 | Hecho |
 | HU-28 | Como **dueño del producto**, quiero una versión para clientes sin datos de prueba y una demo privada con clave. | A | 7 | Hecho |
+| HU-29 | Como **supervisor**, quiero que las incidencias resueltas salgan del tablero a las 3 h y sigan en los reportes. | M | 7 | Hecho |
+| HU-30 | Como **jefe**, quiero marcar mi asistencia y aparecer destacado, junto a los supervisores, en la tabla de puntualidad. | A | 7 | Hecho |
 
 ## Criterios de aceptación (historias principales)
 

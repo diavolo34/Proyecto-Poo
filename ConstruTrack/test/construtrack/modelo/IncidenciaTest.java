@@ -77,4 +77,16 @@ class IncidenciaTest {
         assertThrows(DatoInvalidoException.class,
                 () -> fabrica.crear("VACACIONES", Datos.incidencia(5, d.jose, d.jose, HOY, HOY, Map.of())));
     }
+
+    @Test
+    @DisplayName("Una incidencia aprobada o rechazada sale del tablero 3 horas después de revisarse")
+    void archivadaTresHorasDespues() {
+        Incidencia i = permisoDeJose();
+        assertFalse(i.archivadaEn(AHORA.plusDays(30)), "Mientras está pendiente sigue en el tablero");
+        d.ana.revisar(i, EstadoIncidencia.EN_REVISION, "", AHORA);
+        assertFalse(i.archivadaEn(AHORA.plusDays(30)), "En revisión tampoco se archiva");
+        d.ana.revisar(i, EstadoIncidencia.APROBADA, "Ok", AHORA);
+        assertFalse(i.archivadaEn(AHORA.plusHours(Incidencia.HORAS_EN_TABLERO).minusMinutes(1)));
+        assertTrue(i.archivadaEn(AHORA.plusHours(Incidencia.HORAS_EN_TABLERO)));
+    }
 }

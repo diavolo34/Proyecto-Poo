@@ -130,7 +130,7 @@ async function vistaIncidencias() {
 }
 
 async function vistaTablero() {
-  const lista = await Api.incidencias();
+  const lista = await Api.incidenciasTablero();
   const columnas = ['Pendiente', 'En revisión', 'Aprobada', 'Rechazada'];
   const filtro = estado.filtroTablero || '';
   const visibles = lista.filter((i) => !filtro || (i.nombreAfectado + ' ' + i.nombreTipo).toLowerCase().includes(filtro.toLowerCase()));
@@ -147,6 +147,8 @@ async function vistaTablero() {
   contenido().innerHTML = encabezado('Equipo /', 'Tablero de incidencias',
     `<label class="solo-lector" for="filtro-tablero">Buscar en el tablero</label>
      <input id="filtro-tablero" placeholder="Buscar persona o tipo…" value="${esc(filtro)}" style="width:240px">`) + `
+    <p class="suave pequeno" style="margin-top:-8px">Las aprobadas y rechazadas salen del tablero 3 horas después de revisarlas.
+      Siguen guardadas en el Historial de cada persona y en <a href="#supervision">Supervisión → Reportes → Incidencias</a>.</p>
     <div class="kanban">${columnas.map((col) => {
       const tarjetas = visibles.filter((i) => i.estadoNombre === col).sort((a, b) => orden[a.gravedad] - orden[b.gravedad]);
       return `<section class="kanban-columna" aria-label="${col}"><h3>${col} <span>${tarjetas.length}</span></h3>
@@ -190,6 +192,10 @@ async function vistaSupervision() {
   const periodo = estado.periodo || 'ultimos7';
   const [est, alertas, extras] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo), Api.horasExtra()]);
   const color = (v) => (v >= 90 ? '#22a06b' : v >= 75 ? '#e2b203' : '#c9372c');
+  const nivel = { Jefe: 0, Supervisor: 1 };
+  est.personas = est.personas.map((p, i) => ({ ...p, orden: i }))
+    .sort((a, b) => (nivel[a.rol] ?? 2) - (nivel[b.rol] ?? 2) || a.orden - b.orden);
+  const lider = (p) => p.rol !== 'Empleado';
   contenido().innerHTML = encabezado('Equipo /', 'Supervisión', `
     <label for="periodo" class="pequeno">Período</label>
     <select id="periodo" style="width:auto">${[['ultimos7', 'Últimos 7 días'], ['semana', 'Esta semana'], ['mes', 'Este mes']]
@@ -203,8 +209,8 @@ async function vistaSupervision() {
     </div>
     <div class="rejilla-2" style="margin-top:16px">
       <section class="tarjeta" aria-labelledby="t-barras"><h2 id="t-barras">Asistencia por persona</h2>
-        <div class="barras">${est.personas.map((p) => `<div class="barra-fila">
-          <span title="${esc(p.nombre)}">${esc(p.nombre.split(' ')[0])} ${esc((p.nombre.split(' ')[1] || '')[0] || '')}.</span>
+        <div class="barras">${est.personas.map((p) => `<div class="barra-fila${lider(p) ? ' barra-lider' : ''}">
+          <span title="${esc(p.nombre)} · ${esc(p.rol)}">${esc(p.nombre.split(' ')[0])} ${esc((p.nombre.split(' ')[1] || '')[0] || '')}.${lider(p) ? ` <span class="marca-rol marca-${p.rol.toLowerCase()}">${p.rol === 'Jefe' ? 'J' : 'S'}</span>` : ''}</span>
           <div class="barra-pista" role="img" aria-label="${esc(p.nombre)}: ${Math.round(p.tasaAsistencia)}% de asistencia">
             <span style="width:${p.tasaAsistencia}%;background:${color(p.tasaAsistencia)}"></span></div>
           <strong>${Math.round(p.tasaAsistencia)}%</strong></div>`).join('') || '<p class="suave">Sin datos.</p>'}</div></section>
@@ -214,12 +220,12 @@ async function vistaSupervision() {
           || '<p class="suave">Sin alertas en este período. Todo en orden.</p>'}</section>
     </div>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-ranking"><h2 id="t-ranking">Tabla de puntualidad</h2>
-      <p class="suave pequeno" style="margin-top:-6px">Ordenada de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.
+      <p class="suave pequeno" style="margin-top:-6px">Primero el jefe y los supervisores (destacados); luego el equipo, de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.
         Las horas extra cuentan cuando el supervisor o el jefe las aprueba.</p>
       <div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Horas trabajadas / esperadas</th>
         <th>Extra diaria</th><th>Extra día libre</th><th>Extra por aprobar</th><th>Retardos</th><th>Faltas sin justificar</th>
         <th>Justificadas</th><th>Puntualidad</th></tr></thead><tbody>
-        ${est.personas.map((p) => `<tr><td style="white-space:nowrap">${esc(p.nombre)}</td>
+        ${est.personas.map((p) => `<tr${lider(p) ? ` class="fila-lider fila-${p.rol.toLowerCase()}"` : ''}><td style="white-space:nowrap">${lider(p) ? '<strong>' + esc(p.nombre) + '</strong> ' + chipRol(p.rol) : esc(p.nombre)}</td>
           <td style="white-space:nowrap"><strong>${formatoHoras(p.minutos)}</strong> / ${formatoHoras(p.minutosEsperados)}</td>
           <td>${p.extraDiaria ? chip('+' + formatoHoras(p.extraDiaria), 'verde') : '—'}</td>
           <td>${p.extraDiaLibre ? chip('+' + formatoHoras(p.extraDiaLibre), 'verde') : '—'}</td>
@@ -237,11 +243,15 @@ async function vistaSupervision() {
             <button class="btn btn-peligro btn-chico" data-extra="RECHAZADAS" data-cedula="${esc(x.cedula)}" data-fecha="${esc(x.jornada.fecha)}">Rechazar</button></td></tr>`).join('')}
         </tbody></table></div>` : '<p class="suave">No hay horas extra por aprobar.</p>'}</section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-reportes"><h2 id="t-reportes">Reportes</h2>
+      <p class="suave pequeno" style="margin-top:-6px">Se abren en Excel para revisarlos o imprimirlos. El de incidencias incluye
+        también las aprobadas y rechazadas que ya salieron del tablero, con quién las revisó y su comentario.</p>
       <div class="acciones" style="justify-content:flex-start;align-items:flex-end">
         <div class="campo" style="margin:0"><label for="tipo-reporte">Tipo</label><select id="tipo-reporte">
           <option value="asistencia">Asistencia</option><option value="puntualidad">Puntualidad</option><option value="incidencias">Incidencias</option></select></div>
         <div class="campo" style="margin:0"><label for="formato-reporte">Formato</label><select id="formato-reporte">
           <option value="csv">Excel (CSV)</option><option value="txt">Texto</option></select></div>
+        <div class="campo" style="margin:0"><label for="periodo-reporte">Período</label><select id="periodo-reporte">
+          <option value="${esc(periodo)}">El elegido arriba</option><option value="todo">Todo el historial</option></select></div>
         <button class="btn btn-primario" id="descargar-reporte">Descargar reporte</button>
       </div></section>`;
   $('#periodo').addEventListener('change', (e) => { estado.periodo = e.target.value; vistaSupervision(); });
@@ -256,7 +266,7 @@ async function vistaSupervision() {
   }));
   $('#descargar-reporte').addEventListener('click', async () => {
     try {
-      const nombre = await Api.descargarReporte($('#tipo-reporte').value, $('#formato-reporte').value, periodo);
+      const nombre = await Api.descargarReporte($('#tipo-reporte').value, $('#formato-reporte').value, $('#periodo-reporte').value);
       aviso('Reporte descargado: ' + nombre);
     } catch (e) {
       aviso(e.message, 'error');

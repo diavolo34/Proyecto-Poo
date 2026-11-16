@@ -284,3 +284,12 @@ tbody tr:hover { background: #fafbfc; }
 .crear-empresa summary::-webkit-details-marker { display: none; }
 .empresa-actual { font-size: 13px; font-weight: 600; color: var(--texto-suave); border-left: 1px solid var(--borde); padding-left: 12px; }
 @media (max-width: 520px) { .opciones-rol { grid-template-columns: 1fr; } }
+
+.fila-lider td { background: var(--azul-suave); }
+.fila-jefe td { background: var(--morado-suave); }
+.fila-lider td:first-child { box-shadow: inset 4px 0 0 var(--azul); }
+.fila-jefe td:first-child { box-shadow: inset 4px 0 0 var(--morado); }
+.barra-lider > span:first-child { font-weight: 700; }
+.marca-rol { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; font-weight: 800; color: #fff; background: var(--azul); vertical-align: 1px; }
+.marca-jefe { background: var(--morado); }
+.opcion-rol input { width: auto; flex: none; padding: 0; }

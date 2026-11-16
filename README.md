@@ -38,7 +38,7 @@ herencia, polimorfismo, interfaces, composición y los principios **SOLID**, en 
 |-----|-----------------|
 | **Visitante** | Ver la portada, consultar a **Arqui**, el asistente virtual, y **crear su cuenta** con correo, nombre, apellido, cédula o DNI y teléfono, eligiendo **«Soy jefe: crear mi empresa»** o **«Me uno a una empresa»**. |
 | **Empleado** | Unirse a la empresa con un **código de invitación**, marcar entrada y salida (puntualidad con 10 min de tolerancia), ver su historial y **reportar incidencias**. |
-| **Supervisor** | Todo lo anterior + **tablero Kanban** para aprobar o rechazar las incidencias de su equipo, **aprobar horas extra**, **alertas automáticas** (de la más antigua a la más reciente), **tabla de puntualidad** con horas trabajadas, **gestionar obras** y **reportes** en CSV o texto. |
+| **Supervisor** | Todo lo anterior + **tablero Kanban** para aprobar o rechazar las incidencias de su equipo (las resueltas salen a las 3 h y quedan en los reportes), **aprobar horas extra**, **alertas automáticas** (de la más antigua a la más reciente), **tabla de puntualidad** con horas trabajadas, **gestionar obras** y **reportes** en CSV o texto. |
 | **Jefe** | **Crea su empresa** al registrarse. Todo lo anterior para toda su empresa + **gestionar al personal** y **crear invitaciones** de un solo uso con rol, supervisor y obra, que se **envían por correo**. |
 
 Reglas destacadas:
@@ -183,7 +183,7 @@ con códigos 400, 401, 403, 404 o 409.
 
 ## Calidad
 
-- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **50 pruebas JUnit 5** y pruebas de humo de la API en modo demostración, en modo producción y de la demo privada.
+- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **57 pruebas JUnit 5** y pruebas de humo de la API en modo demostración, en modo producción y de la demo privada.
 - **Pruebas** del modelo, la persistencia y los servicios con reloj fijo; se comprobó que detectan errores introducidos a propósito.
 - Verificado en la interfaz real: recorridos de la web con Playwright, de Swing en pantalla virtual, y despliegue con Docker y CORS.
 

@@ -18,6 +18,8 @@ public abstract class Incidencia {
     private final String descripcion;
     private final LocalDateTime fechaReporte;
 
+    public static final int HORAS_EN_TABLERO = 3;
+
     private EstadoIncidencia estado = EstadoIncidencia.PENDIENTE;
     private Usuario revisor;
     private String comentarioRevision = "";
@@ -136,6 +138,10 @@ public abstract class Incidencia {
 
     public String getComentarioRevision() {
         return comentarioRevision;
+    }
+
+    public boolean archivadaEn(LocalDateTime ahora) {
+        return estado.esFinal() && fechaRevision != null && !ahora.isBefore(fechaRevision.plusHours(HORAS_EN_TABLERO));
     }
 
     public LocalDateTime getFechaRevision() {

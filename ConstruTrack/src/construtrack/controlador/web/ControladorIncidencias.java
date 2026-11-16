@@ -27,7 +27,8 @@ public class ControladorIncidencias implements ControladorWeb {
 
     private Respuesta listar(Peticion p) {
         Usuario actual = p.usuario();
-        List<Incidencia> lista = incidencias.listarVisibles(actual);
+        List<Incidencia> lista = "tablero".equals(p.consulta("vista", ""))
+                ? incidencias.listarTablero(actual) : incidencias.listarVisibles(actual);
         lista.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
         return Respuesta.json(Json.lista(lista, i -> JsonMapper.incidencia(i, incidencias.puedeRevisar(actual, i))));
     }

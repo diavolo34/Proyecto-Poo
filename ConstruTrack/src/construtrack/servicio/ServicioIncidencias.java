@@ -62,6 +62,15 @@ public class ServicioIncidencias extends ServicioBase {
                 && !incidencia.getEstado().esFinal();
     }
 
+    public List<Incidencia> listarTablero(Usuario actual) {
+        LocalDateTime ahora = LocalDateTime.now(reloj);
+        return leer(() -> {
+            List<Incidencia> tablero = listarVisibles(actual);
+            tablero.removeIf(i -> i.archivadaEn(ahora));
+            return tablero;
+        });
+    }
+
     public List<Incidencia> listarVisibles(Usuario actual) {
         return leer(() -> {
             List<Incidencia> visibles = new ArrayList<>();

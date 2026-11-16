@@ -41,7 +41,7 @@ public final class ControladoraTablero {
 
     public void refrescar() {
         vista.limpiar();
-        List<Incidencia> lista = incidencias.listarVisibles(usuario);
+        List<Incidencia> lista = incidencias.listarTablero(usuario);
         lista.sort(Comparator.comparing(Incidencia::getGravedad).reversed()
                 .thenComparing(Comparator.comparingInt(Incidencia::getId).reversed()));
         for (Incidencia i : lista) {

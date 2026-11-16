@@ -40,8 +40,13 @@ public class Historial {
         return Collections.unmodifiableList(incidencias);
     }
 
-    public RegistroAsistencia ultimaAsistencia() {
-        return asistencias.isEmpty() ? null : asistencias.get(asistencias.size() - 1);
+    public RegistroAsistencia jornadaAbierta() {
+        for (int i = asistencias.size() - 1; i >= 0; i--) {
+            if (asistencias.get(i).estaAbierto()) {
+                return asistencias.get(i);
+            }
+        }
+        return null;
     }
 
     public RegistroAsistencia asistenciaDel(LocalDate fecha) {
