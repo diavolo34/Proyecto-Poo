@@ -126,5 +126,8 @@ const Api = {
   // ---- invitaciones
   invitaciones: () => Api.pedir('GET', '/api/invitaciones'),
   crearInvitacion: (datos) => Api.pedir('POST', '/api/invitaciones', datos),
+  configuracionInvitaciones: () => Api.pedir('GET', '/api/invitaciones/configuracion'),
+  enviarInvitacion: (codigo, correo) =>
+    Api.pedir('POST', `/api/invitaciones/${encodeURIComponent(codigo)}/enviar`, { correo }),
   cancelarInvitacion: (codigo) => Api.pedir('DELETE', '/api/invitaciones/' + encodeURIComponent(codigo)),
 };

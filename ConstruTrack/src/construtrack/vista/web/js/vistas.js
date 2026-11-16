@@ -464,7 +464,7 @@ function formularioObra(obra) {
 }
 
 async function vistaInvitaciones() {
-  const [opciones, lista] = await Promise.all([Api.opcionesPersonal(), Api.invitaciones()]);
+  const [opciones, lista, config] = await Promise.all([Api.opcionesPersonal(), Api.invitaciones(), Api.configuracionInvitaciones()]);
   contenido().innerHTML = encabezado('Administración /', 'Invitaciones') + `
     <p class="suave" style="margin-top:-8px">Cada código sirve una sola vez. Compártelo por WhatsApp o correo con la persona que quieres sumar.</p>
     <div class="rejilla-incidencias">
@@ -476,16 +476,18 @@ async function vistaInvitaciones() {
         <div class="campo"><label for="i-obra">Obra</label><select id="i-obra" name="obra"><option value="">— Sin obra —</option>
           ${opciones.obras.map((o) => `<option value="${esc(o.codigo)}">${esc(o.nombre)}</option>`).join('')}</select></div>
         <div class="campo"><label for="i-dias">Vigencia (días)</label><input id="i-dias" name="dias" type="number" min="1" max="30" value="7"></div>
-        <div class="campo"><label for="i-correo">Correo de la persona (opcional)</label><input id="i-correo" name="correo" type="email">
-          <span class="ayuda">Se registra el envío; no se manda un correo real.</span></div>
+        <div class="campo"><label for="i-correo">Correo de la persona (opcional)</label><input id="i-correo" name="correo" type="email" placeholder="nombre@correo.com">
+          <span class="ayuda">${config.correoReal ? '✉ Le llegará un correo con el código y un botón para unirse.'
+            : 'El envío de correos no está configurado: se registra, pero no llega. Comparte el código por WhatsApp.'}</span></div>
         <button class="btn btn-primario btn-bloque" type="submit">Crear invitación</button>
         <div id="codigo-creado" class="oculto" style="margin-top:14px"></div>
       </form>
       <section class="tarjeta" aria-labelledby="t-creadas"><h2 id="t-creadas">Invitaciones creadas</h2>
         <div class="tabla-contenedor"><table><thead><tr><th>Código</th><th>Rol</th><th>Supervisor</th><th>Obra</th><th>Estado</th><th>Vence</th><th>Usada por</th><th></th></tr></thead>
-        <tbody>${lista.map((v) => `<tr><td><strong>${esc(v.codigo)}</strong></td><td>${esc(v.rol)}</td><td>${esc(v.supervisor || '—')}</td>
+        <tbody>${lista.map((v) => `<tr><td><strong class="codigo">${esc(v.codigo)}</strong></td><td>${esc(v.rol)}</td><td>${esc(v.supervisor || '—')}</td>
           <td>${esc(v.obra || '—')}</td><td>${chipEstado(v.estado)}</td><td>${fecha(v.vence)}</td><td>${esc(v.usadaPor || '—')}</td>
-          <td>${v.estado === 'Vigente' ? `<button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-cancelar="${esc(v.codigo)}">Cancelar</button>` : ''}</td></tr>`).join('')
+          <td style="white-space:nowrap">${v.estado === 'Vigente' ? `<button class="btn btn-enlace btn-chico" data-enviar="${esc(v.codigo)}">Enviar por correo</button>
+            <button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-cancelar="${esc(v.codigo)}">Cancelar</button>` : ''}</td></tr>`).join('')
           || '<tr><td colspan="8" class="vacio">Aún no has creado invitaciones.</td></tr>'}</tbody></table></div></section>
     </div>`;
   const rol = $('#i-rol');
@@ -493,7 +495,8 @@ async function vistaInvitaciones() {
   $('#form-invitacion').addEventListener('submit', async (evento) => {
     evento.preventDefault();
     try {
-      const v = await Api.crearInvitacion(datosFormulario(evento.target));
+      const creada = await Api.crearInvitacion(datosFormulario(evento.target));
+      const v = creada.invitacion;
       await vistaInvitaciones();
       const enlace = location.href.split('#')[0] + '#registro';
       const mensaje = `Te invito a ConstruTrack. Crea tu cuenta en ${enlace} y únete con el código ${v.codigo}`;
@@ -509,10 +512,35 @@ async function vistaInvitaciones() {
       $('#copiar-codigo').addEventListener('click', () => copiar(v.codigo, 'Código'));
       $('#copiar-mensaje').addEventListener('click', () => copiar(mensaje, 'Mensaje'));
       aviso('Invitación ' + v.codigo + ' creada.');
+      if (creada.avisoCorreo) aviso(creada.avisoCorreo, creada.correoEnviado ? 'ok' : 'error');
     } catch (e) {
       aviso(e.message, 'error');
     }
   });
+  contenido().querySelectorAll('[data-enviar]').forEach((b) => b.addEventListener('click', () => {
+    const modal = Modal.abrir('Enviar ' + b.dataset.enviar + ' por correo', `<form novalidate>
+      <div class="campo"><label for="e-correo">Correo de la persona</label><input id="e-correo" name="correo" type="email" required placeholder="nombre@correo.com"></div>
+      ${config.correoReal ? '' : '<p class="mensaje mensaje-info pequeno">El envío de correos no está configurado en este servidor: quedará registrado, pero no llegará.</p>'}
+      <div class="mensaje mensaje-error oculto" role="alert"></div>
+      <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
+        <button class="btn btn-primario" type="submit">Enviar</button></div></form>`);
+    const formulario = modal.querySelector('form');
+    formulario.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      const boton = formulario.querySelector('button[type=submit]');
+      boton.disabled = true;
+      boton.textContent = 'Enviando…';
+      try {
+        const r = await Api.enviarInvitacion(b.dataset.enviar, $('#e-correo').value);
+        Modal.cerrar();
+        aviso(r.mensaje);
+      } catch (e) {
+        mostrarErrorFormulario(formulario, e.message);
+        boton.disabled = false;
+        boton.textContent = 'Enviar';
+      }
+    });
+  }));
   contenido().querySelectorAll('[data-cancelar]').forEach((b) => b.addEventListener('click', async () => {
     try {
       await Api.cancelarInvitacion(b.dataset.cancelar);

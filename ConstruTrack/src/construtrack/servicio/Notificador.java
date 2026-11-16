@@ -9,5 +9,14 @@ import construtrack.modelo.Invitacion;
  */
 public interface Notificador {
 
+    /**
+     * Envía la invitación al correo indicado.
+     * Si el envío falla, lanza OperacionInvalidaException con el motivo (la invitación ya quedó creada).
+     */
     void enviarInvitacion(Invitacion invitacion, String correoDestino);
+
+    /** true si los avisos llegan de verdad a la persona; false si solo se registran (modo de demostración). */
+    default boolean envioReal() {
+        return false;
+    }
 }

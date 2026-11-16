@@ -20,3 +20,10 @@ services:
         sync: false
       - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
+      # Invitaciones por correo con Brevo (gratis, 300 al día). Sin estas variables solo se registran en la consola.
+      - key: BREVO_API_KEY
+        sync: false
+      - key: CORREO_REMITENTE
+        sync: false
+      - key: URL_SITIO
+        value: https://startling-toffee-914e34.netlify.app
