@@ -49,6 +49,24 @@ Ambos implementan la interfaz `Almacen`, así que el resto del sistema no cambia
 
 Sin esas variables (por ejemplo, en NetBeans) los datos se guardan en `datos_construtrack.txt`.
 
+### Invitaciones por correo con Brevo (gratis)
+
+Render gratis bloquea el envío por SMTP, así que el correo sale por la **API HTTP de Brevo** (`NotificadorBrevo`).
+
+1. Crea una cuenta en https://www.brevo.com (plan Free: 300 correos al día, sin tarjeta).
+2. **Senders, Domains & Dedicated IPs → Senders → Add a sender**: agrega tu correo (por ejemplo, tu Gmail) y confírmalo
+   con el enlace que te llega.
+3. **SMTP & API → API Keys → Generate a new API key** y cópiala.
+4. En Render → `construtrack-api` → **Environment** agrega `BREVO_API_KEY` (la clave) y `CORREO_REMITENTE`
+   (el correo verificado del paso 2) → **Save changes**.
+
+Al arrancar, el registro dice `correo con Brevo`. En **Invitaciones** el Jefe escribe el correo de la persona y le llega
+un mensaje con el código y un botón para crear su cuenta. Sin estas variables, el envío solo se registra en la consola.
+
+### Hora de Venezuela
+
+`ZONA=America/Caracas` (ya en `render.yaml`): el servidor está en UTC y sin esto las entradas quedarían 4 h adelantadas.
+
 ## 2. Conectar Netlify con GitHub (para que se actualice solo)
 
 Tu sitio actual se subió arrastrando una carpeta, así que no se actualiza con los cambios del repositorio.
