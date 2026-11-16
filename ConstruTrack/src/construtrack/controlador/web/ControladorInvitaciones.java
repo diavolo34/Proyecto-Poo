@@ -2,6 +2,7 @@ package construtrack.controlador.web;
 
 import construtrack.modelo.Invitacion;
 import construtrack.servicio.ServicioInvitaciones;
+import construtrack.util.Json;
 import java.util.Map;
 
 /** Rutas del Jefe para crear, listar y cancelar invitaciones. */

@@ -20,7 +20,7 @@ Navegador ──► Netlify (index.html, app.html, js/…) ──fetch──► 
 | Página web | https://startling-toffee-914e34.netlify.app | Manual: se subió arrastrando la carpeta `vista/web` en **Deploys**. Para que sea automático, conecta el repositorio en Netlify (*Site configuration → Build & deploy → Link repository*) y Netlify usará `netlify.toml` |
 
 La primera visita tras un rato sin uso tarda unos 50 s: el plan gratuito de Render apaga el servidor cuando está inactivo
-y la página muestra un aviso mientras arranca. Los datos vuelven a los de prueba cuando Render reinicia el servidor.
+y la página muestra un aviso mientras arranca. Los datos se guardan en **Upstash Redis** (ver abajo), así que no se pierden al reiniciar.
 
 ## 1. Publicar el servidor Java en Render
 
@@ -34,7 +34,20 @@ y la página muestra un aviso mientras arranca. Los datos vuelven a los de prueb
 
 > Plan gratuito: el servicio «duerme» tras 15 minutos sin uso y tarda hasta ~1 minuto en despertar.
 > La página muestra «Conectando con el servidor…» mientras tanto (no entra en modo demo).
-> Los datos viven en el disco temporal: al redeplegar se regeneran los datos de prueba.
+
+### Datos permanentes con Upstash (gratis)
+
+El plan gratuito de Render **borra el disco** cada vez que el servidor se duerme o se actualiza: sin más, las cuentas
+nuevas desaparecerían. Por eso, si existen las variables `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`,
+`App` guarda los datos en una base Redis de Upstash (`AlmacenUpstash`) en vez de un archivo (`AlmacenArchivo`).
+Ambos implementan la interfaz `Almacen`, así que el resto del sistema no cambia (principio de inversión de dependencias).
+
+1. Entra a https://console.upstash.com con tu cuenta de GitHub → **Create Database** (Redis, plan Free, región cercana a Oregon).
+2. En la base creada, sección **REST API**, copia `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`.
+3. En Render → servicio `construtrack-api` → **Environment** → agrega las dos variables con esos valores → **Save changes**.
+   Render reinicia el servicio y el registro de arranque dice `datos en Upstash Redis (...)`.
+
+Sin esas variables (por ejemplo, en NetBeans) los datos se guardan en `datos_construtrack.txt`.
 
 ## 2. Conectar Netlify con GitHub (para que se actualice solo)
 

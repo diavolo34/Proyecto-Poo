@@ -34,7 +34,7 @@ java -jar junit-platform-console-standalone.jar execute -cp out:out-test --scan-
 | `modelo.reportes` | `Reporte` (Template Method) y 3 reportes, `Documento`, `FormateadorReporte` (CSV y texto) |
 | `modelo.excepciones` | Errores del negocio (dato inválido, permiso denegado, no encontrado, operación inválida…) |
 | `servicio` | Casos de uso: autenticación, asistencia, personal, incidencias, supervisión, registro, invitaciones |
-| `persistencia` | `LectorDatos`, `EscritorDatos`, `RepositorioArchivo`, `RepositorioMemoria`, `GeneradorDatosPrueba` |
+| `persistencia` | `LectorDatos`, `EscritorDatos`, `RepositorioTexto`, `Almacen` (`AlmacenArchivo`, `AlmacenUpstash`), `RepositorioMemoria`, `GeneradorDatosPrueba` |
 | `controlador.swing` | Una `Controladora` por pantalla y `AplicacionSwing` |
 | `controlador.web` | `ServidorWeb`, `ManejadorApi`, `Enrutador`, controladores por recurso, `JsonMapper` |
 | `vista.swing` | `Tema`, ventanas, paneles, diálogos y gráfico de barras |

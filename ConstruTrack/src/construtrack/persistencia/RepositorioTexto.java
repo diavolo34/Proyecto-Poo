@@ -16,10 +16,6 @@ import construtrack.modelo.Horario;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,7 +26,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Guarda y carga la empresa en un archivo de texto (un registro por línea, campos separados por |).
+ * Guarda y carga la empresa como texto (un registro por línea, campos separados por |) en un {@link Almacen}:
+ * un archivo local o una base Redis en la nube.
  *
  * <pre>
  *   EMPRESA|nombre
@@ -46,21 +43,30 @@ import java.util.function.Supplier;
  *
  * Los campos de texto libre se escapan (\\p, \\n, \\\\) para que el separador | y los saltos de línea no rompan el archivo.
  *
- * Si el archivo no existe, pide los datos iniciales a un proveedor externo (por ejemplo, GeneradorDatosPrueba).
+ * Si el almacén está vacío, pide los datos iniciales a un proveedor externo (por ejemplo, GeneradorDatosPrueba).
  */
-public class RepositorioArchivo implements LectorDatos, EscritorDatos {
+public class RepositorioTexto implements LectorDatos, EscritorDatos {
 
     private static final String SEPARADOR = "|";
 
-    private final Path archivo;
+    private final Almacen almacen;
     private final Supplier<Empresa> datosIniciales;
     private final FabricaIncidencias fabrica;
     private int contadorIds = 1;
 
-    public RepositorioArchivo(Path archivo, Supplier<Empresa> datosIniciales, FabricaIncidencias fabrica) {
-        this.archivo = archivo;
+    public RepositorioTexto(Almacen almacen, Supplier<Empresa> datosIniciales, FabricaIncidencias fabrica) {
+        this.almacen = almacen;
         this.datosIniciales = datosIniciales;
         this.fabrica = fabrica;
+    }
+
+    /** Atajo para guardar en un archivo local. */
+    public RepositorioTexto(Path archivo, Supplier<Empresa> datosIniciales, FabricaIncidencias fabrica) {
+        this(new AlmacenArchivo(archivo), datosIniciales, fabrica);
+    }
+
+    public Almacen getAlmacen() {
+        return almacen;
     }
 
     /** Siguiente número de incidencia libre según lo cargado (evita repetir ids al reiniciar). */
@@ -70,33 +76,40 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
 
     @Override
     public Empresa cargar() {
-        if (!Files.exists(archivo)) {
+        String contenido = almacen.leer().orElse(null);
+        if (contenido == null || contenido.isBlank()) {
             Empresa empresa = datosIniciales.get();
+            actualizarContador(empresa);
             guardar(empresa);
             return empresa;
         }
-        try {
-            Empresa empresa = null;
-            for (String linea : Files.readAllLines(archivo, StandardCharsets.UTF_8)) {
-                String[] c = linea.split("\\|", -1);
-                switch (c[0]) {
-                    case "EMPRESA" -> empresa = new Empresa(c[1]);
-                    case "U" -> empresa.agregarUsuario(leerUsuario(c));
-                    case "S" -> leerSupervision(empresa, c);
-                    case "A" -> empresa.buscarUsuario(c[1]).agregarAsistencia(leerAsistencia(c));
-                    case "O" -> empresa.agregarObra(leerObra(c));
-                    case "Y" -> leerAsignacionObra(empresa, c);
-                    case "I" -> leerIncidencia(empresa, c);
-                    case "C" -> leerCuenta(empresa, c);
-                    case "V" -> leerInvitacion(empresa, c);
-                    default -> {
-                        // Líneas vacías o de versiones futuras: se ignoran
-                    }
+        Empresa empresa = null;
+        for (String linea : contenido.split("\\R")) {
+            String[] c = linea.split("\\|", -1);
+            switch (c[0]) {
+                case "EMPRESA" -> empresa = new Empresa(c[1]);
+                case "U" -> empresa.agregarUsuario(leerUsuario(c));
+                case "S" -> leerSupervision(empresa, c);
+                case "A" -> empresa.buscarUsuario(c[1]).agregarAsistencia(leerAsistencia(c));
+                case "O" -> empresa.agregarObra(leerObra(c));
+                case "Y" -> leerAsignacionObra(empresa, c);
+                case "I" -> leerIncidencia(empresa, c);
+                case "C" -> leerCuenta(empresa, c);
+                case "V" -> leerInvitacion(empresa, c);
+                default -> {
+                    // Líneas vacías o de versiones futuras: se ignoran
                 }
             }
-            return empresa;
-        } catch (IOException e) {
-            throw new UncheckedIOException("No se pudo leer " + archivo.toAbsolutePath(), e);
+        }
+        return empresa;
+    }
+
+    /** El siguiente número libre es el mayor id existente + 1 (los datos iniciales ya traen incidencias). */
+    private void actualizarContador(Empresa empresa) {
+        for (Usuario u : empresa.listarUsuarios()) {
+            for (Incidencia i : u.getHistorial().getIncidencias()) {
+                contadorIds = Math.max(contadorIds, i.getId() + 1);
+            }
         }
     }
 
@@ -139,11 +152,7 @@ public class RepositorioArchivo implements LectorDatos, EscritorDatos {
                     v.getVence(), v.getEstadoGuardado().name(), v.getUsadaPor() == null ? "-" : v.getUsadaPor().getCorreo(),
                     v.getUsada() == null ? "-" : v.getUsada()));
         }
-        try {
-            Files.write(archivo, lineas, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new UncheckedIOException("No se pudo guardar " + archivo.toAbsolutePath(), e);
-        }
+        almacen.escribir(String.join("\n", lineas) + "\n");
     }
 
     private Usuario leerUsuario(String[] c) {

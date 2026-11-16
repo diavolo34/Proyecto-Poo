@@ -18,12 +18,13 @@ import construtrack.modelo.incidencias.FabricaIncidencias;
 import construtrack.modelo.incidencias.Incidencia;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-class RepositorioArchivoTest {
+class RepositorioTextoTest {
 
     @TempDir
     Path carpeta;
@@ -44,8 +45,8 @@ class RepositorioArchivoTest {
         inv.canjear(cuenta, d.empresa, AHORA);
 
         Path archivo = carpeta.resolve("datos.txt");
-        new RepositorioArchivo(archivo, () -> d.empresa, fabrica).guardar(d.empresa);
-        RepositorioArchivo repositorio = new RepositorioArchivo(archivo, () -> {
+        new RepositorioTexto(archivo, () -> d.empresa, fabrica).guardar(d.empresa);
+        RepositorioTexto repositorio = new RepositorioTexto(archivo, () -> {
             throw new AssertionError("El archivo existe: no debe crear datos iniciales");
         }, fabrica);
         Empresa cargada = repositorio.cargar();
@@ -71,9 +72,53 @@ class RepositorioArchivoTest {
     void datosIniciales() {
         Path archivo = carpeta.resolve("nuevo.txt");
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
-        Empresa empresa = new RepositorioArchivo(archivo, new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica).cargar();
+        Empresa empresa = new RepositorioTexto(archivo, new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica).cargar();
         assertEquals(9, empresa.listarUsuarios().size());
         assertTrue(archivo.toFile().exists());
         assertNotNull(empresa.buscarCuenta("carlos.mendez@construtrack.demo"));
+    }
+
+    @Test
+    @DisplayName("Con datos iniciales, la siguiente incidencia no repite un número existente")
+    void contadorTrasDatosIniciales() {
+        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        RepositorioTexto repositorio = new RepositorioTexto(carpeta.resolve("nuevo.txt"),
+                new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica);
+        Empresa empresa = repositorio.cargar();
+        int mayor = empresa.listarUsuarios().stream()
+                .flatMap(u -> u.getHistorial().getIncidencias().stream())
+                .mapToInt(Incidencia::getId).max().orElse(0);
+        assertTrue(mayor > 0, "Los datos de prueba traen incidencias");
+        assertEquals(mayor + 1, repositorio.siguienteIdIncidencia());
+    }
+
+    @Test
+    @DisplayName("Funciona con cualquier almacén (por ejemplo, uno en memoria como Upstash)")
+    void almacenEnMemoria() {
+        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        StringBuilder guardado = new StringBuilder();
+        Almacen memoria = new Almacen() {
+            @Override
+            public Optional<String> leer() {
+                return guardado.length() == 0 ? Optional.empty() : Optional.of(guardado.toString());
+            }
+
+            @Override
+            public void escribir(String contenido) {
+                guardado.setLength(0);
+                guardado.append(contenido);
+            }
+
+            @Override
+            public String descripcion() {
+                return "memoria";
+            }
+        };
+        new RepositorioTexto(memoria, new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica).cargar();
+        Empresa otra = new RepositorioTexto(memoria, () -> {
+            throw new AssertionError("Ya hay datos: no debe generarlos otra vez");
+        }, fabrica).cargar();
+        assertEquals(9, otra.listarUsuarios().size());
+        assertNotNull(otra.autenticar("10000001", "jefe123"));
     }
 }

@@ -27,7 +27,7 @@ dos razones para cambiar: las reglas del negocio **y** el formato de la página 
 - `controlador/web/JsonMapper.java` es el único que conoce el formato JSON. Las entidades del modelo no importan nada de la web.
 - `ControladorApi` se dividió: `Enrutador` (elige la ruta), `ManejadorApi` (CORS y traducción de excepciones a códigos HTTP)
   y un controlador por recurso (`ControladorSesion`, `ControladorIncidencias`, `ControladorReportes`…).
-- `RepositorioArchivo` solo lee y escribe; los datos de prueba los crea `GeneradorDatosPrueba`.
+- `RepositorioTexto` solo convierte la empresa a texto y de vuelta; **dónde** se guarda ese texto lo decide un `Almacen` (`AlmacenArchivo` o `AlmacenUpstash`), y los datos de prueba los crea `GeneradorDatosPrueba`.
 - Igual que el ejemplo de la clase con `ReporteEmpleado`: **`Reporte` arma los datos** y **`FormateadorReporte` les da formato**.
 
 ```java
@@ -90,13 +90,13 @@ un método `justificaAusencia()` que tendrían que anular, sino que la capacidad
 
 ```java
 abstract class ServicioBase {
-    protected final EscritorDatos escritor;   // abstracción, no RepositorioArchivo
+    protected final EscritorDatos escritor;   // abstracción, no RepositorioTexto
     protected final Clock reloj;              // abstracción del tiempo
     protected ServicioBase(Empresa empresa, EscritorDatos escritor, Clock reloj) { ... }  // inyección por constructor
 }
 ```
 
-- En producción `App` inyecta `RepositorioArchivo`; en las pruebas, `RepositorioMemoria` (`ServiciosTest` comprueba que
+- En producción `App` inyecta `RepositorioTexto` con un `Almacen` (archivo en NetBeans, Upstash en Render); en las pruebas, `RepositorioMemoria` (`ServiciosTest` comprueba que
   se guardó sin tocar el disco).
 - `MonitorSupervision(List<ReglaAlerta> reglas)` recibe sus reglas; las pruebas le pasan reglas con otros umbrales.
 - `ServicioInvitaciones` depende de `Notificador`. Hoy la implementación es `NotificadorConsola`; un `NotificadorCorreo`

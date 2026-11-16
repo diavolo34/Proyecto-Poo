@@ -4,8 +4,11 @@ import construtrack.controlador.swing.AplicacionSwing;
 import construtrack.controlador.web.ServidorWeb;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.incidencias.FabricaIncidencias;
+import construtrack.persistencia.Almacen;
+import construtrack.persistencia.AlmacenArchivo;
+import construtrack.persistencia.AlmacenUpstash;
 import construtrack.persistencia.GeneradorDatosPrueba;
-import construtrack.persistencia.RepositorioArchivo;
+import construtrack.persistencia.RepositorioTexto;
 import construtrack.servicio.Servicios;
 import java.awt.GraphicsEnvironment;
 import java.net.BindException;
@@ -33,8 +36,7 @@ public final class App {
         Clock reloj = Clock.systemDefaultZone();
 
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
-        RepositorioArchivo repositorio = new RepositorioArchivo(
-                Path.of(entorno("DATOS", "datos_construtrack.txt")), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
+        RepositorioTexto repositorio = new RepositorioTexto(almacen(), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
         Empresa empresa = repositorio.cargar();
         Servicios servicios = new Servicios(empresa, repositorio, reloj, repositorio.siguienteIdIncidencia());
 
@@ -49,13 +51,26 @@ public final class App {
         }
         web.iniciar();
         System.out.println("ConstruTrack listo en " + web.getUrl()
-                + " (" + empresa.listarUsuarios().size() + " usuarios)");
+                + " (" + empresa.listarUsuarios().size() + " usuarios, datos en " + repositorio.getAlmacen().descripcion() + ")");
 
         // Vista de escritorio: se abre salvo que no haya pantalla (servidor) o se pida --sin-ventana
         boolean sinVentana = Arrays.asList(args).contains("--sin-ventana");
         if (!sinVentana && !GraphicsEnvironment.isHeadless()) {
             SwingUtilities.invokeLater(() -> new AplicacionSwing(servicios, web.getUrl()).iniciar());
         }
+    }
+
+    /**
+     * Dónde se guardan los datos: en Upstash si están sus variables (servidores sin disco permanente, como Render),
+     * o en un archivo local (NetBeans, terminal).
+     */
+    private static Almacen almacen() {
+        String url = entorno("UPSTASH_REDIS_REST_URL", "");
+        String token = entorno("UPSTASH_REDIS_REST_TOKEN", "");
+        if (!url.isEmpty() && !token.isEmpty()) {
+            return new AlmacenUpstash(url, token, entorno("UPSTASH_CLAVE", "construtrack:datos"));
+        }
+        return new AlmacenArchivo(Path.of(entorno("DATOS", "datos_construtrack.txt")));
     }
 
     private static String entorno(String nombre, String porDefecto) {

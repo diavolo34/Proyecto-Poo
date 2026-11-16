@@ -60,7 +60,7 @@ flowchart LR
     subgraph Modelo
         SV[servicio<br/>casos de uso]
         MD[modelo<br/>Usuario · Historial · Incidencia<br/>Invitacion · Alertas · Reportes]
-        PE[persistencia<br/>EscritorDatos · RepositorioArchivo]
+        PE[persistencia<br/>EscritorDatos · RepositorioTexto · Almacen]
     end
     SW -- eventos --> CS
     WEB -- HTTP / JSON --> CW

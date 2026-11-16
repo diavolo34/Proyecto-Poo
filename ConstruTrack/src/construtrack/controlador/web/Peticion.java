@@ -2,6 +2,7 @@ package construtrack.controlador.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import construtrack.modelo.Usuario;
+import construtrack.util.Json;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;

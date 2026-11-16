@@ -29,7 +29,7 @@ package "MODELO" as M #DCFFF1 {
   }
   package "persistencia" as PE {
     [EscritorDatos «interface»\nLectorDatos «interface»] as PI
-    [RepositorioArchivo\nRepositorioMemoria] as PR
+    [RepositorioTexto · Almacen\nRepositorioMemoria] as PR
   }
 }
 

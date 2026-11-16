@@ -1,5 +1,7 @@
 package construtrack.controlador.web;
 
+import construtrack.util.Json;
+
 /**
  * Constructor fluido de objetos JSON: evita concatenar comillas y comas a mano.
  *
