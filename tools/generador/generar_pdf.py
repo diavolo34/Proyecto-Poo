@@ -51,9 +51,9 @@ def abrir_navegador(p):
 
 CORRECCION = [
     ("Es Programación Orientada a Objetos, no Algoritmos III", "Materia corregida en todo el proyecto; el diseño se centra en POO: herencia, polimorfismo, interfaces, composición, objetos de valor y SOLID."),
-    ("Darle profundidad al proyecto", "Se pasó de 13 a más de 100 clases en capas MVC: incidencias, historial, alertas, estadísticas, reportes, registro con correo, invitaciones, vista Swing, 26 pruebas y CI."),
+    ("Darle profundidad al proyecto", "Se pasó de 13 a más de 100 clases en capas MVC: incidencias, historial, alertas, estadísticas, reportes, registro con correo, invitaciones, multiempresa, vista Swing, 57 pruebas y CI."),
     ("Sin gestores ni APIs en los diagramas de secuencia", "Los 6 diagramas de secuencia usan solo objetos de clases del modelo (Empleado, Historial, Incidencia, MonitorSupervision…)."),
-    ("Página operativa, no solo modo demostración", "Se eliminó el modo demo. La página siempre usa el servidor Java: local en NetBeans o publicado en Render (Docker), con Netlify llamándolo por CORS."),
+    ("Página operativa, no solo modo demostración", "La página publicada trabaja con datos reales: siempre usa el servidor Java, local en NetBeans o publicado en Render (Docker), con Netlify llamándolo por CORS. Los datos de ejemplo solo aparecen si se activan a propósito."),
     ("¿Dónde está la clase Historial? ¿Dónde se registran las incidencias?", "Historial (composición en Usuario) guarda jornadas e incidencias. Incidencia es abstracta con 5 tipos (reposo médico, permiso, retardo, accidente, ausencia) y un ciclo de revisión."),
     ("Apoyar al supervisor: reportes, estadísticas e incidencias", "Alertas automáticas (retardos, faltas sin justificar, incidencias vencidas), estadísticas, tablero Kanban y reportes CSV/TXT."),
 ]
@@ -133,7 +133,8 @@ def construir() -> str:
   <p><b>Página publicada (con el chatbot):</b> <a href="{e(url)}">{e(url)}</a><br>
   <b>Repositorio:</b> <a href="{e(DATOS['repositorio'])}">{e(DATOS['repositorio'])}</a></p>
   <p>La página de Netlify llama al servidor Java publicado en Render. En local, al ejecutar el proyecto en NetBeans,
-  se abren la ventana de escritorio y la web en http://localhost:8080. No existe modo demostración.</p>
+  se abren la ventana de escritorio y la web en http://localhost:8080. La página publicada arranca vacía y lista para
+  clientes; los datos de ejemplo solo están en la demostración privada (sección 8).</p>
 </div>
 
 <h2>Herramienta de IA</h2>

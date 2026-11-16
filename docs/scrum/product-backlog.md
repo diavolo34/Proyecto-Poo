@@ -16,7 +16,7 @@ Prioridad: **A** (alta, pedido por la profesora o imprescindible) · **M** (medi
 | HU-10 | Como **supervisor**, quiero un tablero por estados para ver qué falta por revisar. | M | 4, 5 | Hecho |
 | HU-11 | Como **persona nueva**, quiero registrarme con mi correo y mis datos. | A | 5A | Hecho |
 | HU-12 | Como **jefe**, quiero invitar a alguien con un código para que se una con el rol y la obra correctos. | A | 5A | Hecho |
-| HU-13 | Como **profesora**, quiero usar la página publicada con el servidor real, no en modo demostración. | A | 5 | Hecho (falta que el usuario publique en Render) |
+| HU-13 | Como **profesora**, quiero usar la página publicada con el servidor real, no en modo demostración. | A | 5 | Hecho |
 | HU-14 | Como **visitante**, quiero una portada que explique el sistema y me lleve a registrarme. | M | 5 | Hecho |
 | HU-15 | Como **profesora**, quiero diagramas UML actualizados, con secuencias que usen solo clases del modelo. | A | 6 | Hecho |
 | HU-16 | Como **profesora**, quiero que se justifiquen los principios de UX/UI aplicados. | A | 6 | Hecho |

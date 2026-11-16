@@ -5,9 +5,9 @@
 ![Pruebas](https://img.shields.io/badge/JUnit%205-50%20pruebas-brightgreen)
 ![Arquitectura](https://img.shields.io/badge/arquitectura-MVC%20%2B%20SOLID-blue)
 ![Dependencias](https://img.shields.io/badge/dependencias-0-brightgreen)
-[![Demo en vivo](https://img.shields.io/badge/demo-en%20vivo-0052CC?logo=netlify)](https://startling-toffee-914e34.netlify.app)
+[![Demo en vivo](https://img.shields.io/badge/demo-en%20vivo-0052CC?logo=netlify)](https://construtrackfm.netlify.app)
 
-> **Pruébalo en línea:** https://startling-toffee-914e34.netlify.app. La versión publicada está **lista para clientes**: arranca
+> **Pruébalo en línea:** https://construtrackfm.netlify.app. La versión publicada está **lista para clientes**: arranca
 > vacía y cada constructora crea su empresa al registrarse como jefe. Para verla con datos de ejemplo, usa el
 > [modo demostración](#modo-demostración).
 > El servidor usa el plan gratuito de Render: si nadie lo usó en un rato, la primera carga tarda unos 50 segundos.
@@ -104,7 +104,7 @@ java -cp out construtrack.App            # servidor + ventana (usa --sin-ventana
 
 | Parte | Dirección |
 |-------|-----------|
-| Página web (Netlify) | https://startling-toffee-914e34.netlify.app |
+| Página web (Netlify) | https://construtrackfm.netlify.app |
 | Servidor Java / API (Render) | https://construtrack-api.onrender.com/api/estado |
 
 El servidor Java se publica en **Render** (`Dockerfile` + `render.yaml`) a partir de `main`.
@@ -118,7 +118,7 @@ como jefe y crea su empresa. Para presentaciones hay dos formas de ver el sistem
 - **En local (NetBeans o terminal):** arranca con el argumento `--demo` (en NetBeans: *Project Properties → Run →
   Arguments* → `--demo`) o con la variable `DEMO=true`. Se crea la empresa «Constructora Demo» con los usuarios de abajo.
 - **Demo privada en la página publicada:** con la variable `DEMO_CLAVE` en Render, se abre
-  `https://startling-toffee-914e34.netlify.app/app.html#demo`, se escribe la clave y se elige entrar como Jefe, Supervisor o
+  `https://construtrackfm.netlify.app/app.html#demo`, se escribe la clave y se elige entrar como Jefe, Supervisor o
   Empleado. Es una empresa de prueba **separada de los clientes**, en memoria (se reinicia con el servidor), que no envía
   correos reales ni aparece en las cifras de la portada. Sin la clave no se puede entrar.
 
