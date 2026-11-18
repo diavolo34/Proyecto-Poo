@@ -13,6 +13,17 @@ public class RegistroAsistencia {
     private EstadoHorasExtra estadoExtra = EstadoHorasExtra.PENDIENTE;
     private EstadoVerificacion verificacion = EstadoVerificacion.NO_APLICA;
     private String motivoVerificacion = "";
+    private Ubicacion ubicacionEntrada;
+    private Ubicacion ubicacionSalida;
+
+    public record Ubicacion(double latitud, double longitud, Double precision) {
+        public static Ubicacion de(Double latitud, Double longitud, Double precision) {
+            if (latitud == null || longitud == null || latitud < -90 || latitud > 90 || longitud < -180 || longitud > 180) {
+                return null;
+            }
+            return new Ubicacion(latitud, longitud, precision == null || precision < 0 ? null : precision);
+        }
+    }
 
     public static final int MINIMO_EXTRA_MINUTOS = 15;
 
@@ -30,6 +41,22 @@ public class RegistroAsistencia {
             throw new OperacionInvalidaException("La hora de salida no puede ser anterior a la de entrada.");
         }
         this.horaSalida = hora;
+    }
+
+    public void registrarUbicacionEntrada(Double latitud, Double longitud, Double precision) {
+        ubicacionEntrada = Ubicacion.de(latitud, longitud, precision);
+    }
+
+    public void registrarUbicacionSalida(Double latitud, Double longitud, Double precision) {
+        ubicacionSalida = Ubicacion.de(latitud, longitud, precision);
+    }
+
+    public Ubicacion getUbicacionEntrada() {
+        return ubicacionEntrada;
+    }
+
+    public Ubicacion getUbicacionSalida() {
+        return ubicacionSalida;
     }
 
     public boolean estaAbierto() {

@@ -3,8 +3,9 @@ package construtrack.modelo;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
-import construtrack.modelo.incidencias.EstadoIncidencia;
-import construtrack.modelo.incidencias.Incidencia;
+import construtrack.modelo.novedades.EstadoNovedad;
+import construtrack.modelo.novedades.Licencia;
+import construtrack.modelo.novedades.Novedad;
 import construtrack.util.Totp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -27,6 +28,10 @@ public abstract class Usuario {
     private final List<String> respaldosDosPasos = new ArrayList<>();
     private long ultimoPasoDosPasos = Long.MIN_VALUE;
     private Empresa empresa;
+    private boolean activo = true;
+    private LocalDate fechaEgreso;
+    private String puesto;
+    private String area;
 
     protected Usuario(String cedula, String nombre, Horario horario) {
         setCedula(cedula);
@@ -71,6 +76,12 @@ public abstract class Usuario {
     public abstract String getRol();
 
     public RegistroAsistencia marcarEntrada(LocalDateTime ahora) {
+        verificarActivo();
+        Licencia incapacidad = historial.incapacidadEl(ahora.toLocalDate());
+        if (incapacidad != null) {
+            throw new OperacionInvalidaException(nombre + " tiene un reposo médico aprobado del " + incapacidad.getDesde()
+                    + " al " + incapacidad.getHasta() + ". Mientras dure la incapacidad no se marca asistencia.");
+        }
         if (estaPresente()) {
             throw new OperacionInvalidaException(nombre + " ya registró su entrada y sigue en la obra.");
         }
@@ -81,26 +92,37 @@ public abstract class Usuario {
     }
 
     public RegistroAsistencia marcarEntrada(LocalDateTime ahora, DatosMarca marca) {
-        List<String> motivos = controlaAsistencia() ? obra.motivosDeDuda(marca) : null;
+        List<String> motivos = new ArrayList<>(controlaAsistencia() ? obra.motivosDeDuda(marca) : List.of());
+        if (exigeUbicacionAlMarcar() && !marca.tieneUbicacion() && !motivos.contains(SIN_UBICACION)) {
+            motivos.add(SIN_UBICACION);
+        }
         RegistroAsistencia registro = marcarEntrada(ahora);
-        if (motivos != null) {
-            if (motivos.isEmpty()) {
-                registro.marcarVerificada();
-            } else {
-                registro.marcarPorConfirmar("Entrada " + String.join(" y ", motivos));
-            }
+        registro.registrarUbicacionEntrada(marca.latitud(), marca.longitud(), marca.precision());
+        if (!motivos.isEmpty()) {
+            registro.marcarPorConfirmar("Entrada " + String.join(" y ", motivos));
+        } else if (controlaAsistencia()) {
+            registro.marcarVerificada();
         }
         return registro;
+    }
+
+    public static final String SIN_UBICACION = "sin ubicación";
+
+    protected boolean exigeUbicacionAlMarcar() {
+        return true;
     }
 
     public RegistroAsistencia marcarSalida(LocalDateTime ahora, DatosMarca marca) {
         RegistroAsistencia abierta = historial.jornadaAbierta();
         if (abierta == null || !controlaAsistencia()) {
-            return marcarSalida(ahora);
+            RegistroAsistencia registro = marcarSalida(ahora);
+            registro.registrarUbicacionSalida(marca.latitud(), marca.longitud(), marca.precision());
+            return registro;
         }
         boolean olvidada = !abierta.getFecha().equals(ahora.toLocalDate());
         List<String> motivos = olvidada ? List.of() : obra.motivosDeDuda(marca);
         RegistroAsistencia registro = marcarSalida(ahora);
+        registro.registrarUbicacionSalida(marca.latitud(), marca.longitud(), marca.precision());
         if (olvidada) {
             registro.marcarPorConfirmar("salida olvidada, se cerró con el horario");
         } else if (!motivos.isEmpty()) {
@@ -169,23 +191,31 @@ public abstract class Usuario {
         return historial.getAsistencias();
     }
 
-    public boolean puedeReportarPara(Usuario afectado) {
+    public boolean puedeRegistrarNovedadPara(Usuario afectado) {
+        return false;
+    }
+
+    public boolean puedeVerNovedadesDe(Usuario afectado) {
         return afectado == this;
     }
 
-    public void reportar(Incidencia incidencia) {
-        if (incidencia.getReportadoPor() != this || !puedeReportarPara(incidencia.getAfectado())) {
-            throw new PermisoDenegadoException("No puedes reportar incidencias de " + incidencia.getAfectado().getNombre() + ".");
+    public void registrarNovedad(Novedad novedad) {
+        if (!novedad.getRegistradaPor().esDe(this) || !puedeRegistrarNovedadPara(novedad.getAfectado())) {
+            throw new PermisoDenegadoException("Solo el supervisor registra permisos, reposos y reportes en obra de su personal.");
         }
-        incidencia.getAfectado().historial.agregarIncidencia(incidencia);
+        if (!novedad.getAfectado().estaActivo()) {
+            throw new OperacionInvalidaException(novedad.getAfectado().getNombre() + " ya no está activo en la empresa.");
+        }
+        novedad.validarNueva();
+        novedad.getAfectado().historial.agregarNovedad(novedad);
     }
 
-    protected void revisarComo(RevisorIncidencias revisor, Incidencia incidencia, EstadoIncidencia nuevo,
-            String comentario, LocalDateTime ahora) {
-        if (!revisor.puedeRevisar(incidencia)) {
-            throw new PermisoDenegadoException("No tienes autoridad para revisar la incidencia #" + incidencia.getId() + ".");
+    protected void revisarComo(RevisorNovedades revisor, Novedad novedad, EstadoNovedad nuevo, String nota,
+            LocalDateTime ahora) {
+        if (!revisor.puedeRevisar(novedad)) {
+            throw new PermisoDenegadoException("No tienes autoridad para aprobar o rechazar el registro #" + novedad.getId() + ".");
         }
-        incidencia.registrarRevision(nuevo, this, comentario, ahora);
+        novedad.revisar(nuevo, Firma.de(this), nota, ahora);
     }
 
     public boolean admiteDosPasos() {
@@ -269,6 +299,50 @@ public abstract class Usuario {
         return jornada;
     }
 
+    public boolean estaActivo() {
+        return activo;
+    }
+
+    public void verificarActivo() {
+        if (!activo) {
+            throw new OperacionInvalidaException(nombre + " ya no trabaja en la empresa (egreso el " + fechaEgreso + ").");
+        }
+    }
+
+    void desactivar(LocalDate fecha) {
+        if (estaPresente()) {
+            marcarSalida(LocalDateTime.of(fecha, horario.getHoraSalida()));
+        }
+        activo = false;
+        fechaEgreso = fecha;
+        obra = null;
+    }
+
+    public void restaurarEgreso(LocalDate fecha) {
+        activo = false;
+        fechaEgreso = fecha;
+    }
+
+    public LocalDate getFechaEgreso() {
+        return fechaEgreso;
+    }
+
+    public String getPuesto() {
+        return puesto;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setPuesto(String puesto) {
+        this.puesto = puesto == null || puesto.isBlank() ? null : puesto.trim();
+    }
+
+    public void setArea(String area) {
+        this.area = area == null || area.isBlank() ? null : area.trim();
+    }
+
     public Empresa getEmpresa() {
         return empresa;
     }
@@ -296,6 +370,8 @@ public abstract class Usuario {
     void copiarEstadoDe(Usuario otro) {
         historial.copiarDe(otro.historial);
         obra = otro.obra;
+        puesto = otro.puesto;
+        area = otro.area;
         claveResumen = otro.claveResumen;
         if (otro.cuenta != null) {
             vincularCuenta(otro.cuenta);

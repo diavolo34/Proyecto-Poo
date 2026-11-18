@@ -14,7 +14,7 @@ import construtrack.modelo.Plataforma;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.DemasiadosIntentosException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
-import construtrack.modelo.incidencias.FabricaIncidencias;
+import construtrack.modelo.novedades.FabricaNovedades;
 import construtrack.persistencia.AlmacenMemoria;
 import construtrack.persistencia.RepositorioMemoria;
 import construtrack.persistencia.RepositorioTexto;
@@ -116,7 +116,7 @@ class VerificacionCorreoTest {
     @DisplayName("Se guarda si la cuenta está confirmada; las cuentas antiguas, sin ese dato, quedan confirmadas")
     void persistencia() {
         Cuenta cuenta = registrar(null);
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         AlmacenMemoria almacen = new AlmacenMemoria();
         new RepositorioTexto(almacen, () -> null, fabrica).guardar(d.empresa.getPlataforma());
         Plataforma cargada = new RepositorioTexto(almacen, () -> null, fabrica).cargar();

@@ -1,6 +1,6 @@
 package construtrack.modelo.alertas;
 
-import construtrack.modelo.Empleado;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Periodo;
 import construtrack.modelo.Usuario;
 import java.time.LocalDate;
@@ -20,13 +20,14 @@ public class MonitorSupervision {
         return new MonitorSupervision(List.<ReglaAlerta>of(
                 new RetardosReiterados(3),
                 new AusenciaSinJustificar(),
-                new IncidenciaPendienteVencida(48)));
+                new FaltasConsecutivas(2),
+                new NovedadPendienteVencida(48)));
     }
 
     public List<Alerta> evaluar(List<Usuario> personas, Periodo periodo, LocalDate hoy, LocalDateTime ahora) {
         List<Alerta> alertas = new ArrayList<>();
         for (Usuario persona : personas) {
-            if (persona instanceof Empleado) {
+            if (!(persona instanceof Gerente)) {
                 for (ReglaAlerta regla : reglas) {
                     alertas.addAll(regla.evaluar(persona, periodo, hoy, ahora));
                 }

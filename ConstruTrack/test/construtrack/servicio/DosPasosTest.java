@@ -13,7 +13,7 @@ import construtrack.modelo.Plataforma;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
-import construtrack.modelo.incidencias.FabricaIncidencias;
+import construtrack.modelo.novedades.FabricaNovedades;
 import construtrack.persistencia.AlmacenMemoria;
 import construtrack.persistencia.RepositorioMemoria;
 import construtrack.persistencia.RepositorioTexto;
@@ -120,7 +120,7 @@ class DosPasosTest {
     @DisplayName("El secreto y los códigos de respaldo se guardan y se recuperan al cargar")
     void persistencia() {
         activarParaCarlos();
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         AlmacenMemoria almacen = new AlmacenMemoria();
         new RepositorioTexto(almacen, () -> null, fabrica).guardar(d.empresa.getPlataforma());
         Plataforma cargada = new RepositorioTexto(almacen, () -> null, fabrica).cargar();

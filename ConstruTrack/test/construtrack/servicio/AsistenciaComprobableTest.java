@@ -16,7 +16,7 @@ import construtrack.modelo.Plataforma;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
-import construtrack.modelo.incidencias.FabricaIncidencias;
+import construtrack.modelo.novedades.FabricaNovedades;
 import construtrack.persistencia.AlmacenMemoria;
 import construtrack.persistencia.RepositorioMemoria;
 import construtrack.persistencia.RepositorioTexto;
@@ -46,10 +46,20 @@ class AsistenciaComprobableTest {
     }
 
     @Test
-    @DisplayName("Sin control en la obra, la marca funciona como siempre")
+    @DisplayName("Sin control en la obra, la entrada con ubicación se guarda con sus coordenadas; sin ubicación queda por confirmar")
     void sinControl() {
-        RegistroAsistencia r = servicios.asistencia().marcarEntrada(d.jose);
+        RegistroAsistencia r = servicios.asistencia().marcarEntrada(d.jose, null, LAT, LON, 12.0);
         assertEquals(EstadoVerificacion.NO_APLICA, r.getVerificacion());
+        assertEquals(LAT, r.getUbicacionEntrada().latitud());
+        reloj.avanzar(Duration.ofHours(1));
+        servicios.asistencia().marcarSalida(d.jose);
+        reloj.avanzar(Duration.ofHours(1));
+        RegistroAsistencia sinUbicacion = servicios.asistencia().marcarEntrada(d.jose);
+        assertEquals(EstadoVerificacion.POR_CONFIRMAR, sinUbicacion.getVerificacion());
+        assertEquals("Entrada sin ubicación", sinUbicacion.getMotivoVerificacion());
+        reloj.avanzar(Duration.ofHours(1));
+        assertEquals(EstadoVerificacion.NO_APLICA, servicios.asistencia().marcarEntrada(d.gerente).getVerificacion(),
+                "Al gerente no se le exige la ubicación");
     }
 
     @Test
@@ -61,7 +71,7 @@ class AsistenciaComprobableTest {
 
         String codigo = codigoActual();
         reloj.avanzar(Duration.ofSeconds(Totp.PASO_SEGUNDOS * 2L));
-        RegistroAsistencia entrada = servicios.asistencia().marcarEntrada(d.jose, codigo, null, null, null);
+        RegistroAsistencia entrada = servicios.asistencia().marcarEntrada(d.jose, codigo, LAT, LON, 10.0);
         assertEquals(EstadoVerificacion.VERIFICADA, entrada.getVerificacion(), "Un código de hace un minuto aún sirve");
 
         reloj.avanzar(Duration.ofHours(2));
@@ -81,7 +91,7 @@ class AsistenciaComprobableTest {
         assertEquals(codigoActual(), segundo, "Es el código del paso actual");
         assertThrows(PermisoDenegadoException.class, () -> servicios.obras().codigoAsistencia(d.jose, "OB-01"));
         reloj.avanzar(Duration.ofSeconds(Totp.PASO_SEGUNDOS * 3L));
-        assertThrows(DatoInvalidoException.class, () -> servicios.asistencia().marcarEntrada(d.jose, primero, null, null, null),
+        assertThrows(DatoInvalidoException.class, () -> servicios.asistencia().marcarEntrada(d.jose, primero, LAT, LON, 10.0),
                 "Un código de hace 2 minutos ya no sirve");
     }
 
@@ -145,7 +155,7 @@ class AsistenciaComprobableTest {
                 "inicio", obra.getFechaInicio().toString(), "fin", obra.getFechaFinEstimada().toString(),
                 "latitud", "10,4806", "longitud", "-66.9036", "radio", "200", "exigeCodigo", "true"));
         servicios.asistencia().marcarEntrada(d.jose, null, null, null, null);
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         AlmacenMemoria almacen = new AlmacenMemoria();
         new RepositorioTexto(almacen, () -> null, fabrica).guardar(d.empresa.getPlataforma());
         Plataforma cargada = new RepositorioTexto(almacen, () -> null, fabrica).cargar();

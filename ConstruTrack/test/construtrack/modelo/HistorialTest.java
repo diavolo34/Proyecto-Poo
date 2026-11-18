@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import construtrack.Datos;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
-import construtrack.modelo.incidencias.EstadoIncidencia;
-import construtrack.modelo.incidencias.ReposoMedico;
+import construtrack.modelo.novedades.EstadoNovedad;
+import construtrack.modelo.novedades.ReposoMedico;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -49,12 +49,11 @@ class HistorialTest {
     @Test
     @DisplayName("Un reposo médico aprobado justifica la falta; uno pendiente no")
     void reposoAprobadoJustifica() {
-        ReposoMedico reposo = new ReposoMedico(Datos.incidencia(1, d.jose, d.jose, martes, martes,
-                Map.of("centroMedico", "Clínica Santa Sofía")));
-        d.jose.reportar(reposo);
+        ReposoMedico reposo = new ReposoMedico(Datos.novedad(1, d.jose, d.ana, martes, martes, Datos.reposoCompleto()));
+        d.ana.registrarNovedad(reposo);
         assertTrue(d.jose.getHistorial().ausenciasSinJustificar(d.jose.getHorario(), semana, HOY).contains(martes));
 
-        d.ana.revisar(reposo, EstadoIncidencia.APROBADA, "Certificado válido", AHORA);
+        d.gerente.revisar(reposo, EstadoNovedad.APROBADA, "Certificado válido", AHORA);
         assertTrue(d.jose.getHistorial().estaJustificado(martes));
         assertEquals(List.of(lunes), d.jose.getHistorial().ausenciasSinJustificar(d.jose.getHorario(), semana, HOY));
         assertEquals(List.of(martes), d.jose.getHistorial().ausenciasJustificadas(d.jose.getHorario(), semana, HOY));

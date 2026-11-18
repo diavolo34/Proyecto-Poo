@@ -13,8 +13,9 @@ import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.modelo.RegistroAsistencia;
-import construtrack.modelo.incidencias.EstadoIncidencia;
-import construtrack.modelo.incidencias.Incidencia;
+import construtrack.modelo.novedades.Categoria;
+import construtrack.modelo.novedades.EstadoNovedad;
+import construtrack.modelo.novedades.Novedad;
 import construtrack.persistencia.RepositorioMemoria;
 import java.time.Clock;
 import java.time.Duration;
@@ -31,10 +32,12 @@ class ServiciosTest {
     private final Servicios servicios = new Servicios(d.empresa.getPlataforma(), repositorio, Datos.RELOJ, 1, correo);
 
     @Test
-    @DisplayName("Reportar una incidencia asigna números consecutivos y guarda los cambios")
+    @DisplayName("Registrar un permiso o un reporte asigna números consecutivos y guarda los cambios")
     void reportarGuarda() {
-        Incidencia a = servicios.incidencias().reportar(d.jose, "PERMISO_PERSONAL", "30000001", HOY, null, "Trámite bancario", Map.of());
-        Incidencia b = servicios.incidencias().reportar(d.ana, "AUSENCIA", "30000001", HOY, null, "No se presentó", Map.of());
+        Novedad a = servicios.novedades().registrar(d.ana, Categoria.LICENCIA, "PERMISO_LABORAL", "30000001", HOY, null,
+                "Trámite bancario", Map.of());
+        Novedad b = servicios.novedades().registrar(d.ana, Categoria.REPORTE_OBRA, "INASISTENCIA", "30000001", HOY, null,
+                "No se presentó", Map.of());
         assertEquals(1, a.getId());
         assertEquals(2, b.getId());
         assertEquals(2, repositorio.getGuardados());
@@ -111,26 +114,33 @@ class ServiciosTest {
     }
 
     @Test
-    @DisplayName("Las revisadas salen del tablero a las 3 horas, pero siguen en el reporte de incidencias")
+    @DisplayName("Las revisadas salen del tablero a las 3 horas, pero siguen en los reportes descargables")
     void tableroArchivaYReporteConserva() {
-        Incidencia aprobada = servicios.incidencias().reportar(d.jose, "PERMISO_PERSONAL", "30000001", HOY, null, "Trámite", Map.of());
-        Incidencia rechazada = servicios.incidencias().reportar(d.laura, "PERMISO_PERSONAL", "30000004", HOY, null, "Viaje", Map.of());
-        Incidencia pendiente = servicios.incidencias().reportar(d.ana, "AUSENCIA", "30000001", HOY.minusDays(40), null, "Faltó", Map.of());
-        servicios.incidencias().revisar(d.gerente, aprobada.getId(), EstadoIncidencia.APROBADA, "Ok");
-        servicios.incidencias().revisar(d.gerente, rechazada.getId(), EstadoIncidencia.RECHAZADA, "Sin soporte");
-        assertEquals(3, servicios.incidencias().listarTablero(d.gerente).size(), "Recién revisadas siguen visibles");
+        Novedad aprobada = servicios.novedades().registrar(d.ana, Categoria.LICENCIA, "PERMISO_LABORAL", "30000001", HOY, null,
+                "Trámite", Map.of());
+        Novedad rechazada = servicios.novedades().registrar(d.luis, Categoria.LICENCIA, "PERMISO_LABORAL", "30000004", HOY, null,
+                "Viaje", Map.of());
+        Novedad pendiente = servicios.novedades().registrar(d.ana, Categoria.REPORTE_OBRA, "INASISTENCIA", "30000001",
+                HOY.minusDays(40), null, "Faltó", Map.of());
+        servicios.novedades().revisar(d.gerente, aprobada.getId(), EstadoNovedad.APROBADA, "Ok, aprobado");
+        servicios.novedades().revisar(d.gerente, rechazada.getId(), EstadoNovedad.RECHAZADA, "Sin soporte");
+        assertEquals(3, servicios.novedades().listarTablero(d.gerente).size(), "Recién revisadas siguen visibles");
 
         Servicios tresHorasDespues = new Servicios(d.empresa, repositorio,
-                Clock.offset(Datos.RELOJ, Duration.ofHours(Incidencia.HORAS_EN_TABLERO)), 100);
-        List<Incidencia> tablero = tresHorasDespues.incidencias().listarTablero(d.gerente);
+                Clock.offset(Datos.RELOJ, Duration.ofHours(Novedad.HORAS_EN_TABLERO)), 100);
+        List<Novedad> tablero = tresHorasDespues.novedades().listarTablero(d.gerente);
         assertEquals(List.of(pendiente), tablero);
-        tablero.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
-        assertEquals(3, tresHorasDespues.incidencias().listarVisibles(d.gerente).size());
+        assertEquals(3, tresHorasDespues.novedades().listar(d.gerente, null).size());
+        assertEquals(1, tresHorasDespues.novedades().listar(d.gerente, Categoria.REPORTE_OBRA).size());
 
-        String todo = tresHorasDespues.supervision().exportar(d.gerente, "incidencias", "csv", "todo").contenido();
-        assertTrue(todo.contains("Sin soporte") && todo.contains("Faltó") && todo.contains("Carlos Méndez"), todo);
-        String semana = tresHorasDespues.supervision().exportar(d.gerente, "incidencias", "csv", "semana").contenido();
+        String todo = tresHorasDespues.supervision().exportar(d.gerente, "permisos", "csv", "todo").contenido();
+        assertTrue(todo.contains("Sin soporte") && todo.contains("Carlos Méndez") && !todo.contains("Faltó"), todo);
+        String obra = tresHorasDespues.supervision().exportar(d.gerente, "reportes-obra", "csv", "todo").contenido();
+        assertTrue(obra.contains("Faltó"), obra);
+        String semana = tresHorasDespues.supervision().exportar(d.gerente, "reportes-obra", "csv", "semana").contenido();
         assertFalse(semana.contains("Faltó"), "Un período corto no trae lo de hace 40 días");
+        assertThrows(PermisoDenegadoException.class, () -> servicios.novedades().listar(d.jose, Categoria.REPORTE_OBRA),
+                "El empleado no accede a los reportes en obra");
     }
 
     @Test

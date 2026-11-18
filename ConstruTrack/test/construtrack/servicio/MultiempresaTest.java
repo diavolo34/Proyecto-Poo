@@ -18,10 +18,11 @@ import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.NoEncontradoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
-import construtrack.modelo.incidencias.EstadoIncidencia;
+import construtrack.modelo.novedades.Categoria;
+import construtrack.modelo.novedades.EstadoNovedad;
 import construtrack.persistencia.RepositorioMemoria;
 import construtrack.persistencia.RepositorioTexto;
-import construtrack.modelo.incidencias.FabricaIncidencias;
+import construtrack.modelo.novedades.FabricaNovedades;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,10 +86,11 @@ class MultiempresaTest {
         assertThrows(NoEncontradoException.class, () -> servicios.personal().ver(marta, "30000001"),
                 "Una cédula de otra empresa «no existe»");
 
-        var reposo = servicios.incidencias().reportar(d.jose, "PERMISO_PERSONAL", "30000001", HOY, null, "Trámite", Map.of());
-        assertTrue(servicios.incidencias().listarVisibles(marta).isEmpty());
-        assertThrows(RuntimeException.class, () -> servicios.incidencias().revisar(marta, reposo.getId(),
-                EstadoIncidencia.APROBADA, "ok"), "No puede aprobar incidencias de otra empresa");
+        var reposo = servicios.novedades().registrar(d.ana, Categoria.LICENCIA, "PERMISO_LABORAL", "30000001", HOY, null,
+                "Trámite", Map.of());
+        assertTrue(servicios.novedades().listar(marta, null).isEmpty());
+        assertThrows(RuntimeException.class, () -> servicios.novedades().revisar(marta, reposo.getId(),
+                EstadoNovedad.APROBADA, "ok, aprobado"), "No puede aprobar permisos de otra empresa");
         assertFalse(marta.puedeRevisar(reposo));
         assertFalse(marta.puedeAprobarHorasDe(d.jose));
         assertThrows(PermisoDenegadoException.class, () -> marta.revisarHorasExtra(d.jose, HOY, EstadoHorasExtra.APROBADAS));
@@ -141,7 +143,7 @@ class MultiempresaTest {
         Gerente marta = registrarJefaNorte();
         servicios.obras().crear(marta, Map.of("nombre", "Galpón Norte", "ubicacion", "Maracay",
                 "inicio", HOY.toString(), "fin", HOY.plusMonths(3).toString()));
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         Path archivo = carpeta.resolve("plataforma.txt");
         new RepositorioTexto(archivo, () -> d.empresa, fabrica).guardar(d.empresa.getPlataforma());
         var cargada = new RepositorioTexto(archivo, () -> null, fabrica).cargar();

@@ -48,7 +48,7 @@ public class ServicioPersonal extends ServicioBase {
         return leer(() -> {
             List<Supervisor> supervisores = new ArrayList<>();
             for (Usuario u : empresaDe(actual).listarUsuarios()) {
-                if (u instanceof Supervisor s) {
+                if (u instanceof Supervisor s && s.estaActivo()) {
                     supervisores.add(s);
                 }
             }
@@ -99,13 +99,6 @@ public class ServicioPersonal extends ServicioBase {
         return modificar(() -> comoGerente(actual).modificarUsuario(cedula, datos));
     }
 
-    public void eliminar(Usuario actual, String cedula) {
-        modificar(() -> {
-            comoGerente(actual).eliminarUsuario(cedula);
-            return null;
-        });
-    }
-
     private Usuario buscarExistente(Usuario actual, String cedula) {
         Usuario usuario = empresaDe(actual).buscarUsuario(cedula);
         if (usuario == null) {
@@ -118,6 +111,6 @@ public class ServicioPersonal extends ServicioBase {
         if (actual instanceof Gerente gerente) {
             return gerente;
         }
-        throw new PermisoDenegadoException("Solo el Gerente puede registrar, modificar o eliminar usuarios.");
+        throw new PermisoDenegadoException("Solo el gerente registra o modifica al personal.");
     }
 }

@@ -1,15 +1,14 @@
-package construtrack.modelo.incidencias;
+package construtrack.modelo.novedades;
 
 import construtrack.modelo.excepciones.DatoInvalidoException;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Retardo extends Incidencia {
+public class Retardo extends ReporteObra {
     public static final String CODIGO = "RETARDO";
 
     private final int minutos;
 
-    public Retardo(DatosIncidencia datos) {
+    public Retardo(DatosNovedad datos) {
         super(datos);
         try {
             this.minutos = Integer.parseInt(datos.extra("minutos"));
@@ -32,13 +31,8 @@ public class Retardo extends Incidencia {
     }
 
     @Override
-    public Gravedad getGravedad() {
-        return minutos > 60 ? Gravedad.MEDIA : Gravedad.BAJA;
-    }
-
-    @Override
     public Map<String, String> getExtras() {
-        Map<String, String> extras = new LinkedHashMap<>();
+        Map<String, String> extras = extrasDeObra();
         extras.put("minutos", String.valueOf(minutos));
         return extras;
     }

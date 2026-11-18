@@ -1,30 +1,31 @@
-package construtrack.modelo.incidencias;
+package construtrack.modelo.novedades;
 
+import construtrack.modelo.Firma;
 import construtrack.modelo.Usuario;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DatosIncidencia {
+public class DatosNovedad {
     final int id;
     final Usuario afectado;
-    final Usuario reportadoPor;
+    final Firma registradaPor;
     final LocalDate desde;
     final LocalDate hasta;
     final String descripcion;
-    final LocalDateTime fechaReporte;
+    final LocalDateTime fechaRegistro;
     private final Map<String, String> extras;
 
-    public DatosIncidencia(int id, Usuario afectado, Usuario reportadoPor, LocalDate desde, LocalDate hasta,
-            String descripcion, LocalDateTime fechaReporte, Map<String, String> extras) {
+    public DatosNovedad(int id, Usuario afectado, Firma registradaPor, LocalDate desde, LocalDate hasta,
+            String descripcion, LocalDateTime fechaRegistro, Map<String, String> extras) {
         this.id = id;
         this.afectado = afectado;
-        this.reportadoPor = reportadoPor;
+        this.registradaPor = registradaPor;
         this.desde = desde;
         this.hasta = hasta == null ? desde : hasta;
         this.descripcion = descripcion;
-        this.fechaReporte = fechaReporte;
+        this.fechaRegistro = fechaRegistro;
         this.extras = extras == null ? new HashMap<>() : new HashMap<>(extras);
     }
 

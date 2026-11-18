@@ -1,7 +1,8 @@
 package construtrack.modelo;
 
-import construtrack.modelo.incidencias.Incidencia;
-import construtrack.modelo.incidencias.Justificable;
+import construtrack.modelo.novedades.Justificable;
+import construtrack.modelo.novedades.Licencia;
+import construtrack.modelo.novedades.Novedad;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Historial {
     private final List<RegistroAsistencia> asistencias = new ArrayList<>();
-    private final List<Incidencia> incidencias = new ArrayList<>();
+    private final List<Novedad> novedades = new ArrayList<>();
 
     private LocalDate inicio;
 
@@ -29,16 +30,16 @@ public class Historial {
                 .thenComparing(RegistroAsistencia::getHoraEntrada));
     }
 
-    public void agregarIncidencia(Incidencia incidencia) {
-        incidencias.add(incidencia);
+    public void agregarNovedad(Novedad novedad) {
+        novedades.add(novedad);
     }
 
     public List<RegistroAsistencia> getAsistencias() {
         return Collections.unmodifiableList(asistencias);
     }
 
-    public List<Incidencia> getIncidencias() {
-        return Collections.unmodifiableList(incidencias);
+    public List<Novedad> getNovedades() {
+        return Collections.unmodifiableList(novedades);
     }
 
     public RegistroAsistencia jornadaAbierta() {
@@ -101,9 +102,9 @@ public class Historial {
         return resultado;
     }
 
-    public List<Incidencia> incidenciasEn(Periodo periodo) {
-        List<Incidencia> resultado = new ArrayList<>();
-        for (Incidencia i : incidencias) {
+    public List<Novedad> novedadesEn(Periodo periodo) {
+        List<Novedad> resultado = new ArrayList<>();
+        for (Novedad i : novedades) {
             if (!i.getHasta().isBefore(periodo.getDesde()) && !i.getDesde().isAfter(periodo.getHasta())) {
                 resultado.add(i);
             }
@@ -158,12 +159,59 @@ public class Historial {
     }
 
     public boolean estaJustificado(LocalDate fecha) {
-        for (Incidencia i : incidencias) {
-            if (i instanceof Justificable j && j.justificaAusenciaEl(fecha)) {
-                return true;
+        return justificacionDel(fecha) != null;
+    }
+
+    public Justificable justificacionDel(LocalDate fecha) {
+        Justificable encontrada = null;
+        for (Novedad n : novedades) {
+            if (n instanceof Justificable j && j.justificaAusenciaEl(fecha)) {
+                if (n instanceof Licencia l && l.esIncapacidad()) {
+                    return j;
+                }
+                encontrada = encontrada == null ? j : encontrada;
             }
         }
-        return false;
+        return encontrada;
+    }
+
+    public Licencia incapacidadEl(LocalDate fecha) {
+        for (Novedad n : novedades) {
+            if (n instanceof Licencia l && l.incapacitaEl(fecha)) {
+                return l;
+            }
+        }
+        return null;
+    }
+
+    public List<LocalDate> diasDeIncapacidad(Horario horario, Periodo periodo, LocalDate hoy) {
+        List<LocalDate> dias = new ArrayList<>();
+        for (LocalDate fecha : diasLaborables(horario, periodo, hoy)) {
+            if (asistenciaValidaDel(fecha) == null && incapacidadEl(fecha) != null) {
+                dias.add(fecha);
+            }
+        }
+        return dias;
+    }
+
+    public int mayorRachaDeFaltas(Horario horario, Periodo periodo, LocalDate hoy) {
+        return rachaDeFaltas(horario, periodo, hoy).size();
+    }
+
+    public List<LocalDate> rachaDeFaltas(Horario horario, Periodo periodo, LocalDate hoy) {
+        List<LocalDate> mayor = new ArrayList<>();
+        List<LocalDate> actual = new ArrayList<>();
+        for (LocalDate fecha : diasLaborables(horario, periodo, hoy)) {
+            if (asistenciaValidaDel(fecha) == null && !estaJustificado(fecha)) {
+                actual.add(fecha);
+                if (actual.size() > mayor.size()) {
+                    mayor = new ArrayList<>(actual);
+                }
+            } else {
+                actual.clear();
+            }
+        }
+        return mayor;
     }
 
     public List<LocalDate> ausenciasSinJustificar(Horario horario, Periodo periodo, LocalDate hoy) {
@@ -205,8 +253,8 @@ public class Historial {
     void copiarDe(Historial otro) {
         asistencias.clear();
         asistencias.addAll(otro.asistencias);
-        incidencias.clear();
-        incidencias.addAll(otro.incidencias);
+        novedades.clear();
+        novedades.addAll(otro.novedades);
         inicio = otro.inicio;
     }
 }

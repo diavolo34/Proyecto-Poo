@@ -86,7 +86,7 @@ public class Plataforma {
 
     public Usuario autenticar(String cedula, String clave) {
         Usuario usuario = buscarUsuario(cedula);
-        return usuario != null && usuario.verificarClave(clave) ? usuario : null;
+        return usuario != null && usuario.estaActivo() && usuario.verificarClave(clave) ? usuario : null;
     }
 
     public void agregarCuenta(Cuenta cuenta) {

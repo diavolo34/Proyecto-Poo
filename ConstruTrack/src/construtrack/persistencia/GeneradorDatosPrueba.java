@@ -1,33 +1,44 @@
 package construtrack.persistencia;
 
+import construtrack.modelo.CodigoInvitacion;
+import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoHorasExtra;
-import construtrack.modelo.Horario;
-import construtrack.modelo.CodigoInvitacion;
-import construtrack.modelo.Cuenta;
-import construtrack.modelo.Invitacion;
+import construtrack.modelo.Firma;
 import construtrack.modelo.Gerente;
+import construtrack.modelo.Horario;
+import construtrack.modelo.Invitacion;
 import construtrack.modelo.Obra;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
+import construtrack.modelo.Usuario;
+import construtrack.modelo.inventario.CategoriaArticulo;
+import construtrack.modelo.inventario.CondicionDevolucion;
+import construtrack.modelo.inventario.Inventario;
+import construtrack.modelo.novedades.DatosNovedad;
+import construtrack.modelo.novedades.EstadoNovedad;
+import construtrack.modelo.novedades.FabricaNovedades;
+import construtrack.modelo.novedades.Inasistencia;
+import construtrack.modelo.novedades.Novedad;
+import construtrack.modelo.novedades.PermisoLaboral;
+import construtrack.modelo.novedades.ReposoMedico;
+import construtrack.modelo.novedades.Retardo;
 import java.time.Clock;
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.util.Map;
-import construtrack.modelo.Usuario;
-import construtrack.modelo.incidencias.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class GeneradorDatosPrueba implements Supplier<Empresa> {
     private final Clock reloj;
 
-    private final FabricaIncidencias fabrica;
+    private final FabricaNovedades fabrica;
 
-    public GeneradorDatosPrueba(Clock reloj, FabricaIncidencias fabrica) {
+    public GeneradorDatosPrueba(Clock reloj, FabricaNovedades fabrica) {
         this.reloj = reloj;
         this.fabrica = fabrica;
     }
@@ -40,23 +51,39 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         Horario sabados = Horario.desdeTexto("MA,MI,JU,VI,SA", "07:00", "15:00");
 
         Gerente carlos = new Gerente("10000001", "Carlos Méndez", "gerente123", oficina);
+        carlos.setPuesto("Gerente");
+        carlos.setArea("Administración");
         empresa.agregarUsuario(carlos);
         Supervisor ana = new Supervisor("20000001", "Ana Rodríguez", "super123", obra);
+        ana.setPuesto("Jefe de obra");
+        ana.setArea("Obra civil");
         Supervisor luis = new Supervisor("20000002", "Luis Pérez", "super123", sabados);
+        luis.setPuesto("Supervisor del equipo de mantenimiento");
+        luis.setArea("Mantenimiento");
         empresa.agregarUsuario(ana);
         empresa.agregarUsuario(luis);
 
         String[][] empleados = {
-            {"30000001", "José García"}, {"30000002", "María López"}, {"30000003", "Pedro Ramírez"},
-            {"30000004", "Laura Torres"}, {"30000005", "Miguel Herrera"}, {"30000006", "Sofía Castillo"}
+            {"30000001", "José García", "Albañil", "Obra civil"}, {"30000002", "María López", "Electricista", "Electricidad"},
+            {"30000003", "Pedro Ramírez", "Ayudante de obra", "Obra civil"},
+            {"30000004", "Laura Torres", "Electricista", "Mantenimiento"},
+            {"30000005", "Miguel Herrera", "Operador de maquinaria", "Mantenimiento"},
+            {"30000006", "Sofía Castillo", "Ayudante de obra", "Mantenimiento"}
         };
         LocalDate hoy = LocalDate.now(reloj);
         Obra torre = new Obra("OB-01", "Torre Residencial Este", "Av. Principal, Caracas",
                 hoy.minusMonths(2), hoy.plusMonths(6));
         Obra puente = new Obra("OB-02", "Puente Vial del Sur", "Autopista Sur, Los Teques",
                 hoy.minusWeeks(3), hoy.plusMonths(9));
+        Obra galpon = new Obra("OB-03", "Galpón Industrial Norte", "Zona Industrial, Guarenas",
+                hoy.plusWeeks(3), hoy.plusMonths(8));
+        torre.iniciar(hoy.minusMonths(2));
+        puente.iniciar(hoy.minusWeeks(3));
+        puente.reportarRetraso(Firma.de(luis), "Lluvias de la semana inundaron la excavación del estribo sur",
+                hoy.plusMonths(9).plusWeeks(2), LocalDateTime.now(reloj).minusHours(20));
         empresa.agregarObra(torre);
         empresa.agregarObra(puente);
+        empresa.agregarObra(galpon);
         ana.setObra(torre);
         torre.configurarControl(10.4969, -66.8539, 150, true);
         luis.setObra(puente);
@@ -79,6 +106,8 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         for (int i = 0; i < empleados.length; i++) {
             boolean extraHecha = false;
             Empleado e = new Empleado(empleados[i][0], empleados[i][1], "emp123", i < 3 ? obra : sabados);
+            e.setPuesto(empleados[i][2]);
+            e.setArea(empleados[i][3]);
             e.setSupervisor(i < 3 ? ana : luis);
             e.setObra(i < 3 ? torre : puente);
             empresa.agregarUsuario(e);
@@ -92,7 +121,8 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                         ? !dia.isBefore(hoy.with(DayOfWeek.MONDAY)) && dia.getDayOfWeek().getValue() <= 3
                         : (dia.getDayOfMonth() + i) % 5 == 0;
 
-                boolean deReposo = i == 0 && (dia.equals(hoy.minusDays(4)) || dia.equals(hoy.minusDays(3)));
+                boolean deReposo = i == 0 && (dia.equals(hoy.minusDays(4)) || dia.equals(hoy.minusDays(3)))
+                        || i == 5 && !dia.isBefore(hoy.minusDays(1));
                 boolean falta = deReposo || (dia.getDayOfMonth() * 3 + i) % 11 == 0;
                 if (!falta) {
                     String entrada = retardo ? "07:25" : "06:5" + (i % 10);
@@ -119,7 +149,8 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                 e.agregarAsistencia(registro(hoy, i == 4 ? "07:25" : "06:58", null, i == 4));
             }
         }
-        agregarIncidenciasDemo(empresa, fabrica, hoy);
+        agregarNovedadesDemo(empresa, fabrica, hoy);
+        agregarInventarioDemo(empresa, hoy);
         agregarCuentasDemo(empresa, hoy);
         marcaPorConfirmarDemo(empresa, hoy);
         return empresa;
@@ -162,33 +193,70 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         return java.text.Normalizer.normalize(texto, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
     }
 
-    private static void agregarIncidenciasDemo(Empresa empresa, FabricaIncidencias fabrica, LocalDate hoy) {
+    private void agregarNovedadesDemo(Empresa empresa, FabricaNovedades fabrica, LocalDate hoy) {
         Usuario jose = empresa.buscarUsuario("30000001");
         Usuario maria = empresa.buscarUsuario("30000002");
         Usuario pedro = empresa.buscarUsuario("30000003");
-        Usuario ana = empresa.buscarUsuario("20000001");
-        Usuario luis = empresa.buscarUsuario("20000002");
         Usuario laura = empresa.buscarUsuario("30000004");
+        Usuario sofia = empresa.buscarUsuario("30000006");
+        Firma ana = Firma.de(empresa.buscarUsuario("20000001"));
+        Firma luis = Firma.de(empresa.buscarUsuario("20000002"));
+        Firma carlos = Firma.de(empresa.buscarUsuario("10000001"));
+        LocalDateTime ahora = LocalDateTime.now(reloj);
 
-        LocalDateTime ahora = LocalDateTime.now();
-        ReposoMedico reposo = (ReposoMedico) fabrica.crear(ReposoMedico.CODIGO, new DatosIncidencia(1, jose, ana,
-                hoy.minusDays(4), hoy.minusDays(3), "Gripe con fiebre, reposo indicado por el médico",
-                ahora.minusDays(5), Map.of("centroMedico", "Clínica Santa Sofía", "certificado", "CM-4471")));
-        reposo.restaurarRevision(EstadoIncidencia.APROBADA, ana, "Certificado válido", ahora.minusDays(4));
-        jose.getHistorial().agregarIncidencia(reposo);
+        Novedad reposo = fabrica.crear(ReposoMedico.CODIGO, new DatosNovedad(1, jose, ana, hoy.minusDays(4), hoy.minusDays(3),
+                "Gripe con fiebre, reposo indicado por el médico", ahora.minusDays(5), Map.of("medico", "Andrés Salazar",
+                        "matricula", "MPPS 45821", "centro", "Clínica Santa Sofía", "tipoConsulta", "INTERNA")));
+        reposo.restaurarRevision(EstadoNovedad.APROBADA, carlos, "Reposo verificado con la clínica", ahora.minusDays(4));
+        jose.getHistorial().agregarNovedad(reposo);
 
-        Incidencia permiso = fabrica.crear(PermisoPersonal.CODIGO, new DatosIncidencia(2, maria, maria,
-                hoy.plusDays(2), hoy.plusDays(2), "Trámite en el registro civil", ahora.minusHours(6), Map.of()));
-        maria.getHistorial().agregarIncidencia(permiso);
+        Novedad incapacidad = fabrica.crear(ReposoMedico.CODIGO, new DatosNovedad(2, sofia, luis, hoy.minusDays(1),
+                hoy.plusDays(2), "Esguince de tobillo izquierdo, reposo absoluto", ahora.minusDays(1), Map.of("medico",
+                        "Mariela Rojas", "matricula", "MPPS 61207", "centro", "Hospital Domingo Luciani", "tipoConsulta",
+                        "EMERGENCIA")));
+        incapacidad.restaurarRevision(EstadoNovedad.APROBADA, carlos, "Aprobado: informe de emergencia recibido",
+                ahora.minusHours(20));
+        sofia.getHistorial().agregarNovedad(incapacidad);
 
-        Incidencia retardo = fabrica.crear(Retardo.CODIGO, new DatosIncidencia(3, pedro, pedro,
-                hoy.minusDays(1), null, "Accidente vial en la autopista, se detuvo el tráfico",
-                ahora.minusDays(1), Map.of("minutos", "35")));
-        pedro.getHistorial().agregarIncidencia(retardo);
+        maria.getHistorial().agregarNovedad(fabrica.crear(PermisoLaboral.CODIGO, new DatosNovedad(3, maria, ana,
+                hoy.plusDays(2), hoy.plusDays(2), "Trámite de documentos en el registro civil", ahora.minusHours(6), Map.of())));
+        pedro.getHistorial().agregarNovedad(fabrica.crear(Retardo.CODIGO, new DatosNovedad(4, pedro, ana, hoy.minusDays(1),
+                null, "Accidente vial en la autopista, se detuvo el tráfico", ahora.minusDays(1),
+                Map.of("minutos", "35", "obra", "Torre Residencial Este"))));
+        laura.getHistorial().agregarNovedad(fabrica.crear(Inasistencia.CODIGO, new DatosNovedad(5, laura, luis,
+                hoy.minusDays(2), null, "No se presentó ni avisó al supervisor", ahora.minusDays(2),
+                Map.of("obra", "Puente Vial del Sur"))));
+    }
 
-        Incidencia ausencia = fabrica.crear(Ausencia.CODIGO, new DatosIncidencia(4, laura, luis,
-                hoy.minusDays(2), null, "No se presentó ni avisó al supervisor", ahora.minusDays(2), Map.of()));
-        laura.getHistorial().agregarIncidencia(ausencia);
+    private void agregarInventarioDemo(Empresa empresa, LocalDate hoy) {
+        Inventario inventario = empresa.getInventario();
+        Firma carlos = Firma.de(empresa.buscarUsuario("10000001"));
+        LocalDateTime ahora = LocalDateTime.now(reloj);
+        String taladro = inventario.agregar(CategoriaArticulo.HERRAMIENTA, "Taladro percutor", "Bosch GSB 13 RE", "BSH-882431", 1,
+                "").getCodigo();
+        String esmeril = inventario.agregar(CategoriaArticulo.HERRAMIENTA, "Esmeriladora angular 4½\"", "DeWalt DWE4120",
+                "DW-551902", 1, "").getCodigo();
+        inventario.agregar(CategoriaArticulo.HERRAMIENTA, "Nivel láser de líneas", "Stanley FatMax", "ST-77310", 1, "");
+        String andamio = inventario.agregar(CategoriaArticulo.EQUIPO, "Andamio tubular (cuerpo)", "", "", 12,
+                "Cuerpos de 1,5 m con crucetas").getCodigo();
+        String mezcladora = inventario.agregar(CategoriaArticulo.EQUIPO, "Mezcladora de concreto 1 saco", "Menegotti", "MN-3390", 1,
+                "").getCodigo();
+        String cascos = inventario.agregar(CategoriaArticulo.MATERIAL, "Casco de seguridad", "3M", "", 30, "Talla única")
+                .getCodigo();
+        inventario.agregar(CategoriaArticulo.MATERIAL, "Cemento gris 42,5 kg", "", "", 120, "Sacos");
+
+        Usuario jose = empresa.buscarUsuario("30000001");
+        Usuario maria = empresa.buscarUsuario("30000002");
+        Usuario ana = empresa.buscarUsuario("20000001");
+        inventario.asignar(taladro, Firma.de(jose), 1, carlos, "Torre Residencial Este", hoy.plusDays(10), "", ahora.minusDays(6));
+        inventario.asignar(andamio, Firma.de(ana), 4, carlos, "Torre Residencial Este", null, "Para fachada norte",
+                ahora.minusDays(12));
+        inventario.asignar(esmeril, Firma.de(maria), 1, carlos, "Torre Residencial Este", hoy.minusDays(2), "",
+                ahora.minusDays(9));
+        inventario.asignar(cascos, Firma.de(maria), 1, carlos, null, null, "", ahora.minusDays(30));
+        int prestada = inventario.asignar(mezcladora, Firma.de(ana), 1, carlos, "Torre Residencial Este", hoy.minusDays(5), "",
+                ahora.minusDays(20)).getId();
+        inventario.devolver(prestada, CondicionDevolucion.BUENA, carlos, "", ahora.minusDays(6));
     }
 
     private RegistroAsistencia registro(LocalDate fecha, String entrada, String salida, boolean tarde) {

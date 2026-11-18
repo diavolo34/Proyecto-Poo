@@ -1,17 +1,16 @@
-package construtrack.modelo.incidencias;
+package construtrack.modelo.novedades;
 
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class AccidenteLaboral extends Incidencia implements Justificable {
+public class AccidenteLaboral extends ReporteObra implements Justificable {
     public static final String CODIGO = "ACCIDENTE_LABORAL";
 
     private final String lugar;
     private final boolean requirioAtencion;
 
-    public AccidenteLaboral(DatosIncidencia datos) {
+    public AccidenteLaboral(DatosNovedad datos) {
         super(datos);
         this.lugar = datos.extra("lugar");
         this.requirioAtencion = Boolean.parseBoolean(datos.extra("requirioAtencion"));
@@ -26,6 +25,11 @@ public class AccidenteLaboral extends Incidencia implements Justificable {
     }
 
     @Override
+    public String etiquetaJustificacion() {
+        return "Accidente laboral";
+    }
+
+    @Override
     public String getCodigoTipo() {
         return CODIGO;
     }
@@ -36,13 +40,8 @@ public class AccidenteLaboral extends Incidencia implements Justificable {
     }
 
     @Override
-    public Gravedad getGravedad() {
-        return Gravedad.ALTA;
-    }
-
-    @Override
     public Map<String, String> getExtras() {
-        Map<String, String> extras = new LinkedHashMap<>();
+        Map<String, String> extras = extrasDeObra();
         extras.put("lugar", lugar);
         extras.put("requirioAtencion", String.valueOf(requirioAtencion));
         return extras;

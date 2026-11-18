@@ -1,15 +1,15 @@
 package construtrack.modelo;
 
 import construtrack.modelo.excepciones.DatoInvalidoException;
-import construtrack.modelo.incidencias.EstadoIncidencia;
-import construtrack.modelo.incidencias.Incidencia;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
+import construtrack.modelo.novedades.EstadoNovedad;
+import construtrack.modelo.novedades.Novedad;
+import construtrack.modelo.talento.Egreso;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
-public class Gerente extends Usuario implements RevisorIncidencias {
+public class Gerente extends Usuario implements RevisorNovedades {
     public static final String ROL = "Gerente";
 
     private java.time.Clock reloj = java.time.Clock.systemDefaultZone();
@@ -36,8 +36,12 @@ public class Gerente extends Usuario implements RevisorIncidencias {
             throw new OperacionInvalidaException("Ya existe un usuario con la cédula " + datos.get("cedula") + ".");
         }
         Horario horario = Horario.desdeTexto(datos.get("dias"), datos.get("horaEntrada"), datos.get("horaSalida"));
+        String puesto = getEmpresa().getCatalogo().puestoValido(datos.get("puesto"));
+        String area = getEmpresa().getCatalogo().areaValida(datos.get("area"));
         Usuario nuevo = Usuario.crear(rol, datos.get("cedula"), datos.get("nombre"), datos.get("clave"), horario);
         nuevo.setFechaIngreso(LocalDate.now(reloj));
+        nuevo.setPuesto(puesto);
+        nuevo.setArea(area);
         if (nuevo instanceof Empleado) {
             asignarSupervisor((Empleado) nuevo, datos.get("supervisor"));
         }
@@ -50,6 +54,9 @@ public class Gerente extends Usuario implements RevisorIncidencias {
 
     public Usuario modificarUsuario(String cedula, Map<String, String> datos) {
         Usuario usuario = buscarGestionable(cedula);
+        usuario.verificarActivo();
+        String puesto = datos.containsKey("puesto") ? getEmpresa().getCatalogo().puestoValido(datos.get("puesto")) : usuario.getPuesto();
+        String area = datos.containsKey("area") ? getEmpresa().getCatalogo().areaValida(datos.get("area")) : usuario.getArea();
 
         String rol = datos.getOrDefault("rol", usuario.getRol());
         verificarRolGestionable(rol);
@@ -80,6 +87,8 @@ public class Gerente extends Usuario implements RevisorIncidencias {
             usuario.setClave(clave);
         }
         usuario.setHorario(horario);
+        usuario.setPuesto(puesto);
+        usuario.setArea(area);
         if (!rol.equals(usuario.getRol())) {
             usuario = cambiarRol(usuario, rol);
         }
@@ -97,9 +106,14 @@ public class Gerente extends Usuario implements RevisorIncidencias {
         return usuario;
     }
 
-    public void eliminarUsuario(String cedula) {
-        buscarGestionable(cedula);
-        getEmpresa().eliminarUsuario(cedula);
+    public Egreso registrarEgreso(String cedula, Egreso.Datos datos, LocalDateTime ahora) {
+        Usuario persona = buscarGestionable(cedula);
+        persona.verificarActivo();
+        return getEmpresa().registrarEgreso(persona, datos, Firma.de(this), ahora);
+    }
+
+    public void eliminarFicha(int idEgreso, String expediente, LocalDateTime ahora) {
+        getEmpresa().eliminarFicha(idEgreso, expediente, ahora);
     }
 
     public void asignarSupervisor(Empleado empleado, String cedulaSupervisor) {
@@ -108,7 +122,7 @@ public class Gerente extends Usuario implements RevisorIncidencias {
             return;
         }
         Usuario supervisor = getEmpresa().buscarUsuario(cedulaSupervisor);
-        if (!(supervisor instanceof Supervisor)) {
+        if (!(supervisor instanceof Supervisor) || !supervisor.estaActivo()) {
             throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor.");
         }
         empleado.setSupervisor((Supervisor) supervisor);
@@ -141,13 +155,20 @@ public class Gerente extends Usuario implements RevisorIncidencias {
 
     public Invitacion crearInvitacion(String rol, String cedulaSupervisor, String codigoObra, int dias,
             LocalDateTime ahora, java.util.random.RandomGenerator azar) {
+        return crearInvitacion(rol, cedulaSupervisor, codigoObra, null, null, dias, ahora, azar);
+    }
+
+    public Invitacion crearInvitacion(String rol, String cedulaSupervisor, String codigoObra, String puesto, String area,
+            int dias, LocalDateTime ahora, java.util.random.RandomGenerator azar) {
+        String puestoValido = getEmpresa().getCatalogo().puestoValido(puesto);
+        String areaValida = getEmpresa().getCatalogo().areaValida(area);
         if (dias < 1 || dias > 30) {
             throw new DatoInvalidoException("La invitación debe durar entre 1 y 30 días.");
         }
         Supervisor supervisor = null;
         if (cedulaSupervisor != null && !cedulaSupervisor.isBlank()) {
-            if (!(getEmpresa().buscarUsuario(cedulaSupervisor) instanceof Supervisor s)) {
-                throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor.");
+            if (!(getEmpresa().buscarUsuario(cedulaSupervisor) instanceof Supervisor s) || !s.estaActivo()) {
+                throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor activo.");
             }
             supervisor = s;
         }
@@ -157,12 +178,16 @@ public class Gerente extends Usuario implements RevisorIncidencias {
             if (obra == null) {
                 throw new DatoInvalidoException("No existe la obra " + codigoObra + ".");
             }
+            if (!obra.admitePersonal()) {
+                throw new OperacionInvalidaException("La obra «" + obra.getNombre() + "» ya concluyó.");
+            }
         }
         CodigoInvitacion codigo;
         do {
             codigo = CodigoInvitacion.generar(azar);
         } while (getEmpresa().existeInvitacion(codigo));
         Invitacion invitacion = new Invitacion(codigo, rol, supervisor, obra, this, ahora, ahora.plusDays(dias));
+        invitacion.asignarPuesto(puestoValido, areaValida);
         getEmpresa().agregarInvitacion(invitacion);
         return invitacion;
     }
@@ -176,8 +201,13 @@ public class Gerente extends Usuario implements RevisorIncidencias {
     }
 
     @Override
-    public boolean puedeReportarPara(Usuario afectado) {
+    public boolean puedeVerNovedadesDe(Usuario afectado) {
         return mismaEmpresaQue(afectado);
+    }
+
+    @Override
+    protected boolean exigeUbicacionAlMarcar() {
+        return false;
     }
 
     @Override
@@ -201,12 +231,12 @@ public class Gerente extends Usuario implements RevisorIncidencias {
     }
 
     @Override
-    public boolean puedeRevisar(Incidencia incidencia) {
-        return !(incidencia.getAfectado() instanceof Gerente) && mismaEmpresaQue(incidencia.getAfectado());
+    public boolean puedeRevisar(Novedad novedad) {
+        return !(novedad.getAfectado() instanceof Gerente) && mismaEmpresaQue(novedad.getAfectado());
     }
 
     @Override
-    public void revisar(Incidencia incidencia, EstadoIncidencia nuevo, String comentario, LocalDateTime ahora) {
-        revisarComo(this, incidencia, nuevo, comentario, ahora);
+    public void revisar(Novedad novedad, EstadoNovedad nuevo, String nota, LocalDateTime ahora) {
+        revisarComo(this, novedad, nuevo, nota, ahora);
     }
 }

@@ -15,6 +15,8 @@ public class Invitacion {
     private final LocalDateTime creada;
     private final LocalDateTime vence;
     private EstadoInvitacion estado = EstadoInvitacion.VIGENTE;
+    private String puesto;
+    private String area;
     private Cuenta usadaPor;
     private LocalDateTime usada;
 
@@ -36,6 +38,25 @@ public class Invitacion {
         this.creadaPor = creadaPor;
         this.creada = creada;
         this.vence = vence;
+    }
+
+    public void asignarPuesto(String puesto, String area) {
+        this.puesto = puesto;
+        this.area = area;
+    }
+
+    public String getPuesto() {
+        return puesto;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public boolean caducadaEn(LocalDateTime ahora, int diasConservarUsadas) {
+        EstadoInvitacion actual = estadoEn(ahora);
+        return actual == EstadoInvitacion.VENCIDA || actual == EstadoInvitacion.CANCELADA
+                || actual == EstadoInvitacion.USADA && usada != null && ahora.isAfter(usada.plusDays(diasConservarUsadas));
     }
 
     public EstadoInvitacion estadoEn(LocalDateTime ahora) {
@@ -68,10 +89,12 @@ public class Invitacion {
                 horario);
         nuevo.vincularCuenta(cuenta);
         nuevo.setFechaIngreso(ahora.toLocalDate());
-        if (nuevo instanceof Empleado empleado && supervisor != null) {
+        nuevo.setPuesto(puesto);
+        nuevo.setArea(area);
+        if (nuevo instanceof Empleado empleado && supervisor != null && supervisor.estaActivo()) {
             empleado.setSupervisor(supervisor);
         }
-        nuevo.setObra(obra);
+        nuevo.setObra(obra != null && obra.admitePersonal() ? obra : null);
         empresa.agregarUsuario(nuevo);
         estado = EstadoInvitacion.USADA;
         usadaPor = cuenta;

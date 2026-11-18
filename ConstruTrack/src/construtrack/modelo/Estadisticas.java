@@ -12,12 +12,12 @@ public final class Estadisticas {
     public record Resumen(String cedula, String nombre, String rol, int laborables, int asistencias,
             double tasaAsistencia, int retardos, int ausencias, int justificadas,
             double puntualidad, long minutos, long minutosEsperados, long extraDiaria, long extraDiaLibre,
-            long extraPendiente) {
+            long extraPendiente, int incapacidad) {
     }
 
     private final Periodo periodo;
     private final List<Resumen> resumenes = new ArrayList<>();
-    private final Map<String, Integer> incidenciasPorTipo = new TreeMap<>();
+    private final Map<String, Integer> novedadesPorTipo = new TreeMap<>();
 
     public Estadisticas(List<Usuario> personas, Periodo periodo, LocalDate hoy) {
         this.periodo = periodo;
@@ -38,8 +38,8 @@ public final class Estadisticas {
                     h.porcentajePuntualidad(periodo), h.minutosTrabajados(periodo), esperados,
                     h.minutosExtra(horario, periodo, TipoHorasExtra.DIARIA, EstadoHorasExtra.APROBADAS),
                     h.minutosExtra(horario, periodo, TipoHorasExtra.DIA_LIBRE, EstadoHorasExtra.APROBADAS),
-                    h.minutosExtraPendientes(horario, periodo)));
-            h.incidenciasEn(periodo).forEach(i -> incidenciasPorTipo.merge(i.getNombreTipo(), 1, Integer::sum));
+                    h.minutosExtraPendientes(horario, periodo), h.diasDeIncapacidad(horario, periodo, hoy).size()));
+            h.novedadesEn(periodo).forEach(i -> novedadesPorTipo.merge(i.getNombreTipo(), 1, Integer::sum));
         }
     }
 
@@ -69,8 +69,8 @@ public final class Estadisticas {
         return List.copyOf(resumenes);
     }
 
-    public Map<String, Integer> incidenciasPorTipo() {
-        return new LinkedHashMap<>(incidenciasPorTipo);
+    public Map<String, Integer> novedadesPorTipo() {
+        return new LinkedHashMap<>(novedadesPorTipo);
     }
 
     public Periodo getPeriodo() {

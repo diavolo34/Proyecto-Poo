@@ -38,8 +38,8 @@ public class ControladorInvitaciones implements ControladorWeb {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Los días de vigencia deben ser un número entre 1 y 30.");
         }
-        var creada = invitaciones.crearYEnviar(p.usuario(), d.get("rol"), d.get("supervisor"), d.get("obra"), dias,
-                d.get("correo"));
+        var creada = invitaciones.crearYEnviar(p.usuario(), d.get("rol"), d.get("supervisor"), d.get("obra"), d.get("puesto"),
+                d.get("area"), dias, d.get("correo"));
         return Respuesta.creado(new JsonObjeto()
                 .crudo("invitacion", JsonMapper.invitacion(creada.invitacion(), invitaciones.ahora()))
                 .texto("avisoCorreo", creada.avisoCorreo())
