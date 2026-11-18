@@ -24,6 +24,7 @@ public class Servicios {
     private final ServicioInvitaciones invitaciones;
     private final ServicioObras obras;
     private final ServicioRecuperacion recuperacion;
+    private final ServicioDosPasos dosPasos;
 
     public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia) {
         this(empresa.getPlataforma(), escritor, reloj, siguienteIdIncidencia, new NotificadorConsola());
@@ -45,10 +46,16 @@ public class Servicios {
                 Map.of("asistencia", new ReporteAsistencia(), "puntualidad", new ReportePuntualidad(),
                         "incidencias", new ReporteIncidencias()),
                 Map.of("txt", new FormateadorTexto(), "csv", new FormateadorCSV()));
-        this.registro = new ServicioRegistro(plataforma, escritor, reloj);
+        this.registro = new ServicioRegistro(plataforma, escritor, reloj,
+                new ServicioVerificacionCorreo(plataforma, escritor, reloj, notificador, envioCorreos));
         this.invitaciones = new ServicioInvitaciones(plataforma, escritor, reloj, notificador);
         this.obras = new ServicioObras(plataforma, escritor, reloj);
         this.recuperacion = new ServicioRecuperacion(plataforma, escritor, reloj, notificador, envioCorreos);
+        this.dosPasos = new ServicioDosPasos(plataforma, escritor, reloj);
+    }
+
+    public ServicioDosPasos dosPasos() {
+        return dosPasos;
     }
 
     public ServicioRecuperacion recuperacion() {

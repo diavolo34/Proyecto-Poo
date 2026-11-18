@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import construtrack.CorreoFalso;
 import construtrack.Datos;
 import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empresa;
@@ -30,7 +31,9 @@ import org.junit.jupiter.api.io.TempDir;
 
 class MultiempresaTest {
     private final Datos d = new Datos();
-    private final Servicios servicios = new Servicios(d.empresa, new RepositorioMemoria(d.empresa), Datos.RELOJ, 1);
+    private final CorreoFalso correo = new CorreoFalso();
+    private final Servicios servicios = new Servicios(d.empresa.getPlataforma(), new RepositorioMemoria(d.empresa),
+            Datos.RELOJ, 1, correo);
 
     @TempDir
     Path carpeta;
@@ -47,10 +50,19 @@ class MultiempresaTest {
         return m;
     }
 
+    private Cuenta registrarYConfirmar(Map<String, String> datos) {
+        Cuenta cuenta = servicios.registro().registrar(datos);
+        servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
+        return cuenta;
+    }
+
     private Jefe registrarJefaNorte() {
         Cuenta cuenta = servicios.registro().registrar(datos("marta@correo.com", "15111222", "jefe", "Constructora Norte"));
-        assertTrue(cuenta.perteneceAEmpresa(), "El jefe queda dentro de su empresa al registrarse");
-        return (Jefe) cuenta.getUsuario();
+        assertFalse(cuenta.perteneceAEmpresa(), "La empresa espera a que confirme el correo");
+        Usuario jefa = servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
+        assertTrue(cuenta.perteneceAEmpresa(), "Al confirmar el correo, el jefe queda dentro de su empresa");
+        assertSame(cuenta.getUsuario(), jefa);
+        return (Jefe) jefa;
     }
 
     @Test
@@ -92,7 +104,7 @@ class MultiempresaTest {
     void unirseALaEmpresaDelCodigo() {
         Jefe marta = registrarJefaNorte();
         var inv = servicios.invitaciones().crear(marta, "Empleado", "", "", 7, "");
-        Cuenta pablo = servicios.registro().registrar(datos("pablo@correo.com", "28555111", null, null));
+        Cuenta pablo = registrarYConfirmar(datos("pablo@correo.com", "28555111", null, null));
         Usuario ficha = servicios.registro().unirse(pablo, inv.getCodigo().toString());
         assertEquals("Constructora Norte", ficha.getEmpresa().getNombre());
         assertEquals(2, servicios.personal().listarVisibles(marta).size());
@@ -116,7 +128,7 @@ class MultiempresaTest {
     @Test
     @DisplayName("Una cuenta ya registrada puede crear su empresa después")
     void crearEmpresaDespues() {
-        Cuenta cuenta = servicios.registro().registrar(datos("luisa@correo.com", "19222333", null, null));
+        Cuenta cuenta = registrarYConfirmar(datos("luisa@correo.com", "19222333", null, null));
         assertFalse(cuenta.perteneceAEmpresa());
         Jefe luisa = servicios.registro().crearEmpresa(cuenta, "Obras Luisa");
         assertNotNull(luisa.getEmpresa());

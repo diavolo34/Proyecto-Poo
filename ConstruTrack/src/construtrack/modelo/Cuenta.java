@@ -1,6 +1,7 @@
 package construtrack.modelo;
 
 import construtrack.modelo.excepciones.DatoInvalidoException;
+import construtrack.modelo.excepciones.OperacionInvalidaException;
 import java.time.LocalDateTime;
 
 public class Cuenta {
@@ -8,6 +9,7 @@ public class Cuenta {
     private final String documento;
     private final LocalDateTime registrada;
     private String claveResumen;
+    private boolean verificada = true;
     private String nombre;
     private String apellido;
     private String telefono;
@@ -28,6 +30,7 @@ public class Cuenta {
         this(correo, nombre, apellido, documento, telefono, registrada);
         Usuario.validarClave(clave);
         this.claveResumen = CifradoClave.resumir(clave);
+        this.verificada = false;
     }
 
     public static Cuenta restaurar(String correo, String claveResumen, String nombre, String apellido, String documento,
@@ -100,6 +103,24 @@ public class Cuenta {
             throw new DatoInvalidoException("Resumen de clave inválido.");
         }
         this.claveResumen = resumen;
+    }
+
+    public boolean estaVerificada() {
+        return verificada;
+    }
+
+    public void marcarVerificada() {
+        this.verificada = true;
+    }
+
+    public void restaurarVerificada(boolean verificada) {
+        this.verificada = verificada;
+    }
+
+    public void exigirVerificada() {
+        if (!verificada) {
+            throw new OperacionInvalidaException("Primero confirma tu correo con el código de 6 dígitos que te enviamos.");
+        }
     }
 
     public boolean perteneceAEmpresa() {

@@ -77,6 +77,10 @@ function pantallaLogin() {
     boton.textContent = 'Entrando…';
     try {
       const sesion = await Api.iniciarSesion(identificador, clave);
+      if (sesion.dosPasos) {
+        pantallaDosPasos(sesion.desafio);
+        return;
+      }
       estado.usuario = sesion.usuario;
       estado.cuenta = sesion.cuenta;
       location.hash = sesion.pendiente ? 'unirse' : 'asistencia';
@@ -93,6 +97,46 @@ function pantallaLogin() {
 }
 
 let tokenRestablecer = null;
+
+function pantallaDosPasos(desafio) {
+  marcoAcceso(`
+    <h1>Verificación en dos pasos</h1>
+    <p class="bajada">Abre tu aplicación de autenticación (Google Authenticator, Microsoft Authenticator…) y escribe
+      el código de 6 dígitos de ConstruTrack.</p>
+    <form id="form-dos-pasos" novalidate>
+      <div class="campo"><label for="codigo-dos-pasos">Código *</label>
+        <input id="codigo-dos-pasos" name="codigo" class="codigo-grande" inputmode="numeric" autocomplete="one-time-code"
+          maxlength="9" required placeholder="000000">
+        <span class="ayuda">¿Perdiste el teléfono? Escribe uno de tus códigos de respaldo, por ejemplo ABCD-EF23.</span></div>
+      <div class="mensaje mensaje-error oculto" role="alert"></div>
+      <button class="btn btn-primario btn-bloque" type="submit">Verificar y entrar</button>
+    </form>
+    <button class="btn btn-enlace btn-bloque" id="volver-login" type="button">Volver a iniciar sesión</button>`);
+  const formulario = $('#form-dos-pasos');
+  formulario.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    const codigo = $('#codigo-dos-pasos').value.trim();
+    if (!codigo) {
+      mostrarErrorFormulario(formulario, 'Escribe el código de tu aplicación.');
+      return;
+    }
+    const boton = formulario.querySelector('button[type=submit]');
+    boton.disabled = true;
+    try {
+      const sesion = await Api.completarDosPasos(desafio, codigo);
+      estado.usuario = sesion.usuario;
+      estado.cuenta = sesion.cuenta;
+      location.hash = sesion.pendiente ? 'unirse' : 'asistencia';
+      enrutar();
+    } catch (e) {
+      mostrarErrorFormulario(formulario, e.message);
+      $('#codigo-dos-pasos').select();
+      boton.disabled = false;
+    }
+  });
+  $('#volver-login').addEventListener('click', pantallaLogin);
+  $('#codigo-dos-pasos').focus();
+}
 
 function pantallaRecuperar() {
   marcoAcceso(`
@@ -248,7 +292,7 @@ function pantallaRegistro(parametros) {
       estado.cuenta = sesion.cuenta;
       estado.usuario = sesion.usuario;
       if (sesion.pendiente) {
-        aviso('Cuenta creada. Ahora únete a tu empresa con el código.');
+        aviso('Cuenta creada. Te enviamos un código a tu correo para confirmarlo.');
         location.hash = 'unirse';
       } else {
         aviso(`Tu empresa «${sesion.usuario.empresa}» está lista. Ahora invita a tu equipo.`);
@@ -262,6 +306,56 @@ function pantallaRegistro(parametros) {
     }
   });
   (parametros.get('tipo') === 'jefe' ? empresa : parametros.get('correo') ? $('#nombre') : $('#correo')).focus();
+}
+
+function pantallaVerificarCorreo() {
+  marcoAcceso(`
+    <h1>Confirma tu correo</h1>
+    <p class="bajada">Te enviamos un código de 6 dígitos a <strong>${esc(estado.cuenta.correo)}</strong>.
+      Escríbelo para activar tu cuenta.</p>
+    <form id="form-verificar" novalidate>
+      <div class="campo"><label for="codigo-correo">Código de 6 dígitos *</label>
+        <input id="codigo-correo" name="codigo" class="codigo-grande" inputmode="numeric" autocomplete="one-time-code"
+          maxlength="6" required placeholder="000000"></div>
+      <div class="mensaje mensaje-error oculto" role="alert"></div>
+      <button class="btn btn-primario btn-bloque" type="submit">Confirmar correo</button>
+    </form>
+    <p class="nota-acceso">¿No te llegó? Revisa la carpeta de spam o
+      <button class="btn btn-enlace" id="reenviar-codigo" type="button">pide otro código</button>.</p>
+    <button class="btn btn-enlace btn-bloque" id="salir-verificar">Cerrar sesión</button>`);
+  const formulario = $('#form-verificar');
+  formulario.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    const codigo = $('#codigo-correo').value.replace(/\s/g, '');
+    if (!/^\d{6}$/.test(codigo)) {
+      mostrarErrorFormulario(formulario, 'Escribe los 6 dígitos del código.');
+      return;
+    }
+    const boton = formulario.querySelector('button[type=submit]');
+    boton.disabled = true;
+    try {
+      const respuesta = await Api.confirmarCorreo(codigo);
+      estado.cuenta = respuesta.cuenta;
+      aviso(respuesta.mensaje);
+      if (respuesta.usuario) {
+        estado.usuario = respuesta.usuario;
+        location.hash = respuesta.usuario.rol === 'Jefe' ? 'invitaciones' : 'asistencia';
+      }
+      enrutar();
+    } catch (e) {
+      mostrarErrorFormulario(formulario, e.message);
+      boton.disabled = false;
+    }
+  });
+  $('#reenviar-codigo').addEventListener('click', async () => {
+    try {
+      aviso((await Api.reenviarCodigo()).mensaje);
+    } catch (e) {
+      aviso(e.message, 'error');
+    }
+  });
+  $('#salir-verificar').addEventListener('click', cerrarSesion);
+  $('#codigo-correo').focus();
 }
 
 function pantallaUnirse() {

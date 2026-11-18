@@ -181,6 +181,11 @@ public class Jefe extends Usuario implements RevisorIncidencias {
     }
 
     @Override
+    public boolean admiteDosPasos() {
+        return true;
+    }
+
+    @Override
     public boolean puedeGestionarObras() {
         return true;
     }

@@ -21,7 +21,8 @@ public class ServidorWeb {
         boolean demoPrivada = demo != null && claveDemo != null && !claveDemo.isBlank();
         GestorSesiones sesiones = new GestorSesiones(servicios.autenticacion());
         List<ControladorWeb> controladores = List.of(
-                new ControladorSesion(servicios.autenticacion(), sesiones, modoDemo, demoPrivada, true),
+                new ControladorSesion(servicios.autenticacion(), servicios.dosPasos(), sesiones, modoDemo, demoPrivada, true),
+                new ControladorDosPasos(servicios.dosPasos()),
                 new ControladorAsistencia(servicios.asistencia()),
                 new ControladorUsuarios(servicios.personal()),
                 new ControladorIncidencias(servicios.incidencias()),
@@ -37,7 +38,7 @@ public class ServidorWeb {
         if (demoPrivada) {
             GestorSesiones sesionesDemo = new GestorSesiones(demo.autenticacion());
             List<ControladorWeb> controladoresDemo = List.of(
-                    new ControladorSesion(demo.autenticacion(), sesionesDemo, true, true, false),
+                    new ControladorSesion(demo.autenticacion(), demo.dosPasos(), sesionesDemo, true, true, false),
                     new ControladorDemo(demo.autenticacion(), sesionesDemo, claveDemo),
                     new ControladorAsistencia(demo.asistencia()),
                     new ControladorUsuarios(demo.personal()),

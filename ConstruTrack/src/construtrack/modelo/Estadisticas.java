@@ -24,7 +24,7 @@ public final class Estadisticas {
         for (Usuario u : personas) {
             Historial h = u.getHistorial();
 
-            boolean vinoHoy = periodo.contiene(hoy) && h.asistenciaDel(hoy) != null;
+            boolean vinoHoy = periodo.contiene(hoy) && h.asistenciaValidaDel(hoy) != null;
             int laborables = h.diasLaborables(u.getHorario(), periodo, hoy).size() + (vinoHoy ? 1 : 0);
             int asistencias = h.asistenciasEn(periodo).size();
             double tasa = laborables == 0 ? 100.0 : Math.min(100.0, 100.0 * asistencias / laborables);

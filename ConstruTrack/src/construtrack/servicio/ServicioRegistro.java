@@ -15,10 +15,18 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 public class ServicioRegistro extends ServicioBase {
-    public ServicioRegistro(Plataforma plataforma, EscritorDatos escritor, Clock reloj) {
+    private static final Logger LOG = Logger.getLogger(ServicioRegistro.class.getName());
+
+    private final ServicioVerificacionCorreo verificacion;
+    private final Map<String, String> empresasPorFundar = new ConcurrentHashMap<>();
+
+    public ServicioRegistro(Plataforma plataforma, EscritorDatos escritor, Clock reloj, ServicioVerificacionCorreo verificacion) {
         super(plataforma, escritor, reloj);
+        this.verificacion = verificacion;
     }
 
     public Cuenta registrar(Map<String, String> datos) {
@@ -29,7 +37,7 @@ public class ServicioRegistro extends ServicioBase {
         Usuario.validarClaveNueva(clave);
         Usuario.validarCedulaNueva(datos.get("documento"));
         boolean esJefe = "jefe".equals(datos.get("tipo"));
-        return modificar(() -> {
+        Cuenta registrada = modificar(() -> {
             if (esJefe) {
                 plataforma.verificarNombreDisponible(datos.get("empresa"));
             }
@@ -40,11 +48,37 @@ public class ServicioRegistro extends ServicioBase {
             Cuenta cuenta = new Cuenta(datos.get("correo"), clave, datos.get("nombre"), datos.get("apellido"),
                     datos.get("documento"), datos.get("telefono"), LocalDateTime.now(reloj));
             plataforma.agregarCuenta(cuenta);
-            if (esJefe) {
-                plataforma.fundarEmpresa(datos.get("empresa"), cuenta, LocalDate.now(reloj));
-            }
             return cuenta;
         });
+        if (esJefe) {
+            empresasPorFundar.put(registrada.getCorreo(), datos.get("empresa"));
+        }
+        verificacion.enviarCodigo(registrada);
+        return registrada;
+    }
+
+    public Usuario confirmarCorreo(Cuenta cuenta, String codigo) {
+        if (cuenta == null) {
+            throw new PermisoDenegadoException("Inicia sesión para confirmar tu correo.");
+        }
+        verificacion.verificar(cuenta, codigo);
+        String empresa = empresasPorFundar.remove(cuenta.getCorreo());
+        if (empresa == null || cuenta.perteneceAEmpresa()) {
+            return cuenta.getUsuario();
+        }
+        try {
+            return crearEmpresa(cuenta, empresa);
+        } catch (OperacionInvalidaException e) {
+            LOG.info(() -> "No se pudo crear la empresa pendiente de " + cuenta.getCorreo() + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    public void reenviarCodigo(Cuenta cuenta) {
+        if (cuenta == null) {
+            throw new PermisoDenegadoException("Inicia sesión para confirmar tu correo.");
+        }
+        verificacion.enviarCodigo(cuenta);
     }
 
     public Jefe crearEmpresa(Cuenta cuenta, String nombre) {

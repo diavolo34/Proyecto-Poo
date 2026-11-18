@@ -39,8 +39,13 @@ public final class JsonMapper {
         if (u.getCuenta() != null) {
             json.texto("correo", u.getCuenta().getCorreo()).texto("telefono", u.getCuenta().getTelefono());
         }
+        if (detalle) {
+            json.logico("admiteDosPasos", u.admiteDosPasos()).logico("dosPasos", u.tieneDosPasos());
+        }
         if (u.getObra() != null) {
             json.texto("obra", u.getObra().getNombre());
+            json.crudo("controlObra", new JsonObjeto().texto("codigo", u.getObra().getCodigo())
+                    .logico("exigeCodigo", u.getObra().exigeCodigo()).logico("geocerca", u.getObra().tieneGeocerca()).toString());
         }
         if (detalle) {
             List<RegistroAsistencia> recientes = new ArrayList<>(u.getAsistencias());
@@ -75,6 +80,21 @@ public final class JsonMapper {
                 .numero("minutosExtra", extra)
                 .texto("tipoExtra", extra == 0 ? null : r.tipoExtra(horario).getNombre())
                 .texto("estadoExtra", extra == 0 ? null : r.getEstadoExtra().getNombre())
+                .texto("verificacion", r.getVerificacion().name())
+                .texto("verificacionTexto", r.getVerificacion().getNombre())
+                .texto("motivo", r.getMotivoVerificacion())
+                .toString();
+    }
+
+    public static String marcaPorConfirmar(Usuario u, RegistroAsistencia r) {
+        return new JsonObjeto()
+                .texto("cedula", u.getCedula())
+                .texto("nombre", u.getNombre())
+                .texto("obra", u.getObra() == null ? null : u.getObra().getNombre())
+                .texto("fecha", r.getFecha())
+                .texto("horaEntrada", r.getHoraEntrada())
+                .texto("horaSalida", r.getHoraSalida())
+                .texto("motivo", r.getMotivoVerificacion())
                 .toString();
     }
 
@@ -103,6 +123,7 @@ public final class JsonMapper {
                 .texto("documento", c.getDocumento())
                 .texto("telefono", c.getTelefono())
                 .logico("perteneceAEmpresa", c.perteneceAEmpresa())
+                .logico("verificada", c.estaVerificada())
                 .toString();
     }
 

@@ -5,10 +5,15 @@ import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.modelo.incidencias.EstadoIncidencia;
 import construtrack.modelo.incidencias.Incidencia;
+import construtrack.util.Totp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public abstract class Usuario {
     private String cedula;
@@ -18,6 +23,9 @@ public abstract class Usuario {
     private Obra obra;
     private Cuenta cuenta;
     private final Historial historial = new Historial();
+    private String secretoDosPasos;
+    private final List<String> respaldosDosPasos = new ArrayList<>();
+    private long ultimoPasoDosPasos = Long.MIN_VALUE;
     private Empresa empresa;
 
     protected Usuario(String cedula, String nombre, Horario horario) {
@@ -68,6 +76,53 @@ public abstract class Usuario {
         RegistroAsistencia registro = new RegistroAsistencia(ahora.toLocalDate(), hora, horario.esLlegadaTarde(hora));
         historial.agregarAsistencia(registro);
         return registro;
+    }
+
+    public RegistroAsistencia marcarEntrada(LocalDateTime ahora, DatosMarca marca) {
+        List<String> motivos = controlaAsistencia() ? obra.motivosDeDuda(marca) : null;
+        RegistroAsistencia registro = marcarEntrada(ahora);
+        if (motivos != null) {
+            if (motivos.isEmpty()) {
+                registro.marcarVerificada();
+            } else {
+                registro.marcarPorConfirmar("Entrada " + String.join(" y ", motivos));
+            }
+        }
+        return registro;
+    }
+
+    public RegistroAsistencia marcarSalida(LocalDateTime ahora, DatosMarca marca) {
+        RegistroAsistencia abierta = historial.jornadaAbierta();
+        if (abierta == null || !controlaAsistencia()) {
+            return marcarSalida(ahora);
+        }
+        boolean olvidada = !abierta.getFecha().equals(ahora.toLocalDate());
+        List<String> motivos = olvidada ? List.of() : obra.motivosDeDuda(marca);
+        RegistroAsistencia registro = marcarSalida(ahora);
+        if (olvidada) {
+            registro.marcarPorConfirmar("salida olvidada, se cerró con el horario");
+        } else if (!motivos.isEmpty()) {
+            registro.marcarPorConfirmar("Salida " + String.join(" y ", motivos));
+        } else {
+            registro.marcarVerificada();
+        }
+        return registro;
+    }
+
+    private boolean controlaAsistencia() {
+        return obra != null && obra.controlaAsistencia();
+    }
+
+    public RegistroAsistencia revisarAsistencia(Usuario persona, LocalDate fecha, LocalTime entrada, EstadoVerificacion nuevo) {
+        if (!puedeAprobarHorasDe(persona)) {
+            throw new PermisoDenegadoException("No puedes confirmar la asistencia de " + persona.getNombre() + ".");
+        }
+        RegistroAsistencia jornada = persona.getHistorial().jornada(fecha, entrada);
+        if (jornada == null) {
+            throw new OperacionInvalidaException(persona.getNombre() + " no tiene esa jornada el " + fecha + ".");
+        }
+        jornada.revisarVerificacion(nuevo);
+        return jornada;
     }
 
     public RegistroAsistencia marcarSalida(LocalDateTime ahora) {
@@ -129,6 +184,56 @@ public abstract class Usuario {
             throw new PermisoDenegadoException("No tienes autoridad para revisar la incidencia #" + incidencia.getId() + ".");
         }
         incidencia.registrarRevision(nuevo, this, comentario, ahora);
+    }
+
+    public boolean admiteDosPasos() {
+        return false;
+    }
+
+    public boolean tieneDosPasos() {
+        return secretoDosPasos != null;
+    }
+
+    public void activarDosPasos(String secreto, List<String> huellasRespaldo) {
+        if (!admiteDosPasos()) {
+            throw new PermisoDenegadoException("Solo los jefes pueden activar la verificación en dos pasos.");
+        }
+        restaurarDosPasos(secreto, huellasRespaldo);
+    }
+
+    public void desactivarDosPasos() {
+        secretoDosPasos = null;
+        respaldosDosPasos.clear();
+    }
+
+    public void restaurarDosPasos(String secreto, List<String> huellasRespaldo) {
+        this.secretoDosPasos = secreto;
+        respaldosDosPasos.clear();
+        respaldosDosPasos.addAll(huellasRespaldo);
+    }
+
+    public boolean verificarDosPasos(String codigo, Instant ahora) {
+        if (secretoDosPasos == null || codigo == null) {
+            return false;
+        }
+        long paso = Totp.verificar(secretoDosPasos, codigo, ahora, 1);
+        if (paso != Totp.SIN_COINCIDENCIA) {
+            if (paso <= ultimoPasoDosPasos) {
+                return false;
+            }
+            ultimoPasoDosPasos = paso;
+            return true;
+        }
+        String respaldo = codigo.replaceAll("[\\s-]", "").toUpperCase(Locale.ROOT);
+        return !respaldo.isEmpty() && respaldosDosPasos.remove(CifradoClave.huella(respaldo));
+    }
+
+    public String getSecretoDosPasos() {
+        return secretoDosPasos;
+    }
+
+    public List<String> getRespaldosDosPasos() {
+        return Collections.unmodifiableList(respaldosDosPasos);
     }
 
     public boolean puedeGestionarObras() {
