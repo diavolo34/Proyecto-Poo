@@ -22,7 +22,7 @@ obra, ciclo de obra, talento humano e inventario, en la web y en Swing.
 - Las invitaciones vencidas o canceladas se borran solas.
 
 ## Incremento
-- 103 pruebas JUnit (12 nuevas): permisos y reposos, incapacidad, faltas seguidas, archivos, egresos, inventario,
+- 105 pruebas JUnit (14 nuevas): permisos y reposos, incapacidad, faltas seguidas, archivos y Google Drive, egresos, inventario,
   ciclo de obra, retrasos, catálogo, invitaciones caducadas y persistencia de todo lo nuevo.
 - CI con pruebas de humo de los recursos nuevos de la API.
 
