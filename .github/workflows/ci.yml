@@ -39,11 +39,22 @@ jobs:
           curl -sf http://localhost:8080/api/usuarios -H "Authorization: Bearer $token" -o /dev/null
           curl -sf http://localhost:8080/api/obras/OB-01/codigo-asistencia -H "Authorization: Bearer $token" | grep -q '"codigo":"[0-9]\{6\}"'
           curl -sf http://localhost:8080/api/asistencia/por-confirmar -H "Authorization: Bearer $token" | grep -q 'Pedro'
+          curl -sf "http://localhost:8080/api/novedades?categoria=LICENCIA" -H "Authorization: Bearer $token" | grep -q 'Reposo médico'
+          curl -sf "http://localhost:8080/api/novedades?categoria=REPORTE_OBRA" -H "Authorization: Bearer $token" | grep -q 'Retardo'
+          curl -sf http://localhost:8080/api/inventario -H "Authorization: Bearer $token" | grep -q 'HE-001'
+          curl -sf http://localhost:8080/api/catalogo -H "Authorization: Bearer $token" | grep -q 'Jefe de obra'
+          curl -sf http://localhost:8080/api/talento -H "Authorization: Bearer $token" | grep -q 'activos'
+          curl -sf http://localhost:8080/api/obras -H "Authorization: Bearer $token" | grep -q '"estado":"PLANIFICADA"'
+          curl -sf "http://localhost:8080/api/asistencia/ubicaciones" -H "Authorization: Bearer $token" -o /dev/null
+          curl -s -D - -o /dev/null http://localhost:8080/app.html | grep -qi "frame-src https://www.openstreetmap.org"
           # Un empleado no puede listar al personal
           token=$(curl -sf -X POST http://localhost:8080/api/login \
             -d '{"cedula":"30000001","clave":"emp123"}' | python3 -c 'import sys,json; print(json.load(sys.stdin)["token"])')
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/api/usuarios -H "Authorization: Bearer $token")" = 403
           test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8080/api/asistencia/entrada -H "Authorization: Bearer $token" -d '{"codigo":"000000"}')" = 400
+          # El empleado no accede a los reportes en obra ni sube documentos
+          test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8080/api/novedades?categoria=REPORTE_OBRA" -H "Authorization: Bearer $token")" = 403
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8080/api/archivos -H "Authorization: Bearer $token" -d '{"nombre":"a.pdf","datos":"JVBERi0xLjQK"}')" = 403
           echo "API OK (modo demostración)"
           # Modo producción: arranca vacío y la demo privada solo entra con la clave
           DEMO_CLAVE=clave-ci PORT=8081 DATOS=/tmp/produccion.txt java -cp out construtrack.App --sin-ventana &

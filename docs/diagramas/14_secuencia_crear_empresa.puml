@@ -1,12 +1,12 @@
 @startuml secuencia_crear_empresa
 !include estilo.iuml
-title Secuencia: Un jefe se registra y crea su empresa
+title Secuencia: Un gerente se registra y crea su empresa
 autoactivate on
-actor "Jefe (nuevo)" as A
+actor "Gerente (nuevo)" as A
 participant "cta:Cuenta" as C
 participant "plat:Plataforma" as P
 participant "emp:Empresa" as E
-participant "marta:Jefe" as J
+participant "marta:Gerente" as J
 
 A -> P : verificarNombreDisponible("Constructora Norte")
 P --> A
@@ -24,7 +24,7 @@ E -> P : registrar(emp)
 P --> E
 E --> P
 create J
-P -> J : <<create>> Jefe(documento, nombre, horario de oficina)
+P -> J : <<create>> Gerente(documento, nombre, horario de oficina)
 J --> P
 P -> E : agregarUsuario(marta)
 E -> J : setEmpresa(emp)
@@ -34,5 +34,5 @@ P -> J : vincularCuenta(cta)
 J -> C : vincular(marta)
 C --> J
 J --> P
-P --> A : marta (entra como Jefe e invita a su equipo)
+P --> A : marta (entra como Gerente e invita a su equipo)
 @enduml

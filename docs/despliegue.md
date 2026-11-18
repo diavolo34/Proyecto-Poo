@@ -52,7 +52,7 @@ Sin esas variables (por ejemplo, en NetBeans) los datos se guardan en `datos_con
 ### Versión para clientes, modo demostración y demo privada
 
 - Sin configuración, el servidor arranca en **modo producción**: vacío, sin usuarios de prueba. El primer cliente se
-  registra como jefe y crea su empresa.
+  registra como gerente y crea su empresa.
 - `DEMO=true` (o el argumento `--demo`) carga la empresa «Constructora Demo» con datos de ejemplo. **No** lo actives en
   el servidor de clientes: es para presentaciones en local.
 - `DEMO_CLAVE` activa la **demo privada** en la misma página (`app.html#demo`): una empresa de prueba en memoria, aparte
@@ -83,6 +83,20 @@ Gmail con un Google Apps Script (`NotificadorGmail`). Google permite unos 100 co
 Al arrancar, el registro dice `correo real activado`. Si cambias el código del script, vuelve a implementarlo
 (**Implementar → Gestionar implementaciones → editar → Nueva versión**) para que la URL use la versión nueva.
 
+### Documentos en Google Drive (reposos, vouchers y cartas de renuncia)
+
+El mismo script guarda los documentos en la carpeta **«ConstruTrack · Adjuntos»** de tu Drive (`AlmacenArchivosDrive`).
+Si ya tenías el script de correo, actualízalo así (la URL no cambia):
+
+1. En https://script.google.com abre tu proyecto, reemplaza todo el código por el nuevo
+   [`tools/correo-gmail/Codigo.gs`](../tools/correo-gmail/Codigo.gs) **conservando tu `CLAVE`** y guarda.
+2. Elige la función **`autorizar`** y pulsa **Ejecutar**: Google pide permiso para Gmail **y Drive**; acéptalo.
+3. **Implementar → Gestionar implementaciones →** lápiz (Editar) → *Versión*: **Nueva versión** → **Implementar**.
+
+Al arrancar, el registro de Render dice `adjuntos en Google Drive`. Sin el script (por ejemplo, en NetBeans), los
+documentos se guardan en la carpeta `adjuntos_construtrack` junto al proyecto (variable `ADJUNTOS`). Para no usar Drive
+aunque el script esté configurado, define `ADJUNTOS_EN_DRIVE=false`.
+
 ### Invitaciones por correo con Brevo (alternativa)
 
 Render gratis bloquea el envío por SMTP, así que el correo sale por la **API HTTP de Brevo** (`NotificadorBrevo`).
@@ -94,7 +108,7 @@ Render gratis bloquea el envío por SMTP, así que el correo sale por la **API H
 4. En Render → `construtrack-api` → **Environment** agrega `BREVO_API_KEY` (la clave) y `CORREO_REMITENTE`
    (el correo verificado del paso 2) → **Save changes**.
 
-Al arrancar, el registro dice `correo con Brevo`. En **Invitaciones** el Jefe escribe el correo de la persona y le llega
+Al arrancar, el registro dice `correo con Brevo`. En **Invitaciones** el Gerente escribe el correo de la persona y le llega
 un mensaje con el código y un botón para crear su cuenta. Sin estas variables, el envío solo se registra en la consola.
 
 ### Hora de Venezuela
@@ -116,7 +130,7 @@ Alternativa rápida sin conectar: arrastra otra vez la carpeta `ConstruTrack/src
 ## 3. Comprobar
 
 - https://construtrackfm.netlify.app → la portada muestra **«● Sistema en línea»** y las obras en vivo.
-- **Iniciar sesión** con `carlos.mendez@construtrack.demo` / `jefe123`: ya no aparece el aviso de modo demostración.
+- **Iniciar sesión** con `carlos.mendez@construtrack.demo` / `gerente123`: ya no aparece el aviso de modo demostración.
 
 ## Ejecutar todo en local (NetBeans)
 

@@ -1,6 +1,6 @@
 @startuml clases_nucleo
 !include estilo.iuml
-title Diagrama de Clases Detallado (1/4) · Núcleo del modelo
+title Diagrama de Clases Detallado (1/5) · Núcleo del modelo
 
 abstract class Usuario {
   - cedula : String
@@ -14,8 +14,11 @@ abstract class Usuario {
   + marcarSalida(ahora : LocalDateTime) : RegistroAsistencia
   + trabajaEl(fecha : LocalDate) : boolean
   + puedeReportarPara(afectado : Usuario) : boolean
-  + reportar(incidencia : Incidencia) : void
-  # revisarComo(revisor : RevisorIncidencias, i : Incidencia, nuevo : EstadoIncidencia, comentario : String, ahora : LocalDateTime) : void
+  + registrarNovedad(n : Novedad) : void
+  + puedeRegistrarNovedadPara(u : Usuario) : boolean
+  + estaActivo() : boolean
+  # exigeUbicacionAlMarcar() : boolean
+  # revisarComo(revisor : RevisorNovedades, n : Novedad, nuevo : EstadoNovedad, nota : String, ahora : LocalDateTime) : void
   + verificarClave(clave : String) : boolean
   + vincularCuenta(cuenta : Cuenta) : void
   + {static} validarDocumento(documento : String) : String
@@ -30,11 +33,11 @@ class Supervisor {
   + verEmpleadosACargo() : List<Empleado>
   + supervisa(u : Usuario) : boolean
   + consultarAsistencia(e : Empleado) : List<RegistroAsistencia>
-  + puedeRevisar(i : Incidencia) : boolean
-  + revisar(i : Incidencia, nuevo : EstadoIncidencia, comentario : String, ahora : LocalDateTime) : void
+  + puedeRevisar(n : Novedad) : boolean
+  + revisar(n : Novedad, nuevo : EstadoNovedad, nota : String, ahora : LocalDateTime) : void
 }
-class Jefe {
-  + {static} ROL : String = "Jefe"
+class Gerente {
+  + {static} ROL : String = "Gerente"
   + registrarUsuario(datos : Map<String,String>) : Usuario
   + modificarUsuario(cedula : String, datos : Map<String,String>) : Usuario
   + eliminarUsuario(cedula : String) : void
@@ -42,9 +45,9 @@ class Jefe {
   + crearInvitacion(rol : String, cedulaSupervisor : String, codigoObra : String, dias : int, ahora : LocalDateTime, azar : RandomGenerator) : Invitacion
   + cancelarInvitacion(codigo : CodigoInvitacion, ahora : LocalDateTime) : void
 }
-interface RevisorIncidencias {
-  + puedeRevisar(i : Incidencia) : boolean
-  + revisar(i : Incidencia, nuevo : EstadoIncidencia, comentario : String, ahora : LocalDateTime) : void
+interface RevisorNovedades {
+  + puedeRevisar(n : Novedad) : boolean
+  + revisar(n : Novedad, nuevo : EstadoNovedad, nota : String, ahora : LocalDateTime) : void
 }
 class Horario {
   + {static} TOLERANCIA_MINUTOS : int = 10
@@ -57,7 +60,9 @@ class Horario {
 }
 class Historial {
   + agregarAsistencia(r : RegistroAsistencia) : void
-  + agregarIncidencia(i : Incidencia) : void
+  + agregarNovedad(n : Novedad) : void
+  + incapacidadEl(fecha : LocalDate) : Licencia
+  + rachaDeFaltas(h : Horario, p : Periodo, hoy : LocalDate) : List<LocalDate>
   + asistenciasEn(p : Periodo) : List<RegistroAsistencia>
   + contarRetardos(p : Periodo) : int
   + estaJustificado(fecha : LocalDate) : boolean
@@ -108,7 +113,7 @@ enum EstadoInvitacion {
 }
 class Plataforma {
   + crearEmpresa(nombre : String) : Empresa
-  + fundarEmpresa(nombre : String, c : Cuenta, hoy : LocalDate) : Jefe
+  + fundarEmpresa(nombre : String, c : Cuenta, hoy : LocalDate) : Gerente
   + buscarUsuario(cedula : String) : Usuario
   + autenticar(cedula : String, clave : String) : Usuario
   + agregarCuenta(c : Cuenta) : void
@@ -137,9 +142,8 @@ class Periodo <<valor>> {
 
 Usuario <|-- Empleado
 Usuario <|-- Supervisor
-Usuario <|-- Jefe
-RevisorIncidencias <|.. Supervisor
-RevisorIncidencias <|.. Jefe
+Usuario <|-- Gerente
+RevisorNovedades <|.. Gerente
 Usuario "1" *-- "1" Horario
 Usuario "1" *-- "1" Historial
 Historial "1" *-- "0..*" RegistroAsistencia
@@ -148,7 +152,7 @@ Usuario "0..*" --> "0..1" Obra
 Cuenta "1" -- "0..1" Usuario
 Invitacion "1" *-- "1" CodigoInvitacion
 Invitacion --> EstadoInvitacion
-Invitacion "0..*" --> "1" Jefe : creadaPor
+Invitacion "0..*" --> "1" Gerente : creadaPor
 Plataforma "1" *-- "1..*" Empresa
 Plataforma "1" *-- "0..*" Cuenta
 Empresa "1" o-- "0..*" Usuario

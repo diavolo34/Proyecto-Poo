@@ -98,7 +98,13 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         }
         for (Supervisor s : new Supervisor[] {ana, luis}) {
             if (s.trabajaEl(hoy)) {
-                s.agregarAsistencia(registro(hoy, "06:40", null, false));
+                RegistroAsistencia entrada = registro(hoy, "06:40", null, false);
+                if (s.getObra() == torre) {
+                    entrada.registrarUbicacionEntrada(10.49702, -66.85401, 9.0);
+                } else {
+                    entrada.registrarUbicacionEntrada(10.34428, -67.04112, 14.0);
+                }
+                s.agregarAsistencia(entrada);
             }
         }
 
@@ -146,7 +152,13 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                 e.agregarAsistencia(registro(sabado, "08:00", "12:30", false));
             }
             if (i % 2 == 0 && e.trabajaEl(hoy)) {
-                e.agregarAsistencia(registro(hoy, i == 4 ? "07:25" : "06:58", null, i == 4));
+                RegistroAsistencia entrada = registro(hoy, i == 4 ? "07:25" : "06:58", null, i == 4);
+                if (i < 3) {
+                    entrada.registrarUbicacionEntrada(10.49671 + i * 0.0002, -66.85372, 11.0 + i);
+                } else {
+                    entrada.registrarUbicacionEntrada(10.34401, -67.04150, 18.0);
+                }
+                e.agregarAsistencia(entrada);
             }
         }
         for (Usuario u : empresa.listarUsuarios()) {
@@ -166,6 +178,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         for (int i = jornadas.size() - 1; i >= 0; i--) {
             if (jornadas.get(i).getFecha().isBefore(hoy)) {
                 jornadas.get(i).marcarPorConfirmar("Entrada a 1,3 km de la obra");
+                jornadas.get(i).registrarUbicacionEntrada(10.50859, -66.85390, 20.0);
                 return;
             }
         }

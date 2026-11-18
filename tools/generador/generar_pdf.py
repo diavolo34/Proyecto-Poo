@@ -43,47 +43,57 @@ def figura(ruta: Path, pie: str, clase: str = "") -> str:
 
 def abrir_navegador(p):
     """Usa Google Chrome si está instalado; si no, el Chromium que trae Playwright."""
-    try:
-        return p.chromium.launch(channel="chrome")
-    except Exception:
-        return p.chromium.launch()
+    for opciones in ({"channel": "chrome"}, {}, {"executable_path": "/opt/pw-browsers/chromium"}):
+        try:
+            return p.chromium.launch(**opciones)
+        except Exception:
+            continue
+    raise RuntimeError("No se encontró un navegador Chromium")
 
 
 CORRECCION = [
     ("Es Programación Orientada a Objetos, no Algoritmos III", "Materia corregida en todo el proyecto; el diseño se centra en POO: herencia, polimorfismo, interfaces, composición, objetos de valor y SOLID."),
-    ("Darle profundidad al proyecto", "Se pasó de 13 a más de 100 clases en capas MVC: incidencias, historial, alertas, estadísticas, reportes, registro con correo, invitaciones, multiempresa, vista Swing, 57 pruebas y CI."),
-    ("Sin gestores ni APIs en los diagramas de secuencia", "Los 6 diagramas de secuencia usan solo objetos de clases del modelo (Empleado, Historial, Incidencia, MonitorSupervision…)."),
+    ("Darle profundidad al proyecto", "Se pasó de 13 a más de 150 clases en capas MVC: permisos y reposos, reportes en obra, historial, alertas, estadísticas, reportes, registro con correo, invitaciones, multiempresa, talento humano, inventario, vista Swing, 103 pruebas y CI."),
+    ("Sin gestores ni APIs en los diagramas de secuencia", "Los 7 diagramas de secuencia usan solo objetos de clases del modelo (Supervisor, Gerente, Historial, ReposoMedico, MonitorSupervision…)."),
     ("Página operativa, no solo modo demostración", "La página publicada trabaja con datos reales: siempre usa el servidor Java, local en NetBeans o publicado en Render (Docker), con Netlify llamándolo por CORS. Los datos de ejemplo solo aparecen si se activan a propósito."),
-    ("¿Dónde está la clase Historial? ¿Dónde se registran las incidencias?", "Historial (composición en Usuario) guarda jornadas e incidencias. Incidencia es abstracta con 5 tipos (reposo médico, permiso, retardo, accidente, ausencia) y un ciclo de revisión."),
-    ("Apoyar al supervisor: reportes, estadísticas e incidencias", "Alertas automáticas (retardos, faltas sin justificar, incidencias vencidas), estadísticas, tablero Kanban y reportes CSV/TXT."),
+    ("¿Dónde está la clase Historial? ¿Dónde se registran las incidencias?", "Historial (composición en Usuario) guarda jornadas, permisos, reposos y reportes en obra. Novedad es abstracta, con Licencia (permiso laboral y reposo médico) y ReporteObra (retardo, inasistencia, accidente); el supervisor registra y el gerente aprueba con nota."),
+    ("Apoyar al supervisor: reportes, estadísticas e incidencias", "Alertas automáticas (retardos, faltas seguidas sin justificar, aprobaciones vencidas, retrasos de obra, herramientas sin devolver), estadísticas, tablero por estado, mapa de marcas y reportes CSV/TXT."),
 ]
 
 DIAGRAMAS = [
     ("casos_de_uso", "Diagrama de casos de uso"),
     ("clases_dominio", "Diagrama de clases · Modelo de dominio"),
-    ("clases_nucleo", "Modelo detallado 1/4 · Núcleo"),
-    ("clases_incidencias", "Modelo detallado 2/4 · Incidencias"),
-    ("clases_supervision", "Modelo detallado 3/4 · Alertas, estadísticas y reportes"),
-    ("clases_servicio_persistencia", "Modelo detallado 4/4 · Servicios y persistencia"),
+    ("clases_nucleo", "Modelo detallado 1/5 · Núcleo"),
+    ("clases_novedades", "Modelo detallado 2/5 · Permisos, reposos y reportes en obra"),
+    ("clases_supervision", "Modelo detallado 3/5 · Alertas, estadísticas y reportes"),
+    ("clases_servicio_persistencia", "Modelo detallado 4/5 · Servicios y persistencia"),
+    ("clases_talento_inventario", "Modelo detallado 5/5 · Obras, talento humano e inventario"),
     ("paquetes_mvc", "Paquetes · Arquitectura MVC"),
     ("secuencia_marcar_entrada", "Secuencia · Marcar entrada"),
-    ("secuencia_reportar_incidencia", "Secuencia · Reportar incidencia"),
-    ("secuencia_revisar_incidencia", "Secuencia · Revisar incidencia"),
+    ("secuencia_registrar_novedad", "Secuencia · El supervisor registra un reposo médico"),
+    ("secuencia_revisar_novedad", "Secuencia · El gerente lo aprueba con nota"),
     ("secuencia_evaluar_alertas", "Secuencia · Evaluar alertas"),
     ("secuencia_generar_reporte", "Secuencia · Generar reporte"),
     ("secuencia_unirse_empresa", "Secuencia · Unirse con invitación"),
-    ("secuencia_crear_empresa", "Secuencia · Un jefe crea su empresa"),
+    ("secuencia_crear_empresa", "Secuencia · Un gerente crea su empresa"),
 ]
 
 CAPTURAS = [
     ("web_01_portada", "Portada pública"), ("web_14_dos_formas", "Portada: dos formas de empezar"),
     ("web_02_login_error", "Inicio de sesión con mensaje de error"),
-    ("web_03_registro", "Crear cuenta: el jefe crea su empresa"), ("web_04_unirse", "Unirse con código de invitación"),
-    ("web_05_empleado_asistencia", "Empleado: Mi asistencia"), ("web_06_incidencias", "Reportar incidencia (reposo médico)"),
-    ("web_07_tablero", "Supervisor: tablero de incidencias"), ("web_08_supervision", "Supervisor: alertas, estadísticas y reportes"),
-    ("web_09_personal", "Jefe: personal"), ("web_15_historial", "Historial con incidencias"),
-    ("web_16_obras", "Obras: gestión por supervisor y jefe"), ("web_11_invitaciones", "Jefe: invitaciones por correo"),
-    ("web_17_demo_privada", "Demostración privada con clave"),
+    ("web_03_registro", "Crear cuenta: el gerente crea su empresa"), ("web_04_unirse", "Unirse con código de invitación"),
+    ("web_05_empleado_asistencia", "Empleado: asistencia, días sin marcar y herramientas a su cargo"),
+    ("web_18_registrar_reposo", "Supervisor: registrar un reposo médico con su documento"),
+    ("web_06_permisos", "Gerente: aprobar o rechazar permisos y reposos con nota"),
+    ("web_21_reportes_obra", "Supervisor: reportes en obra"), ("web_07_tablero", "Tablero de permisos y reportes"),
+    ("web_08_supervision", "Supervisión: alertas, estadísticas, mapa de marcas y reportes"), ("web_22_mapa", "Dónde marcó cada persona"),
+    ("web_16_obras", "Obras: inicio, conclusión y retrasos"), ("web_09_personal", "Personal con puesto y área"),
+    ("web_15_historial", "Historial: asistencia, días sin marcar, permisos, reportes y herramientas"),
+    ("web_19_talento", "Talento humano: egresos"), ("web_23_egreso", "Registrar una renuncia con voucher, carta y equipos"),
+    ("web_20_inventario", "Inventario y entregas"), ("web_24_catalogo", "Catálogo de puestos y áreas"),
+    ("web_11_invitaciones", "Gerente: invitaciones con puesto y área"), ("web_17_demo_privada", "Demostración privada con clave"),
+    ("swing_07_permisos", "Escritorio (Swing): permisos y reposos"), ("swing_08_talento", "Escritorio (Swing): talento humano"),
+    ("swing_09_inventario", "Escritorio (Swing): inventario"), ("swing_10_obras", "Escritorio (Swing): obras y retrasos"),
     ("swing_02_supervision", "Escritorio (Swing): supervisión"), ("swing_03_tablero", "Escritorio (Swing): tablero"),
 ]
 
@@ -92,7 +102,7 @@ def construir() -> str:
     url = DATOS["url_publicacion"]
     filas = "".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td></tr>" for a, b in CORRECCION)
     scrum = md(DOCS / "scrum" / "README.md") + md(DOCS / "scrum" / "product-backlog.md") + "".join(
-        md(DOCS / "scrum" / f"sprint-{n}.md", 2) for n in range(1, 10))
+        md(DOCS / "scrum" / f"sprint-{n}.md", 2) for n in range(1, 11))
     prompts = md(DOCS / "prompts.md").split("<h2>Entrega 1</h2>")[0]
     diagramas = "".join(figura(DOCS / "diagramas" / "img" / f"{a}.svg", p, "diagrama") for a, p in DIAGRAMAS)
     capturas = "".join(figura(DOCS / "capturas" / f"{a}.png", p, "captura") for a, p in CAPTURAS)
@@ -149,12 +159,12 @@ def construir() -> str:
 <h1>7. Capturas del sistema</h1>{capturas}
 <h1>8. Ejecución y modo demostración</h1>
 <p><b>NetBeans:</b> abrir el proyecto <code>ConstruTrack</code> → Run (F6). Requiere JDK 17 o superior.</p>
-<p>El sistema arranca <b>vacío (modo producción)</b>, listo para clientes: el primer usuario se registra como jefe y crea su
+<p>El sistema arranca <b>vacío (modo producción)</b>, listo para clientes: el primer usuario se registra como gerente y crea su
 empresa. Para verlo con datos de ejemplo, agregar el argumento <code>--demo</code> (Project Properties → Run → Arguments).
 En la página publicada, la <b>demostración privada</b> está en <code>app.html#demo</code> y solo se entra con la clave de
 demostración. Usuarios del modo demostración (empresa «Constructora Demo»):</p>
 <table><tr><th>Rol</th><th>Correo</th><th>Cédula</th><th>Clave</th></tr>
-<tr><td>Jefe</td><td>carlos.mendez@construtrack.demo</td><td>10000001</td><td>jefe123</td></tr>
+<tr><td>Gerente</td><td>carlos.mendez@construtrack.demo</td><td>10000001</td><td>gerente123</td></tr>
 <tr><td>Supervisora</td><td>ana.rodriguez@construtrack.demo</td><td>20000001</td><td>super123</td></tr>
 <tr><td>Empleado</td><td>jose.garcia@construtrack.demo</td><td>30000001</td><td>emp123</td></tr>
 <tr><td>Registrada sin empresa</td><td>rosa.gutierrez@correo.com</td><td>—</td><td>rosa1234</td></tr></table>

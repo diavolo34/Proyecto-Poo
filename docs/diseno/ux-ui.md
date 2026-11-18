@@ -15,10 +15,10 @@ dicen qué hacer. **UI** (la capa visual): tipografía, color, tarjetas y microi
 ### 1. Visibilidad del estado del sistema
 El usuario siempre sabe qué está pasando:
 - La barra superior muestra **quién inició sesión y con qué rol** (avatar + etiqueta).
-- En «Mi asistencia», la etiqueta **● En la obra / ○ Fuera de la obra** y la hora de entrada de hoy.
+- En «Asistencia», la etiqueta **● En la obra / ○ Fuera de la obra** y la hora de entrada de hoy.
 - Si el servidor tarda (Render gratuito «despierta» en ~1 min), la página muestra **«Conectando con el servidor… N s»**
   con un indicador giratorio, en lugar de quedarse en blanco o simular datos (`js/app.js`).
-- Cada acción confirma con un aviso breve: «✓ Incidencia #5 reportada. Quedó pendiente de revisión».
+- Cada acción confirma con un aviso breve: «✓ Reposo médico #6 registrado. Queda pendiente hasta que lo apruebe el gerente».
 
 ![Asistencia](../capturas/web_05_empleado_asistencia.png)
 
@@ -30,7 +30,7 @@ El tablero imita la pizarra con columnas que se usa en las obras (Pendiente → 
 ### 3. Control y libertad del usuario
 - Todo modal se cierra con **Esc**, con **✕** o haciendo clic fuera (`js/ui.js → Modal`).
 - Eliminar a una persona y cancelar una invitación **piden confirmación**.
-- Rechazar una incidencia abre un cuadro para el motivo que se puede **cancelar** sin cambiar nada.
+- Aprobar o rechazar abre un cuadro para la nota que se puede **cancelar** sin cambiar nada.
 - «Más tarde» en la pantalla de unirse y «Volver a la portada» en el acceso: siempre hay salida.
 
 ### 4. Consistencia y estándares
@@ -42,7 +42,7 @@ El tablero imita la pizarra con columnas que se usa en las obras (Pendiente → 
 ![Inicio de sesión](../capturas/web_02_login_error.png)
 
 ### 5. Prevención de errores
-- **Listas desplegables y casillas** en lugar de texto libre: tipo de incidencia, persona, horas (cada 30 min),
+- **Listas desplegables y casillas** en lugar de texto libre: tipo de permiso o reporte, persona, puesto, área, horas (cada 30 min),
   días de trabajo, supervisor y obra.
 - El botón «Marcar entrada» se **deshabilita** cuando la persona ya está en la obra (y «Marcar salida» cuando no lo está).
 - Campos de fecha nativos (`type="date"`), y el campo «Hasta» es opcional.
@@ -53,11 +53,11 @@ El tablero imita la pizarra con columnas que se usa en las obras (Pendiente → 
 ### 6. Reconocer antes que recordar
 - Usuarios de prueba con **un clic** en el inicio de sesión.
 - El chatbot muestra **preguntas sugeridas** según el rol.
-- El formulario de incidencias muestra **solo los campos del tipo elegido** (centro médico para reposos, minutos para
+- El formulario de permisos y reportes muestra **solo los campos del tipo elegido** (médico, matrícula y documento para reposos, minutos para
   retardos, lugar para accidentes), como el ejemplo de combos dependientes de la clase.
 - El menú lateral está siempre visible y marca la sección actual.
 
-![Incidencias](../capturas/web_06_incidencias.png)
+![Permisos y reposos](../capturas/web_06_permisos.png)
 
 ### 7. Flexibilidad y eficiencia de uso
 - **Enter** envía formularios; **Tab** recorre todo; atajos con Alt en Swing (Alt+I «Iniciar sesión», Alt+E «Marcar
@@ -67,7 +67,7 @@ El tablero imita la pizarra con columnas que se usa en las obras (Pendiente → 
 - Iniciar sesión con **correo o cédula**, lo que cada persona recuerde.
 
 ### 8. Diseño estético y minimalista
-- Cada rol ve solo sus vistas: el Empleado tiene 2, el Supervisor 5 y el Jefe 6 (ley de Hick: menos opciones, decisiones más rápidas).
+- Cada rol ve solo sus vistas: el Empleado tiene 2, el Supervisor 5 y el Gerente 6 (ley de Hick: menos opciones, decisiones más rápidas).
 - Tarjetas con mucho espacio en blanco, una sola acción principal por pantalla y cifras grandes en Supervisión.
 
 ![Supervisión](../capturas/web_08_supervision.png)
@@ -78,7 +78,7 @@ Los mensajes dicen **qué pasó y qué hacer**, en español y sin códigos técn
 | Situación | Mensaje |
 |-----------|---------|
 | Clave incorrecta | «Correo, cédula o clave incorrectos. Revisa los datos e intenta de nuevo.» |
-| Código usado | «Esta invitación está usada. Pide a tu jefe un código nuevo.» |
+| Código usado | «Esta invitación está usada. Pide a tu gerente un código nuevo.» |
 | Rechazo sin motivo | «Indica el motivo del rechazo para que el trabajador lo sepa.» |
 | Puerto ocupado (NetBeans) | «El puerto 8080 ya está en uso. ¿Tienes ConstruTrack abierto en otra ventana?…» |
 
@@ -87,7 +87,7 @@ Los errores se muestran con texto rojo **y** con la palabra «Error:» o el íco
 ### 10. Ayuda y documentación
 - Textos de ayuda debajo de cada campo («Sin puntos ni guiones», «Vacío = un día»).
 - *Tooltips* en Swing.
-- **Arqui**, el asistente virtual, en todas las pantallas, con respuestas sobre registro, códigos, roles, incidencias y seguridad. Está abajo a la izquierda para no tapar los botones de acción, que en las tablas quedan a la derecha.
+- **Arqui**, el asistente virtual, en todas las pantallas, con respuestas sobre registro, códigos, roles, permisos y seguridad. Está abajo a la izquierda para no tapar los botones de acción, que en las tablas quedan a la derecha.
 
 ![Chatbot](../capturas/web_12_chatbot.png)
 
@@ -97,7 +97,7 @@ Los errores se muestran con texto rojo **y** con la palabra «Error:» o el íco
 
 | Ley o efecto | Dónde se aplica |
 |--------------|-----------------|
-| **Ley de Hick:** más opciones, más tiempo para decidir | El menú se reduce según el rol; el formulario de incidencias oculta los campos que no aplican; la portada tiene una sola acción principal («Crear cuenta»). |
+| **Ley de Hick:** más opciones, más tiempo para decidir | El menú se reduce según el rol; el formulario de permisos oculta los campos que no aplican; la portada tiene una sola acción principal («Crear cuenta»). |
 | **Continuidad (Gestalt):** el ojo sigue un flujo | Las columnas del tablero se leen de izquierda a derecha en el orden del ciclo de vida; los 3 pasos de «Cómo funciona» están numerados en línea. |
 | **Proximidad (Gestalt)** | Cada grupo de información va en su tarjeta: estado de hoy, resumen de la semana, historial. |
 | **Efecto Von Restorff:** lo distinto se recuerda | El único botón azul de cada pantalla es la acción principal («Marcar entrada», «Crear cuenta»); las demás son grises. El código de invitación creado aparece grande sobre fondo azul. |
@@ -121,7 +121,7 @@ Siguen el ciclo **disparador → regla → respuesta → bucle** visto en clase:
 | **Contraste mínimo 4.5:1** | Medido con la fórmula de WCAG para cada combinación usada (tabla abajo). |
 | **Texto alternativo** | Las ilustraciones decorativas llevan `aria-hidden`; las barras de progreso tienen `aria-label` con su valor; en Swing el gráfico expone su descripción textual. |
 | **Navegación por teclado** | Todo funciona con Tab y Enter; foco visible (contorno azul de 3 px); enlace «Saltar al contenido». |
-| **No depender solo del color** | Estados con texto (`● En la obra`, «Gravedad alta», «Error:») además del color. |
+| **No depender solo del color** | Estados con texto (`● En la obra`, «Incapacidad», «Vencida», «Error:») además del color. |
 | **Etiquetas en formularios** | Cada campo tiene su `<label for>` (en Swing, `setLabelFor`); avisos con `role="alert"` / `aria-live`. |
 | **Adaptable** | Funciona en celular sin desplazamiento horizontal (verificado a 390 px de ancho). |
 

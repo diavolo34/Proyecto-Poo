@@ -12,7 +12,7 @@ cualquier constructora lo use.
 - **Supervisión** (HU-21, HU-22, HU-23): horas trabajadas y esperadas, horas extra con aprobación, alertas por
   antigüedad, período de 7 días e Historial con incidencias.
 - **Obras** (HU-19) y **cédula solo números** (HU-25).
-- **Multiempresa** (HU-26): `Plataforma` como raíz del modelo; el jefe crea su empresa al registrarse y los servicios
+- **Multiempresa** (HU-26): `Plataforma` como raíz del modelo; el gerente crea su empresa al registrarse y los servicios
   trabajan siempre dentro de la empresa de quien opera.
 - **Correo real** (HU-18): `NotificadorGmail` con Google Apps Script (Brevo no aceptaba números de Venezuela).
 - **Portada nueva** (HU-27), asistente **Arqui**, código sin comentarios.
@@ -20,7 +20,7 @@ cualquier constructora lo use.
   en la misma página (`app.html#demo`).
 - **Pulido final** (HU-29, HU-30): las incidencias aprobadas o rechazadas salen del tablero 3 horas después de
   revisarse y quedan en el reporte de incidencias (con «Todo el historial»); la asistencia se calcula desde la jornada
-  abierta, lo que arregla la marca del jefe; el jefe y los supervisores aparecen primero y destacados en la tabla de
+  abierta, lo que arregla la marca del gerente; el gerente y los supervisores aparecen primero y destacados en la tabla de
   puntualidad; y las opciones de rol del registro quedan alineadas en el celular.
 
 ## Incremento
@@ -29,7 +29,7 @@ Copia de respaldo de la versión anterior (código y datos) entregada fuera del 
 
 ## Review
 - Se probó la página publicada con los tres roles, en computadora y en celular, y se corrigió cada detalle encontrado.
-- El aislamiento entre empresas se comprobó con pruebas JUnit específicas (un jefe no ve, revisa ni modifica nada de
+- El aislamiento entre empresas se comprobó con pruebas JUnit específicas (un gerente no ve, revisa ni modifica nada de
   otra empresa) y con un recorrido en el navegador.
 - Al quitar los comentarios se verificó que el Java compilado es idéntico byte a byte y que el JavaScript tiene el mismo
   árbol sintáctico.

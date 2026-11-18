@@ -6,10 +6,10 @@ left to right direction
 actor "Visitante" as Visitante
 actor "Empleado" as Empleado
 actor "Supervisor" as Supervisor
-actor "Jefe" as Jefe
+actor "Gerente" as Gerente
 Empleado -|> Visitante
 Supervisor -|> Empleado
-Jefe -|> Supervisor
+Gerente -|> Supervisor
 
 rectangle "Sistema ConstruTrack · Gestión de personal en obra" {
   usecase "Consultar portada\ny chatbot" as UC_Portada
@@ -19,11 +19,18 @@ rectangle "Sistema ConstruTrack · Gestión de personal en obra" {
   usecase "Iniciar sesión\n(correo o cédula)" as UC_Login
   usecase "Marcar entrada / salida" as UC_Marcar
   usecase "Verificar puntualidad" as UC_Puntual
+  usecase "Registrar ubicación" as UC_Ubicacion
   usecase "Consultar mi historial" as UC_Historial
-  usecase "Reportar incidencia" as UC_Reportar
-  usecase "Adjuntar datos del\nreposo médico" as UC_Certificado
-  usecase "Revisar incidencia\n(aprobar / rechazar)" as UC_Revisar
-  usecase "Indicar motivo\ndel rechazo" as UC_Motivo
+  usecase "Consultar permisos\ny herramientas" as UC_Consultar
+  usecase "Registrar permiso, reposo\no reporte en obra" as UC_Reportar
+  usecase "Adjuntar datos y documento\ndel reposo médico" as UC_Certificado
+  usecase "Aprobar o rechazar\ncon nota" as UC_Revisar
+  usecase "Confirmar marca\nen el mapa" as UC_Confirmar
+  usecase "Iniciar / concluir obra\ny reportar retraso" as UC_Obra
+  usecase "Registrar egreso\n(despido / renuncia)" as UC_Egreso
+  usecase "Registrar devolución\nde equipos" as UC_Devolucion
+  usecase "Gestionar inventario\ny entregas" as UC_Inventario
+  usecase "Gestionar puestos\ny áreas" as UC_Catalogo
   usecase "Consultar alertas\nautomáticas" as UC_Alertas
   usecase "Consultar estadísticas" as UC_Estadisticas
   usecase "Exportar reporte\n(CSV / TXT)" as UC_Exportar
@@ -36,19 +43,26 @@ Visitante -- UC_Registro
 Visitante -- UC_Unirse
 Empleado -- UC_Marcar
 Empleado -- UC_Historial
-Empleado -- UC_Reportar
-Supervisor -- UC_Revisar
+Empleado -- UC_Consultar
+Supervisor -- UC_Reportar
+Supervisor -- UC_Confirmar
+Supervisor -- UC_Obra
+Gerente -- UC_Revisar
+Gerente -- UC_Egreso
+Gerente -- UC_Inventario
+Gerente -- UC_Catalogo
 Supervisor -- UC_Alertas
 Supervisor -- UC_Estadisticas
 Supervisor -- UC_Exportar
-Jefe -- UC_Personal
-Jefe -- UC_Invitar
+Gerente -- UC_Personal
+Gerente -- UC_Invitar
 
 UC_Unirse ..> UC_Validar : <<include>>
 UC_Marcar ..> UC_Login : <<include>>
 UC_Marcar ..> UC_Puntual : <<include>>
 UC_Reportar ..> UC_Login : <<include>>
 UC_Revisar ..> UC_Login : <<include>>
+UC_Marcar ..> UC_Ubicacion : <<include>>
 UC_Certificado ..> UC_Reportar : <<extend>>\n{tipo = Reposo médico}
-UC_Motivo ..> UC_Revisar : <<extend>>\n{decisión = rechazar}
+UC_Devolucion ..> UC_Egreso : <<extend>>\n{tenía equipos a su cargo}
 @enduml

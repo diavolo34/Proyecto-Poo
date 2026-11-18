@@ -12,18 +12,25 @@ class Invitacion
 abstract class "Usuario {abstract}" as Usuario
 class Empleado
 class Supervisor
-class Jefe
+class Gerente
 class Horario
 class Historial
 class RegistroAsistencia
-abstract class "Incidencia {abstract}" as Incidencia
+abstract class "Novedad {abstract}" as Novedad
+abstract class "Licencia {abstract}" as Licencia
+abstract class "ReporteObra {abstract}" as ReporteObra
+class PermisoLaboral
 class ReposoMedico
-class PermisoPersonal
 class Retardo
 class AccidenteLaboral
-class Ausencia
+class Inasistencia
 interface Justificable
-interface RevisorIncidencias
+interface RevisorNovedades
+class Catalogo
+class Inventario
+class Articulo
+class Egreso
+class RetrasoObra
 
 Plataforma "1" *-- "1..*" Empresa : agrupa >
 Plataforma "1" *-- "0..*" Cuenta : registra >
@@ -32,25 +39,32 @@ Empresa "1" *-- "0..*" Obra : ejecuta >
 Empresa "1" *-- "0..*" Invitacion : guarda >
 Usuario <|-- Empleado
 Usuario <|-- Supervisor
-Usuario <|-- Jefe
+Usuario <|-- Gerente
 Usuario "1" *-- "1" Horario : tiene >
 Usuario "1" *-- "1" Historial : tiene >
 Historial "1" *-- "0..*" RegistroAsistencia : jornadas >
-Historial "1" o-- "0..*" Incidencia : novedades >
+Historial "1" o-- "0..*" Novedad : novedades >
 Usuario "0..*" -- "0..1" Obra : trabaja en >
 Supervisor "0..1" -- "0..*" Empleado : supervisa >
 Cuenta "1" -- "0..1" Usuario : vinculada a >
-Jefe "1" -- "0..*" Invitacion : crea >
+Gerente "1" -- "0..*" Invitacion : crea >
 Invitacion "0..*" -- "0..1" Cuenta : usada por >
-Incidencia "0..*" -- "1" Usuario : afecta a >
-Incidencia <|-- ReposoMedico
-Incidencia <|-- PermisoPersonal
-Incidencia <|-- Retardo
-Incidencia <|-- AccidenteLaboral
-Incidencia <|-- Ausencia
-Justificable <|.. ReposoMedico
-Justificable <|.. PermisoPersonal
+Novedad "0..*" -- "1" Usuario : afecta a >
+Novedad <|-- Licencia
+Novedad <|-- ReporteObra
+Licencia <|-- PermisoLaboral
+Licencia <|-- ReposoMedico
+ReporteObra <|-- Retardo
+ReporteObra <|-- AccidenteLaboral
+ReporteObra <|-- Inasistencia
+Justificable <|.. Licencia
 Justificable <|.. AccidenteLaboral
-RevisorIncidencias <|.. Supervisor
-RevisorIncidencias <|.. Jefe
+RevisorNovedades <|.. Gerente
+Supervisor "1" -- "0..*" Novedad : registra >
+Empresa "1" *-- "1" Catalogo : puestos y áreas >
+Empresa "1" *-- "1" Inventario : tiene >
+Inventario "1" *-- "0..*" Articulo : contiene >
+Articulo "0..*" -- "0..*" Usuario : entregado a >
+Empresa "1" *-- "0..*" Egreso : talento humano >
+Obra "1" *-- "0..*" RetrasoObra : retrasos >
 @enduml

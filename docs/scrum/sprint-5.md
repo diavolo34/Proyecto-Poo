@@ -9,7 +9,7 @@
   `servidorLocal.js` (modo demo); CSS propio; `config.js` + CORS por dominio; `Dockerfile`, `render.yaml` y `netlify.toml`.
 
 ## Incremento
-Flujo completo: crear cuenta → código del jefe → entrar con el rol correcto. Página sin modo demo; imagen Docker probada
+Flujo completo: crear cuenta → código del gerente → entrar con el rol correcto. Página sin modo demo; imagen Docker probada
 y CORS verificado desde otro origen (y bloqueado para orígenes no autorizados).
 
 ## Review

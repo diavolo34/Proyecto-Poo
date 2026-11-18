@@ -25,7 +25,7 @@ package "MODELO" as M #DCFFF1 {
     [Servicio*\nServicios] as SVC
   }
   package "modelo (dominio)" as MD {
-    [Usuario · Historial\nIncidencia · Invitacion\nAlertas · Reportes] as DOM
+    [Usuario · Historial · Novedad\nObra · Inventario · Egreso\nInvitacion · Alertas · Reportes] as DOM
   }
   package "persistencia" as PE {
     [EscritorDatos «interface»\nLectorDatos «interface»] as PI
