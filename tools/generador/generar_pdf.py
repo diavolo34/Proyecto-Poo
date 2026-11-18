@@ -92,7 +92,7 @@ def construir() -> str:
     url = DATOS["url_publicacion"]
     filas = "".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td></tr>" for a, b in CORRECCION)
     scrum = md(DOCS / "scrum" / "README.md") + md(DOCS / "scrum" / "product-backlog.md") + "".join(
-        md(DOCS / "scrum" / f"sprint-{n}.md", 2) for n in range(1, 9))
+        md(DOCS / "scrum" / f"sprint-{n}.md", 2) for n in range(1, 10))
     prompts = md(DOCS / "prompts.md").split("<h2>Entrega 1</h2>")[0]
     diagramas = "".join(figura(DOCS / "diagramas" / "img" / f"{a}.svg", p, "diagrama") for a, p in DIAGRAMAS)
     capturas = "".join(figura(DOCS / "capturas" / f"{a}.png", p, "captura") for a, p in CAPTURAS)

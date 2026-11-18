@@ -18,6 +18,8 @@ Este documento resume cómo se protegen la aplicación y los datos. Tiene cinco 
 | Claves nuevas más fuertes | Al registrarse, restablecer la clave o cuando el jefe asigna una: de 8 a 64 caracteres, con al menos una letra y un número. |
 | Bloqueo por intentos | Tras 5 intentos fallidos con el mismo correo o cédula, se bloquea 15 minutos. El servidor responde `429` y el mensaje sugiere restablecer la clave. |
 | Sin pistas para un atacante | El inicio de sesión responde lo mismo («correo, cédula o clave incorrectos») tanto si la cuenta existe como si no. Además, tarda lo mismo en ambos casos, porque se calcula un cifrado de relleno. |
+| Correo verificado | Al registrarse llega un código de 6 dígitos al correo: vence a los 15 minutos, admite 5 intentos y se puede pedir 4 veces por hora. Sin confirmarlo, la cuenta no puede unirse a una empresa ni crearla, así que nadie puede usar un correo ajeno. Las cuentas anteriores a este cambio quedan como verificadas. |
+| Verificación en dos pasos para jefes | El jefe la activa en **Administración → Seguridad**: escanea un QR con Google Authenticator o Microsoft Authenticator (códigos TOTP del RFC 6238) y recibe 8 códigos de respaldo de un solo uso, por si pierde el teléfono. Desde entonces, además de la clave, se le pide el código al entrar, en la web y en la aplicación de escritorio. Un mismo código no sirve dos veces, y tras 5 códigos incorrectos hay que volver a empezar. Para desactivarla hacen falta la clave y un código. |
 | Restablecer la clave por correo | «¿Olvidaste tu clave?» envía un enlace con un código aleatorio de 256 bits. El enlace sirve una sola vez, vence a los 30 minutos y se puede pedir como máximo 3 veces por hora. El servidor solo guarda la huella SHA-256 del código. Al usarlo, se cierran todas las sesiones de esa cuenta. La respuesta es la misma aunque el correo no exista. |
 
 ### Sesiones
@@ -108,17 +110,39 @@ Para usar cookies, la API y la página tienen que estar en el mismo dominio. Si 
 
 | Prioridad | Mejora | Por qué |
 |-----------|--------|---------|
-| Alta | **Verificar el correo al registrarse** (enviar un código) | Hoy alguien podría registrarse con un correo ajeno. |
-| Alta | **Verificación en dos pasos para jefes** (códigos TOTP en una app como Google Authenticator) | El jefe tiene acceso a toda la empresa. |
+| Hecho | ~~Verificar el correo al registrarse~~ | Ver sección 1. |
+| Hecho | ~~Verificación en dos pasos para jefes~~ | Ver sección 1. |
 | Media | **Aviso por correo cuando la clave cambia** | La persona se entera si no fue ella. |
 | Media | **Sesión en cookie HttpOnly con el proxy de Netlify** (sección 2) | Un XSS ya no podría robar la sesión. |
 | Media | **Registro de auditoría**: quién entró, quién aprobó o cambió qué, y desde dónde | Permite investigar un problema después. |
 | Media | **Límite de intentos también por dirección IP** | Frena ataques que prueban muchas cuentas a la vez. |
 | Baja | **Base de datos con cifrado en reposo y respaldos automáticos** | Hoy la conexión con Upstash ya va cifrada con HTTPS. |
 
-## 5. Ideas para que la asistencia sea comprobable
+## 5. Asistencia comprobable
 
-Hoy la marca usa la hora del servidor, así que el trabajador no puede cambiar la hora de su celular para llegar «a tiempo». Pero cualquiera con la clave de otro podría marcar por él desde su casa. Estas son las opciones, de la más sencilla a la más completa:
+**Ya está implementada** la combinación recomendada más abajo: geocerca, código QR rotativo y confirmación del supervisor.
+
+**Configurar la obra.** En **Obras → Editar**, en «Control de asistencia», el supervisor o el jefe pueden:
+- marcar «Exigir el código QR de la obra»;
+- escribir la latitud y la longitud de la obra, o tocar «Usar mi ubicación actual» estando en ella;
+- fijar el radio, por ejemplo 150 m.
+
+Cada parte es opcional. Una obra sin nada configurado funciona como antes.
+
+**En la obra.** El supervisor toca «Mostrar QR de asistencia»: aparece un QR, con sus 6 dígitos escritos, que cambia cada 30 segundos. Se puede poner en pantalla completa en un teléfono o una tablet.
+
+**Al marcar.** El trabajador puede hacerlo de tres formas:
+- escanear el QR desde «Mi asistencia», donde el navegador lo permite;
+- escanearlo con la cámara del teléfono, que abre la aplicación y marca sola después de entrar;
+- escribir los 6 dígitos.
+
+Si la obra tiene ubicación, el teléfono la envía al marcar. El servidor compara la distancia con el radio y deja un margen según la precisión del GPS. Un código incorrecto o vencido se rechaza para que lo vuelva a intentar.
+
+**Marcas dudosas.** Una marca sin código, sin ubicación o lejos de la obra se registra igual, pero queda **por confirmar**, con su motivo (por ejemplo, «Entrada a 1,3 km de la obra»). En **Supervisión → Marcas por confirmar**, el supervisor de esa persona o el jefe la confirman o la rechazan. Una jornada rechazada no cuenta como asistencia: sus horas no suman y el día queda como falta.
+
+## Ideas que se evaluaron
+
+La marca siempre usó la hora del servidor, así que el trabajador no puede cambiar la hora de su celular para llegar «a tiempo». Pero, antes de este control, cualquiera con la clave de otro podía marcar por él desde su casa. Estas fueron las opciones evaluadas, de la más sencilla a la más completa:
 
 | Idea | Cómo funciona | A favor | En contra |
 |------|---------------|---------|-----------|
@@ -131,4 +155,4 @@ Hoy la marca usa la hora del servidor, así que el trabajador no puede cambiar l
 | **7. Kiosco en la entrada** | Una tablet fija en la obra donde cada trabajador marca con su cédula y un PIN. | Controla el lugar y el equipo con que se marca. | Hay que comprar la tablet y cuidarla. |
 | **8. Alertas de anomalías** | Se guarda desde qué dispositivo y red se marca, y se avisa al supervisor si algo no cuadra (dos personas en el mismo celular, marcas desde lejos). | Detecta abusos sin molestar a quien cumple. | No los impide, solo los señala. |
 
-**Recomendación:** combinar la **geocerca (1)** con el **código QR rotativo (2)**, o el código de 6 dígitos (3) donde no haya cámara. Las marcas que no cumplan pasan a la **confirmación del supervisor (4)**. Las alertas (8) quedan de respaldo. La aplicación ya está preparada: su política de permisos permite pedir la ubicación y la cámara a la propia página.
+**Elegida e implementada:** la **geocerca (1)** más el **código QR rotativo (2)**, con los 6 dígitos (3) para quien no pueda escanear. Las marcas que no cumplen pasan a la **confirmación del supervisor (4)**. Quedan para más adelante el celular registrado (5), la foto (6), el kiosco (7) y las alertas de anomalías (8).

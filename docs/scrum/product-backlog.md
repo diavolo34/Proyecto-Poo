@@ -36,7 +36,9 @@ Prioridad: **A** (alta, pedido por la profesora o imprescindible) · **M** (medi
 | HU-30 | Como **jefe**, quiero marcar mi asistencia y aparecer destacado, junto a los supervisores, en la tabla de puntualidad. | A | 7 | Hecho |
 | HU-31 | Como **usuario**, quiero restablecer mi clave por correo si la olvido. | A | 8 | Hecho |
 | HU-32 | Como **dueño del producto**, quiero que las claves, las sesiones y la página estén protegidas contra ataques comunes. | A | 8 | Hecho |
-| HU-33 | Como **jefe**, quiero comprobar que la marca de asistencia se hizo en la obra (ubicación o código de la obra). | A | 9 | Por definir |
+| HU-33 | Como **jefe**, quiero comprobar que la marca de asistencia se hizo en la obra (ubicación o código de la obra). | A | 9 | Hecho |
+| HU-34 | Como **dueño del producto**, quiero que cada cuenta confirme su correo antes de entrar a una empresa. | A | 9 | Hecho |
+| HU-35 | Como **jefe**, quiero proteger mi cuenta con verificación en dos pasos. | A | 9 | Hecho |
 
 ## Criterios de aceptación (historias principales)
 
