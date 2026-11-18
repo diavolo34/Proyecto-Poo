@@ -63,7 +63,7 @@ public final class VentanaLogin extends JFrame {
         c.insets = new Insets(18, 0, 4, 0);
         form.add(campo("Correo o cédula *", txtIdentificador, "Por ejemplo: tu@correo.com o 30000001"), c);
         c.insets = new Insets(4, 0, 4, 0);
-        form.add(campo("Clave *", txtClave, "Mínimo 4 caracteres"), c);
+        form.add(campo("Clave *", txtClave, "¿La olvidaste? Restablécela desde la página web"), c);
         lblError.setForeground(Tema.ROJO);
         form.add(lblError, c);
         c.insets = new Insets(10, 0, 4, 0);

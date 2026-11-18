@@ -52,7 +52,7 @@ public final class DialogoRegistro extends JDialog {
                 .campo("Apellido *", txtApellido, null, 1, 1)
                 .campo("Cédula o DNI *", txtDocumento, "Solo números", 0, 1)
                 .campo("Teléfono *", txtTelefono, "Ej.: +58 412 1234567", 1, 1)
-                .campo("Clave *", txtClave, "Mínimo 4 caracteres", 0, 1)
+                .campo("Clave *", txtClave, "Mínimo 8 caracteres, con letras y números", 0, 1)
                 .campo("Repite la clave *", txtConfirmacion, null, 1, 1);
         contenido.add(f.panel(), BorderLayout.CENTER);
 

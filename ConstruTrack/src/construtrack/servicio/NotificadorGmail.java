@@ -1,6 +1,5 @@
 package construtrack.servicio;
 
-import construtrack.modelo.Invitacion;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.util.Json;
 import java.io.IOException;
@@ -13,12 +12,11 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class NotificadorGmail implements Notificador {
+public class NotificadorGmail extends NotificadorCorreo {
     private static final Logger LOG = Logger.getLogger(NotificadorGmail.class.getName());
 
     private final String urlScript;
     private final String clave;
-    private final MensajeInvitacion mensaje;
 
     private final HttpClient cliente = HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
@@ -26,23 +24,18 @@ public class NotificadorGmail implements Notificador {
             .build();
 
     public NotificadorGmail(String urlScript, String clave, String urlSitio) {
+        super(urlSitio);
         this.urlScript = urlScript;
         this.clave = clave;
-        this.mensaje = new MensajeInvitacion(urlSitio);
     }
 
     @Override
-    public boolean envioReal() {
-        return true;
-    }
-
-    @Override
-    public void enviarInvitacion(Invitacion invitacion, String correoDestino) {
+    protected void enviar(Correo correo) {
         String cuerpo = "{\"clave\":" + Json.texto(clave)
-                + ",\"para\":" + Json.texto(correoDestino)
-                + ",\"asunto\":" + Json.texto(mensaje.asunto(invitacion))
-                + ",\"html\":" + Json.texto(mensaje.html(invitacion, correoDestino))
-                + ",\"texto\":" + Json.texto(mensaje.texto(invitacion, correoDestino)) + "}";
+                + ",\"para\":" + Json.texto(correo.para())
+                + ",\"asunto\":" + Json.texto(correo.asunto())
+                + ",\"html\":" + Json.texto(correo.html())
+                + ",\"texto\":" + Json.texto(correo.texto()) + "}";
         HttpRequest peticion = HttpRequest.newBuilder(URI.create(urlScript))
                 .timeout(Duration.ofSeconds(30))
                 .header("Content-Type", "application/json")
@@ -68,6 +61,5 @@ public class NotificadorGmail implements Notificador {
         if (!"true".equals(datos.get("ok"))) {
             throw new OperacionInvalidaException("Gmail no envió el correo: " + datos.getOrDefault("error", "motivo desconocido"));
         }
-        LOG.info(() -> "Invitación " + invitacion.getCodigo() + " enviada por Gmail a " + correoDestino);
     }
 }

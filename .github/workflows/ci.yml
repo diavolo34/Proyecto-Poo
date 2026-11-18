@@ -52,4 +52,10 @@ jobs:
           token=$(curl -sf -X POST http://localhost:8081/demo/api/demo/acceso \
             -d '{"clave":"clave-ci","rol":"Jefe"}' | python3 -c 'import sys,json; print(json.load(sys.stdin)["token"])')
           curl -sf http://localhost:8081/demo/api/usuarios -H "Authorization: Bearer $token" -o /dev/null
-          echo "API OK (modo producción y demo privada)"
+          curl -s -D - -o /dev/null http://localhost:8081/api/estado | grep -qi "x-content-type-options: nosniff"
+          curl -s -D - -o /dev/null http://localhost:8081/app.html | grep -qi "content-security-policy: default-src 'self'"
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8081/api/clave/olvido -d '{"correo":"nadie@correo.com"}')" = 200
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8081/api/clave/restablecer -d '{"token":"x","clave":"Nueva2026","confirmacion":"Nueva2026"}')" = 409
+          for i in 1 2 3 4 5; do curl -s -o /dev/null -X POST http://localhost:8081/api/login -d '{"identificador":"bloqueo@correo.com","clave":"x"}'; done
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:8081/api/login -d '{"identificador":"bloqueo@correo.com","clave":"x"}')" = 429
+          echo "API OK (modo producción, demo privada, cabeceras, recuperación de clave y bloqueo por intentos)"

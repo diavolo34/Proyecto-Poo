@@ -13,7 +13,7 @@ public class Cuenta {
     private String telefono;
     private Usuario usuario;
 
-    public Cuenta(String correo, String clave, String nombre, String apellido, String documento, String telefono,
+    private Cuenta(String correo, String nombre, String apellido, String documento, String telefono,
             LocalDateTime registrada) {
         this.correo = validarCorreo(correo);
         this.documento = Usuario.validarDocumento(documento);
@@ -21,8 +21,20 @@ public class Cuenta {
         this.apellido = validarParteNombre(apellido, "apellido");
         this.telefono = validarTelefono(telefono);
         this.registrada = registrada;
+    }
+
+    public Cuenta(String correo, String clave, String nombre, String apellido, String documento, String telefono,
+            LocalDateTime registrada) {
+        this(correo, nombre, apellido, documento, telefono, registrada);
         Usuario.validarClave(clave);
-        this.claveResumen = CifradoClave.resumir(this.documento, clave);
+        this.claveResumen = CifradoClave.resumir(clave);
+    }
+
+    public static Cuenta restaurar(String correo, String claveResumen, String nombre, String apellido, String documento,
+            String telefono, LocalDateTime registrada) {
+        Cuenta cuenta = new Cuenta(correo, nombre, apellido, documento, telefono, registrada);
+        cuenta.restaurarClaveResumen(claveResumen);
+        return cuenta;
     }
 
     public static String validarCorreo(String correo) {
@@ -51,7 +63,24 @@ public class Cuenta {
     }
 
     public boolean verificarClave(String clave) {
-        return clave != null && claveResumen.equals(CifradoClave.resumir(documento, clave));
+        return CifradoClave.verificar(claveResumen, documento, clave);
+    }
+
+    public boolean tieneCifradoAntiguo() {
+        return CifradoClave.esAntiguo(claveResumen);
+    }
+
+    public void cambiarClave(String clave) {
+        Usuario.validarClave(clave);
+        renovarCifrado(clave);
+    }
+
+    public void renovarCifrado(String clave) {
+        if (usuario != null) {
+            usuario.renovarCifrado(clave);
+        } else {
+            claveResumen = CifradoClave.resumir(clave);
+        }
     }
 
     void vincular(Usuario usuario) {
@@ -67,7 +96,7 @@ public class Cuenta {
     }
 
     public void restaurarClaveResumen(String resumen) {
-        if (resumen == null || !resumen.matches("[0-9a-f]{64}")) {
+        if (!CifradoClave.esValido(resumen)) {
             throw new DatoInvalidoException("Resumen de clave inválido.");
         }
         this.claveResumen = resumen;

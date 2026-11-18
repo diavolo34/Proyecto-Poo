@@ -50,7 +50,7 @@ public class MensajeInvitacion {
                 + "«Únete a tu empresa». El código sirve una sola vez.</p></div>";
     }
 
-    private static String escaparHtml(String texto) {
+    static String escaparHtml(String texto) {
         return texto.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
     }
 }

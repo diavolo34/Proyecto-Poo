@@ -19,6 +19,10 @@ datos_construtrack.txt
 /reportes/
 /ConstruTrack/reportes/
 
+# ── Secretos locales ─────────────────────────────
+.env
+*.env
+
 # ── Documentación generada (tools/generador) ─────
 salida/
 

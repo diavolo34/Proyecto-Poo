@@ -12,6 +12,7 @@ import construtrack.modelo.reportes.ReportePuntualidad;
 import construtrack.persistencia.EscritorDatos;
 import java.time.Clock;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 public class Servicios {
     private final ServicioAutenticacion autenticacion;
@@ -22,6 +23,7 @@ public class Servicios {
     private final ServicioRegistro registro;
     private final ServicioInvitaciones invitaciones;
     private final ServicioObras obras;
+    private final ServicioRecuperacion recuperacion;
 
     public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia) {
         this(empresa.getPlataforma(), escritor, reloj, siguienteIdIncidencia, new NotificadorConsola());
@@ -29,6 +31,11 @@ public class Servicios {
 
     public Servicios(Plataforma plataforma, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia,
             Notificador notificador) {
+        this(plataforma, escritor, reloj, siguienteIdIncidencia, notificador, Runnable::run);
+    }
+
+    public Servicios(Plataforma plataforma, EscritorDatos escritor, Clock reloj, int siguienteIdIncidencia,
+            Notificador notificador, Executor envioCorreos) {
         this.autenticacion = new ServicioAutenticacion(plataforma, escritor, reloj);
         this.asistencia = new ServicioAsistencia(plataforma, escritor, reloj);
         this.personal = new ServicioPersonal(plataforma, escritor, reloj);
@@ -41,6 +48,11 @@ public class Servicios {
         this.registro = new ServicioRegistro(plataforma, escritor, reloj);
         this.invitaciones = new ServicioInvitaciones(plataforma, escritor, reloj, notificador);
         this.obras = new ServicioObras(plataforma, escritor, reloj);
+        this.recuperacion = new ServicioRecuperacion(plataforma, escritor, reloj, notificador, envioCorreos);
+    }
+
+    public ServicioRecuperacion recuperacion() {
+        return recuperacion;
     }
 
     public ServicioObras obras() {

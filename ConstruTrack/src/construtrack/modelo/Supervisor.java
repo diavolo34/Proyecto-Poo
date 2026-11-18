@@ -16,6 +16,10 @@ public class Supervisor extends Usuario implements RevisorIncidencias {
         super(cedula, nombre, clave, horario);
     }
 
+    Supervisor(String cedula, String nombre, Horario horario) {
+        super(cedula, nombre, horario);
+    }
+
     @Override
     public String getRol() {
         return ROL;

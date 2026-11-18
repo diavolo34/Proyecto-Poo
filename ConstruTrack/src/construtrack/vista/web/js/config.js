@@ -8,9 +8,10 @@ if (location.hostname.endsWith('netlify.app')) document.documentElement.classLis
 
 CONFIG.api = (() => {
   const parametros = new URLSearchParams(location.search);
-  if (parametros.has('api')) localStorage.setItem('construtrack-api', parametros.get('api'));
+  const local = (url) => /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/.test(url || '');
+  if (parametros.has('api') && local(parametros.get('api'))) localStorage.setItem('construtrack-api', parametros.get('api'));
   const forzada = localStorage.getItem('construtrack-api');
-  if (forzada) return forzada;
+  if (local(forzada)) return forzada;
   if (location.protocol === 'file:') return 'http://localhost:8080';
   const estatico = CONFIG.sitiosEstaticos.some((dominio) => location.hostname.endsWith(dominio));
   return estatico ? CONFIG.apiRemota : '';

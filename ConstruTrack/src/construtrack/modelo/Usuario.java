@@ -20,23 +20,42 @@ public abstract class Usuario {
     private final Historial historial = new Historial();
     private Empresa empresa;
 
-    protected Usuario(String cedula, String nombre, String clave, Horario horario) {
+    protected Usuario(String cedula, String nombre, Horario horario) {
         setCedula(cedula);
         setNombre(nombre);
-        setClave(clave);
         setHorario(horario);
     }
 
+    protected Usuario(String cedula, String nombre, String clave, Horario horario) {
+        this(cedula, nombre, horario);
+        setClave(clave);
+    }
+
     public static Usuario crear(String rol, String cedula, String nombre, String clave, Horario horario) {
-        if (rol == null) {
-            throw new DatoInvalidoException("Selecciona un rol.");
-        }
-        return switch (rol) {
+        return switch (rolValido(rol)) {
             case Empleado.ROL -> new Empleado(cedula, nombre, clave, horario);
             case Supervisor.ROL -> new Supervisor(cedula, nombre, clave, horario);
             case Jefe.ROL -> new Jefe(cedula, nombre, clave, horario);
             default -> throw new DatoInvalidoException("Rol no válido: " + rol);
         };
+    }
+
+    public static Usuario restaurar(String rol, String cedula, String nombre, String claveResumen, Horario horario) {
+        Usuario usuario = switch (rolValido(rol)) {
+            case Empleado.ROL -> new Empleado(cedula, nombre, horario);
+            case Supervisor.ROL -> new Supervisor(cedula, nombre, horario);
+            case Jefe.ROL -> new Jefe(cedula, nombre, horario);
+            default -> throw new DatoInvalidoException("Rol no válido: " + rol);
+        };
+        usuario.restaurarClaveResumen(claveResumen);
+        return usuario;
+    }
+
+    private static String rolValido(String rol) {
+        if (rol == null) {
+            throw new DatoInvalidoException("Selecciona un rol.");
+        }
+        return rol;
     }
 
     public abstract String getRol();
@@ -197,7 +216,11 @@ public abstract class Usuario {
     }
 
     public boolean verificarClave(String clave) {
-        return clave != null && claveResumen.equals(CifradoClave.resumir(cedula, clave));
+        return CifradoClave.verificar(claveResumen, cedula, clave);
+    }
+
+    public boolean tieneCifradoAntiguo() {
+        return CifradoClave.esAntiguo(claveResumen);
     }
 
     public String getCedula() {
@@ -242,15 +265,26 @@ public abstract class Usuario {
 
     public final void setClave(String clave) {
         validarClave(clave);
-        this.claveResumen = CifradoClave.resumir(cedula, clave);
+        renovarCifrado(clave);
+    }
+
+    public final void renovarCifrado(String clave) {
+        this.claveResumen = CifradoClave.resumir(clave);
         if (cuenta != null) {
             cuenta.sincronizarClave(claveResumen);
         }
     }
 
     public static void validarClave(String clave) {
-        if (clave == null || !clave.matches("[^|\\s]{4,30}")) {
-            throw new DatoInvalidoException("La clave debe tener entre 4 y 30 caracteres, sin espacios.");
+        if (clave == null || !clave.matches("[^|\\s]{4,64}")) {
+            throw new DatoInvalidoException("La clave debe tener entre 4 y 64 caracteres, sin espacios.");
+        }
+    }
+
+    public static void validarClaveNueva(String clave) {
+        if (clave == null || !clave.matches("[^|\\s]{8,64}") || !clave.matches(".*\\p{L}.*") || !clave.matches(".*[0-9].*")) {
+            throw new DatoInvalidoException("La clave debe tener entre 8 y 64 caracteres, con al menos una letra y un número, "
+                    + "sin espacios.");
         }
     }
 
@@ -259,7 +293,7 @@ public abstract class Usuario {
     }
 
     public void restaurarClaveResumen(String resumen) {
-        if (resumen == null || !resumen.matches("[0-9a-f]{64}")) {
+        if (!CifradoClave.esValido(resumen)) {
             throw new DatoInvalidoException("Resumen de clave inválido.");
         }
         this.claveResumen = resumen;

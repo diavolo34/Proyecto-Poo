@@ -2,6 +2,7 @@ package construtrack.controlador.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import construtrack.modelo.Usuario;
+import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.util.Json;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Peticion {
+    public static final int TAMANO_MAXIMO = 64 * 1024;
+
     private final HttpExchange exchange;
     private final GestorSesiones sesiones;
     private final String prefijo;
@@ -61,7 +64,11 @@ public class Peticion {
     public Map<String, String> cuerpo() {
         if (cuerpo == null) {
             try (InputStream entrada = exchange.getRequestBody()) {
-                String texto = new String(entrada.readAllBytes(), StandardCharsets.UTF_8);
+                byte[] bytes = entrada.readNBytes(TAMANO_MAXIMO + 1);
+                if (bytes.length > TAMANO_MAXIMO) {
+                    throw new DatoInvalidoException("La petición es demasiado grande.");
+                }
+                String texto = new String(bytes, StandardCharsets.UTF_8);
                 cuerpo = texto.isBlank() ? new HashMap<>() : Json.leerObjeto(texto);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

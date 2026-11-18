@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 public class Invitacion {
     private static final String DIAS_POR_DEFECTO = "LU,MA,MI,JU,VI";
-    private static final String CLAVE_TEMPORAL = "temporal";
 
     private final CodigoInvitacion codigo;
     private final String rol;
@@ -64,7 +63,8 @@ public class Invitacion {
                     + " registrada en ConstruTrack. Habla con tu jefe para vincularla a tu cuenta.");
         }
         Horario horario = Horario.desdeTexto(DIAS_POR_DEFECTO, "07:00", "16:00");
-        Usuario nuevo = Usuario.crear(rol, cuenta.getDocumento(), cuenta.getNombreCompleto(), CLAVE_TEMPORAL, horario);
+        Usuario nuevo = Usuario.restaurar(rol, cuenta.getDocumento(), cuenta.getNombreCompleto(), cuenta.getClaveResumen(),
+                horario);
         nuevo.vincularCuenta(cuenta);
         nuevo.setFechaIngreso(ahora.toLocalDate());
         if (nuevo instanceof Empleado empleado && supervisor != null) {

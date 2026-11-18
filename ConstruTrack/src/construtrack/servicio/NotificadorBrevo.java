@@ -1,6 +1,5 @@
 package construtrack.servicio;
 
-import construtrack.modelo.Invitacion;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.util.Json;
 import java.io.IOException;
@@ -12,35 +11,29 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.logging.Logger;
 
-public class NotificadorBrevo implements Notificador {
+public class NotificadorBrevo extends NotificadorCorreo {
     public static final String API = "https://api.brevo.com/v3/smtp/email";
     private static final Logger LOG = Logger.getLogger(NotificadorBrevo.class.getName());
 
     private final String api;
     private final String clave;
     private final String remitente;
-    private final MensajeInvitacion mensaje;
     private final HttpClient cliente = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
     public NotificadorBrevo(String api, String clave, String remitente, String urlSitio) {
+        super(urlSitio);
         this.api = api;
         this.clave = clave;
         this.remitente = remitente;
-        this.mensaje = new MensajeInvitacion(urlSitio);
     }
 
     @Override
-    public boolean envioReal() {
-        return true;
-    }
-
-    @Override
-    public void enviarInvitacion(Invitacion invitacion, String correoDestino) {
+    protected void enviar(Correo correo) {
         String cuerpo = "{\"sender\":{\"name\":\"ConstruTrack\",\"email\":" + Json.texto(remitente) + "},"
-                + "\"to\":[{\"email\":" + Json.texto(correoDestino) + "}],"
-                + "\"subject\":" + Json.texto(mensaje.asunto(invitacion)) + ","
-                + "\"htmlContent\":" + Json.texto(mensaje.html(invitacion, correoDestino)) + ","
-                + "\"textContent\":" + Json.texto(mensaje.texto(invitacion, correoDestino)) + "}";
+                + "\"to\":[{\"email\":" + Json.texto(correo.para()) + "}],"
+                + "\"subject\":" + Json.texto(correo.asunto()) + ","
+                + "\"htmlContent\":" + Json.texto(correo.html()) + ","
+                + "\"textContent\":" + Json.texto(correo.texto()) + "}";
         HttpRequest peticion = HttpRequest.newBuilder(URI.create(api))
                 .timeout(Duration.ofSeconds(15))
                 .header("api-key", clave)
@@ -55,7 +48,6 @@ public class NotificadorBrevo implements Notificador {
                 throw new OperacionInvalidaException("El servicio de correo rechazó el envío ("
                         + respuesta.statusCode() + "). Revisa la configuración de Brevo.");
             }
-            LOG.info(() -> "Invitación " + invitacion.getCodigo() + " enviada a " + correoDestino);
         } catch (IOException e) {
             throw new OperacionInvalidaException("No se pudo conectar con el servicio de correo. Intenta de nuevo.");
         } catch (InterruptedException e) {

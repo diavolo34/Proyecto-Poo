@@ -26,6 +26,7 @@ public class ServicioRegistro extends ServicioBase {
         if (clave == null || !clave.equals(datos.get("confirmacion"))) {
             throw new DatoInvalidoException("Las dos claves no coinciden. Escríbelas de nuevo.");
         }
+        Usuario.validarClaveNueva(clave);
         Usuario.validarCedulaNueva(datos.get("documento"));
         boolean esJefe = "jefe".equals(datos.get("tipo"));
         return modificar(() -> {
