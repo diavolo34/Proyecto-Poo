@@ -3,6 +3,7 @@ async function vistaTalento() {
   const datos = await Api.talento();
   const filtro = (estado.filtroTalento || '').toLowerCase();
   const activos = datos.activos.filter((u) => !filtro || [u.nombre, u.cedula, u.puesto, u.area].join(' ').toLowerCase().includes(filtro));
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Talento humano') + `
     <p class="suave" style="margin-top:-8px">Despidos y renuncias, con su voucher de pago, la carta de renuncia y la devolución de equipos.
       Quien egresa queda inactivo: no puede entrar ni aparece en el personal, pero su historial se conserva.</p>
@@ -134,6 +135,7 @@ async function vistaCatalogo() {
         <label class="solo-lector" for="nuevo-${tipo}">Nuevo</label>
         <input id="nuevo-${tipo}" name="nombre" placeholder="Ej.: ${ejemplo}" maxlength="60">
         <button class="btn btn-primario" type="submit">Agregar</button></form></section>`;
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Puestos y áreas') + `
     <p class="suave" style="margin-top:-8px">El rol (empleado, supervisor o gerente) define los permisos en el sistema; el puesto y el área
       describen el cargo y el departamento de cada persona. Se eligen al registrar o invitar a alguien.</p>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ConstruTrack · Gestión de personal en obra</title>
-  <meta name="description" content="Asistencia con tolerancia, incidencias en tablero, alertas automáticas, horas extra y obras: el personal de construcción en un solo lugar.">
+  <title>ConstruTrack · Gestión de personal y operaciones en obra</title>
+  <meta name="description" content="Plataforma de gestión de personal en obra: asistencia verificable con geolocalización y QR, permisos y reposos con aprobación, reportes en obra, inventario de herramientas y talento humano.">
   <meta name="theme-color" content="#0c66e4">
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/estilos.css">
@@ -39,10 +39,13 @@
     <section class="lp-hero" aria-labelledby="lp-titulo">
       <div class="lp-contenedor lp-hero-rejilla">
         <div class="lp-hero-texto">
-          <p class="lp-etiqueta">Para empleados, supervisores y gerentes de obra</p>
-          <h1 id="lp-titulo">Controla tu obra, <span class="lp-resalte">no el papeleo</span></h1>
-          <p class="lp-bajada">Asistencia, incidencias, alertas y horas extra de tu personal en un solo lugar.
-            Cada quien marca desde su celular y el supervisor lo ve al instante.</p>
+          <p class="lp-etiqueta">Gestión de personal y operaciones en obra</p>
+          <h1 id="lp-titulo"><span class="solo-lector">Gestión de obra con asistencia verificable, aprobaciones trazables e inventario bajo control</span>
+            <span aria-hidden="true">Gestión de obra con <span class="lp-rotador" id="lp-rotador"
+              data-palabras="asistencia verificable|aprobaciones trazables|inventario bajo control|alertas a tiempo"><span class="lp-resalte lp-rotador-palabra">asistencia verificable</span></span></span></h1>
+          <p class="lp-bajada">Centraliza la asistencia con geolocalización y código QR, los permisos y reposos médicos,
+            los reportes en obra, el inventario de herramientas y los egresos del personal. Cada registro guarda quién lo hizo,
+            cuándo y quién lo autorizó.</p>
           <form class="lp-hero-formulario" id="form-empezar" novalidate>
             <label for="correo-empezar">Tu correo electrónico</label>
             <div class="lp-hero-campo">
@@ -73,24 +76,43 @@
       </div>
     </section>
 
+    <section class="lp-valores" aria-label="Ventajas principales">
+      <div class="lp-contenedor lp-valores-rejilla">
+        <article class="lp-valor lp-aparece"><span class="lp-valor-icono" aria-hidden="true">⌖</span>
+          <h2>Asistencia verificable</h2>
+          <p>Ubicación en cada marca y código QR que rota cada 30 segundos. Lo que no cuadra pasa a confirmación del supervisor.</p></article>
+        <article class="lp-valor lp-aparece lp-retraso-1"><span class="lp-valor-icono" aria-hidden="true">✓</span>
+          <h2>Aprobaciones trazables</h2>
+          <p>Permisos, reposos y reportes con registro de quién los creó, quién los autorizó y con qué nota.</p></article>
+        <article class="lp-valor lp-aparece lp-retraso-2"><span class="lp-valor-icono" aria-hidden="true">⚒</span>
+          <h2>Activos bajo custodia</h2>
+          <p>Herramientas y equipos asignados por persona, con fecha de devolución y estado al recibirlos.</p></article>
+        <article class="lp-valor lp-aparece lp-retraso-3"><span class="lp-valor-icono" aria-hidden="true">🔒</span>
+          <h2>Seguridad por diseño</h2>
+          <p>Claves cifradas con PBKDF2, verificación en dos pasos para gerentes y acceso según el rol de cada persona.</p></article>
+      </div>
+    </section>
+
     <section class="lp-seccion" id="funciones" aria-labelledby="t-funciones">
       <div class="lp-contenedor">
         <header class="lp-encabezado lp-aparece">
-          <p class="lp-antetitulo">Funciones</p>
-          <h2 id="t-funciones">Todo lo que pasa en la obra, ordenado</h2>
-          <p class="lp-intro">Menos planillas, llamadas y mensajes perdidos. Cada persona ve lo que le toca según su rol.</p>
+          <p class="lp-antetitulo">Plataforma</p>
+          <h2 id="t-funciones">Un solo sistema para el ciclo completo de la obra</h2>
+          <p class="lp-intro">Desde la primera marca de entrada hasta la conclusión de la obra: procesos estandarizados,
+            permisos por rol y registros listos para auditoría.</p>
         </header>
 
         <article class="lp-fila lp-aparece">
           <div class="lp-fila-texto">
             <p class="lp-antetitulo">Asistencia</p>
-            <h3>Marca tu entrada en un toque</h3>
-            <p>Cada persona marca su entrada y su salida desde el celular o el computador. ConstruTrack lo compara con
-              su horario y da <strong>10 minutos de tolerancia</strong>: pasado ese margen, la llegada cuenta como retardo.</p>
+            <h3>Marcas con evidencia, no con buena fe</h3>
+            <p>Cada entrada registra la <strong>ubicación del teléfono</strong> y, si la obra lo exige, el código QR rotativo
+              que muestra el supervisor. Las marcas fuera del radio o sin ubicación quedan <strong>por confirmar</strong>, y el
+              supervisor ve en el mapa dónde se hizo cada una.</p>
             <ul class="lp-lista">
-              <li>Horario y días laborables de cada persona</li>
-              <li>Historial con las horas trabajadas</li>
-              <li>También desde Arqui: escribe «marcar entrada»</li>
+              <li>Geocerca por obra con radio configurable</li>
+              <li>Tolerancia de 10 minutos y horas extra con aprobación</li>
+              <li>Un reposo aprobado bloquea la marca mientras dure la incapacidad</li>
             </ul>
           </div>
           <div class="lp-fila-visual lp-fondo-azul">
@@ -101,14 +123,15 @@
 
         <article class="lp-fila lp-fila-invertida lp-aparece">
           <div class="lp-fila-texto">
-            <p class="lp-antetitulo">Incidencias</p>
-            <h3>Incidencias con seguimiento, no perdidas en el chat</h3>
-            <p>Reposos médicos, permisos, retardos, accidentes y ausencias se reportan con fechas y descripción.
-              El supervisor las mueve en un <strong>tablero</strong>: pendiente, en revisión, aprobada o rechazada.</p>
+            <p class="lp-antetitulo">Permisos, reposos y reportes en obra</p>
+            <h3>Un flujo de aprobación claro para cada novedad</h3>
+            <p>El supervisor registra el permiso laboral, el reposo médico o el reporte en obra; el gerente lo
+              <strong>aprueba o rechaza con una nota obligatoria</strong> y su nombre queda como autorizador. El reposo exige
+              médico, matrícula, centro asistencial, tipo de consulta y el documento escaneado.</p>
             <ul class="lp-lista">
-              <li>La gravedad se ve de un vistazo</li>
-              <li>Un reposo aprobado no cuenta como falta</li>
-              <li>Búsqueda por persona o por tipo</li>
+              <li>Los días de reposo aprobado se marcan como «Incapacidad»</li>
+              <li>Alerta cuando alguien falta dos días seguidos sin justificar</li>
+              <li>Tablero por estado y documentos guardados en Google Drive</li>
             </ul>
           </div>
           <div class="lp-fila-visual lp-fondo-ambar lp-visual-producto">
@@ -116,7 +139,7 @@
               <div class="lp-navegador-barra" aria-hidden="true"><span></span><span></span><span></span>
                 <div class="lp-navegador-url">ConstruTrack · Tablero</div></div>
               <img src="img/producto-tablero.png" width="1280" height="720" loading="lazy"
-                alt="Tablero de incidencias de ConstruTrack con columnas Pendiente, En revisión, Aprobada y Rechazada; hay un retardo y un permiso pendientes y un reposo médico aprobado.">
+              alt="Tablero de ConstruTrack con columnas Pendientes, Aprobados y Rechazados: reportes en obra y un permiso laboral pendientes, y un reposo médico aprobado por el gerente.">
             </figure>
             <img class="lp-pegatina lp-pegatina-izquierda" src="img/ilustracion-kanban.svg" width="280" height="210" loading="lazy" alt="">
           </div>
@@ -124,15 +147,14 @@
 
         <article class="lp-fila lp-aparece">
           <div class="lp-fila-texto">
-            <p class="lp-antetitulo">Alertas y horas</p>
-            <h3>Alertas automáticas y horas que cuadran</h3>
-            <p>El supervisor recibe una alerta cuando alguien acumula tres retardos, falta sin justificar o tiene una
-              incidencia sin resolver por más de 48 horas, <strong>de la más antigua a la más reciente</strong>.
-              La tabla de puntualidad muestra las horas trabajadas y las horas extra, que solo cuentan cuando el
-              supervisor o el gerente las aprueba.</p>
+            <p class="lp-antetitulo">Alertas y reportes</p>
+            <h3>Las excepciones llegan solas, antes de que escalen</h3>
+            <p>Retardos reiterados, faltas consecutivas, aprobaciones vencidas, <strong>retrasos de obra</strong> y herramientas
+              sin devolver aparecen como alertas, de la más antigua a la más reciente. La tabla de puntualidad consolida horas
+              trabajadas, horas extra aprobadas y días de incapacidad.</p>
             <ul class="lp-lista">
-              <li>Últimos 7 días, esta semana o este mes</li>
-              <li>Reportes en Excel (CSV) o en texto</li>
+              <li>Últimos 7 días, esta semana, este mes o todo el historial</li>
+              <li>Reportes de asistencia, puntualidad, permisos y reportes en obra en Excel (CSV)</li>
             </ul>
           </div>
           <div class="lp-fila-visual lp-fondo-rosa">
@@ -143,15 +165,15 @@
 
         <article class="lp-fila lp-fila-invertida lp-aparece">
           <div class="lp-fila-texto">
-            <p class="lp-antetitulo">Obras e invitaciones</p>
-            <h3>Tus obras y tu equipo, cada uno en su lugar</h3>
-            <p>Registra las obras con su ubicación y su plazo, y asigna a cada persona; las gestionan el supervisor y el gerente.
-              Para sumar a alguien, el gerente crea una <strong>invitación</strong> con su rol, su supervisor y su obra, y se la
-              envía por correo con un código de un solo uso.</p>
+            <p class="lp-antetitulo">Obras, inventario y talento humano</p>
+            <h3>Del inicio de obra al egreso del personal, sin cabos sueltos</h3>
+            <p>Cada obra avanza de <strong>Planificada</strong> a <strong>En curso</strong> y a <strong>Concluida</strong>, con
+              retrasos reportados y revisados. El gerente administra el inventario, entrega herramientas a cada persona y registra
+              despidos o renuncias con voucher de pago, carta de renuncia y devolución de equipos.</p>
             <ul class="lp-lista">
-              <li>Avance del plazo de cada obra</li>
-              <li>Códigos con vencimiento (CT-XXXX-XXXX)</li>
-              <li>También se comparten por WhatsApp</li>
+              <li>Catálogo de puestos y áreas de la empresa</li>
+              <li>Invitaciones con código de un solo uso que caducan solas</li>
+              <li>Quien egresa queda inactivo y su historial se conserva</li>
             </ul>
           </div>
           <div class="lp-fila-visual lp-fondo-azul lp-visual-producto">
@@ -159,7 +181,7 @@
               <div class="lp-navegador-barra" aria-hidden="true"><span></span><span></span><span></span>
                 <div class="lp-navegador-url">ConstruTrack · Obras</div></div>
               <img src="img/producto-obras.png" width="1280" height="640" loading="lazy"
-                alt="Pantalla de Obras de ConstruTrack: dos obras con su ubicación, su avance del plazo y las personas asignadas a cada una.">
+              alt="Pantalla de Obras de ConstruTrack: obras en curso y planificadas con su avance, los retrasos reportados y las personas asignadas.">
             </figure>
             <img class="lp-pegatina lp-pegatina-derecha" src="img/ilustracion-invitacion.svg" width="300" height="250" loading="lazy"
               alt="Ilustración: sobre con un código de invitación de un solo uso.">
@@ -192,38 +214,38 @@
       <div class="lp-contenedor">
         <header class="lp-encabezado lp-aparece">
           <p class="lp-antetitulo">Roles</p>
-          <h2 id="t-roles">Hecho para cada persona de la obra</h2>
-          <p class="lp-intro">Tres roles, tres vistas. Nadie ve más de lo que necesita.</p>
+          <h2 id="t-roles">Permisos por rol, información por necesidad</h2>
+          <p class="lp-intro">Tres niveles de acceso, más el puesto y el área de cada persona. Nadie ve más de lo que le corresponde.</p>
         </header>
         <div class="lp-roles">
           <article class="lp-rol lp-rol-empleado lp-aparece">
             <img src="img/rol-empleado.svg" width="160" height="160" loading="lazy" alt="">
             <h3>Empleado</h3>
-            <p class="lp-rol-lema">Marca y reporta sin papeles.</p>
+            <p class="lp-rol-lema">Marca en segundos y consulta su historial.</p>
             <ul class="lp-lista">
-              <li>Marca su entrada y su salida</li>
-              <li>Reporta reposos, permisos y retardos</li>
-              <li>Consulta su horario y su historial</li>
+              <li>Marca entrada y salida con ubicación o QR</li>
+              <li>Consulta sus permisos, reposos y días sin marcar</li>
+              <li>Ve las herramientas que tiene a su cargo</li>
             </ul>
           </article>
           <article class="lp-rol lp-rol-supervisor lp-aparece">
             <img src="img/rol-supervisor.svg" width="160" height="160" loading="lazy" alt="">
             <h3>Supervisor</h3>
-            <p class="lp-rol-lema">Su equipo, al día y sin sorpresas.</p>
+            <p class="lp-rol-lema">Registra, confirma y reporta desde la obra.</p>
             <ul class="lp-lista">
-              <li>Revisa las incidencias en el tablero</li>
-              <li>Recibe alertas y aprueba horas extra</li>
-              <li>Gestiona obras y descarga reportes</li>
+              <li>Registra permisos, reposos y reportes en obra</li>
+              <li>Confirma marcas dudosas viendo el mapa</li>
+              <li>Inicia y concluye obras, y reporta retrasos</li>
             </ul>
           </article>
           <article class="lp-rol lp-rol-gerente lp-aparece">
             <img src="img/rol-gerente.svg" width="160" height="160" loading="lazy" alt="">
             <h3>Gerente</h3>
-            <p class="lp-rol-lema">Toda la empresa en una sola vista.</p>
+            <p class="lp-rol-lema">Aprueba, decide y audita toda la empresa.</p>
             <ul class="lp-lista">
-              <li>Todo lo del supervisor, para toda la empresa</li>
-              <li>Gestiona al personal</li>
-              <li>Crea invitaciones y las envía por correo</li>
+              <li>Aprueba o rechaza con nota y recibe las alertas de retraso</li>
+              <li>Administra inventario, puestos, áreas e invitaciones</li>
+              <li>Registra egresos con sus documentos en Talento humano</li>
             </ul>
           </article>
         </div>
@@ -245,7 +267,7 @@
             <ol class="lp-pasos" role="list">
               <li>Crea tu cuenta con tu correo.</li>
               <li>Crea tu empresa: quedas como su gerente.</li>
-              <li>Agrega tus obras e invita a tu equipo con un código por correo.</li>
+              <li>Agrega tus obras, define puestos y áreas e invita a tu personal con un código.</li>
             </ol>
             <a class="btn btn-primario btn-grande" href="app.html#registro?tipo=gerente">Crear mi empresa</a>
           </article>
@@ -267,8 +289,8 @@
 
     <section class="lp-cta" id="ayuda" aria-labelledby="t-cta">
       <div class="lp-contenedor lp-cta-caja lp-aparece">
-        <h2 id="t-cta">¿Listo para ordenar tu obra?</h2>
-        <p>Crea tu empresa o únete a la tuya en minutos. ¿Tienes dudas? Pregúntale a Arqui, el asistente, abajo a la izquierda.</p>
+        <h2 id="t-cta">Estandariza la operación de tu próxima obra</h2>
+        <p>Configura tu empresa en minutos y suma a tu personal con un código de invitación. ¿Dudas? Pregúntale a Arqui, el asistente.</p>
         <div class="lp-cta-acciones">
           <a class="btn lp-btn-ambar btn-grande" href="app.html#registro?tipo=gerente">Crear mi empresa</a>
           <a class="btn lp-btn-claro btn-grande" href="app.html#registro?tipo=unirme">Unirme con un código</a>
@@ -282,7 +304,7 @@
     <div class="lp-contenedor lp-pie-rejilla">
       <div class="lp-pie-marca">
         <a class="marca" href="index.html"><img src="img/logo.svg" width="30" height="30" alt="">ConstruTrack</a>
-        <p>Asistencia, incidencias, horas y obras del personal de construcción, en un solo lugar.</p>
+        <p>Asistencia verificable, aprobaciones, inventario y talento humano del personal de construcción, en un solo lugar.</p>
       </div>
       <nav aria-labelledby="pie-producto">
         <h2 id="pie-producto">Producto</h2>

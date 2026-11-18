@@ -12,6 +12,7 @@ async function vistaInventario() {
   const unidadesFuera = entregas.reduce((total, e) => total + e.cantidad, 0);
   const vencidas = entregas.filter((e) => e.vencida).length;
   const enTaller = articulos.filter((a) => a.estado === 'EN_MANTENIMIENTO').length;
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Inventario', '<button class="btn btn-primario" id="nuevo-articulo">+ Agregar al inventario</button>') + `
     <p class="suave" style="margin-top:-8px">Carga tus herramientas, equipos y materiales, entrégalos a cada supervisor o empleado y registra
       la devolución con su estado. Cada movimiento queda en el historial del artículo.</p>

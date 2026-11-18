@@ -71,6 +71,7 @@ async function vistaNovedades(categoria) {
       <div class="mensaje mensaje-error oculto" role="alert"></div>
       <button class="btn btn-primario btn-bloque" type="submit">${esc(textos.boton)}</button>
     </form>` : '';
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', textos.titulo) + `
     <p class="suave" style="margin-top:-8px">${esc(textos.ayuda)}</p>
     <div class="${formulario ? 'rejilla-formulario' : ''}">
@@ -177,6 +178,7 @@ async function vistaTablero() {
         <button class="btn btn-exito btn-chico" data-revisar="${n.id}" data-estado="APROBADA">Aprobar</button>
         <button class="btn btn-peligro btn-chico" data-revisar="${n.id}" data-estado="RECHAZADA">Rechazar</button></div>` : ''}
     </article>`;
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Tablero',
     `<label class="solo-lector" for="categoria-tablero">Mostrar</label>
      <select id="categoria-tablero" style="width:auto"><option value="">Todo</option>

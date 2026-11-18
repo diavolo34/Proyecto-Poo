@@ -31,6 +31,7 @@ const VISTAS = [
 async function vistaSeguridad() {
   const zona = contenido();
   const info = await Api.dosPasos();
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Seguridad') + `
     <section class="tarjeta tarjeta-angosta" aria-labelledby="t-dos-pasos">
       <h2 id="t-dos-pasos">Verificación en dos pasos ${info.activa ? chip('Activa', 'verde') : chip('Desactivada', 'gris')}</h2>
@@ -122,6 +123,7 @@ async function vistaAsistencia() {
     : '—');
   const herramientas = u.herramientas || [];
   const ausencias = u.ausencias || [];
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Asistencia') + `
     ${u.admiteDosPasos && !u.dosPasos ? `<div class="mensaje mensaje-info">Protege tu empresa:
       <a href="#seguridad">activa la verificación en dos pasos</a>.</div>` : ''}
@@ -198,6 +200,7 @@ async function vistaCodigoObra() {
   const zona = contenido();
   const codigoObra = ruta().parametros.get('obra');
   const primero = await Api.codigoObra(codigoObra);
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('Obras /', 'Código de asistencia',
     '<button class="btn btn-secundario" id="pantalla-completa" type="button">Pantalla completa</button>') + `
     <section class="tarjeta pantalla-codigo" id="pantalla-codigo" aria-labelledby="codigo-obra-nombre">
@@ -256,6 +259,7 @@ async function vistaSupervision() {
   est.personas = est.personas.map((p, i) => ({ ...p, orden: i }))
     .sort((a, b) => (nivel[a.rol] ?? 2) - (nivel[b.rol] ?? 2) || a.orden - b.orden);
   const lider = (p) => p.rol !== 'Empleado';
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Supervisión', `
     <label for="periodo" class="pequeno">Período</label>
     <select id="periodo" style="width:auto">${[['ultimos7', 'Últimos 7 días'], ['semana', 'Esta semana'], ['mes', 'Este mes']]
@@ -373,6 +377,7 @@ async function vistaPersonal() {
   const areas = [...new Set(lista.map((u) => u.area).filter(Boolean))].sort();
   const visibles = lista.filter((u) => (!area || u.area === area)
     && (!filtro || [u.nombre, u.cedula, u.rol, u.puesto, u.area, u.obra, u.correo].join(' ').toLowerCase().includes(filtro)));
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Personal', `
     <label class="solo-lector" for="area-personal">Área</label>
     <select id="area-personal" style="width:auto"><option value="">Todas las áreas</option>
@@ -536,11 +541,12 @@ async function vistaObras() {
   const sinRevisar = obras.flatMap((o) => o.retrasos.filter((r) => !r.revisado).map((r) => ({ ...r, obra: o })));
   const plazo = (o) => (o.estado === 'PLANIFICADA' ? `Inicio previsto: ${fecha(o.inicio)}`
     : o.estado === 'CONCLUIDA' ? `Concluida el ${fecha(o.conclusion)}` : `${o.avance}% del plazo`);
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Obras', '<button class="btn btn-primario" id="nueva-obra">+ Nueva obra</button>') + `
     <p class="suave" style="margin-top:-8px">Cada obra pasa de <strong>Planificada</strong> a <strong>En curso</strong> con el «Inicio de obra»
       y termina con la «Conclusión de la obra». Si la fecha estimada se mueve, el supervisor reporta el retraso y el gerente recibe la alerta.</p>
     ${esGerente() && sinRevisar.length ? `<div class="mensaje mensaje-error" role="alert"><strong>${sinRevisar.length} retraso(s) sin revisar:</strong>
-      ${sinRevisar.map((r) => `${esc(r.obra.nombre)} (${r.dias} días, reportado por ${esc(r.reportadoPor)})`).join(' · ')}</div>` : ''}
+      ${sinRevisar.map((r) => `${esc(r.obra.nombre)} (+${r.dias} día(s), reportado por ${esc(r.reportadoPor)})`).join(' · ')}</div>` : ''}
     <div class="rejilla-obras">${obras.map((o) => `<section class="tarjeta tarjeta-obra estado-${o.estado.toLowerCase()}" aria-labelledby="obra-${esc(o.codigo)}">
       <div class="titulo-vista" style="margin:0 0 4px"><h2 id="obra-${esc(o.codigo)}" style="margin:0">${esc(o.nombre)}</h2>
         <span>${chipEstado(o.estadoNombre)} ${chip(o.codigo, 'gris')}</span></div>
@@ -552,7 +558,7 @@ async function vistaObras() {
       <p class="pequeno suave" style="margin:4px 0 12px">${plazo(o)}</p>
       ${o.retrasos.length ? `<details class="retrasos" ${o.retrasos.some((r) => !r.revisado) ? 'open' : ''}><summary>Retrasos (${o.retrasos.length})</summary>
         <ul>${o.retrasos.map((r) => `<li class="${r.revisado ? '' : 'retraso-nuevo'}"><strong>${fecha(r.finAnterior)} → ${fecha(r.finNuevo)}</strong>
-          (+${r.dias} días) · ${esc(r.motivo)}<br><span class="pequeno suave">Reportó ${esc(r.reportadoPor)} el ${fecha(r.fecha)}
+          (+${r.dias} día(s)) · ${esc(r.motivo)}<br><span class="pequeno suave">Reportó ${esc(r.reportadoPor)} el ${fecha(r.fecha)}
           ${r.revisado ? ' · revisado por ' + esc(r.revisadoPor) : ''}</span>
           ${!r.revisado && esGerente() ? `<button class="btn btn-secundario btn-chico" data-revisar-retraso="${r.id}" data-obra="${esc(o.codigo)}">Marcar como revisado</button>` : ''}</li>`).join('')}</ul></details>` : ''}
       <h3 class="pequeno" style="margin:0 0 6px">Personas (${o.personas.length})</h3>
@@ -634,7 +640,7 @@ function formularioRetraso(obra) {
     try {
       const retraso = await Api.reportarRetraso(obra.codigo, $('#r-motivo').value, $('#r-fecha').value);
       Modal.cerrar();
-      aviso(`Retraso reportado: la obra se movió ${retraso.dias} días. El gerente ya tiene la alerta.`);
+      aviso(`Retraso reportado: la conclusión se movió ${retraso.dias} día(s). El gerente ya tiene la alerta.`);
       await vistaObras();
     } catch (e) {
       mostrarErrorFormulario(formulario, e.message);
@@ -696,6 +702,7 @@ async function vistaInvitaciones() {
   const zona = contenido();
   const [opciones, lista, config] = await Promise.all([Api.opcionesPersonal(), Api.invitaciones(), Api.configuracionInvitaciones()]);
   const catalogo = await Api.catalogo();
+  if (!zona.isConnected) return;
   zona.innerHTML = encabezado('', 'Invitaciones') + `
     <p class="suave" style="margin-top:-8px">Cada código sirve una sola vez. Compártelo por WhatsApp o correo con la persona que quieres sumar.
       Las invitaciones vencidas o canceladas se borran solas; las usadas se muestran 7 días.</p>

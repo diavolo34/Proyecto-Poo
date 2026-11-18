@@ -87,7 +87,8 @@ input:hover, select:hover, textarea:hover { border-color: var(--texto-suave); }
 input:focus, select:focus, textarea:focus { border-color: var(--azul); outline: none; box-shadow: 0 0 0 2px #cce0ff; }
 input[aria-invalid="true"] { border-color: var(--rojo); }
 textarea { resize: vertical; min-height: 80px; }
-.fila { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 14px; }
+.fila input, .fila select { min-width: 0; width: 100%; }
 .casillas { display: flex; flex-wrap: wrap; gap: 6px; }
 .casillas label { display: inline-flex; gap: 4px; align-items: center; font-weight: 500; background: var(--gris-suave); padding: 4px 10px; border-radius: 20px; cursor: pointer; }
 .casillas input { width: auto; }

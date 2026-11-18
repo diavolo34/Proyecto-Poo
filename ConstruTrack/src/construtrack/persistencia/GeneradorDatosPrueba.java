@@ -149,6 +149,9 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                 e.agregarAsistencia(registro(hoy, i == 4 ? "07:25" : "06:58", null, i == 4));
             }
         }
+        for (Usuario u : empresa.listarUsuarios()) {
+            u.setFechaIngreso(hoy.minusDays(14));
+        }
         agregarNovedadesDemo(empresa, fabrica, hoy);
         agregarInventarioDemo(empresa, hoy);
         agregarCuentasDemo(empresa, hoy);
@@ -215,7 +218,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                         "Mariela Rojas", "matricula", "MPPS 61207", "centro", "Hospital Domingo Luciani", "tipoConsulta",
                         "EMERGENCIA")));
         incapacidad.restaurarRevision(EstadoNovedad.APROBADA, carlos, "Aprobado: informe de emergencia recibido",
-                ahora.minusHours(20));
+                ahora.minusHours(1));
         sofia.getHistorial().agregarNovedad(incapacidad);
 
         maria.getHistorial().agregarNovedad(fabrica.crear(PermisoLaboral.CODIGO, new DatosNovedad(3, maria, ana,
