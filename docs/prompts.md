@@ -26,6 +26,15 @@ El trabajo se hizo en sesiones de conversación con Claude Code sobre el reposit
    de invitación; la cédula se usa dentro de la empresa.
 6. Quitar el modo demostración de la página publicada en Netlify.
 7. Continuar con el sprint de documentación (pruebas, UML, MVC, SOLID, UX/UI, Scrum) y dejar todo en GitHub.
+8. Seguridad: restablecer la clave por correo, lista de ciberseguridad, verificación del correo, verificación en dos pasos
+   y asistencia comprobable (geocerca, código QR rotativo y confirmación del supervisor).
+9. Refactorización pedida por el cliente: textos comerciales en la portada; ojo para mostrar la clave; «Asistencia»
+   en vez de «Mi asistencia» y ubicación en cada marca; «Permisos y reposos» (permiso laboral y reposo médico con médico,
+   matrícula, centro asistencial, tipo de consulta y documento) que registra el supervisor y aprueba el gerente con nota;
+   incapacidades; «Reportes en obra» en vez de incidencias, sin gravedad; inicio, conclusión y retrasos de obra;
+   «Personal» y «Área» en vez de «equipo»; catálogo de puestos y áreas; «Talento humano» con despidos, renuncias,
+   voucher de pago, carta de renuncia y devolución de equipos; inventario de herramientas; borrar las invitaciones
+   que ya no sirven; el rol «Jefe» pasa a llamarse «Gerente».
 ```
 
 ```text

@@ -2,7 +2,7 @@
 
 ConstruTrack separa el sistema en **Modelo, Vista y Controlador**. La prueba de que la separación es real es que
 **existen dos vistas distintas —escritorio (Swing) y web— que usan exactamente el mismo modelo y los mismos
-servicios**, en el mismo proceso: lo que el Jefe aprueba en la ventana Swing aparece al instante en el navegador.
+servicios**, en el mismo proceso: lo que el Gerente aprueba en la ventana Swing aparece al instante en el navegador.
 
 ![Paquetes MVC](../diagramas/img/paquetes_mvc.svg)
 
@@ -10,29 +10,29 @@ servicios**, en el mismo proceso: lo que el Jefe aprueba en la ventana Swing apa
 
 | Capa | Paquete | Responsabilidad | Ejemplos |
 |------|---------|-----------------|----------|
-| **Modelo · dominio** | `construtrack.modelo` (+ `incidencias`, `alertas`, `reportes`, `excepciones`) | Reglas del negocio. No conoce Swing, HTTP ni JSON. | `Plataforma`, `Empresa`, `Usuario`, `Historial`, `Incidencia`, `Invitacion`, `MonitorSupervision` |
-| **Modelo · casos de uso** | `construtrack.servicio` | Orquesta el dominio, aplica permisos, sincroniza y guarda. | `ServicioIncidencias`, `ServicioSupervision`, `ServicioRegistro` |
+| **Modelo · dominio** | `construtrack.modelo` (+ `novedades`, `talento`, `inventario`, `alertas`, `reportes`, `excepciones`) | Reglas del negocio. No conoce Swing, HTTP ni JSON. | `Plataforma`, `Empresa`, `Usuario`, `Historial`, `Novedad`, `Inventario`, `Egreso`, `MonitorSupervision` |
+| **Modelo · casos de uso** | `construtrack.servicio` | Orquesta el dominio, aplica permisos, sincroniza y guarda. | `ServicioNovedades`, `ServicioTalento`, `ServicioInventario`, `ServicioSupervision` |
 | **Modelo · persistencia** | `construtrack.persistencia` | Lee y escribe los datos detrás de interfaces. | `EscritorDatos`, `RepositorioTexto`, `Almacen` |
-| **Controlador** (escritorio) | `construtrack.controlador.swing` | Recibe la vista, registra sus eventos y llama a los servicios. | `ControladoraIncidencias`, `ControladoraTablero` |
-| **Controlador** (web) | `construtrack.controlador.web` | Traduce peticiones HTTP en llamadas a servicios y respuestas JSON. | `Enrutador`, `ControladorIncidencias`, `JsonMapper` |
+| **Controlador** (escritorio) | `construtrack.controlador.swing` | Recibe la vista, registra sus eventos y llama a los servicios. | `ControladoraNovedades`, `ControladoraTablero`, `ControladoraInventario` |
+| **Controlador** (web) | `construtrack.controlador.web` | Traduce peticiones HTTP en llamadas a servicios y respuestas JSON. | `Enrutador`, `ControladorNovedades`, `JsonMapper` |
 | **Vista** (escritorio) | `construtrack.vista.swing` | Construye y expone los componentes; sin lógica de negocio. | `VentanaLogin`, `PanelTablero`, `Tema` |
 | **Vista** (web) | `construtrack/vista/web` | HTML, CSS y JavaScript que consumen la API. | `index.html`, `app.html`, `js/vistas.js` |
 
-## Cómo fluye una acción (aprobar una incidencia)
+## Cómo fluye una acción (el gerente aprueba un reposo médico)
 
 ```
-[Vista]        PanelTablero: el supervisor pulsa «Aprobar»
+[Vista]        PanelTablero: el gerente pulsa «Aprobar» y escribe la nota
                    │ evento (ActionListener)
-[Controlador]  ControladoraTablero.accion(...) → incidencias.revisar(usuario, id, APROBADA, comentario)
+[Controlador]  ControladoraTablero.accion(...) → novedades.revisar(usuario, id, APROBADA, nota)
                    │
-[Modelo]       ServicioIncidencias.revisar → Supervisor.revisar → Incidencia.registrarRevision → EstadoIncidencia.puedePasarA
+[Modelo]       ServicioNovedades.revisar → Gerente.revisar → Novedad.revisar (exige la nota y deja la Firma del gerente)
                    │ guarda con EscritorDatos
 [Controlador]  alCambiar.run() → cada controladora vuelve a pedir datos al modelo
 [Vista]        las tarjetas se redibujan en su nueva columna
 ```
 
-En la web el recorrido es el mismo, cambiando solo los extremos: `js/vistas.js` → `PUT /api/incidencias/{id}/revision`
-→ `ControladorIncidencias` → **el mismo** `ServicioIncidencias.revisar`.
+En la web el recorrido es el mismo, cambiando solo los extremos: `js/novedades.js` → `PUT /api/novedades/{id}/revision`
+→ `ControladorNovedades` → **el mismo** `ServicioNovedades.revisar`.
 
 ## El patrón de la materia: Vista → Controladora
 
@@ -40,17 +40,18 @@ Siguiendo el ejemplo `VentanaCombo` / `Controladora` visto en clase, cada pantal
 que **recibe la vista por constructor** y maneja su comportamiento:
 
 ```java
-// controlador/swing/ControladoraIncidencias.java
-public ControladoraIncidencias(PanelIncidencias vista, ServicioIncidencias incidencias, Usuario usuario, Runnable alCambiar) {
+// controlador/swing/ControladoraNovedades.java
+public ControladoraNovedades(PanelNovedades vista, ServicioNovedades novedades, ServicioArchivos archivos, Usuario usuario,
+        Categoria categoria, Runnable alCambiar) {
     this.vista = vista;
     ...
     llenarCombos();                                                   // como llenar_combo() del ejemplo
     vista.getCboTipo().addActionListener(e -> mostrarCamposDelTipo()); // combo dependiente
-    vista.getBtnReportar().addActionListener(e -> reportar());
+    vista.getBtnRegistrar().addActionListener(e -> registrar());
 }
 ```
 
-La vista (`PanelIncidencias`) solo crea los componentes y ofrece *getters*; nunca valida fechas ni decide permisos.
+La vista (`PanelNovedades`) solo crea los componentes y ofrece *getters*; nunca valida fechas ni decide permisos.
 
 ## Por qué sirve
 
@@ -62,13 +63,13 @@ La vista (`PanelIncidencias`) solo crea los componentes y ofrece *getters*; nunc
 ## Varias empresas en el mismo modelo
 
 `Plataforma` es la raíz del modelo: agrupa las empresas y las cuentas personales (una cuenta existe antes de pertenecer
-a una empresa). Un jefe crea su empresa al registrarse (`Plataforma.fundarEmpresa`) y sus empleados se unen con un
+a una empresa). Un gerente crea su empresa al registrarse (`Plataforma.fundarEmpresa`) y sus empleados se unen con un
 código. El aislamiento se garantiza en dos capas:
 
-- **Servicios:** toda consulta o cambio se hace dentro de `empresaDe(actual)`: un jefe nunca recibe personas, obras,
-  incidencias o reportes de otra empresa; una cédula de otra empresa simplemente «no existe».
-- **Modelo:** los permisos del Jefe (`puedeRevisar`, `puedeAprobarHorasDe`, `puedeAsignarObraA`, `puedeReportarPara`)
+- **Servicios:** toda consulta o cambio se hace dentro de `empresaDe(actual)`: un gerente nunca recibe personas, obras,
+  permisos, reportes o inventario de otra empresa; una cédula de otra empresa simplemente «no existe».
+- **Modelo:** los permisos del Gerente (`puedeRevisar`, `puedeAprobarHorasDe`, `puedeAsignarObraA`, `puedeReportarPara`)
   exigen además `mismaEmpresaQue(otro)`, por si algún día otro controlador llamara al modelo directamente.
 
-Ver la secuencia [Un jefe se registra y crea su empresa](../diagramas/img/secuencia_crear_empresa.svg).
+Ver la secuencia [Un gerente se registra y crea su empresa](../diagramas/img/secuencia_crear_empresa.svg).
 

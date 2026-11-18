@@ -6,16 +6,20 @@ import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoHorasExtra;
 import construtrack.modelo.EstadoVerificacion;
 import construtrack.modelo.Estadisticas;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
+import construtrack.modelo.Obra;
 import construtrack.modelo.Periodo;
 import construtrack.modelo.RegistroAsistencia;
+import construtrack.modelo.RetrasoObra;
 import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.alertas.Alerta;
 import construtrack.modelo.alertas.MonitorSupervision;
+import construtrack.modelo.alertas.Nivel;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.NoEncontradoException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
+import construtrack.modelo.inventario.Asignacion;
 import construtrack.modelo.reportes.FormateadorReporte;
 import construtrack.modelo.reportes.Reporte;
 import construtrack.persistencia.EscritorDatos;
@@ -44,8 +48,31 @@ public class ServicioSupervision extends ServicioBase {
     public List<Alerta> alertas(Usuario actual, String nombrePeriodo) {
         LocalDate hoy = LocalDate.now(reloj);
         Periodo periodo = periodo(nombrePeriodo, hoy);
-        return leer(() -> monitor.evaluar(alcance(actual), periodo, hoy, LocalDateTime.now(reloj)));
+        LocalDateTime ahora = LocalDateTime.now(reloj);
+        return leer(() -> {
+            List<Alerta> alertas = new ArrayList<>();
+            if (actual instanceof Gerente) {
+                for (Obra obra : empresaDe(actual).listarObras()) {
+                    for (RetrasoObra r : obra.retrasosSinRevisar()) {
+                        alertas.add(Alerta.general(Nivel.ALTA, obra.getCodigo(), "Retraso en " + obra.getNombre(),
+                                r.getReportadoPor().nombre() + " movió la conclusión del " + r.getFinAnterior().format(DIA) + " al "
+                                        + r.getFinNuevo().format(DIA) + " (" + r.diasDeRetraso() + " días): " + r.getMotivo(),
+                                r.getFecha(), ahora));
+                    }
+                }
+                for (Asignacion a : empresaDe(actual).getInventario().vencidas(hoy)) {
+                    alertas.add(Alerta.general(Nivel.MEDIA, a.getPersona().cedula(), a.getPersona().nombre(),
+                            "Debía devolver «" + a.getArticulo().getNombre() + "» (" + a.getArticulo().getCodigo() + ") el "
+                                    + a.getDevolucionPrevista().format(DIA) + ".", a.getDevolucionPrevista().atStartOfDay(), ahora));
+                }
+            }
+            alertas.addAll(monitor.evaluar(alcance(actual), periodo, hoy, ahora));
+            alertas.sort(Comparator.comparing(Alerta::getDesde).thenComparing(Alerta::getNivel));
+            return alertas;
+        });
     }
+
+    private static final java.time.format.DateTimeFormatter DIA = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public Estadisticas estadisticas(Usuario actual, String nombrePeriodo) {
         LocalDate hoy = LocalDate.now(reloj);
@@ -57,7 +84,7 @@ public class ServicioSupervision extends ServicioBase {
         Reporte reporte = reportes.get(tipo);
         FormateadorReporte formateador = formatos.get(nombreFormato);
         if (reporte == null) {
-            throw new DatoInvalidoException("Tipo de reporte no válido. Usa asistencia, puntualidad o incidencias.");
+            throw new DatoInvalidoException("Tipo de reporte no válido. Usa asistencia, puntualidad, permisos o reportes-obra.");
         }
         if (formateador == null) {
             throw new DatoInvalidoException("Formato no válido. Usa txt o csv.");
@@ -96,6 +123,15 @@ public class ServicioSupervision extends ServicioBase {
                 .toList());
     }
 
+    public List<MarcaPorConfirmar> marcasDelDia(Usuario actual, LocalDate fecha) {
+        LocalDate dia = fecha == null ? LocalDate.now(reloj) : fecha;
+        return leer(() -> alcance(actual).stream()
+                .filter(u -> u != actual)
+                .flatMap(u -> u.getAsistencias().stream().filter(r -> r.getFecha().equals(dia)).map(r -> new MarcaPorConfirmar(u, r)))
+                .sorted(Comparator.comparing((MarcaPorConfirmar m) -> m.jornada().getHoraEntrada()))
+                .toList());
+    }
+
     public RegistroAsistencia revisarAsistencia(Usuario actual, String cedula, LocalDate fecha, LocalTime entrada,
             String estado) {
         EstadoVerificacion nuevo;
@@ -130,7 +166,7 @@ public class ServicioSupervision extends ServicioBase {
     }
 
     private List<Usuario> alcance(Usuario actual) {
-        if (actual instanceof Jefe) {
+        if (actual instanceof Gerente) {
             return empresaDe(actual).listarUsuarios();
         }
         if (actual instanceof Supervisor supervisor) {
@@ -139,7 +175,7 @@ public class ServicioSupervision extends ServicioBase {
             grupo.addAll(supervisor.verEmpleadosACargo());
             return grupo;
         }
-        throw new PermisoDenegadoException("Tu rol no tiene acceso a los reportes del equipo.");
+        throw new PermisoDenegadoException("Tu rol no tiene acceso a los reportes del personal.");
     }
 
     static Periodo historialCompleto(List<Usuario> personas, LocalDate hoy) {
@@ -152,7 +188,7 @@ public class ServicioSupervision extends ServicioBase {
             for (RegistroAsistencia r : u.getAsistencias()) {
                 desde = r.getFecha().isBefore(desde) ? r.getFecha() : desde;
             }
-            for (var i : u.getHistorial().getIncidencias()) {
+            for (var i : u.getHistorial().getNovedades()) {
                 desde = i.getDesde().isBefore(desde) ? i.getDesde() : desde;
                 hasta = i.getHasta().isAfter(hasta) ? i.getHasta() : hasta;
             }

@@ -1,37 +1,34 @@
 package construtrack.controlador.swing;
 
-import construtrack.modelo.RevisorIncidencias;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.ConstruTrackException;
-import construtrack.modelo.incidencias.EstadoIncidencia;
-import construtrack.modelo.incidencias.Gravedad;
-import construtrack.modelo.incidencias.Incidencia;
-import construtrack.servicio.ServicioIncidencias;
+import construtrack.modelo.novedades.Categoria;
+import construtrack.modelo.novedades.EstadoNovedad;
+import construtrack.modelo.novedades.Novedad;
+import construtrack.servicio.ServicioNovedades;
+import construtrack.vista.swing.Dialogos;
 import construtrack.vista.swing.PanelTablero;
-import construtrack.vista.swing.TarjetaIncidencia;
+import construtrack.vista.swing.TarjetaNovedad;
 import construtrack.vista.swing.Tema;
-import java.awt.Color;
 import java.util.Comparator;
 import java.util.List;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 
 public final class ControladoraTablero {
     private final PanelTablero vista;
-    private final ServicioIncidencias incidencias;
+    private final ServicioNovedades novedades;
     private final Usuario usuario;
     private final Runnable alCambiar;
 
-    public ControladoraTablero(PanelTablero vista, ServicioIncidencias incidencias, Usuario usuario,
-            Runnable alCambiar) {
+    public ControladoraTablero(PanelTablero vista, ServicioNovedades novedades, Usuario usuario, Runnable alCambiar) {
         this.vista = vista;
-        this.incidencias = incidencias;
+        this.novedades = novedades;
         this.usuario = usuario;
         this.alCambiar = alCambiar;
     }
 
     public static String[] columnas() {
-        EstadoIncidencia[] estados = EstadoIncidencia.values();
+        EstadoNovedad[] estados = EstadoNovedad.values();
         String[] nombres = new String[estados.length];
         for (int i = 0; i < estados.length; i++) {
             nombres[i] = estados[i].getNombre();
@@ -41,60 +38,48 @@ public final class ControladoraTablero {
 
     public void refrescar() {
         vista.limpiar();
-        List<Incidencia> lista = incidencias.listarTablero(usuario);
-        lista.sort(Comparator.comparing(Incidencia::getGravedad).reversed()
-                .thenComparing(Comparator.comparingInt(Incidencia::getId).reversed()));
-        for (Incidencia i : lista) {
-            vista.agregarTarjeta(i.getEstado().getNombre(), tarjeta(i));
+        List<Novedad> lista = novedades.listarTablero(usuario).stream()
+                .sorted(Comparator.comparing(Novedad::getFechaRegistro).reversed()).toList();
+        for (Novedad n : lista) {
+            vista.agregarTarjeta(n.getEstado().getNombre(), tarjeta(n));
         }
         vista.actualizar();
     }
 
-    private TarjetaIncidencia tarjeta(Incidencia i) {
-        Color[] colores = colores(i.getGravedad());
-        String fechas = i.getDesde().equals(i.getHasta()) ? i.getDesde().toString() : i.getDesde() + " → " + i.getHasta();
-        String descripcion = i.getDescripcion().length() > 80 ? i.getDescripcion().substring(0, 77) + "…" : i.getDescripcion();
-        TarjetaIncidencia tarjeta = new TarjetaIncidencia("#" + i.getId() + " · " + i.getNombreTipo(),
-                i.getAfectado().getNombre(), fechas, descripcion, i.getGravedad().getNombre(), colores[0], colores[1]);
-        if (usuario instanceof RevisorIncidencias revisor && revisor.puedeRevisar(i) && !i.getEstado().esFinal()) {
-            if (i.getEstado() == EstadoIncidencia.PENDIENTE) {
-                tarjeta.agregarAccion(accion(Tema.botonSecundario("Revisar"), i, EstadoIncidencia.EN_REVISION));
-            }
-            tarjeta.agregarAccion(accion(Tema.botonExito("Aprobar"), i, EstadoIncidencia.APROBADA));
-            tarjeta.agregarAccion(accion(Tema.botonPeligro("Rechazar"), i, EstadoIncidencia.RECHAZADA));
+    private TarjetaNovedad tarjeta(Novedad n) {
+        boolean licencia = n.getCategoria() == Categoria.LICENCIA;
+        String fechas = n.getDesde().equals(n.getHasta()) ? n.getDesde().toString() : n.getDesde() + " → " + n.getHasta();
+        String descripcion = n.getDescripcion().length() > 80 ? n.getDescripcion().substring(0, 77) + "…" : n.getDescripcion();
+        if (n.getRevisadaPor() != null) {
+            descripcion += "<br>" + (n.getEstado() == EstadoNovedad.APROBADA ? "Autorizó: " : "Rechazó: ") + n.getRevisadaPor().nombre();
+        }
+        TarjetaNovedad tarjeta = new TarjetaNovedad("#" + n.getId() + " · " + n.getNombreTipo(), n.getAfectado().getNombre(), fechas,
+                descripcion, n.getCategoria().getNombre(), licencia ? Tema.MORADO : Tema.AMARILLO,
+                licencia ? Tema.MORADO_SUAVE : Tema.AMARILLO_SUAVE);
+        if (novedades.puedeRevisar(usuario, n)) {
+            tarjeta.agregarAccion(accion(Tema.botonExito("Aprobar"), n, EstadoNovedad.APROBADA));
+            tarjeta.agregarAccion(accion(Tema.botonPeligro("Rechazar"), n, EstadoNovedad.RECHAZADA));
         }
         return tarjeta;
     }
 
-    private JButton accion(JButton boton, Incidencia incidencia, EstadoIncidencia nuevo) {
-        boton.setToolTipText("Pasar la incidencia #" + incidencia.getId() + " a " + nuevo.getNombre().toLowerCase());
+    private JButton accion(JButton boton, Novedad n, EstadoNovedad nuevo) {
+        boolean aprobar = nuevo == EstadoNovedad.APROBADA;
+        boton.setToolTipText((aprobar ? "Aprobar" : "Rechazar") + " #" + n.getId());
         boton.addActionListener(e -> {
-            String comentario = "";
-            if (nuevo == EstadoIncidencia.RECHAZADA) {
-                comentario = JOptionPane.showInputDialog(vista,
-                        "¿Por qué se rechaza la incidencia #" + incidencia.getId() + "?\nEl trabajador verá este motivo.",
-                        "Motivo del rechazo", JOptionPane.QUESTION_MESSAGE);
-                if (comentario == null) {
-                    return;
-                }
+            String nota = Dialogos.pedirTexto(vista, aprobar ? "Aprobar" : "Rechazar", (aprobar ? "Nota de aprobación" : "Motivo del rechazo")
+                    + " para #" + n.getId() + " (" + n.getNombreTipo() + "):\nObligatoria; la verá quien lo registró.");
+            if (nota == null) {
+                return;
             }
             try {
-                incidencias.revisar(usuario, incidencia.getId(), nuevo, comentario);
-                vista.mostrarMensaje("la incidencia #" + incidencia.getId() + " pasó a "
-                        + nuevo.getNombre().toLowerCase() + ".", false);
+                novedades.revisar(usuario, n.getId(), nuevo, nota);
+                vista.mostrarMensaje("#" + n.getId() + (aprobar ? " aprobado." : " rechazado."), false);
                 alCambiar.run();
             } catch (ConstruTrackException ex) {
                 vista.mostrarMensaje(ex.getMessage(), true);
             }
         });
         return boton;
-    }
-
-    private static Color[] colores(Gravedad gravedad) {
-        return switch (gravedad) {
-            case ALTA -> new Color[] {Tema.ROJO, Tema.ROJO_SUAVE};
-            case MEDIA -> new Color[] {Tema.AMARILLO, Tema.AMARILLO_SUAVE};
-            case BAJA -> new Color[] {Tema.AZUL, Tema.AZUL_SUAVE};
-        };
     }
 }

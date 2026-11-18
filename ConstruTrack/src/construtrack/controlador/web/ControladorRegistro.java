@@ -1,7 +1,7 @@
 package construtrack.controlador.web;
 
 import construtrack.modelo.Cuenta;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Usuario;
 import construtrack.servicio.Ingreso;
 import construtrack.servicio.ServicioRegistro;
@@ -27,7 +27,7 @@ public class ControladorRegistro implements ControladorWeb {
     private Respuesta confirmarCorreo(Peticion p) {
         Cuenta cuenta = p.cuenta();
         Usuario usuario = registro.confirmarCorreo(cuenta, p.cuerpo().get("codigo"));
-        String mensaje = usuario != null && usuario.getRol().equals(Jefe.ROL)
+        String mensaje = usuario != null && usuario.getRol().equals(Gerente.ROL)
                 ? "¡Correo confirmado! Tu empresa «" + usuario.getEmpresa().getNombre() + "» está lista."
                 : "¡Correo confirmado!";
         return Respuesta.json(new JsonObjeto().texto("mensaje", mensaje)
@@ -54,8 +54,8 @@ public class ControladorRegistro implements ControladorWeb {
     }
 
     private Respuesta crearEmpresa(Peticion p) {
-        Usuario jefe = registro.crearEmpresa(p.cuenta(), p.cuerpo().get("nombre"));
-        return Respuesta.creado(JsonMapper.mensaje("Tu empresa «" + jefe.getEmpresa().getNombre()
-                + "» está lista. Ahora invita a tu equipo.", JsonMapper.usuario(jefe, true)));
+        Usuario gerente = registro.crearEmpresa(p.cuenta(), p.cuerpo().get("nombre"));
+        return Respuesta.creado(JsonMapper.mensaje("Tu empresa «" + gerente.getEmpresa().getNombre()
+                + "» está lista. Ahora invita a tu equipo.", JsonMapper.usuario(gerente, true)));
     }
 }

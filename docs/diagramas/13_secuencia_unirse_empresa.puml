@@ -18,11 +18,11 @@ note right: busca en cada empresa:\nel código es único en el sistema
 EM --> P : inv
 P --> A : inv
 A -> I : canjear(cta, ahora)
-note right of I: se canjea en la empresa\ndel jefe que creó la invitación
+note right of I: se canjea en la empresa\ndel gerente que creó la invitación
 I -> I : estadoEn(ahora)
 I --> I : estado
 alt usada, cancelada o vencida
-  I --> A : OperacionInvalidaException("Pide a tu jefe un código nuevo")
+  I --> A : OperacionInvalidaException("Pide a tu gerente un código nuevo")
 else vigente
   create N
   I -> N : <<create>> Usuario.crear(rol, documento, nombre, …)

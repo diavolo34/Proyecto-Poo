@@ -13,8 +13,9 @@ import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.modelo.RegistroAsistencia;
-import construtrack.modelo.incidencias.EstadoIncidencia;
-import construtrack.modelo.incidencias.Incidencia;
+import construtrack.modelo.novedades.Categoria;
+import construtrack.modelo.novedades.EstadoNovedad;
+import construtrack.modelo.novedades.Novedad;
 import construtrack.persistencia.RepositorioMemoria;
 import java.time.Clock;
 import java.time.Duration;
@@ -31,10 +32,12 @@ class ServiciosTest {
     private final Servicios servicios = new Servicios(d.empresa.getPlataforma(), repositorio, Datos.RELOJ, 1, correo);
 
     @Test
-    @DisplayName("Reportar una incidencia asigna números consecutivos y guarda los cambios")
+    @DisplayName("Registrar un permiso o un reporte asigna números consecutivos y guarda los cambios")
     void reportarGuarda() {
-        Incidencia a = servicios.incidencias().reportar(d.jose, "PERMISO_PERSONAL", "30000001", HOY, null, "Trámite bancario", Map.of());
-        Incidencia b = servicios.incidencias().reportar(d.ana, "AUSENCIA", "30000001", HOY, null, "No se presentó", Map.of());
+        Novedad a = servicios.novedades().registrar(d.ana, Categoria.LICENCIA, "PERMISO_LABORAL", "30000001", HOY, null,
+                "Trámite bancario", Map.of());
+        Novedad b = servicios.novedades().registrar(d.ana, Categoria.REPORTE_OBRA, "INASISTENCIA", "30000001", HOY, null,
+                "No se presentó", Map.of());
         assertEquals(1, a.getId());
         assertEquals(2, b.getId());
         assertEquals(2, repositorio.getGuardados());
@@ -45,7 +48,7 @@ class ServiciosTest {
     void permisosPorRol() {
         assertThrows(PermisoDenegadoException.class, () -> servicios.personal().listarVisibles(d.jose));
         assertEquals(1, servicios.personal().listarVisibles(d.ana).size());
-        assertEquals(5, servicios.personal().listarVisibles(d.jefe).size());
+        assertEquals(5, servicios.personal().listarVisibles(d.gerente).size());
         assertThrows(PermisoDenegadoException.class, () -> servicios.supervision().alertas(d.jose, "semana"));
         assertThrows(PermisoDenegadoException.class, () -> servicios.invitaciones().listar(d.ana));
     }
@@ -57,7 +60,7 @@ class ServiciosTest {
                 "confirmacion", "pablo123", "nombre", "Pablo", "apellido", "Rivas", "documento", "28555111",
                 "telefono", "04121234567"));
         assertTrue(servicios.autenticacion().ingresar("pablo@correo.com", "pablo123").pendienteDeUnirse());
-        var inv = servicios.invitaciones().crear(d.jefe, "Empleado", "20000001", "", 7, "");
+        var inv = servicios.invitaciones().crear(d.gerente, "Empleado", "20000001", "", 7, "");
         assertThrows(OperacionInvalidaException.class, () -> servicios.registro().unirse(cuenta, inv.getCodigo().toString()),
                 "Sin confirmar el correo no puede unirse");
         servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
@@ -74,7 +77,7 @@ class ServiciosTest {
                     "clave", "clave123", "confirmacion", "clave123", "nombre", "Ana", "apellido", "Paz",
                     "documento", mala, "telefono", "04121234567")), mala);
         }
-        assertThrows(DatoInvalidoException.class, () -> servicios.personal().registrar(d.jefe, Map.of("rol", "Empleado",
+        assertThrows(DatoInvalidoException.class, () -> servicios.personal().registrar(d.gerente, Map.of("rol", "Empleado",
                 "cedula", "V30000099", "nombre", "Pepe Prueba", "clave", "pepe123", "dias", "LU,MA",
                 "horaEntrada", "07:00", "horaSalida", "16:00")));
     }
@@ -88,57 +91,64 @@ class ServiciosTest {
     }
 
     @Test
-    @DisplayName("Obras: supervisor y jefe las gestionan; no se elimina una obra con personas")
+    @DisplayName("Obras: supervisor y gerente las gestionan; no se elimina una obra con personas")
     void gestionDeObras() {
         Map<String, String> datos = Map.of("nombre", "Edificio Las Acacias", "ubicacion", "Caracas",
                 "inicio", HOY.toString(), "fin", HOY.plusMonths(6).toString());
         assertThrows(PermisoDenegadoException.class, () -> servicios.obras().crear(d.jose, datos));
         var obra = servicios.obras().crear(d.ana, datos);
         assertEquals("OB-01", obra.getCodigo());
-        assertEquals("OB-02", servicios.obras().crear(d.jefe, Map.of("nombre", "Puente Norte", "ubicacion", "",
+        assertEquals("OB-02", servicios.obras().crear(d.gerente, Map.of("nombre", "Puente Norte", "ubicacion", "",
                 "inicio", HOY.toString(), "fin", HOY.plusMonths(2).toString())).getCodigo());
 
         servicios.obras().asignar(d.ana, "30000001", "OB-01");
         assertEquals(obra, d.jose.getObra());
         assertThrows(PermisoDenegadoException.class, () -> servicios.obras().asignar(d.ana, "30000004", "OB-01"),
                 "Laura no es de su equipo");
-        assertThrows(OperacionInvalidaException.class, () -> servicios.obras().eliminar(d.jefe, "OB-01"));
-        servicios.obras().asignar(d.jefe, "30000001", "");
-        servicios.obras().eliminar(d.jefe, "OB-01");
-        assertEquals(1, servicios.obras().listar(d.jefe).size());
-        assertThrows(DatoInvalidoException.class, () -> servicios.obras().crear(d.jefe, Map.of("nombre", "Mal",
+        assertThrows(OperacionInvalidaException.class, () -> servicios.obras().eliminar(d.gerente, "OB-01"));
+        servicios.obras().asignar(d.gerente, "30000001", "");
+        servicios.obras().eliminar(d.gerente, "OB-01");
+        assertEquals(1, servicios.obras().listar(d.gerente).size());
+        assertThrows(DatoInvalidoException.class, () -> servicios.obras().crear(d.gerente, Map.of("nombre", "Mal",
                 "inicio", HOY.toString(), "fin", HOY.minusDays(1).toString())));
     }
 
     @Test
-    @DisplayName("Las revisadas salen del tablero a las 3 horas, pero siguen en el reporte de incidencias")
+    @DisplayName("Las revisadas salen del tablero a las 3 horas, pero siguen en los reportes descargables")
     void tableroArchivaYReporteConserva() {
-        Incidencia aprobada = servicios.incidencias().reportar(d.jose, "PERMISO_PERSONAL", "30000001", HOY, null, "Trámite", Map.of());
-        Incidencia rechazada = servicios.incidencias().reportar(d.laura, "PERMISO_PERSONAL", "30000004", HOY, null, "Viaje", Map.of());
-        Incidencia pendiente = servicios.incidencias().reportar(d.ana, "AUSENCIA", "30000001", HOY.minusDays(40), null, "Faltó", Map.of());
-        servicios.incidencias().revisar(d.jefe, aprobada.getId(), EstadoIncidencia.APROBADA, "Ok");
-        servicios.incidencias().revisar(d.jefe, rechazada.getId(), EstadoIncidencia.RECHAZADA, "Sin soporte");
-        assertEquals(3, servicios.incidencias().listarTablero(d.jefe).size(), "Recién revisadas siguen visibles");
+        Novedad aprobada = servicios.novedades().registrar(d.ana, Categoria.LICENCIA, "PERMISO_LABORAL", "30000001", HOY, null,
+                "Trámite", Map.of());
+        Novedad rechazada = servicios.novedades().registrar(d.luis, Categoria.LICENCIA, "PERMISO_LABORAL", "30000004", HOY, null,
+                "Viaje", Map.of());
+        Novedad pendiente = servicios.novedades().registrar(d.ana, Categoria.REPORTE_OBRA, "INASISTENCIA", "30000001",
+                HOY.minusDays(40), null, "Faltó", Map.of());
+        servicios.novedades().revisar(d.gerente, aprobada.getId(), EstadoNovedad.APROBADA, "Ok, aprobado");
+        servicios.novedades().revisar(d.gerente, rechazada.getId(), EstadoNovedad.RECHAZADA, "Sin soporte");
+        assertEquals(3, servicios.novedades().listarTablero(d.gerente).size(), "Recién revisadas siguen visibles");
 
         Servicios tresHorasDespues = new Servicios(d.empresa, repositorio,
-                Clock.offset(Datos.RELOJ, Duration.ofHours(Incidencia.HORAS_EN_TABLERO)), 100);
-        List<Incidencia> tablero = tresHorasDespues.incidencias().listarTablero(d.jefe);
+                Clock.offset(Datos.RELOJ, Duration.ofHours(Novedad.HORAS_EN_TABLERO)), 100);
+        List<Novedad> tablero = tresHorasDespues.novedades().listarTablero(d.gerente);
         assertEquals(List.of(pendiente), tablero);
-        tablero.sort((a, b) -> Integer.compare(b.getId(), a.getId()));
-        assertEquals(3, tresHorasDespues.incidencias().listarVisibles(d.jefe).size());
+        assertEquals(3, tresHorasDespues.novedades().listar(d.gerente, null).size());
+        assertEquals(1, tresHorasDespues.novedades().listar(d.gerente, Categoria.REPORTE_OBRA).size());
 
-        String todo = tresHorasDespues.supervision().exportar(d.jefe, "incidencias", "csv", "todo").contenido();
-        assertTrue(todo.contains("Sin soporte") && todo.contains("Faltó") && todo.contains("Carlos Méndez"), todo);
-        String semana = tresHorasDespues.supervision().exportar(d.jefe, "incidencias", "csv", "semana").contenido();
+        String todo = tresHorasDespues.supervision().exportar(d.gerente, "permisos", "csv", "todo").contenido();
+        assertTrue(todo.contains("Sin soporte") && todo.contains("Carlos Méndez") && !todo.contains("Faltó"), todo);
+        String obra = tresHorasDespues.supervision().exportar(d.gerente, "reportes-obra", "csv", "todo").contenido();
+        assertTrue(obra.contains("Faltó"), obra);
+        String semana = tresHorasDespues.supervision().exportar(d.gerente, "reportes-obra", "csv", "semana").contenido();
         assertFalse(semana.contains("Faltó"), "Un período corto no trae lo de hace 40 días");
+        assertThrows(PermisoDenegadoException.class, () -> servicios.novedades().listar(d.jose, Categoria.REPORTE_OBRA),
+                "El empleado no accede a los reportes en obra");
     }
 
     @Test
-    @DisplayName("La tabla de puntualidad del jefe incluye al jefe y a los supervisores; la del supervisor, a él y su equipo")
+    @DisplayName("La tabla de puntualidad del gerente incluye al gerente y a los supervisores; la del supervisor, a él y su equipo")
     void tablaIncluyeLideres() {
-        var delJefe = servicios.supervision().estadisticas(d.jefe, "semana").resumenes().stream().map(r -> r.cedula()).toList();
-        assertEquals(5, delJefe.size());
-        assertTrue(delJefe.containsAll(List.of("10000001", "20000001", "20000002")));
+        var delGerente = servicios.supervision().estadisticas(d.gerente, "semana").resumenes().stream().map(r -> r.cedula()).toList();
+        assertEquals(5, delGerente.size());
+        assertTrue(delGerente.containsAll(List.of("10000001", "20000001", "20000002")));
         var deAna = servicios.supervision().estadisticas(d.ana, "semana").resumenes().stream().map(r -> r.cedula()).toList();
         assertEquals(List.of("20000001", "30000001"), deAna);
     }
@@ -153,6 +163,6 @@ class ServiciosTest {
         }
         assertEquals(List.of("José García"), servicios.supervision().horasExtraPendientes(d.ana).stream()
                 .map(h -> h.persona().getNombre()).toList(), "Ana no aprueba sus propias horas");
-        assertEquals(2, servicios.supervision().horasExtraPendientes(d.jefe).size());
+        assertEquals(2, servicios.supervision().horasExtraPendientes(d.gerente).size());
     }
 }

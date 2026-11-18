@@ -14,7 +14,7 @@ public class ReporteAsistencia extends Reporte {
     @Override
     protected List<String> columnas() {
         return List.of("Cédula", "Nombre", "Rol", "Días laborables", "Asistencias", "% asistencia",
-                "Ausencias sin justificar", "Justificadas", "Horas trabajadas", "Horas esperadas",
+                "Ausencias sin justificar", "Justificadas", "Días de incapacidad", "Horas trabajadas", "Horas esperadas",
                 "Extra diaria (aprobada)", "Extra día libre (aprobada)", "Extra por aprobar");
     }
 
@@ -23,7 +23,7 @@ public class ReporteAsistencia extends Reporte {
         var r = resumen(persona, periodo, hoy);
         documento.agregarFila(r.cedula(), r.nombre(), r.rol(), r.laborables(), r.asistencias(),
                 String.format("%.1f", r.tasaAsistencia()), r.ausencias(), r.justificadas(),
-                horas(r.minutos()), horas(r.minutosEsperados()), horas(r.extraDiaria()), horas(r.extraDiaLibre()),
+                r.incapacidad(), horas(r.minutos()), horas(r.minutosEsperados()), horas(r.extraDiaria()), horas(r.extraDiaLibre()),
                 horas(r.extraPendiente()));
     }
 

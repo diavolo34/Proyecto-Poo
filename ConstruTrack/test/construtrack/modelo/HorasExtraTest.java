@@ -57,7 +57,7 @@ class HorasExtraTest {
         d.ana.revisarHorasExtra(d.jose, lunes, EstadoHorasExtra.APROBADAS);
         assertEquals(120, h.minutosExtra(d.jose.getHorario(), semana, TipoHorasExtra.DIARIA, EstadoHorasExtra.APROBADAS));
         assertEquals(0, h.minutosExtraPendientes(d.jose.getHorario(), semana));
-        assertThrows(OperacionInvalidaException.class, () -> d.jefe.revisarHorasExtra(d.jose, lunes, EstadoHorasExtra.RECHAZADAS),
+        assertThrows(OperacionInvalidaException.class, () -> d.gerente.revisarHorasExtra(d.jose, lunes, EstadoHorasExtra.RECHAZADAS),
                 "Ya fueron aprobadas");
     }
 

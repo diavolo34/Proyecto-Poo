@@ -35,7 +35,7 @@ public class Plataforma {
         }
     }
 
-    public Jefe fundarEmpresa(String nombre, Cuenta cuenta, LocalDate hoy) {
+    public Gerente fundarEmpresa(String nombre, Cuenta cuenta, LocalDate hoy) {
         if (cuenta.perteneceAEmpresa()) {
             throw new OperacionInvalidaException("Tu cuenta ya pertenece a una empresa.");
         }
@@ -46,12 +46,12 @@ public class Plataforma {
         }
         verificarNombreDisponible(nombre);
         Empresa empresa = crearEmpresa(nombre);
-        Jefe jefe = (Jefe) Usuario.restaurar(Jefe.ROL, cuenta.getDocumento(), cuenta.getNombreCompleto(),
+        Gerente gerente = (Gerente) Usuario.restaurar(Gerente.ROL, cuenta.getDocumento(), cuenta.getNombreCompleto(),
                 cuenta.getClaveResumen(), Horario.desdeTexto("LU,MA,MI,JU,VI", "08:00", "17:00"));
-        jefe.setFechaIngreso(hoy);
-        empresa.agregarUsuario(jefe);
-        jefe.vincularCuenta(cuenta);
-        return jefe;
+        gerente.setFechaIngreso(hoy);
+        empresa.agregarUsuario(gerente);
+        gerente.vincularCuenta(cuenta);
+        return gerente;
     }
 
     public static String validarNombreEmpresa(String nombre) {
@@ -86,7 +86,7 @@ public class Plataforma {
 
     public Usuario autenticar(String cedula, String clave) {
         Usuario usuario = buscarUsuario(cedula);
-        return usuario != null && usuario.verificarClave(clave) ? usuario : null;
+        return usuario != null && usuario.estaActivo() && usuario.verificarClave(clave) ? usuario : null;
     }
 
     public void agregarCuenta(Cuenta cuenta) {

@@ -212,6 +212,28 @@ public final class Tema {
         };
     }
 
+    public static JPanel campoClave(javax.swing.JPasswordField campo) {
+        char eco = campo.getEchoChar() == 0 ? '•' : campo.getEchoChar();
+        campo.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(0x8590A2)), margen(6, 8, 6, 8)));
+        javax.swing.JToggleButton ver = new javax.swing.JToggleButton("Mostrar");
+        ver.setFont(PEQUENA.deriveFont(Font.BOLD));
+        ver.setFocusPainted(false);
+        ver.setToolTipText("Mostrar u ocultar la clave");
+        ver.getAccessibleContext().setAccessibleName("Mostrar la clave");
+        ver.addActionListener(e -> {
+            boolean mostrar = ver.isSelected();
+            campo.setEchoChar(mostrar ? (char) 0 : eco);
+            ver.setText(mostrar ? "Ocultar" : "Mostrar");
+            ver.getAccessibleContext().setAccessibleName(mostrar ? "Ocultar la clave" : "Mostrar la clave");
+            campo.requestFocusInWindow();
+        });
+        JPanel panel = new JPanel(new java.awt.BorderLayout(4, 0));
+        panel.setOpaque(false);
+        panel.add(campo, java.awt.BorderLayout.CENTER);
+        panel.add(ver, java.awt.BorderLayout.EAST);
+        return panel;
+    }
+
     public static JScrollPane desplazable(java.awt.Component componente) {
         JScrollPane scroll = new JScrollPane(componente);
         scroll.setBorder(BorderFactory.createLineBorder(BORDE));

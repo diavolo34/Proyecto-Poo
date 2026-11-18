@@ -1,6 +1,6 @@
 @startuml clases_servicio_persistencia
 !include estilo.iuml
-title Diagrama de Clases Detallado (4/4) · Servicios y persistencia
+title Diagrama de Clases Detallado (4/5) · Servicios y persistencia
 
 abstract class ServicioBase {
   # plataforma : Plataforma
@@ -14,7 +14,11 @@ class Servicios {
   + autenticacion() : ServicioAutenticacion
   + asistencia() : ServicioAsistencia
   + personal() : ServicioPersonal
-  + incidencias() : ServicioIncidencias
+  + novedades() : ServicioNovedades
+  + talento() : ServicioTalento
+  + inventario() : ServicioInventario
+  + catalogo() : ServicioCatalogo
+  + archivos() : ServicioArchivos
   + supervision() : ServicioSupervision
   + registro() : ServicioRegistro
   + invitaciones() : ServicioInvitaciones
@@ -24,10 +28,11 @@ class ServicioAutenticacion {
 }
 class ServicioAsistencia
 class ServicioPersonal
-class ServicioIncidencias {
-  - fabrica : FabricaIncidencias
-  + reportar(...) : Incidencia
-  + revisar(revisor : Usuario, id : int, nuevo : EstadoIncidencia, comentario : String) : void
+class ServicioNovedades {
+  - fabrica : FabricaNovedades
+  + registrar(...) : Novedad
+  + revisar(revisor : Usuario, id : int, nuevo : EstadoNovedad, nota : String) : Novedad
+  + listar(actual : Usuario, categoria : Categoria) : List<Novedad>
 }
 class ServicioSupervision {
   - monitor : MonitorSupervision
@@ -61,7 +66,7 @@ interface EscritorDatos {
 }
 class RepositorioTexto {
   - almacen : Almacen
-  + RepositorioTexto(almacen : Almacen, datosIniciales : Supplier<Empresa>, fabrica : FabricaIncidencias)
+  + RepositorioTexto(almacen : Almacen, datosIniciales : Supplier<Empresa>, fabrica : FabricaNovedades)
 }
 interface Almacen {
   + leer() : Optional<String>
@@ -75,12 +80,19 @@ class GeneradorDatosPrueba
 ServicioBase <|-- ServicioAutenticacion
 ServicioBase <|-- ServicioAsistencia
 ServicioBase <|-- ServicioPersonal
-ServicioBase <|-- ServicioIncidencias
+ServicioBase <|-- ServicioNovedades
+ServicioBase <|-- ServicioTalento
+ServicioBase <|-- ServicioInventario
+ServicioBase <|-- ServicioArchivos
 ServicioBase <|-- ServicioSupervision
 ServicioBase <|-- ServicioRegistro
 ServicioBase <|-- ServicioInvitaciones
 Servicios *-- ServicioAutenticacion
-Servicios *-- ServicioIncidencias
+Servicios *-- ServicioNovedades
+Servicios *-- ServicioTalento
+Servicios *-- ServicioInventario
+Servicios *-- ServicioArchivos
+ServicioArchivos --> AlmacenArchivos
 Servicios *-- ServicioSupervision
 Servicios *-- ServicioRegistro
 Servicios *-- ServicioInvitaciones
@@ -97,4 +109,26 @@ RepositorioTexto ..> GeneradorDatosPrueba : si el almacén está vacío
 RepositorioTexto --> Almacen : depende de la abstracción
 Almacen <|.. AlmacenArchivo
 Almacen <|.. AlmacenUpstash
+class ServicioTalento {
+  + registrarEgreso(actual : Usuario, cedula : String, datos : Map) : Egreso
+  + eliminarFicha(actual : Usuario, id : int) : void
+  + expediente(actual : Usuario, id : int) : String
+}
+class ServicioInventario {
+  + crear(actual : Usuario, datos : Map) : Articulo
+  + asignar(actual : Usuario, codigo : String, datos : Map) : Asignacion
+  + devolver(actual : Usuario, id : int, condicion : String, nota : String) : Asignacion
+}
+class ServicioArchivos {
+  + subir(actual : Usuario, nombre : String, datos : byte[], cedula : String, confidencial : boolean) : ArchivoAdjunto
+  + descargar(actual : Usuario, id : String) : Descarga
+}
+interface AlmacenArchivos {
+  + guardar(nombre : String, tipo : String, datos : byte[]) : String
+  + leer(id : String) : byte[]
+}
+class AlmacenArchivosDrive
+class AlmacenArchivosCarpeta
+AlmacenArchivos <|.. AlmacenArchivosDrive
+AlmacenArchivos <|.. AlmacenArchivosCarpeta
 @enduml

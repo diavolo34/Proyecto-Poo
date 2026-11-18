@@ -13,9 +13,9 @@ import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoInvitacion;
 import construtrack.modelo.Invitacion;
 import construtrack.modelo.Usuario;
-import construtrack.modelo.incidencias.EstadoIncidencia;
-import construtrack.modelo.incidencias.FabricaIncidencias;
-import construtrack.modelo.incidencias.Incidencia;
+import construtrack.modelo.novedades.EstadoNovedad;
+import construtrack.modelo.novedades.FabricaNovedades;
+import construtrack.modelo.novedades.Novedad;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -29,19 +29,20 @@ class RepositorioTextoTest {
     Path carpeta;
 
     @Test
-    @DisplayName("Guardar y volver a cargar conserva personas, asistencia, incidencias, cuentas e invitaciones")
+    @DisplayName("Guardar y volver a cargar conserva personas, asistencia, permisos, cuentas e invitaciones")
     void idaYVuelta() {
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         Datos d = new Datos();
         d.jose.marcarEntrada(AHORA);
-        Incidencia reposo = fabrica.crear("REPOSO_MEDICO", Datos.incidencia(7, d.jose, d.jose, HOY, HOY.plusDays(1),
-                Map.of("centroMedico", "Clínica | Central", "certificado", "CM;1")));
-        d.jose.reportar(reposo);
-        d.ana.revisar(reposo, EstadoIncidencia.RECHAZADA, "Falta firma\ndel médico", AHORA);
+        Map<String, String> datos = new java.util.HashMap<>(Datos.reposoCompleto());
+        datos.put("centro", "Clínica | Central;1");
+        Novedad reposo = fabrica.crear("REPOSO_MEDICO", Datos.novedad(7, d.jose, d.ana, HOY, HOY.plusDays(1), datos));
+        d.ana.registrarNovedad(reposo);
+        d.gerente.revisar(reposo, EstadoNovedad.RECHAZADA, "Falta firma\ndel médico", AHORA);
         Cuenta cuenta = new Cuenta("pablo@correo.com", "pablo123", "Pablo", "Rivas", "28555111", "04121234567", AHORA);
         cuenta.marcarVerificada();
         d.empresa.agregarCuenta(cuenta);
-        Invitacion inv = d.jefe.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(5));
+        Invitacion inv = d.gerente.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(5));
         inv.canjear(cuenta, d.empresa, AHORA);
 
         d.laura.setFechaIngreso(HOY.minusDays(3));
@@ -55,11 +56,13 @@ class RepositorioTextoTest {
         Usuario jose = cargada.buscarUsuario("30000001");
         assertTrue(jose.estaPresente());
         assertEquals("Ana Rodríguez", ((Empleado) jose).getSupervisor().getNombre());
-        Incidencia i = jose.getHistorial().getIncidencias().get(0);
-        assertEquals(EstadoIncidencia.RECHAZADA, i.getEstado());
-        assertEquals("Falta firma\ndel médico", i.getComentarioRevision(), "Los saltos de línea se conservan");
-        assertEquals("Clínica | Central", i.getExtras().get("centroMedico"), "El separador | no rompe el archivo");
-        assertEquals(8, repositorio.siguienteIdIncidencia());
+        Novedad i = jose.getHistorial().getNovedades().get(0);
+        assertEquals(EstadoNovedad.RECHAZADA, i.getEstado());
+        assertEquals("Falta firma\ndel médico", i.getNota(), "Los saltos de línea se conservan");
+        assertEquals("Clínica | Central;1", i.getExtras().get("centro"), "El separador | no rompe el archivo");
+        assertEquals("Ana Rodríguez", i.getRegistradaPor().nombre());
+        assertEquals("Carlos Méndez", i.getRevisadaPor().nombre());
+        assertEquals(8, repositorio.siguienteIdNovedad());
 
         assertEquals(HOY.minusDays(3), cargada.buscarUsuario("30000004").getFechaIngreso());
         assertEquals(null, jose.getFechaIngreso(), "Sin fecha de ingreso sigue sin límite");
@@ -75,7 +78,7 @@ class RepositorioTextoTest {
     @DisplayName("Si el archivo no existe, se crean los datos iniciales y se guardan")
     void datosIniciales() {
         Path archivo = carpeta.resolve("nuevo.txt");
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         Empresa empresa = new RepositorioTexto(archivo, new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica).cargar().empresaDemo();
         assertEquals(9, empresa.listarUsuarios().size());
         assertTrue(archivo.toFile().exists());
@@ -90,7 +93,7 @@ class RepositorioTextoTest {
                 "EMPRESA|ConstruTrack",
                 "U|Supervisor|V29955199|Persona Vieja|" + "a".repeat(64) + "|LU,MA,MI,JU,VI|07:00|16:00|false",
                 "A|V29955199|2026-11-16|06:45|18:10|false"));
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         Empresa empresa = new RepositorioTexto(archivo, () -> null, fabrica).cargar().empresaDemo();
         Usuario vieja = empresa.buscarUsuario("V29955199");
         assertEquals(construtrack.modelo.EstadoHorasExtra.NO_APLICA, vieja.getAsistencias().get(0).getEstadoExtra());
@@ -98,23 +101,23 @@ class RepositorioTextoTest {
     }
 
     @Test
-    @DisplayName("Con datos iniciales, la siguiente incidencia no repite un número existente")
+    @DisplayName("Con datos iniciales, el siguiente registro no repite un número existente")
     void contadorTrasDatosIniciales() {
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         RepositorioTexto repositorio = new RepositorioTexto(carpeta.resolve("nuevo.txt"),
                 new GeneradorDatosPrueba(Datos.RELOJ, fabrica), fabrica);
         Empresa empresa = repositorio.cargar().empresaDemo();
         int mayor = empresa.listarUsuarios().stream()
-                .flatMap(u -> u.getHistorial().getIncidencias().stream())
-                .mapToInt(Incidencia::getId).max().orElse(0);
-        assertTrue(mayor > 0, "Los datos de prueba traen incidencias");
-        assertEquals(mayor + 1, repositorio.siguienteIdIncidencia());
+                .flatMap(u -> u.getHistorial().getNovedades().stream())
+                .mapToInt(Novedad::getId).max().orElse(0);
+        assertTrue(mayor > 0, "Los datos de prueba traen permisos y reportes");
+        assertEquals(mayor + 1, repositorio.siguienteIdNovedad());
     }
 
     @Test
     @DisplayName("Funciona con cualquier almacén (por ejemplo, uno en memoria como Upstash)")
     void almacenEnMemoria() {
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         StringBuilder guardado = new StringBuilder();
         Almacen memoria = new Almacen() {
             @Override
@@ -138,17 +141,17 @@ class RepositorioTextoTest {
             throw new AssertionError("Ya hay datos: no debe generarlos otra vez");
         }, fabrica).cargar().empresaDemo();
         assertEquals(9, otra.listarUsuarios().size());
-        assertNotNull(otra.autenticar("10000001", "jefe123"));
+        assertNotNull(otra.autenticar("10000001", "gerente123"));
     }
 
     @Test
     @DisplayName("En modo producción arranca vacío: sin empresas ni usuarios de prueba")
     void produccionArrancaVacio() {
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         AlmacenMemoria memoria = new AlmacenMemoria();
         var plataforma = new RepositorioTexto(memoria, () -> null, fabrica).cargar();
         assertEquals(0, plataforma.listarEmpresas().size());
-        assertEquals(null, plataforma.autenticar("10000001", "jefe123"));
+        assertEquals(null, plataforma.autenticar("10000001", "gerente123"));
         assertEquals(0, new RepositorioTexto(memoria, () -> null, fabrica).cargar().listarEmpresas().size());
     }
 }

@@ -88,11 +88,12 @@ public class ManejadorApi implements HttpHandler {
     }
 
     private void enviar(HttpExchange exchange, Respuesta respuesta) throws IOException {
-        byte[] bytes = respuesta.getCuerpo().getBytes(StandardCharsets.UTF_8);
+        byte[] bytes = respuesta.getBytes();
         exchange.getResponseHeaders().add("Content-Type", respuesta.getTipo());
         if (respuesta.getNombreArchivo() != null) {
+            String nombre = respuesta.getNombreArchivo().replaceAll("[^\\w. -]", "_");
             exchange.getResponseHeaders().add("Content-Disposition",
-                    "attachment; filename=\"" + respuesta.getNombreArchivo() + "\"");
+                    (respuesta.esArchivo() ? "inline" : "attachment") + "; filename=\"" + nombre + "\"");
         }
         exchange.sendResponseHeaders(respuesta.getCodigo(), bytes.length);
         try (OutputStream salida = exchange.getResponseBody()) {

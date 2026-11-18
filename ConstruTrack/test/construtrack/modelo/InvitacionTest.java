@@ -35,7 +35,7 @@ class InvitacionTest {
     @Test
     @DisplayName("Al canjear se crea la ficha con el rol y el supervisor de la invitación; solo funciona una vez")
     void canjeUnico() {
-        Invitacion inv = d.jefe.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(7));
+        Invitacion inv = d.gerente.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(7));
         Cuenta cuenta = pablo();
         Usuario nuevo = inv.canjear(cuenta, d.empresa, AHORA);
         assertTrue(nuevo instanceof Empleado);
@@ -48,7 +48,7 @@ class InvitacionTest {
     @Test
     @DisplayName("Se puede entrar con el correo o con la cédula usando la misma clave")
     void claveCompartida() {
-        Invitacion inv = d.jefe.crearInvitacion("Supervisor", "", "", 7, AHORA, new Random(3));
+        Invitacion inv = d.gerente.crearInvitacion("Supervisor", "", "", 7, AHORA, new Random(3));
         Cuenta cuenta = pablo();
         inv.canjear(cuenta, d.empresa, AHORA);
         assertTrue(cuenta.verificarClave("pablo123"));
@@ -58,11 +58,11 @@ class InvitacionTest {
     @Test
     @DisplayName("Una invitación vencida o cancelada no se puede usar")
     void vencidaYCancelada() {
-        Invitacion vencida = d.jefe.crearInvitacion("Empleado", "", "", 1, AHORA, new Random(11));
+        Invitacion vencida = d.gerente.crearInvitacion("Empleado", "", "", 1, AHORA, new Random(11));
         assertEquals(EstadoInvitacion.VENCIDA, vencida.estadoEn(AHORA.plusDays(2)));
         assertThrows(OperacionInvalidaException.class, () -> vencida.canjear(pablo(), d.empresa, AHORA.plusDays(2)));
 
-        Invitacion cancelada = d.jefe.crearInvitacion("Empleado", "", "", 7, AHORA, new Random(12));
+        Invitacion cancelada = d.gerente.crearInvitacion("Empleado", "", "", 7, AHORA, new Random(12));
         cancelada.cancelar(AHORA);
         assertEquals(EstadoInvitacion.CANCELADA, cancelada.estadoEn(AHORA));
     }

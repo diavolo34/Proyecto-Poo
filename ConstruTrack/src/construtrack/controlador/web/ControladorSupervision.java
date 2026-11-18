@@ -22,6 +22,7 @@ public class ControladorSupervision implements ControladorWeb {
                 .get("/api/horas-extra", this::horasExtra)
                 .put("/api/horas-extra/{cedula}/{fecha}", this::revisarHorasExtra)
                 .get("/api/asistencia/por-confirmar", this::porConfirmar)
+                .get("/api/asistencia/ubicaciones", this::ubicaciones)
                 .put("/api/asistencia/{cedula}/{fecha}/verificacion", this::revisarAsistencia);
     }
 
@@ -38,6 +39,18 @@ public class ControladorSupervision implements ControladorWeb {
     private Respuesta porConfirmar(Peticion p) {
         return Respuesta.json(Json.lista(supervision.asistenciasPorConfirmar(p.usuario()),
                 m -> JsonMapper.marcaPorConfirmar(m.persona(), m.jornada())));
+    }
+
+    private Respuesta ubicaciones(Peticion p) {
+        LocalDate fecha;
+        try {
+            String texto = p.consulta("fecha", "");
+            fecha = texto.isBlank() ? null : LocalDate.parse(texto);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("La fecha debe tener el formato AAAA-MM-DD.");
+        }
+        return Respuesta.json(Json.lista(supervision.marcasDelDia(p.usuario(), fecha),
+                m -> JsonMapper.marcaConUbicacion(m.persona(), m.jornada())));
     }
 
     private Respuesta revisarAsistencia(Peticion p) {

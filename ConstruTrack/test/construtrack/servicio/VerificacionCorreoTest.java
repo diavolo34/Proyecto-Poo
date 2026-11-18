@@ -14,7 +14,7 @@ import construtrack.modelo.Plataforma;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.DemasiadosIntentosException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
-import construtrack.modelo.incidencias.FabricaIncidencias;
+import construtrack.modelo.novedades.FabricaNovedades;
 import construtrack.persistencia.AlmacenMemoria;
 import construtrack.persistencia.RepositorioMemoria;
 import construtrack.persistencia.RepositorioTexto;
@@ -49,7 +49,7 @@ class VerificacionCorreoTest {
         assertEquals("pablo@correo.com", correo.destinos.get(0));
         assertTrue(correo.ultimoCodigo().matches("\\d{6}"));
         assertNotNull(servicios.autenticacion().ingresar("pablo@correo.com", "pablo123"), "Puede entrar para confirmar");
-        var inv = servicios.invitaciones().crear(d.jefe, "Empleado", "", "", 7, "");
+        var inv = servicios.invitaciones().crear(d.gerente, "Empleado", "", "", 7, "");
         assertThrows(OperacionInvalidaException.class, () -> servicios.registro().unirse(cuenta, inv.getCodigo().toString()));
         assertThrows(OperacionInvalidaException.class, () -> servicios.registro().crearEmpresa(cuenta, "Obras Pablo"));
 
@@ -61,12 +61,12 @@ class VerificacionCorreoTest {
     }
 
     @Test
-    @DisplayName("El jefe registra su empresa, pero la empresa se crea al confirmar el correo")
-    void jefeAlConfirmar() {
-        Cuenta cuenta = registrar("jefe");
+    @DisplayName("El gerente registra su empresa, pero la empresa se crea al confirmar el correo")
+    void gerenteAlConfirmar() {
+        Cuenta cuenta = registrar("gerente");
         assertFalse(cuenta.perteneceAEmpresa());
-        var jefe = servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
-        assertEquals("Obras Pablo", jefe.getEmpresa().getNombre());
+        var gerente = servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
+        assertEquals("Obras Pablo", gerente.getEmpresa().getNombre());
     }
 
     @Test
@@ -116,7 +116,7 @@ class VerificacionCorreoTest {
     @DisplayName("Se guarda si la cuenta está confirmada; las cuentas antiguas, sin ese dato, quedan confirmadas")
     void persistencia() {
         Cuenta cuenta = registrar(null);
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         AlmacenMemoria almacen = new AlmacenMemoria();
         new RepositorioTexto(almacen, () -> null, fabrica).guardar(d.empresa.getPlataforma());
         Plataforma cargada = new RepositorioTexto(almacen, () -> null, fabrica).cargar();

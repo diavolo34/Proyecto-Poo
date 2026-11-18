@@ -50,8 +50,8 @@ const cifra = (valor, texto) =>
     if (typeof datos.empresas === 'number') cifras.unshift([datos.empresas, datos.empresas === 1 ? 'Empresa usa ConstruTrack' : 'Empresas usan ConstruTrack']);
     $('#cifras').innerHTML = datos.empresas === 0
       ? `<div class="lp-primera"><p class="lp-primera-titulo">Sé la primera empresa en usar ConstruTrack</p>
-          <p>Crea tu empresa en dos minutos, registra tus obras e invita a tu equipo con un código.</p>
-          <a class="btn btn-primario" href="app.html#registro?tipo=jefe">Crear mi empresa</a></div>`
+          <p>Crea tu empresa en dos minutos, registra tus obras e invita a tu personal con un código.</p>
+          <a class="btn btn-primario" href="app.html#registro?tipo=gerente">Crear mi empresa</a></div>`
       : cifras.map(([valor, texto]) => cifra(valor, texto)).join('');
     $('#lista-obras').innerHTML = datos.obras.map((o) => `
       <article class="lp-obra">
@@ -61,8 +61,8 @@ const cifra = (valor, texto) =>
           aria-label="Avance del plazo de ${esc(o.nombre)}"><span style="width:${o.avance}%"></span></div>
         <p class="lp-obra-pie"><strong>${o.avance}%</strong> del plazo · fin estimado ${fecha(o.finEstimado)}</p>
       </article>`).join('')
-      || `<p class="lp-sin-obras">Las obras de cada empresa son privadas: solo las ve su equipo.
-        <a href="app.html#registro?tipo=jefe">Crea tu empresa</a> y registra la primera.</p>`;
+      || `<p class="lp-sin-obras">Las obras de cada empresa son privadas: solo las ve su personal.
+        <a href="app.html#registro?tipo=gerente">Crea tu empresa</a> y registra la primera.</p>`;
     $('#titulo-obras').hidden = datos.obras.length === 0;
     if (datos.empresas === 0) $('#lista-obras').innerHTML = '';
   } catch (e) {
@@ -86,3 +86,22 @@ $('#lp-abrir-arqui').addEventListener('click', () => {
   if ($('#chat-panel').classList.contains('oculto')) ChatUI.alternar();
   else $('#chat-texto').focus();
 });
+
+(function rotarPalabras() {
+  const rotador = $('#lp-rotador');
+  if (!rotador || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const palabras = rotador.dataset.palabras.split('|');
+  const palabra = rotador.querySelector('.lp-rotador-palabra');
+  let indice = 0;
+  setInterval(() => {
+    if (document.hidden) return;
+    palabra.classList.add('lp-saliendo');
+    setTimeout(() => {
+      indice = (indice + 1) % palabras.length;
+      palabra.textContent = palabras[indice];
+      palabra.classList.remove('lp-saliendo');
+      palabra.classList.add('lp-entrando');
+      requestAnimationFrame(() => requestAnimationFrame(() => palabra.classList.remove('lp-entrando')));
+    }, 320);
+  }, 2800);
+}());

@@ -1,0 +1,117 @@
+@startuml clases_novedades
+!include estilo.iuml
+title Diagrama de Clases Detallado (2/5) · Permisos, reposos y reportes en obra
+
+abstract class Novedad {
+  - id : int
+  - desde : LocalDate
+  - hasta : LocalDate
+  - descripcion : String
+  - fechaRegistro : LocalDateTime
+  - estado : EstadoNovedad = PENDIENTE
+  - nota : String = ""
+  - fechaRevision : LocalDateTime
+  # Novedad(datos : DatosNovedad)
+  + {abstract} getCodigoTipo() : String
+  + {abstract} getNombreTipo() : String
+  + {abstract} getCategoria() : Categoria
+  + validarNueva() : void
+  + getExtras() : Map<String,String>
+  + getDetalle() : String
+  + getArchivo() : String
+  + revisar(nuevo : EstadoNovedad, quien : Firma, nota : String, ahora : LocalDateTime) : void
+  + cubre(fecha : LocalDate) : boolean
+  # aprobadaYCubre(fecha : LocalDate) : boolean
+  + horasSinResolver(ahora : LocalDateTime) : long
+  + archivadaEn(ahora : LocalDateTime) : boolean
+}
+abstract class Licencia {
+  + getCategoria() : Categoria
+  + justificaAusenciaEl(fecha : LocalDate) : boolean
+  + esIncapacidad() : boolean
+  + incapacitaEl(fecha : LocalDate) : boolean
+}
+abstract class ReporteObra {
+  - obra : String
+  + getCategoria() : Categoria
+}
+interface Justificable {
+  + justificaAusenciaEl(fecha : LocalDate) : boolean
+  + etiquetaJustificacion() : String
+}
+class PermisoLaboral {
+  + {static} CODIGO : String = "PERMISO_LABORAL"
+}
+class ReposoMedico {
+  + {static} CODIGO : String = "REPOSO_MEDICO"
+  - medico : String
+  - matricula : String
+  - centro : String
+  - archivo : String
+  + validarNueva() : void
+  + esIncapacidad() : boolean
+}
+enum TipoConsulta {
+  INTERNA
+  EMERGENCIA
+}
+class Retardo {
+  + {static} CODIGO : String = "RETARDO"
+  - minutos : int
+}
+class Inasistencia {
+  + {static} CODIGO : String = "INASISTENCIA"
+}
+class AccidenteLaboral {
+  + {static} CODIGO : String = "ACCIDENTE_LABORAL"
+  - lugar : String
+  - requirioAtencion : boolean
+}
+enum EstadoNovedad {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+  + esFinal() : boolean
+}
+enum Categoria {
+  LICENCIA
+  REPORTE_OBRA
+}
+class Firma <<record>> {
+  + cedula : String
+  + nombre : String
+}
+class FabricaNovedades {
+  - tipos : Map<String, Tipo>
+  - alias : Map<String, String>
+  + {static} conTiposPorDefecto() : FabricaNovedades
+  + registrar(codigo : String, nombre : String, categoria : Categoria, creador : Function) : FabricaNovedades
+  + crear(codigo : String, categoria : Categoria, datos : DatosNovedad) : Novedad
+  + tipos(categoria : Categoria) : Map<String,String>
+}
+class Usuario
+interface RevisorNovedades {
+  + puedeRevisar(n : Novedad) : boolean
+  + revisar(n : Novedad, nuevo : EstadoNovedad, nota : String, ahora : LocalDateTime) : void
+}
+class Gerente
+
+Novedad <|-- Licencia
+Novedad <|-- ReporteObra
+Licencia <|-- PermisoLaboral
+Licencia <|-- ReposoMedico
+ReporteObra <|-- Retardo
+ReporteObra <|-- Inasistencia
+ReporteObra <|-- AccidenteLaboral
+Justificable <|.. Licencia
+Justificable <|.. AccidenteLaboral
+ReposoMedico --> TipoConsulta
+Novedad --> EstadoNovedad
+Novedad ..> Categoria
+Novedad "0..*" --> "1" Usuario : afectado
+Novedad --> "1" Firma : registradaPor
+Novedad --> "0..1" Firma : revisadaPor
+FabricaNovedades ..> Novedad : <<create>>
+RevisorNovedades <|.. Gerente
+RevisorNovedades ..> Novedad : aprueba o rechaza
+@enduml

@@ -1,6 +1,6 @@
 @startuml clases_supervision
 !include estilo.iuml
-title Diagrama de Clases Detallado (3/4) · Alertas, estadísticas y reportes
+title Diagrama de Clases Detallado (3/5) · Alertas, estadísticas y reportes
 
 interface ReglaAlerta {
   + evaluar(empleado : Usuario, p : Periodo, hoy : LocalDate, ahora : LocalDateTime) : List<Alerta>
@@ -9,7 +9,7 @@ class RetardosReiterados {
   - umbral : int
 }
 class AusenciaSinJustificar
-class IncidenciaPendienteVencida {
+class NovedadPendienteVencida {
   - horasLimite : long
 }
 class MonitorSupervision {
@@ -36,7 +36,7 @@ class Estadisticas {
   + porcentajePuntualidad() : double
   + minutosTrabajados() : long
   + ranking() : List<Resumen>
-  + incidenciasPorTipo() : Map<String,Integer>
+  + novedadesPorTipo() : Map<String,Integer>
 }
 abstract class Reporte {
   + generar(personas : List<Usuario>, p : Periodo, hoy : LocalDate) : Documento {leaf}
@@ -47,7 +47,13 @@ abstract class Reporte {
 }
 class ReporteAsistencia
 class ReportePuntualidad
-class ReporteIncidencias
+class ReporteNovedades {
+  - categoria : Categoria
+}
+class FaltasConsecutivas {
+  - minimo : int
+  + evaluar(u : Usuario, p : Periodo, hoy : LocalDate, ahora : LocalDateTime) : List<Alerta>
+}
 class Documento {
   - titulo : String
   - columnas : List<String>
@@ -64,13 +70,14 @@ class FormateadorTexto
 
 ReglaAlerta <|.. RetardosReiterados
 ReglaAlerta <|.. AusenciaSinJustificar
-ReglaAlerta <|.. IncidenciaPendienteVencida
+ReglaAlerta <|.. NovedadPendienteVencida
+ReglaAlerta <|.. FaltasConsecutivas
 MonitorSupervision o-- "1..*" ReglaAlerta
 ReglaAlerta ..> Alerta : <<create>>
 Alerta --> Nivel
 Reporte <|-- ReporteAsistencia
 Reporte <|-- ReportePuntualidad
-Reporte <|-- ReporteIncidencias
+Reporte <|-- ReporteNovedades
 Reporte ..> Documento : <<create>>
 Reporte ..> Estadisticas
 FormateadorReporte <|.. FormateadorCSV

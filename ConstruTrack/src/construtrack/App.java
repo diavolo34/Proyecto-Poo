@@ -3,9 +3,12 @@ package construtrack;
 import construtrack.controlador.swing.AplicacionSwing;
 import construtrack.controlador.web.ServidorWeb;
 import construtrack.modelo.Plataforma;
-import construtrack.modelo.incidencias.FabricaIncidencias;
+import construtrack.modelo.novedades.FabricaNovedades;
 import construtrack.persistencia.Almacen;
 import construtrack.persistencia.AlmacenArchivo;
+import construtrack.persistencia.AlmacenArchivos;
+import construtrack.persistencia.AlmacenArchivosCarpeta;
+import construtrack.persistencia.AlmacenArchivosDrive;
 import construtrack.persistencia.AlmacenMemoria;
 import construtrack.persistencia.AlmacenUpstash;
 import construtrack.persistencia.GeneradorDatosPrueba;
@@ -40,7 +43,7 @@ public final class App {
         boolean modoDemo = Arrays.asList(args).contains("--demo") || "true".equalsIgnoreCase(entorno("DEMO", "false"));
         String claveDemo = entorno("DEMO_CLAVE", "");
 
-        FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
+        FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
         RepositorioTexto repositorio = new RepositorioTexto(almacen(),
                 modoDemo ? new GeneradorDatosPrueba(reloj, fabrica) : () -> null, fabrica);
         Plataforma plataforma = repositorio.cargar();
@@ -49,8 +52,9 @@ public final class App {
             hilo.setDaemon(true);
             return hilo;
         });
-        Servicios servicios = new Servicios(plataforma, repositorio, reloj, repositorio.siguienteIdIncidencia(),
-                notificador(puerto), correos);
+        AlmacenArchivos archivos = almacenArchivos();
+        Servicios servicios = new Servicios(plataforma, repositorio, reloj, repositorio.siguienteIdNovedad(),
+                notificador(puerto), correos, archivos);
         Servicios demo = claveDemo.isEmpty() ? null : demoPrivada(reloj, fabrica);
 
         ServidorWeb web;
@@ -66,6 +70,7 @@ public final class App {
         System.out.println("ConstruTrack listo en " + web.getUrl()
                 + " (" + plataforma.listarEmpresas().size() + " empresa(s), datos en " + repositorio.getAlmacen().descripcion()
                 + ", correo " + (servicios.invitaciones().correoReal() ? "real activado" : "solo registrado en consola")
+                + ", adjuntos en " + archivos.descripcion()
                 + ", " + (modoDemo ? "modo demostración" : "modo producción")
                 + (demo == null ? "" : ", demo privada en /demo") + ")");
 
@@ -75,10 +80,10 @@ public final class App {
         }
     }
 
-    private static Servicios demoPrivada(Clock reloj, FabricaIncidencias fabrica) {
+    private static Servicios demoPrivada(Clock reloj, FabricaNovedades fabrica) {
         RepositorioTexto memoria = new RepositorioTexto(new AlmacenMemoria(), new GeneradorDatosPrueba(reloj, fabrica), fabrica);
         Plataforma plataforma = memoria.cargar();
-        return new Servicios(plataforma, memoria, reloj, memoria.siguienteIdIncidencia(), new NotificadorConsola());
+        return new Servicios(plataforma, memoria, reloj, memoria.siguienteIdNovedad(), new NotificadorConsola());
     }
 
     private static Notificador notificador(int puerto) {
@@ -94,6 +99,15 @@ public final class App {
             return new NotificadorBrevo(NotificadorBrevo.API, clave, remitente, sitio);
         }
         return new NotificadorConsola(sitio);
+    }
+
+    private static AlmacenArchivos almacenArchivos() {
+        String script = entorno("GMAIL_SCRIPT_URL", "");
+        String claveScript = entorno("GMAIL_SCRIPT_CLAVE", "");
+        if (!script.isEmpty() && !claveScript.isEmpty() && !"false".equalsIgnoreCase(entorno("ADJUNTOS_EN_DRIVE", "true"))) {
+            return new AlmacenArchivosDrive(script, claveScript);
+        }
+        return new AlmacenArchivosCarpeta(Path.of(entorno("ADJUNTOS", "adjuntos_construtrack")));
     }
 
     private static Almacen almacen() {

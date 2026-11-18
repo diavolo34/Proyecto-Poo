@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import javax.swing.JOptionPane;
 import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
@@ -59,7 +58,6 @@ public final class ControladoraPersonal {
                 abrirDialogo(cedula);
             }
         });
-        vista.getBtnEliminar().addActionListener(e -> eliminar());
     }
 
     private void filtrar() {
@@ -84,12 +82,14 @@ public final class ControladoraPersonal {
             supervisores.add(new Opcion(s.getCedula(), s.getNombre()));
         }
         dialogo.cargarSupervisores(supervisores);
+        dialogo.cargarCatalogo(usuario.getEmpresa().getCatalogo().getPuestos(), usuario.getEmpresa().getCatalogo().getAreas());
         if (cedula != null) {
             Usuario u = personal.ver(usuario, cedula);
             Horario h = u.getHorario();
             String supervisor = u instanceof Empleado e && e.getSupervisor() != null ? e.getSupervisor().getCedula() : "";
             dialogo.cargar(u.getRol(), u.getCedula(), u.getNombre(), h.getDias(), h.getHoraEntrada().toString(),
                     h.getHoraSalida().toString(), supervisor, u.estaPresente());
+            dialogo.cargarPuesto(u.getPuesto(), u.getArea());
         }
         dialogo.getBtnCancelar().addActionListener(e -> dialogo.dispose());
         dialogo.getBtnGuardar().addActionListener(e -> {
@@ -108,35 +108,14 @@ public final class ControladoraPersonal {
         dialogo.setVisible(true);
     }
 
-    private void eliminar() {
-        String cedula = cedulaSeleccionada();
-        if (cedula == null) {
-            return;
-        }
-        Usuario u = personal.ver(usuario, cedula);
-        int respuesta = JOptionPane.showConfirmDialog(vista,
-                "¿Eliminar a " + u.getNombre() + "? Esta acción no se puede deshacer.",
-                "Confirmar eliminación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (respuesta != JOptionPane.YES_OPTION) {
-            return;
-        }
-        try {
-            personal.eliminar(usuario, cedula);
-            vista.mostrarMensaje("se eliminó a " + u.getNombre() + ".", false);
-            alCambiar.run();
-        } catch (ConstruTrackException e) {
-            vista.mostrarMensaje(e.getMessage(), true);
-        }
-    }
-
     public void refrescar() {
         DefaultTableModel modelo = vista.getModelo();
         modelo.setRowCount(0);
         for (Usuario u : personal.listarVisibles(usuario)) {
             Horario h = u.getHorario();
             String supervisor = u instanceof Empleado e && e.getSupervisor() != null ? e.getSupervisor().getNombre() : "—";
-            modelo.addRow(new Object[] {u.getCedula(), u.getNombre(), u.getRol(),
-                u.estaPresente() ? "En la obra" : "Fuera", h.getDias() + " · " + h.getHoraEntrada() + "–" + h.getHoraSalida(),
+            modelo.addRow(new Object[] {u.getCedula(), u.getNombre(), u.getRol(), u.getPuesto() == null ? "—" : u.getPuesto(),
+                u.getArea() == null ? "—" : u.getArea(), u.estaPresente() ? "En la obra" : "Fuera", h.getDias() + " · " + h.getHoraEntrada() + "–" + h.getHoraSalida(),
                 supervisor, u.getObra() == null ? "—" : u.getObra().getNombre()});
         }
     }

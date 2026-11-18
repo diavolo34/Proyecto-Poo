@@ -1,0 +1,118 @@
+@startuml clases_talento_inventario
+!include estilo.iuml
+title Diagrama de Clases Detallado (5/5) · Obras, talento humano e inventario
+
+class Empresa {
+  + registrarEgreso(p : Usuario, d : Egreso.Datos, f : Firma, ahora : LocalDateTime) : Egreso
+  + eliminarFicha(id : int, expediente : String, ahora : LocalDateTime) : void
+  + purgarInvitaciones(ahora : LocalDateTime) : int
+  + quitarPuesto(nombre : String) : void
+}
+class Catalogo {
+  - puestos : List<String>
+  - areas : List<String>
+  + agregarPuesto(nombre : String) : String
+  + puestoValido(nombre : String) : String
+  + areaValida(nombre : String) : String
+}
+class Obra {
+  - estado : EstadoObra = PLANIFICADA
+  - fechaInicioReal : LocalDate
+  - fechaConclusion : LocalDate
+  + iniciar(hoy : LocalDate) : void
+  + concluir(hoy : LocalDate) : void
+  + reportarRetraso(quien : Firma, motivo : String, nuevoFin : LocalDate, ahora : LocalDateTime) : RetrasoObra
+  + retrasosSinRevisar() : List<RetrasoObra>
+  + admitePersonal() : boolean
+}
+enum EstadoObra {
+  PLANIFICADA
+  EN_CURSO
+  CONCLUIDA
+}
+class RetrasoObra {
+  - motivo : String
+  - finAnterior : LocalDate
+  - finNuevo : LocalDate
+  + marcarRevisado(quien : Firma, ahora : LocalDateTime) : void
+  + diasDeRetraso() : long
+}
+class Egreso {
+  - tipo : TipoEgreso
+  - fecha : LocalDate
+  - motivo : String
+  - voucher : String
+  - carta : String
+  - devolvioEquipos : boolean
+  - notaEquipos : String
+  - expediente : String
+  + {static} de(id : int, p : Usuario, d : Datos, f : Firma, ahora : LocalDateTime) : Egreso
+  + eliminarFicha(expediente : String, ahora : LocalDateTime) : void
+}
+enum TipoEgreso {
+  DESPIDO
+  RENUNCIA
+}
+class Inventario {
+  + agregar(c : CategoriaArticulo, nombre : String, marca : String, serie : String, cantidad : int, nota : String) : Articulo
+  + asignar(codigo : String, persona : Firma, cantidad : int, entrega : Firma, obra : String, prevista : LocalDate, nota : String, ahora : LocalDateTime) : Asignacion
+  + devolver(id : int, c : CondicionDevolucion, recibe : Firma, nota : String, ahora : LocalDateTime) : Asignacion
+  + devolverTodoDe(cedula : String, recibe : Firma, ahora : LocalDateTime) : List<Asignacion>
+  + vencidas(hoy : LocalDate) : List<Asignacion>
+}
+class Articulo {
+  - codigo : String
+  - nombre : String
+  - serie : String
+  - cantidad : int
+  - estado : EstadoArticulo = OPERATIVO
+  + disponibles() : int
+  + enUso() : int
+}
+class Asignacion {
+  - cantidad : int
+  - devolucionPrevista : LocalDate
+  - condicion : CondicionDevolucion
+  + estaAbierta() : boolean
+  + vencidaEn(hoy : LocalDate) : boolean
+}
+enum CategoriaArticulo {
+  HERRAMIENTA
+  EQUIPO
+  MATERIAL
+}
+enum CondicionDevolucion {
+  BUENA
+  DANADA
+  EXTRAVIADA
+}
+class ArchivoAdjunto <<record>> {
+  + id : String
+  + nombre : String
+  + tipo : String
+  + confidencial : boolean
+  + puedeVerlo(u : Usuario) : boolean
+}
+class Usuario {
+  - activo : boolean = true
+  - fechaEgreso : LocalDate
+  - puesto : String
+  - area : String
+}
+
+Empresa "1" *-- "1" Catalogo
+Empresa "1" *-- "0..*" Obra
+Empresa "1" *-- "0..*" Egreso : talento humano >
+Empresa "1" *-- "1" Inventario
+Empresa "1" *-- "0..*" ArchivoAdjunto
+Obra --> EstadoObra
+Obra "1" *-- "0..*" RetrasoObra
+Egreso --> TipoEgreso
+Egreso ..> ArchivoAdjunto : voucher / carta
+Egreso ..> Usuario : desactiva >
+Inventario "1" *-- "0..*" Articulo
+Articulo "1" *-- "0..*" Asignacion : historial >
+Articulo --> CategoriaArticulo
+Asignacion --> CondicionDevolucion
+Usuario ..> Catalogo : puesto y área
+@enduml

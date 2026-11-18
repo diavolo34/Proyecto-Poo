@@ -1,17 +1,23 @@
 package construtrack.servicio;
 
 import construtrack.modelo.Empresa;
+import construtrack.modelo.Firma;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Obra;
 import construtrack.modelo.Plataforma;
+import construtrack.modelo.RetrasoObra;
+import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.NoEncontradoException;
+import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.persistencia.EscritorDatos;
 import construtrack.util.Totp;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
@@ -69,8 +75,49 @@ public class ServicioObras extends ServicioBase {
                 throw new NoEncontradoException("No existe una persona con la cédula " + cedula + ".");
             }
             Obra obra = codigoObra == null || codigoObra.isBlank() ? null : buscar(actual, codigoObra);
+            if (obra != null && !obra.admitePersonal()) {
+                throw new OperacionInvalidaException("La obra «" + obra.getNombre() + "» ya concluyó: no admite personal.");
+            }
+            persona.verificarActivo();
             actual.asignarObra(persona, obra);
             return persona;
+        });
+    }
+
+    public Obra iniciar(Usuario actual, String codigo) {
+        verificarGestion(actual);
+        return modificar(() -> {
+            Obra obra = buscar(actual, codigo);
+            obra.iniciar(LocalDate.now(reloj));
+            return obra;
+        });
+    }
+
+    public Obra concluir(Usuario actual, String codigo) {
+        verificarGestion(actual);
+        return modificar(() -> {
+            Obra obra = buscar(actual, codigo);
+            obra.concluir(LocalDate.now(reloj));
+            return obra;
+        });
+    }
+
+    public RetrasoObra reportarRetraso(Usuario actual, String codigo, String motivo, String nuevaFecha) {
+        if (!(actual instanceof Supervisor)) {
+            throw new PermisoDenegadoException("El retraso lo reporta el supervisor de la obra; el gerente lo recibe como alerta.");
+        }
+        LocalDate fin = fecha(nuevaFecha, "nueva fecha estimada de conclusión");
+        return modificar(() -> buscar(actual, codigo).reportarRetraso(Firma.de(actual), motivo, fin, LocalDateTime.now(reloj)));
+    }
+
+    public RetrasoObra revisarRetraso(Usuario actual, String codigo, int id) {
+        if (!(actual instanceof Gerente)) {
+            throw new PermisoDenegadoException("Solo el gerente marca los retrasos como revisados.");
+        }
+        return modificar(() -> {
+            RetrasoObra retraso = buscar(actual, codigo).buscarRetraso(id);
+            retraso.marcarRevisado(Firma.de(actual), LocalDateTime.now(reloj));
+            return retraso;
         });
     }
 
@@ -117,7 +164,7 @@ public class ServicioObras extends ServicioBase {
 
     private static void verificarGestion(Usuario actual) {
         if (!actual.puedeGestionarObras()) {
-            throw new PermisoDenegadoException("Solo el Supervisor y el Jefe pueden gestionar obras.");
+            throw new PermisoDenegadoException("Solo el supervisor y el gerente gestionan las obras.");
         }
     }
 

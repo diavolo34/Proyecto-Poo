@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpExchange;
 final class CabecerasSeguridad {
     static final String CSP_PAGINAS = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
             + "img-src 'self' data: blob:; connect-src 'self' https://construtrack-api.onrender.com; font-src 'self'; "
+            + "frame-src https://www.openstreetmap.org; "
             + "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
 
     private CabecerasSeguridad() {

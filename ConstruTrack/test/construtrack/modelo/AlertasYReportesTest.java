@@ -43,15 +43,16 @@ class AlertasYReportesTest {
     }
 
     @Test
-    @DisplayName("El monitor aplica todas las reglas solo a empleados; a igual antigüedad, primero la más grave")
+    @DisplayName("El monitor evalúa a empleados y supervisores, no al gerente; a igual antigüedad, primero la más grave")
     void monitorConReglasInyectadas() {
         tardeLunesYMartes(d.jose);
 
         MonitorSupervision monitor = new MonitorSupervision(List.<ReglaAlerta>of(new RetardosReiterados(2), new AusenciaSinJustificar()));
         List<Alerta> alertas = monitor.evaluar(d.empresa.listarUsuarios(), semana, HOY, AHORA);
         assertEquals(Nivel.ALTA, alertas.get(0).getNivel());
-        assertEquals("Laura Torres", alertas.get(0).getNombre());
-        assertTrue(alertas.stream().noneMatch(a -> a.getNombre().equals("Ana Rodríguez")), "Los supervisores no se evalúan");
+        assertTrue(alertas.stream().anyMatch(a -> a.getNombre().equals("Laura Torres") && a.getNivel() == Nivel.ALTA));
+        assertTrue(alertas.stream().anyMatch(a -> a.getNombre().equals("Ana Rodríguez")), "Los supervisores también se evalúan");
+        assertTrue(alertas.stream().noneMatch(a -> a.getNombre().equals("Carlos Méndez")), "El gerente no se evalúa");
     }
 
     @Test
@@ -71,9 +72,9 @@ class AlertasYReportesTest {
     void reporteAsistencia() {
         tardeLunesYMartes(d.jose);
         Documento doc = new ReporteAsistencia().generar(List.of(d.jose, d.laura), semana, HOY);
-        assertEquals(13, doc.getColumnas().size(), "8 de asistencia + 5 de horas trabajadas y extra");
+        assertEquals(14, doc.getColumnas().size(), "9 de asistencia (con días de incapacidad) + 5 de horas trabajadas y extra");
 
-        assertEquals(List.of("30000001", "José García", "Empleado", "2", "2", "100.0", "0", "0", "0.0", "18.0", "0.0", "0.0", "0.0"),
+        assertEquals(List.of("30000001", "José García", "Empleado", "2", "2", "100.0", "0", "0", "0", "0.0", "18.0", "0.0", "0.0", "0.0"),
                 doc.getFilas().get(0).stream().map(c -> c.replace(',', '.')).toList());
         assertEquals("2", doc.getFilas().get(1).get(6), "Laura tiene 2 ausencias sin justificar");
     }

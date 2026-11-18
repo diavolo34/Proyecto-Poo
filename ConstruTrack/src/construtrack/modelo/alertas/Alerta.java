@@ -25,6 +25,11 @@ public final class Alerta {
         return new Alerta(nivel, empleado.getCedula(), empleado.getNombre(), mensaje, desde, ahora);
     }
 
+    public static Alerta general(Nivel nivel, String referencia, String titulo, String mensaje, LocalDateTime desde,
+            LocalDateTime ahora) {
+        return new Alerta(nivel, referencia, titulo, mensaje, desde, ahora);
+    }
+
     public Nivel getNivel() {
         return nivel;
     }

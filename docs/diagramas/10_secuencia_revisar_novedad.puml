@@ -1,0 +1,32 @@
+@startuml secuencia_revisar_novedad
+!include estilo.iuml
+title Secuencia: Aprobar reposo médico con nota (Gerente)
+autoactivate on
+actor Gerente as A
+participant "carlos:Gerente" as G
+participant "rm:ReposoMedico" as RM
+participant "hist:Historial" as HI
+
+A -> G : revisar(rm, APROBADA, nota, ahora)
+G -> G : puedeRevisar(rm)
+G --> G : misma empresa y el afectado no es gerente
+alt sin autoridad
+  G --> A : PermisoDenegadoException
+else tiene autoridad
+  G -> RM : revisar(APROBADA, Firma(carlos), nota, ahora)
+  alt ya está aprobada o rechazada
+    RM --> G : OperacionInvalidaException
+  else nota vacía
+    RM --> G : DatoInvalidoException("Escribe una nota…")
+  else nota válida
+    RM -> RM : estado = APROBADA, revisadaPor = carlos
+    RM --> RM
+    RM --> G
+  end
+  G --> A
+end
+note over HI
+  Después, hist.justificacionDel(fecha) devuelve el reposo con la etiqueta
+  «Incapacidad» y jose.marcarEntrada(...) se rechaza mientras dure.
+end note
+@enduml

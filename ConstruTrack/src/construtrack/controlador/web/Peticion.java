@@ -61,12 +61,19 @@ public class Peticion {
         return porDefecto;
     }
 
+    public static final int TAMANO_MAXIMO_ARCHIVOS = 8 * 1024 * 1024;
+
     public Map<String, String> cuerpo() {
+        return cuerpo(TAMANO_MAXIMO);
+    }
+
+    public Map<String, String> cuerpo(int limite) {
         if (cuerpo == null) {
             try (InputStream entrada = exchange.getRequestBody()) {
-                byte[] bytes = entrada.readNBytes(TAMANO_MAXIMO + 1);
-                if (bytes.length > TAMANO_MAXIMO) {
-                    throw new DatoInvalidoException("La petición es demasiado grande.");
+                byte[] bytes = entrada.readNBytes(limite + 1);
+                if (bytes.length > limite) {
+                    throw new DatoInvalidoException(limite > TAMANO_MAXIMO
+                            ? "El archivo es demasiado grande: el máximo es 5 MB." : "La petición es demasiado grande.");
                 }
                 String texto = new String(bytes, StandardCharsets.UTF_8);
                 cuerpo = texto.isBlank() ? new HashMap<>() : Json.leerObjeto(texto);
@@ -92,10 +99,14 @@ public class Peticion {
 
     public Usuario usuario() {
         Usuario usuario = sesiones.obtenerUsuario(token());
+        if (usuario != null && !usuario.estaActivo()) {
+            sesiones.cerrarSesion(token());
+            throw new SesionRequeridaException();
+        }
         if (usuario == null) {
             if (sesiones.obtenerCuenta(token()) != null) {
                 throw new construtrack.modelo.excepciones.PermisoDenegadoException(
-                        "Aún no perteneces a la empresa. Ingresa el código de invitación que te dio tu jefe.");
+                        "Aún no perteneces a la empresa. Ingresa el código de invitación que te dio tu gerente.");
             }
             throw new SesionRequeridaException();
         }

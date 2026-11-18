@@ -53,7 +53,7 @@ function pantallaLogin() {
     <div class="separador">¿Primera vez en ConstruTrack?</div>
     <a class="btn btn-contorno btn-bloque" href="#registro">Crear una cuenta</a>
     ${Api.servidor.demo ? `<div class="demo-usuarios"><strong>Usuarios de prueba</strong> (clic para completar):<br>
-      <button class="btn btn-enlace" data-demo="carlos.mendez@construtrack.demo|jefe123">Jefe</button>·
+      <button class="btn btn-enlace" data-demo="carlos.mendez@construtrack.demo|gerente123">Gerente</button>·
       <button class="btn btn-enlace" data-demo="20000001|super123">Supervisor</button>·
       <button class="btn btn-enlace" data-demo="30000001|emp123">Empleado</button>·
       <button class="btn btn-enlace" data-demo="rosa.gutierrez@correo.com|rosa1234">Sin empresa</button>
@@ -148,7 +148,7 @@ function pantallaRecuperar() {
       <div class="mensaje mensaje-error oculto" role="alert"></div>
       <button class="btn btn-primario btn-bloque" type="submit">Enviarme el enlace</button>
     </form>
-    <p class="nota-acceso">Si tu jefe creó tu usuario solo con la cédula, sin correo, pídele que te asigne una clave nueva.</p>
+    <p class="nota-acceso">Si tu gerente creó tu usuario solo con la cédula, sin correo, pídele que te asigne una clave nueva.</p>
     <div class="separador">¿La recordaste?</div>
     <a class="btn btn-contorno btn-bloque" href="#login">Volver a iniciar sesión</a>`);
   const formulario = $('#form-recuperar');
@@ -233,13 +233,13 @@ function pantallaRegistro(parametros) {
       <fieldset class="opciones-rol">
         <legend class="solo-lector">¿Cómo usarás ConstruTrack?</legend>
         <label class="opcion-rol"><input type="radio" name="tipo" value="unirme" checked>
-          <span><strong>Me uno a una empresa</strong><span class="pequeno suave">Mi jefe me dará un código de invitación (empleado o supervisor).</span></span></label>
-        <label class="opcion-rol"><input type="radio" name="tipo" value="jefe">
-          <span><strong>Soy jefe: crear mi empresa</strong><span class="pequeno suave">Creo la empresa e invito a mi equipo.</span></span></label>
+          <span><strong>Me uno a una empresa</strong><span class="pequeno suave">Mi gerente me dará un código de invitación (empleado o supervisor).</span></span></label>
+        <label class="opcion-rol"><input type="radio" name="tipo" value="gerente">
+          <span><strong>Soy gerente: crear mi empresa</strong><span class="pequeno suave">Creo la empresa e invito a mi personal.</span></span></label>
       </fieldset>
       <div class="campo oculto" id="campo-empresa"><label for="r-empresa">Nombre de la empresa *</label>
         <input id="r-empresa" name="empresa" autocomplete="organization" maxlength="60" placeholder="Ej.: Constructora Los Andes">
-        <span class="ayuda">Serás su Jefe: podrás crear obras e invitar a supervisores y empleados.</span></div>
+        <span class="ayuda">Serás su Gerente: podrás crear obras e invitar a supervisores y empleados.</span></div>
       <div class="campo"><label for="correo">Correo electrónico *</label>
         <input id="correo" name="correo" type="email" autocomplete="email" required>
         <span class="ayuda">Lo usarás para iniciar sesión.</span></div>
@@ -267,13 +267,13 @@ function pantallaRegistro(parametros) {
   $('#correo').value = parametros.get('correo') || '';
   const empresa = $('#r-empresa');
   const alternarTipo = () => {
-    const esJefe = formulario.querySelector('input[name=tipo]:checked').value === 'jefe';
-    $('#campo-empresa').classList.toggle('oculto', !esJefe);
-    empresa.required = esJefe;
-    formulario.querySelector('button[type=submit]').textContent = esJefe ? 'Crear cuenta y empresa' : 'Crear cuenta';
+    const esGerente = formulario.querySelector('input[name=tipo]:checked').value === 'gerente';
+    $('#campo-empresa').classList.toggle('oculto', !esGerente);
+    empresa.required = esGerente;
+    formulario.querySelector('button[type=submit]').textContent = esGerente ? 'Crear cuenta y empresa' : 'Crear cuenta';
   };
   formulario.querySelectorAll('input[name=tipo]').forEach((r) => r.addEventListener('change', alternarTipo));
-  if (parametros.get('tipo') === 'jefe') formulario.querySelector('input[value=jefe]').checked = true;
+  if (parametros.get('tipo') === 'gerente') formulario.querySelector('input[value=gerente]').checked = true;
   alternarTipo();
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
@@ -295,7 +295,7 @@ function pantallaRegistro(parametros) {
         aviso('Cuenta creada. Te enviamos un código a tu correo para confirmarlo.');
         location.hash = 'unirse';
       } else {
-        aviso(`Tu empresa «${sesion.usuario.empresa}» está lista. Ahora invita a tu equipo.`);
+        aviso(`Tu empresa «${sesion.usuario.empresa}» está lista. Ahora invita a tu personal.`);
         location.hash = 'invitaciones';
       }
       enrutar();
@@ -305,7 +305,7 @@ function pantallaRegistro(parametros) {
       boton.disabled = false;
     }
   });
-  (parametros.get('tipo') === 'jefe' ? empresa : parametros.get('correo') ? $('#nombre') : $('#correo')).focus();
+  (parametros.get('tipo') === 'gerente' ? empresa : parametros.get('correo') ? $('#nombre') : $('#correo')).focus();
 }
 
 function pantallaVerificarCorreo() {
@@ -339,7 +339,7 @@ function pantallaVerificarCorreo() {
       aviso(respuesta.mensaje);
       if (respuesta.usuario) {
         estado.usuario = respuesta.usuario;
-        location.hash = respuesta.usuario.rol === 'Jefe' ? 'invitaciones' : 'asistencia';
+        location.hash = respuesta.usuario.rol === 'Gerente' ? 'invitaciones' : 'asistencia';
       }
       enrutar();
     } catch (e) {
@@ -361,7 +361,7 @@ function pantallaVerificarCorreo() {
 function pantallaUnirse() {
   marcoAcceso(`
     <h1>¡Hola, ${esc(estado.cuenta.nombre)}! Únete a tu empresa</h1>
-    <p class="bajada">Tu cuenta ya está creada. Escribe el código de invitación que te dio tu jefe.
+    <p class="bajada">Tu cuenta ya está creada. Escribe el código de invitación que te dio tu gerente.
       Al unirte tendrás el rol, el supervisor y la obra que él definió.</p>
     <form id="form-unirse" novalidate>
       <div class="campo"><label for="codigo">Código de invitación *</label>
@@ -370,15 +370,15 @@ function pantallaUnirse() {
       <div class="mensaje mensaje-error oculto" role="alert"></div>
       <button class="btn btn-primario btn-bloque" type="submit">Unirme a la empresa</button>
     </form>
-    <p class="pequeno suave" style="margin-top:14px">¿No tienes código? Pídeselo a tu jefe.${Api.servidor.demo ? ' Para probar: <strong>CT-RQ7K-4M2P</strong>' : ''}</p>
-    <div class="separador">¿Eres jefe?</div>
+    <p class="pequeno suave" style="margin-top:14px">¿No tienes código? Pídeselo a tu gerente.${Api.servidor.demo ? ' Para probar: <strong>CT-RQ7K-4M2P</strong>' : ''}</p>
+    <div class="separador">¿Eres gerente?</div>
     <details class="crear-empresa">
       <summary class="btn btn-contorno btn-bloque">Crear mi empresa</summary>
       <form id="form-empresa" novalidate style="margin-top:12px">
         <div class="campo"><label for="u-empresa">Nombre de la empresa *</label>
           <input id="u-empresa" name="nombre" autocomplete="organization" maxlength="60" required placeholder="Ej.: Constructora Los Andes"></div>
         <div class="mensaje mensaje-error oculto" role="alert"></div>
-        <button class="btn btn-primario btn-bloque" type="submit">Crear empresa y entrar como jefe</button>
+        <button class="btn btn-primario btn-bloque" type="submit">Crear empresa y entrar como gerente</button>
       </form>
     </details>
     <button class="btn btn-enlace btn-bloque" id="salir-unirse">Cerrar sesión</button>`);
@@ -422,7 +422,7 @@ function pantallaDemo() {
       <div class="campo"><label for="clave-demo">Clave de demostración *</label>
         <input id="clave-demo" name="clave" type="password" autocomplete="off" required></div>
       <div class="campo"><label for="rol-demo">Entrar como</label>
-        <select id="rol-demo" name="rol"><option>Jefe</option><option>Supervisor</option><option>Empleado</option></select></div>
+        <select id="rol-demo" name="rol"><option>Gerente</option><option>Supervisor</option><option>Empleado</option></select></div>
       <div class="mensaje mensaje-error oculto" role="alert"></div>
       <button class="btn btn-primario btn-bloque" type="submit">Entrar a la demo</button>
     </form>` : '<p class="mensaje mensaje-info">La demostración privada no está activada en este servidor.</p>'}

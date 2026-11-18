@@ -194,7 +194,7 @@
 }
 .lp-rol::before { content: ""; position: absolute; z-index: -1; inset: 0 0 auto; height: 104px; background: var(--lp-rol-fondo); }
 .lp-rol-supervisor { --lp-rol-fondo: var(--azul-suave); }
-.lp-rol-jefe { --lp-rol-fondo: var(--morado-suave); }
+.lp-rol-gerente { --lp-rol-fondo: var(--morado-suave); }
 .lp-rol img { display: block; width: 116px; height: 116px; margin: 20px 0 18px; border-radius: 50%; box-shadow: 0 0 0 6px #fff, 0 12px 24px -12px rgba(9, 30, 66, .4); }
 .lp-rol h3 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
 .lp-rol-lema { color: var(--texto-suave); font-size: 16px; margin: 0; }
@@ -355,3 +355,28 @@
 .lp-primera p { margin: 0 0 16px; font-size: 17px; line-height: 1.6; max-width: 620px; }
 .lp-primera .lp-primera-titulo { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
 .lp-sin-obras a { color: #fff; font-weight: 700; text-decoration: underline; }
+
+.lp-hero h1 { font-size: clamp(36px, 4.4vw, 56px); }
+.lp-rotador { display: block; min-height: 2.08em; }
+.lp-rotador .lp-resalte { display: inline; }
+.lp-rotador-palabra { display: inline; transition: opacity .3s ease; }
+.lp-rotador-palabra.lp-saliendo { opacity: 0; }
+.lp-rotador-palabra.lp-entrando { opacity: 0; transition: none; }
+.lp-valores { padding: 8px 0 36px; }
+.lp-valores-rejilla { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.lp-valor { background: #fff; border: 1px solid var(--borde); border-radius: 14px; padding: 20px; box-shadow: 0 1px 2px rgba(9, 30, 66, .06); }
+.lp-valor h2 { font-size: 17px; margin: 10px 0 6px; }
+.lp-valor p { margin: 0; color: var(--texto-suave); font-size: 14.5px; line-height: 1.5; }
+.lp-valor-icono { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px;
+  background: var(--azul-suave); color: var(--azul-oscuro); font-size: 20px; }
+@media (prefers-reduced-motion: no-preference) {
+  .lp-animar .lp-retraso-1 { transition-delay: .12s; }
+  .lp-animar .lp-retraso-2 { transition-delay: .24s; }
+  .lp-animar .lp-retraso-3 { transition-delay: .36s; }
+}
+@media (max-width: 900px) {
+  .lp-valores-rejilla { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .lp-valores-rejilla { grid-template-columns: 1fr; }
+}

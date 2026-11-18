@@ -13,12 +13,11 @@ public final class PanelPersonal extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private final DefaultTableModel modelo =
-            Tema.modeloSoloLectura("Cédula", "Nombre", "Rol", "Estado", "Horario", "Supervisor", "Obra");
+            Tema.modeloSoloLectura("Cédula", "Nombre", "Rol", "Puesto", "Área", "Estado", "Horario", "Supervisor", "Obra");
     private final JTable tabla = Tema.tabla(modelo);
     private final JTextField txtBuscar = new JTextField(22);
     private final JButton btnRegistrar = Tema.botonPrimario("+ Registrar persona");
     private final JButton btnEditar = Tema.botonSecundario("Editar");
-    private final JButton btnEliminar = Tema.botonPeligro("Eliminar");
     private final JLabel lblMensaje = Tema.texto(" ");
 
     public PanelPersonal(String titulo, boolean puedeEditar) {
@@ -32,14 +31,12 @@ public final class PanelPersonal extends JPanel {
         acciones.setOpaque(false);
         JLabel lblBuscar = Tema.texto("Buscar:");
         lblBuscar.setLabelFor(txtBuscar);
-        txtBuscar.setToolTipText("Filtra por nombre, cédula, rol u obra mientras escribes");
+        txtBuscar.setToolTipText("Filtra por nombre, cédula, rol, puesto, área u obra mientras escribes");
         acciones.add(lblBuscar);
         acciones.add(txtBuscar);
         if (puedeEditar) {
             btnEditar.setToolTipText("Edita a la persona seleccionada en la tabla");
-            btnEliminar.setToolTipText("Pide confirmación antes de eliminar");
             acciones.add(btnEditar);
-            acciones.add(btnEliminar);
             acciones.add(btnRegistrar);
         }
         barra.add(acciones, BorderLayout.EAST);
@@ -47,7 +44,7 @@ public final class PanelPersonal extends JPanel {
 
         JPanel tarjeta = Tema.tarjeta(new BorderLayout());
         tabla.getAccessibleContext().setAccessibleName("Personal");
-        Tema.anchos(tabla, 90, 160, 90, 90, 260, 140, 170);
+        Tema.anchos(tabla, 80, 150, 80, 140, 110, 80, 200, 130, 150);
         tarjeta.add(Tema.desplazable(tabla), BorderLayout.CENTER);
         add(tarjeta, BorderLayout.CENTER);
         add(lblMensaje, BorderLayout.SOUTH);
@@ -78,7 +75,4 @@ public final class PanelPersonal extends JPanel {
         return btnEditar;
     }
 
-    public JButton getBtnEliminar() {
-        return btnEliminar;
-    }
 }

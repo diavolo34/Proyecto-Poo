@@ -4,7 +4,7 @@ import construtrack.modelo.Plataforma;
 import construtrack.modelo.CodigoInvitacion;
 import construtrack.modelo.Cuenta;
 import construtrack.modelo.Invitacion;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.NoEncontradoException;
@@ -36,9 +36,9 @@ public class ServicioRegistro extends ServicioBase {
         }
         Usuario.validarClaveNueva(clave);
         Usuario.validarCedulaNueva(datos.get("documento"));
-        boolean esJefe = "jefe".equals(datos.get("tipo"));
+        boolean esGerente = "gerente".equals(datos.get("tipo"));
         Cuenta registrada = modificar(() -> {
-            if (esJefe) {
+            if (esGerente) {
                 plataforma.verificarNombreDisponible(datos.get("empresa"));
             }
             if (plataforma.existeCedula(datos.get("documento"))) {
@@ -50,7 +50,7 @@ public class ServicioRegistro extends ServicioBase {
             plataforma.agregarCuenta(cuenta);
             return cuenta;
         });
-        if (esJefe) {
+        if (esGerente) {
             empresasPorFundar.put(registrada.getCorreo(), datos.get("empresa"));
         }
         verificacion.enviarCodigo(registrada);
@@ -81,7 +81,7 @@ public class ServicioRegistro extends ServicioBase {
         verificacion.enviarCodigo(cuenta);
     }
 
-    public Jefe crearEmpresa(Cuenta cuenta, String nombre) {
+    public Gerente crearEmpresa(Cuenta cuenta, String nombre) {
         if (cuenta == null) {
             throw new PermisoDenegadoException("Inicia sesión para crear tu empresa.");
         }

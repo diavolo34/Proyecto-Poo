@@ -40,7 +40,7 @@ public class MensajeInvitacion {
     public String html(Invitacion v, String correo) {
         return "<div style=\"font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#172b4d\">"
                 + "<h2 style=\"color:#0c66e4\">Te invitaron a ConstruTrack</h2>"
-                + "<p>Tu jefe te invitó a unirte al sistema de asistencia de la obra. Este es tu código:</p>"
+                + "<p>Tu gerente te invitó a unirte al sistema de asistencia de la obra. Este es tu código:</p>"
                 + "<p style=\"font-size:26px;font-weight:bold;letter-spacing:2px;background:#e9f2ff;padding:12px;"
                 + "text-align:center;border-radius:8px\">" + v.getCodigo() + "</p>"
                 + "<p style=\"color:#44546f\">" + escaparHtml(detalle(v)) + "</p>"

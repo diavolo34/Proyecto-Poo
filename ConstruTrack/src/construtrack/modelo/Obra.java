@@ -1,9 +1,11 @@
 package construtrack.modelo;
 
 import construtrack.modelo.excepciones.DatoInvalidoException;
+import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.util.Totp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -19,6 +21,10 @@ public class Obra {
     private int radioMetros;
     private boolean exigeCodigo;
     private String secretoCodigo;
+    private EstadoObra estado = EstadoObra.PLANIFICADA;
+    private LocalDate fechaInicioReal;
+    private LocalDate fechaConclusion;
+    private final List<RetrasoObra> retrasos = new ArrayList<>();
 
     public static final int RADIO_MINIMO = 20;
     public static final int RADIO_MAXIMO = 2000;
@@ -35,8 +41,81 @@ public class Obra {
         setFechas(fechaInicio, fechaFinEstimada);
     }
 
+    public void iniciar(LocalDate hoy) {
+        if (estado != EstadoObra.PLANIFICADA) {
+            throw new OperacionInvalidaException("La obra «" + nombre + "» ya está " + estado.getNombre().toLowerCase() + ".");
+        }
+        estado = EstadoObra.EN_CURSO;
+        fechaInicioReal = hoy;
+    }
+
+    public void concluir(LocalDate hoy) {
+        if (estado != EstadoObra.EN_CURSO) {
+            throw new OperacionInvalidaException("Solo se puede concluir una obra en curso. «" + nombre + "» está "
+                    + estado.getNombre().toLowerCase() + ".");
+        }
+        estado = EstadoObra.CONCLUIDA;
+        fechaConclusion = hoy;
+    }
+
+    public RetrasoObra reportarRetraso(Firma quien, String motivo, LocalDate nuevoFin, LocalDateTime ahora) {
+        if (estado == EstadoObra.CONCLUIDA) {
+            throw new OperacionInvalidaException("La obra «" + nombre + "» ya concluyó.");
+        }
+        RetrasoObra retraso = new RetrasoObra(retrasos.size() + 1, ahora, quien, motivo, fechaFinEstimada, nuevoFin);
+        fechaFinEstimada = nuevoFin;
+        retrasos.add(retraso);
+        return retraso;
+    }
+
+    public RetrasoObra buscarRetraso(int id) {
+        for (RetrasoObra r : retrasos) {
+            if (r.getId() == id) {
+                return r;
+            }
+        }
+        throw new DatoInvalidoException("La obra «" + nombre + "» no tiene el retraso #" + id + ".");
+    }
+
+    public List<RetrasoObra> getRetrasos() {
+        return List.copyOf(retrasos);
+    }
+
+    public List<RetrasoObra> retrasosSinRevisar() {
+        return retrasos.stream().filter(r -> !r.estaRevisado()).toList();
+    }
+
+    public void agregarRetraso(RetrasoObra retraso) {
+        retrasos.add(retraso);
+    }
+
+    public void restaurarCiclo(EstadoObra estado, LocalDate inicioReal, LocalDate conclusion) {
+        this.estado = estado;
+        this.fechaInicioReal = inicioReal;
+        this.fechaConclusion = conclusion;
+    }
+
+    public boolean admitePersonal() {
+        return estado != EstadoObra.CONCLUIDA;
+    }
+
+    public EstadoObra getEstado() {
+        return estado;
+    }
+
+    public LocalDate getFechaInicioReal() {
+        return fechaInicioReal;
+    }
+
+    public LocalDate getFechaConclusion() {
+        return fechaConclusion;
+    }
+
     public int porcentajeTranscurrido(LocalDate hoy) {
-        if (!hoy.isAfter(fechaInicio)) {
+        if (estado == EstadoObra.CONCLUIDA) {
+            return 100;
+        }
+        if (estado == EstadoObra.PLANIFICADA || !hoy.isAfter(fechaInicio)) {
             return 0;
         }
         if (!hoy.isBefore(fechaFinEstimada)) {

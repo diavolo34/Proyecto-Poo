@@ -45,7 +45,7 @@ public class ServicioDosPasos extends ServicioBase {
 
     public Inscripcion iniciar(Usuario actual) {
         if (!actual.admiteDosPasos()) {
-            throw new PermisoDenegadoException("Solo los jefes pueden activar la verificación en dos pasos.");
+            throw new PermisoDenegadoException("Solo los gerentes pueden activar la verificación en dos pasos.");
         }
         if (actual.tieneDosPasos()) {
             throw new OperacionInvalidaException("La verificación en dos pasos ya está activa.");

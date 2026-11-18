@@ -33,4 +33,4 @@ Además, se comprobó que no hubiera errores de CSP en ninguna pantalla.
 ## Retrospectiva
 - **Bien:** las pruebas con un reloj ajustable permitieron comprobar vencimientos y bloqueos sin esperar.
 - **Mejorar:** cargar los datos ya no calcula cifrados innecesarios; antes se creaba cada persona con una clave «temporal».
-- **Para el futuro:** verificar el correo al registrarse, verificación en dos pasos para jefes y la asistencia comprobable (HU-33).
+- **Para el futuro:** verificar el correo al registrarse, verificación en dos pasos para gerentes y la asistencia comprobable (HU-33).

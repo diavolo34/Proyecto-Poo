@@ -7,6 +7,7 @@ import construtrack.modelo.Plataforma;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.CredencialesInvalidasException;
 import construtrack.modelo.excepciones.DemasiadosIntentosException;
+import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.persistencia.EscritorDatos;
 import java.time.Clock;
 import java.time.Duration;
@@ -39,6 +40,10 @@ public class ServicioAutenticacion extends ServicioBase {
             throw new CredencialesInvalidasException();
         }
         fallidos.limpiar(llave);
+        if (ingreso.usuario() != null && !ingreso.usuario().estaActivo()) {
+            throw new PermisoDenegadoException("Tu acceso a " + ingreso.usuario().getEmpresa().getNombre()
+                    + " está desactivado desde el " + ingreso.usuario().getFechaEgreso() + ". Si es un error, habla con el gerente.");
+        }
         actualizarCifrado(ingreso, clave);
         return ingreso;
     }

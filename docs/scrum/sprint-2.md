@@ -6,7 +6,7 @@
 ## Sprint Backlog
 - `Historial` (composición en `Usuario`) con consultas por `Periodo`.
 - `Incidencia` abstracta y 5 tipos, `EstadoIncidencia` con transiciones, interfaz `Justificable`, `FabricaIncidencias`.
-- `RevisorIncidencias` para `Supervisor` y `Jefe`.
+- `RevisorIncidencias` para `Supervisor` y `Gerente`.
 - `Obra`; persistencia de obras e incidencias; datos de prueba con dos semanas de historial.
 
 ## Incremento

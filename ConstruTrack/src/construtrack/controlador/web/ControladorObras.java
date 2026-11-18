@@ -31,12 +31,29 @@ public class ControladorObras implements ControladorWeb {
                     return Respuesta.json(new JsonObjeto().texto("obra", c.obra().getCodigo()).texto("nombre", c.obra().getNombre())
                             .texto("codigo", c.codigo()).numero("segundosRestantes", c.segundosRestantes()).toString());
                 })
+                .post("/api/obras/{codigo}/inicio", p -> Respuesta.json(
+                        obraSimple(obras.iniciar(p.usuario(), p.parametro("codigo")))))
+                .post("/api/obras/{codigo}/conclusion", p -> Respuesta.json(
+                        obraSimple(obras.concluir(p.usuario(), p.parametro("codigo")))))
+                .post("/api/obras/{codigo}/retrasos", p -> Respuesta.creado(JsonMapper.retraso(obras.reportarRetraso(
+                        p.usuario(), p.parametro("codigo"), p.cuerpo().get("motivo"), p.cuerpo().get("nuevaFecha")))))
+                .put("/api/obras/{codigo}/retrasos/{id}/revision", p -> Respuesta.json(JsonMapper.retraso(obras.revisarRetraso(
+                        p.usuario(), p.parametro("codigo"), entero(p.parametro("id"))))))
                 .put("/api/usuarios/{cedula}/obra", p -> Respuesta.json(JsonMapper.usuario(
                         obras.asignar(p.usuario(), p.parametro("cedula"), p.cuerpo().get("obra")), false)));
     }
 
+    private static int entero(String texto) {
+        try {
+            return Integer.parseInt(texto);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("El número de retraso no es válido.");
+        }
+    }
+
     private static String obraSimple(Obra o) {
-        return new JsonObjeto().texto("codigo", o.getCodigo()).texto("nombre", o.getNombre()).toString();
+        return new JsonObjeto().texto("codigo", o.getCodigo()).texto("nombre", o.getNombre())
+                .texto("estado", o.getEstado().name()).texto("estadoNombre", o.getEstado().getNombre()).toString();
     }
 
     private static String obra(ServicioObras.ObraConPersonas op, LocalDate hoy) {
@@ -52,8 +69,13 @@ public class ControladorObras implements ControladorWeb {
                 .numero("longitud", o.getLongitud())
                 .numero("radio", o.getRadioMetros())
                 .logico("exigeCodigo", o.exigeCodigo())
+                .texto("estado", o.getEstado().name())
+                .texto("estadoNombre", o.getEstado().getNombre())
+                .texto("inicioReal", o.getFechaInicioReal())
+                .texto("conclusion", o.getFechaConclusion())
+                .crudo("retrasos", Json.lista(o.getRetrasos(), JsonMapper::retraso))
                 .crudo("personas", Json.lista(op.personas(), u -> new JsonObjeto()
-                        .texto("cedula", u.getCedula()).texto("nombre", u.getNombre()).texto("rol", u.getRol()).toString()))
+                        .texto("cedula", u.getCedula()).texto("nombre", u.getNombre()).texto("rol", u.getRol()).texto("puesto", u.getPuesto()).toString()))
                 .toString();
     }
 }

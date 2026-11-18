@@ -1,13 +1,10 @@
 package construtrack.modelo;
 
 import construtrack.modelo.excepciones.PermisoDenegadoException;
-import construtrack.modelo.incidencias.EstadoIncidencia;
-import construtrack.modelo.incidencias.Incidencia;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Supervisor extends Usuario implements RevisorIncidencias {
+public class Supervisor extends Usuario {
     public static final String ROL = "Supervisor";
 
     private final List<Empleado> empleadosACargo = new ArrayList<>();
@@ -61,7 +58,12 @@ public class Supervisor extends Usuario implements RevisorIncidencias {
     }
 
     @Override
-    public boolean puedeReportarPara(Usuario afectado) {
+    public boolean puedeRegistrarNovedadPara(Usuario afectado) {
+        return afectado == this || supervisa(afectado);
+    }
+
+    @Override
+    public boolean puedeVerNovedadesDe(Usuario afectado) {
         return afectado == this || supervisa(afectado);
     }
 
@@ -78,15 +80,5 @@ public class Supervisor extends Usuario implements RevisorIncidencias {
     @Override
     public boolean puedeAprobarHorasDe(Usuario otro) {
         return supervisa(otro) && otro != this;
-    }
-
-    @Override
-    public boolean puedeRevisar(Incidencia incidencia) {
-        return supervisa(incidencia.getAfectado()) && incidencia.getAfectado() != this;
-    }
-
-    @Override
-    public void revisar(Incidencia incidencia, EstadoIncidencia nuevo, String comentario, LocalDateTime ahora) {
-        revisarComo(this, incidencia, nuevo, comentario, ahora);
     }
 }

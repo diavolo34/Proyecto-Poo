@@ -11,14 +11,16 @@ public class Invitacion {
     private final String rol;
     private final Supervisor supervisor;
     private final Obra obra;
-    private final Jefe creadaPor;
+    private final Gerente creadaPor;
     private final LocalDateTime creada;
     private final LocalDateTime vence;
     private EstadoInvitacion estado = EstadoInvitacion.VIGENTE;
+    private String puesto;
+    private String area;
     private Cuenta usadaPor;
     private LocalDateTime usada;
 
-    public Invitacion(CodigoInvitacion codigo, String rol, Supervisor supervisor, Obra obra, Jefe creadaPor,
+    public Invitacion(CodigoInvitacion codigo, String rol, Supervisor supervisor, Obra obra, Gerente creadaPor,
             LocalDateTime creada, LocalDateTime vence) {
         if (!Empleado.ROL.equals(rol) && !Supervisor.ROL.equals(rol)) {
             throw new DatoInvalidoException("La invitación debe ser para un Empleado o un Supervisor.");
@@ -38,6 +40,25 @@ public class Invitacion {
         this.vence = vence;
     }
 
+    public void asignarPuesto(String puesto, String area) {
+        this.puesto = puesto;
+        this.area = area;
+    }
+
+    public String getPuesto() {
+        return puesto;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public boolean caducadaEn(LocalDateTime ahora, int diasConservarUsadas) {
+        EstadoInvitacion actual = estadoEn(ahora);
+        return actual == EstadoInvitacion.VENCIDA || actual == EstadoInvitacion.CANCELADA
+                || actual == EstadoInvitacion.USADA && usada != null && ahora.isAfter(usada.plusDays(diasConservarUsadas));
+    }
+
     public EstadoInvitacion estadoEn(LocalDateTime ahora) {
         return estado == EstadoInvitacion.VIGENTE && ahora.isAfter(vence) ? EstadoInvitacion.VENCIDA : estado;
     }
@@ -53,7 +74,7 @@ public class Invitacion {
         EstadoInvitacion actual = estadoEn(ahora);
         if (actual != EstadoInvitacion.VIGENTE) {
             throw new OperacionInvalidaException("Esta invitación está " + actual.getNombre().toLowerCase()
-                    + ". Pide a tu jefe un código nuevo.");
+                    + ". Pide a tu gerente un código nuevo.");
         }
         if (cuenta.perteneceAEmpresa()) {
             throw new OperacionInvalidaException("Tu cuenta ya pertenece a la empresa.");
@@ -61,17 +82,19 @@ public class Invitacion {
         cuenta.exigirVerificada();
         if (empresa.existeCedula(cuenta.getDocumento())) {
             throw new OperacionInvalidaException("Ya hay una persona con el documento " + cuenta.getDocumento()
-                    + " registrada en ConstruTrack. Habla con tu jefe para vincularla a tu cuenta.");
+                    + " registrada en ConstruTrack. Habla con tu gerente para vincularla a tu cuenta.");
         }
         Horario horario = Horario.desdeTexto(DIAS_POR_DEFECTO, "07:00", "16:00");
         Usuario nuevo = Usuario.restaurar(rol, cuenta.getDocumento(), cuenta.getNombreCompleto(), cuenta.getClaveResumen(),
                 horario);
         nuevo.vincularCuenta(cuenta);
         nuevo.setFechaIngreso(ahora.toLocalDate());
-        if (nuevo instanceof Empleado empleado && supervisor != null) {
+        nuevo.setPuesto(puesto);
+        nuevo.setArea(area);
+        if (nuevo instanceof Empleado empleado && supervisor != null && supervisor.estaActivo()) {
             empleado.setSupervisor(supervisor);
         }
-        nuevo.setObra(obra);
+        nuevo.setObra(obra != null && obra.admitePersonal() ? obra : null);
         empresa.agregarUsuario(nuevo);
         estado = EstadoInvitacion.USADA;
         usadaPor = cuenta;
@@ -108,7 +131,7 @@ public class Invitacion {
         return obra;
     }
 
-    public Jefe getCreadaPor() {
+    public Gerente getCreadaPor() {
         return creadaPor;
     }
 

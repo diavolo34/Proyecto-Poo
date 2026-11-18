@@ -1,0 +1,36 @@
+@startuml secuencia_registrar_novedad
+!include estilo.iuml
+title Secuencia: Registrar reposo médico (el supervisor lo registra)
+autoactivate on
+actor Supervisor as A
+participant "f:FabricaNovedades" as F
+participant "rm:ReposoMedico" as RM
+participant "ana:Supervisor" as S
+participant "jose:Empleado" as E
+participant "hist:Historial" as HI
+
+A -> F : crear("REPOSO_MEDICO", LICENCIA, datos)
+create RM
+F -> RM : <<create>> ReposoMedico(datos)
+RM --> F : rm (estado = PENDIENTE)
+F --> A : rm
+A -> S : registrarNovedad(rm)
+S -> S : puedeRegistrarNovedadPara(jose)
+S --> S : supervisa(jose)
+alt no es su personal o es un empleado quien registra
+  S --> A : PermisoDenegadoException
+else es su personal
+  S -> E : estaActivo()
+  E --> S : true
+  S -> RM : validarNueva()
+  alt falta médico, matrícula, centro, tipo de consulta o documento
+    RM --> S : DatoInvalidoException
+    S --> A : DatoInvalidoException("Adjunta la imagen…")
+  else datos completos
+    RM --> S
+    S -> HI : agregarNovedad(rm)
+    HI --> S
+    S --> A
+  end
+end
+@enduml
