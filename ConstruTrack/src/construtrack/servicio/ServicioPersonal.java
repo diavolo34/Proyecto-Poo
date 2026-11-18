@@ -3,7 +3,7 @@ package construtrack.servicio;
 import construtrack.modelo.Plataforma;
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Obra;
 import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
@@ -22,7 +22,7 @@ public class ServicioPersonal extends ServicioBase {
 
     public List<Usuario> listarVisibles(Usuario actual) {
         return leer(() -> {
-            if (actual instanceof Jefe) {
+            if (actual instanceof Gerente) {
                 return empresaDe(actual).listarUsuarios();
             }
             if (actual instanceof Supervisor supervisor) {
@@ -37,7 +37,7 @@ public class ServicioPersonal extends ServicioBase {
             Usuario usuario = buscarExistente(actual, cedula);
             if (actual instanceof Supervisor supervisor && usuario instanceof Empleado empleado) {
                 supervisor.consultarAsistencia(empleado);
-            } else if (!(actual instanceof Jefe) && usuario != actual) {
+            } else if (!(actual instanceof Gerente) && usuario != actual) {
                 throw new PermisoDenegadoException("No tienes permiso para ver a este usuario.");
             }
             return usuario;
@@ -92,16 +92,16 @@ public class ServicioPersonal extends ServicioBase {
     }
 
     public Usuario registrar(Usuario actual, Map<String, String> datos) {
-        return modificar(() -> comoJefe(actual).registrarUsuario(datos));
+        return modificar(() -> comoGerente(actual).registrarUsuario(datos));
     }
 
     public Usuario actualizar(Usuario actual, String cedula, Map<String, String> datos) {
-        return modificar(() -> comoJefe(actual).modificarUsuario(cedula, datos));
+        return modificar(() -> comoGerente(actual).modificarUsuario(cedula, datos));
     }
 
     public void eliminar(Usuario actual, String cedula) {
         modificar(() -> {
-            comoJefe(actual).eliminarUsuario(cedula);
+            comoGerente(actual).eliminarUsuario(cedula);
             return null;
         });
     }
@@ -114,10 +114,10 @@ public class ServicioPersonal extends ServicioBase {
         return usuario;
     }
 
-    private Jefe comoJefe(Usuario actual) {
-        if (actual instanceof Jefe jefe) {
-            return jefe;
+    private Gerente comoGerente(Usuario actual) {
+        if (actual instanceof Gerente gerente) {
+            return gerente;
         }
-        throw new PermisoDenegadoException("Solo el Jefe puede registrar, modificar o eliminar usuarios.");
+        throw new PermisoDenegadoException("Solo el Gerente puede registrar, modificar o eliminar usuarios.");
     }
 }

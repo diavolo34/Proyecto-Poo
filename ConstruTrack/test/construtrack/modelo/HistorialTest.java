@@ -81,39 +81,39 @@ class HistorialTest {
     @Test
     @DisplayName("La salida cierra la jornada abierta aunque haya otro registro del mismo día guardado después")
     void salidaConRegistrosDesordenados() {
-        d.jefe.agregarAsistencia(new RegistroAsistencia(HOY, LocalTime.of(8, 0), true));
+        d.gerente.agregarAsistencia(new RegistroAsistencia(HOY, LocalTime.of(8, 0), true));
         RegistroAsistencia anterior = new RegistroAsistencia(HOY, LocalTime.of(6, 0), false);
         anterior.registrarSalida(LocalTime.of(7, 0));
-        d.jefe.agregarAsistencia(anterior);
+        d.gerente.agregarAsistencia(anterior);
 
-        assertTrue(d.jefe.estaPresente());
-        RegistroAsistencia cerrada = d.jefe.marcarSalida(AHORA);
+        assertTrue(d.gerente.estaPresente());
+        RegistroAsistencia cerrada = d.gerente.marcarSalida(AHORA);
         assertEquals(LocalTime.of(8, 0), cerrada.getHoraEntrada());
         assertEquals(LocalTime.of(10, 0), cerrada.getHoraSalida());
-        assertFalse(d.jefe.estaPresente());
-        d.jefe.marcarEntrada(AHORA.plusMinutes(30));
-        assertTrue(d.jefe.estaPresente());
-        assertEquals(LocalTime.of(10, 30), d.jefe.jornadaDeHoy(HOY).getHoraEntrada());
+        assertFalse(d.gerente.estaPresente());
+        d.gerente.marcarEntrada(AHORA.plusMinutes(30));
+        assertTrue(d.gerente.estaPresente());
+        assertEquals(LocalTime.of(10, 30), d.gerente.jornadaDeHoy(HOY).getHoraEntrada());
     }
 
     @Test
     @DisplayName("Si olvidó marcar la salida ayer, se cierra a la hora de salida de su horario")
     void salidaOlvidadaDeAyer() {
-        d.jefe.agregarAsistencia(new RegistroAsistencia(martes, LocalTime.of(7, 5), true));
-        assertSame(d.jefe.getAsistenciaDel(martes), d.jefe.jornadaDeHoy(HOY), "Se muestra la jornada que quedó abierta");
-        assertThrows(OperacionInvalidaException.class, () -> d.jefe.marcarEntrada(AHORA));
+        d.gerente.agregarAsistencia(new RegistroAsistencia(martes, LocalTime.of(7, 5), true));
+        assertSame(d.gerente.getAsistenciaDel(martes), d.gerente.jornadaDeHoy(HOY), "Se muestra la jornada que quedó abierta");
+        assertThrows(OperacionInvalidaException.class, () -> d.gerente.marcarEntrada(AHORA));
 
-        RegistroAsistencia cerrada = d.jefe.marcarSalida(AHORA);
+        RegistroAsistencia cerrada = d.gerente.marcarSalida(AHORA);
         assertEquals(martes, cerrada.getFecha());
         assertEquals(LocalTime.of(16, 0), cerrada.getHoraSalida());
-        d.jefe.marcarEntrada(AHORA);
-        assertEquals(HOY, d.jefe.jornadaDeHoy(HOY).getFecha());
+        d.gerente.marcarEntrada(AHORA);
+        assertEquals(HOY, d.gerente.jornadaDeHoy(HOY).getFecha());
     }
 
     @Test
     @DisplayName("Sin entrada abierta no se puede marcar la salida")
     void salidaSinEntrada() {
-        assertFalse(d.jefe.estaPresente());
-        assertThrows(OperacionInvalidaException.class, () -> d.jefe.marcarSalida(AHORA));
+        assertFalse(d.gerente.estaPresente());
+        assertThrows(OperacionInvalidaException.class, () -> d.gerente.marcarSalida(AHORA));
     }
 }

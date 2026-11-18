@@ -95,7 +95,7 @@ public class Peticion {
         if (usuario == null) {
             if (sesiones.obtenerCuenta(token()) != null) {
                 throw new construtrack.modelo.excepciones.PermisoDenegadoException(
-                        "Aún no perteneces a la empresa. Ingresa el código de invitación que te dio tu jefe.");
+                        "Aún no perteneces a la empresa. Ingresa el código de invitación que te dio tu gerente.");
             }
             throw new SesionRequeridaException();
         }

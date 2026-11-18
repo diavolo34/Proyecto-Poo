@@ -1,6 +1,6 @@
 const HORAS = Array.from({ length: 34 }, (_, i) => `${String(5 + Math.floor(i / 2)).padStart(2, '0')}:${i % 2 ? '30' : '00'}`);
 const esRevisor = () => estado.usuario && estado.usuario.rol !== 'Empleado';
-const esJefe = () => estado.usuario && estado.usuario.rol === 'Jefe';
+const esGerente = () => estado.usuario && estado.usuario.rol === 'Gerente';
 const contenido = () => $('#principal');
 
 function encabezado(migas, titulo, acciones = '') {
@@ -15,7 +15,7 @@ const VISTAS = [
   { id: 'supervision', titulo: 'Supervisión', grupo: 'Equipo', icono: '▤', disponible: esRevisor, dibujar: vistaSupervision },
   { id: 'obras', titulo: 'Obras', grupo: 'Equipo', icono: '⌂', disponible: esRevisor, dibujar: vistaObras },
   { id: 'personal', titulo: 'Personal', grupo: 'Equipo', icono: '☰', disponible: esRevisor, dibujar: vistaPersonal },
-  { id: 'invitaciones', titulo: 'Invitaciones', grupo: 'Administración', icono: '✉', disponible: esJefe, dibujar: vistaInvitaciones },
+  { id: 'invitaciones', titulo: 'Invitaciones', grupo: 'Administración', icono: '✉', disponible: esGerente, dibujar: vistaInvitaciones },
   { id: 'codigo-obra', titulo: 'Código de asistencia', grupo: 'Equipo', icono: '▣', oculta: true, disponible: esRevisor, dibujar: vistaCodigoObra },
   { id: 'seguridad', titulo: 'Seguridad', grupo: 'Administración', icono: '🔒', disponible: () => Boolean(estado.usuario && estado.usuario.admiteDosPasos), dibujar: vistaSeguridad },
 ];
@@ -334,7 +334,7 @@ async function vistaSupervision() {
   const [est, alertas, extras, marcas] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo), Api.horasExtra(),
     Api.porConfirmar()]);
   const color = (v) => (v >= 90 ? '#22a06b' : v >= 75 ? '#e2b203' : '#c9372c');
-  const nivel = { Jefe: 0, Supervisor: 1 };
+  const nivel = { Gerente: 0, Supervisor: 1 };
   est.personas = est.personas.map((p, i) => ({ ...p, orden: i }))
     .sort((a, b) => (nivel[a.rol] ?? 2) - (nivel[b.rol] ?? 2) || a.orden - b.orden);
   const lider = (p) => p.rol !== 'Empleado';
@@ -352,7 +352,7 @@ async function vistaSupervision() {
     <div class="rejilla-2" style="margin-top:16px">
       <section class="tarjeta" aria-labelledby="t-barras"><h2 id="t-barras">Asistencia por persona</h2>
         <div class="barras">${est.personas.map((p) => `<div class="barra-fila${lider(p) ? ' barra-lider' : ''}">
-          <span title="${esc(p.nombre)} · ${esc(p.rol)}">${esc(p.nombre.split(' ')[0])} ${esc((p.nombre.split(' ')[1] || '')[0] || '')}.${lider(p) ? ` <span class="marca-rol marca-${p.rol.toLowerCase()}">${p.rol === 'Jefe' ? 'J' : 'S'}</span>` : ''}</span>
+          <span title="${esc(p.nombre)} · ${esc(p.rol)}">${esc(p.nombre.split(' ')[0])} ${esc((p.nombre.split(' ')[1] || '')[0] || '')}.${lider(p) ? ` <span class="marca-rol marca-${p.rol.toLowerCase()}">${p.rol === 'Gerente' ? 'G' : 'S'}</span>` : ''}</span>
           <div class="barra-pista" role="img" aria-label="${esc(p.nombre)}: ${Math.round(p.tasaAsistencia)}% de asistencia">
             <span style="width:${p.tasaAsistencia}%;background:${color(p.tasaAsistencia)}"></span></div>
           <strong>${Math.round(p.tasaAsistencia)}%</strong></div>`).join('') || '<p class="suave">Sin datos.</p>'}</div></section>
@@ -362,8 +362,8 @@ async function vistaSupervision() {
           || '<p class="suave">Sin alertas en este período. Todo en orden.</p>'}</section>
     </div>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-ranking"><h2 id="t-ranking">Tabla de puntualidad</h2>
-      <p class="suave pequeno" style="margin-top:-6px">Primero el jefe y los supervisores (destacados); luego el equipo, de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.
-        Las horas extra cuentan cuando el supervisor o el jefe las aprueba.</p>
+      <p class="suave pequeno" style="margin-top:-6px">Primero el gerente y los supervisores (destacados); luego el equipo, de quien más requiere atención a quien menos. Solo cuenta los días desde que cada persona entró a la empresa.
+        Las horas extra cuentan cuando el supervisor o el gerente las aprueba.</p>
       <div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Horas trabajadas / esperadas</th>
         <th>Extra diaria</th><th>Extra día libre</th><th>Extra por aprobar</th><th>Retardos</th><th>Faltas sin justificar</th>
         <th>Justificadas</th><th>Puntualidad</th></tr></thead><tbody>
@@ -440,10 +440,10 @@ async function vistaPersonal() {
   const lista = await Api.listarUsuarios();
   const filtro = (estado.filtroPersonal || '').toLowerCase();
   const visibles = lista.filter((u) => !filtro || [u.nombre, u.cedula, u.rol, u.obra, u.correo].join(' ').toLowerCase().includes(filtro));
-  zona.innerHTML = encabezado('Equipo /', esJefe() ? 'Personal' : 'Mi equipo', `
+  zona.innerHTML = encabezado('Equipo /', esGerente() ? 'Personal' : 'Mi equipo', `
     <label class="solo-lector" for="buscar-personal">Buscar</label>
     <input id="buscar-personal" placeholder="Buscar nombre, cédula, obra…" value="${esc(estado.filtroPersonal || '')}" style="width:240px">
-    ${esJefe() ? '<button class="btn btn-primario" id="registrar-persona">+ Registrar persona</button>' : ''}`) + `
+    ${esGerente() ? '<button class="btn btn-primario" id="registrar-persona">+ Registrar persona</button>' : ''}`) + `
     <div class="tabla-contenedor"><table>
       <thead><tr><th>Persona</th><th>Cédula</th><th>Rol</th><th>Estado</th><th>Horario</th><th>Supervisor</th><th>Obra</th><th><span class="solo-lector">Acciones</span></th></tr></thead>
       <tbody>${visibles.map((u) => `<tr>
@@ -453,7 +453,7 @@ async function vistaPersonal() {
         <td class="pequeno">${esc(u.horario.dias)}<br>${esc(u.horario.horaEntrada)}–${esc(u.horario.horaSalida)}</td>
         <td>${u.supervisor ? esc(u.supervisor.nombre) : '—'}</td><td>${esc(u.obra || '—')}</td>
         <td style="white-space:nowrap"><button class="btn btn-enlace btn-chico" data-historial="${esc(u.cedula)}">Historial</button>
-          ${esJefe() && u.rol !== 'Jefe' ? `<button class="btn btn-enlace btn-chico" data-editar="${esc(u.cedula)}">Editar</button>
+          ${esGerente() && u.rol !== 'Gerente' ? `<button class="btn btn-enlace btn-chico" data-editar="${esc(u.cedula)}">Editar</button>
           <button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-eliminar="${esc(u.cedula)}" data-nombre="${esc(u.nombre)}">Eliminar</button>` : ''}</td>
       </tr>`).join('') || '<tr><td colspan="8" class="vacio">No hay coincidencias.</td></tr>'}</tbody></table></div>`;
   const buscador = $('#buscar-personal');
@@ -461,7 +461,7 @@ async function vistaPersonal() {
     estado.filtroPersonal = buscador.value;
     vistaPersonal().then(() => { const b = $('#buscar-personal'); b.focus(); b.setSelectionRange(b.value.length, b.value.length); });
   });
-  if (esJefe()) $('#registrar-persona').addEventListener('click', () => formularioPersona(null));
+  if (esGerente()) $('#registrar-persona').addEventListener('click', () => formularioPersona(null));
   zona.querySelectorAll('[data-editar]').forEach((b) => b.addEventListener('click', () => formularioPersona(b.dataset.editar)));
   zona.querySelectorAll('[data-historial]').forEach((b) => b.addEventListener('click', () => historialPersona(b.dataset.historial)));
   zona.querySelectorAll('[data-eliminar]').forEach((b) => b.addEventListener('click', () => {
@@ -574,9 +574,9 @@ async function vistaObras() {
   const zona = contenido();
   const [obras, visibles] = await Promise.all([Api.obras(), Api.listarUsuarios()]);
 
-  const asignables = esJefe() ? visibles : [estado.usuario, ...visibles];
+  const asignables = esGerente() ? visibles : [estado.usuario, ...visibles];
   zona.innerHTML = encabezado('Equipo /', 'Obras', '<button class="btn btn-primario" id="nueva-obra">+ Nueva obra</button>') + `
-    <p class="suave" style="margin-top:-8px">Los lugares donde trabaja el personal. Las gestionan el supervisor y el jefe.</p>
+    <p class="suave" style="margin-top:-8px">Los lugares donde trabaja el personal. Las gestionan el supervisor y el gerente.</p>
     <div class="rejilla-obras">${obras.map((o) => `<section class="tarjeta" aria-labelledby="obra-${esc(o.codigo)}">
       <div class="titulo-vista" style="margin:0 0 4px"><h2 id="obra-${esc(o.codigo)}" style="margin:0">${esc(o.nombre)}</h2>${chip(o.codigo, 'gris')}</div>
       <p class="suave pequeno" style="margin:0 0 10px">${esc(o.ubicacion || 'Sin ubicación')} · ${fecha(o.inicio)} → ${fecha(o.fin)}</p>

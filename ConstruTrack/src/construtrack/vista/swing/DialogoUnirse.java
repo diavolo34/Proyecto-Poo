@@ -27,7 +27,7 @@ public final class DialogoUnirse extends JDialog {
         encabezado.setOpaque(false);
         encabezado.add(Tema.subtitulo("¡Hola, " + nombre + "! Únete a tu empresa"), BorderLayout.NORTH);
         encabezado.add(Tema.textoSuave("<html><div style='width:360px'>Tu cuenta ya está creada. Escribe el código de "
-                + "invitación que te dio tu jefe (formato CT-XXXX-XXXX). Al unirte tendrás el rol, el supervisor y la "
+                + "invitación que te dio tu gerente (formato CT-XXXX-XXXX). Al unirte tendrás el rol, el supervisor y la "
                 + "obra que él definió.</div></html>"), BorderLayout.CENTER);
         contenido.add(encabezado, BorderLayout.NORTH);
 

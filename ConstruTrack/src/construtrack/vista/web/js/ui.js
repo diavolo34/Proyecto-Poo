@@ -22,7 +22,7 @@ const formatoHoras = (minutos) => {
 const iniciales = (nombre) => String(nombre || '?').split(' ').slice(0, 2).map((p) => p[0]).join('').toUpperCase();
 
 const chip = (texto, color) => `<span class="chip chip-${color}">${esc(texto)}</span>`;
-const chipRol = (rol) => chip(rol, { Jefe: 'morado', Supervisor: 'azul', Empleado: 'gris' }[rol] || 'gris');
+const chipRol = (rol) => chip(rol, { Gerente: 'morado', Supervisor: 'azul', Empleado: 'gris' }[rol] || 'gris');
 const chipEstado = (estado) => chip(estado, {
   Pendiente: 'gris', 'En revisión': 'azul', Aprobada: 'verde', Rechazada: 'rojo',
   Vigente: 'azul', Usada: 'verde', Cancelada: 'gris', Vencida: 'amarillo',

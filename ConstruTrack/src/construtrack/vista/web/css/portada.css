@@ -194,7 +194,7 @@
 }
 .lp-rol::before { content: ""; position: absolute; z-index: -1; inset: 0 0 auto; height: 104px; background: var(--lp-rol-fondo); }
 .lp-rol-supervisor { --lp-rol-fondo: var(--azul-suave); }
-.lp-rol-jefe { --lp-rol-fondo: var(--morado-suave); }
+.lp-rol-gerente { --lp-rol-fondo: var(--morado-suave); }
 .lp-rol img { display: block; width: 116px; height: 116px; margin: 20px 0 18px; border-radius: 50%; box-shadow: 0 0 0 6px #fff, 0 12px 24px -12px rgba(9, 30, 66, .4); }
 .lp-rol h3 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
 .lp-rol-lema { color: var(--texto-suave); font-size: 16px; margin: 0; }

@@ -49,7 +49,7 @@ class VerificacionCorreoTest {
         assertEquals("pablo@correo.com", correo.destinos.get(0));
         assertTrue(correo.ultimoCodigo().matches("\\d{6}"));
         assertNotNull(servicios.autenticacion().ingresar("pablo@correo.com", "pablo123"), "Puede entrar para confirmar");
-        var inv = servicios.invitaciones().crear(d.jefe, "Empleado", "", "", 7, "");
+        var inv = servicios.invitaciones().crear(d.gerente, "Empleado", "", "", 7, "");
         assertThrows(OperacionInvalidaException.class, () -> servicios.registro().unirse(cuenta, inv.getCodigo().toString()));
         assertThrows(OperacionInvalidaException.class, () -> servicios.registro().crearEmpresa(cuenta, "Obras Pablo"));
 
@@ -61,12 +61,12 @@ class VerificacionCorreoTest {
     }
 
     @Test
-    @DisplayName("El jefe registra su empresa, pero la empresa se crea al confirmar el correo")
-    void jefeAlConfirmar() {
-        Cuenta cuenta = registrar("jefe");
+    @DisplayName("El gerente registra su empresa, pero la empresa se crea al confirmar el correo")
+    void gerenteAlConfirmar() {
+        Cuenta cuenta = registrar("gerente");
         assertFalse(cuenta.perteneceAEmpresa());
-        var jefe = servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
-        assertEquals("Obras Pablo", jefe.getEmpresa().getNombre());
+        var gerente = servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
+        assertEquals("Obras Pablo", gerente.getEmpresa().getNombre());
     }
 
     @Test

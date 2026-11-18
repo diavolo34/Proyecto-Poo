@@ -39,7 +39,7 @@
     <section class="lp-hero" aria-labelledby="lp-titulo">
       <div class="lp-contenedor lp-hero-rejilla">
         <div class="lp-hero-texto">
-          <p class="lp-etiqueta">Para empleados, supervisores y jefes de obra</p>
+          <p class="lp-etiqueta">Para empleados, supervisores y gerentes de obra</p>
           <h1 id="lp-titulo">Controla tu obra, <span class="lp-resalte">no el papeleo</span></h1>
           <p class="lp-bajada">Asistencia, incidencias, alertas y horas extra de tu personal en un solo lugar.
             Cada quien marca desde su celular y el supervisor lo ve al instante.</p>
@@ -49,7 +49,7 @@
               <input id="correo-empezar" name="correo" type="email" autocomplete="email" placeholder="tunombre@empresa.com" aria-describedby="ayuda-empezar">
               <button class="btn btn-primario btn-grande" type="submit">Crear cuenta</button>
             </div>
-            <p class="lp-ayuda" id="ayuda-empezar">Después eliges: crear tu empresa o unirte con el código de tu jefe.</p>
+            <p class="lp-ayuda" id="ayuda-empezar">Después eliges: crear tu empresa o unirte con el código de tu gerente.</p>
           </form>
           <p class="lp-ya-tengo">¿Ya tienes cuenta? <a href="app.html#login">Iniciar sesión</a></p>
           <p class="lp-estado" id="estado-servidor" aria-live="polite"></p>
@@ -129,7 +129,7 @@
             <p>El supervisor recibe una alerta cuando alguien acumula tres retardos, falta sin justificar o tiene una
               incidencia sin resolver por más de 48 horas, <strong>de la más antigua a la más reciente</strong>.
               La tabla de puntualidad muestra las horas trabajadas y las horas extra, que solo cuentan cuando el
-              supervisor o el jefe las aprueba.</p>
+              supervisor o el gerente las aprueba.</p>
             <ul class="lp-lista">
               <li>Últimos 7 días, esta semana o este mes</li>
               <li>Reportes en Excel (CSV) o en texto</li>
@@ -145,8 +145,8 @@
           <div class="lp-fila-texto">
             <p class="lp-antetitulo">Obras e invitaciones</p>
             <h3>Tus obras y tu equipo, cada uno en su lugar</h3>
-            <p>Registra las obras con su ubicación y su plazo, y asigna a cada persona; las gestionan el supervisor y el jefe.
-              Para sumar a alguien, el jefe crea una <strong>invitación</strong> con su rol, su supervisor y su obra, y se la
+            <p>Registra las obras con su ubicación y su plazo, y asigna a cada persona; las gestionan el supervisor y el gerente.
+              Para sumar a alguien, el gerente crea una <strong>invitación</strong> con su rol, su supervisor y su obra, y se la
               envía por correo con un código de un solo uso.</p>
             <ul class="lp-lista">
               <li>Avance del plazo de cada obra</li>
@@ -216,9 +216,9 @@
               <li>Gestiona obras y descarga reportes</li>
             </ul>
           </article>
-          <article class="lp-rol lp-rol-jefe lp-aparece">
-            <img src="img/rol-jefe.svg" width="160" height="160" loading="lazy" alt="">
-            <h3>Jefe</h3>
+          <article class="lp-rol lp-rol-gerente lp-aparece">
+            <img src="img/rol-gerente.svg" width="160" height="160" loading="lazy" alt="">
+            <h3>Gerente</h3>
             <p class="lp-rol-lema">Toda la empresa en una sola vista.</p>
             <ul class="lp-lista">
               <li>Todo lo del supervisor, para toda la empresa</li>
@@ -238,23 +238,23 @@
           <p class="lp-intro">Al crear tu cuenta eliges cómo entrar. Las dos toman pocos minutos.</p>
         </header>
         <div class="lp-caminos">
-          <article class="lp-camino lp-camino-jefe lp-aparece">
-            <img src="img/camino-jefe.svg" width="360" height="220" loading="lazy" alt="">
-            <p class="lp-camino-para">Para dueños y jefes de obra</p>
-            <h3>Soy jefe: crear mi empresa</h3>
+          <article class="lp-camino lp-camino-gerente lp-aparece">
+            <img src="img/camino-gerente.svg" width="360" height="220" loading="lazy" alt="">
+            <p class="lp-camino-para">Para dueños y gerentes de obra</p>
+            <h3>Soy gerente: crear mi empresa</h3>
             <ol class="lp-pasos" role="list">
               <li>Crea tu cuenta con tu correo.</li>
-              <li>Crea tu empresa: quedas como su jefe.</li>
+              <li>Crea tu empresa: quedas como su gerente.</li>
               <li>Agrega tus obras e invita a tu equipo con un código por correo.</li>
             </ol>
-            <a class="btn btn-primario btn-grande" href="app.html#registro?tipo=jefe">Crear mi empresa</a>
+            <a class="btn btn-primario btn-grande" href="app.html#registro?tipo=gerente">Crear mi empresa</a>
           </article>
           <article class="lp-camino lp-camino-unirme lp-aparece">
             <img src="img/camino-unirme.svg" width="360" height="220" loading="lazy" alt="">
             <p class="lp-camino-para">Para empleados y supervisores</p>
             <h3>Me uno a una empresa</h3>
             <ol class="lp-pasos" role="list">
-              <li>Pide a tu jefe tu código de invitación (CT-XXXX-XXXX).</li>
+              <li>Pide a tu gerente tu código de invitación (CT-XXXX-XXXX).</li>
               <li>Crea tu cuenta con tu correo.</li>
               <li>Escribe el código y entras con tu rol y tu obra.</li>
             </ol>
@@ -270,7 +270,7 @@
         <h2 id="t-cta">¿Listo para ordenar tu obra?</h2>
         <p>Crea tu empresa o únete a la tuya en minutos. ¿Tienes dudas? Pregúntale a Arqui, el asistente, abajo a la izquierda.</p>
         <div class="lp-cta-acciones">
-          <a class="btn lp-btn-ambar btn-grande" href="app.html#registro?tipo=jefe">Crear mi empresa</a>
+          <a class="btn lp-btn-ambar btn-grande" href="app.html#registro?tipo=gerente">Crear mi empresa</a>
           <a class="btn lp-btn-claro btn-grande" href="app.html#registro?tipo=unirme">Unirme con un código</a>
           <button class="btn lp-btn-transparente btn-grande" type="button" id="lp-abrir-arqui">Preguntar a Arqui</button>
         </div>
@@ -296,7 +296,7 @@
         <h2 id="pie-cuenta">Tu cuenta</h2>
         <ul>
           <li><a href="app.html#login">Iniciar sesión</a></li>
-          <li><a href="app.html#registro?tipo=jefe">Crear mi empresa</a></li>
+          <li><a href="app.html#registro?tipo=gerente">Crear mi empresa</a></li>
           <li><a href="app.html#registro?tipo=unirme">Unirme con un código</a></li>
         </ul>
       </nav>

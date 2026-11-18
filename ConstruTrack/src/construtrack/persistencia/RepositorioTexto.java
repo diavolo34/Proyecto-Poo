@@ -5,7 +5,7 @@ import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empleado;
 import construtrack.modelo.EstadoInvitacion;
 import construtrack.modelo.Invitacion;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Obra;
 import construtrack.modelo.Plataforma;
 import construtrack.modelo.incidencias.DatosIncidencia;
@@ -246,8 +246,8 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
     private void leerInvitacion(Empresa empresa, String[] c) {
         Supervisor supervisor = "-".equals(c[3]) ? null : (Supervisor) empresa.buscarUsuario(c[3]);
         Obra obra = "-".equals(c[4]) ? null : empresa.buscarObra(c[4]);
-        Jefe jefe = (Jefe) empresa.buscarUsuario(c[5]);
-        Invitacion invitacion = new Invitacion(CodigoInvitacion.de(c[1]), c[2], supervisor, obra, jefe,
+        Gerente gerente = (Gerente) empresa.buscarUsuario(c[5]);
+        Invitacion invitacion = new Invitacion(CodigoInvitacion.de(c[1]), c[2], supervisor, obra, gerente,
                 LocalDateTime.parse(c[6]), LocalDateTime.parse(c[7]));
         invitacion.restaurar(EstadoInvitacion.valueOf(c[8]), "-".equals(c[9]) ? null : empresa.buscarCuenta(c[9]),
                 "-".equals(c[10]) ? null : LocalDateTime.parse(c[10]));

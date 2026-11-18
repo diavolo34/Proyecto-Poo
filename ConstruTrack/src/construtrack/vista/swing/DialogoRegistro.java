@@ -17,8 +17,8 @@ public final class DialogoRegistro extends JDialog {
     private static final long serialVersionUID = 1L;
 
     private final JComboBox<Opcion> cboTipo = new JComboBox<>(new Opcion[] {
-        new Opcion("unirme", "Me uno a una empresa (mi jefe me da un código)"),
-        new Opcion("jefe", "Soy jefe: crear mi empresa")});
+        new Opcion("unirme", "Me uno a una empresa (mi gerente me da un código)"),
+        new Opcion("gerente", "Soy gerente: crear mi empresa")});
     private final JTextField txtEmpresa = new JTextField(24);
     private final JTextField txtCorreo = new JTextField(24);
     private final JTextField txtNombre = new JTextField(12);
@@ -40,13 +40,13 @@ public final class DialogoRegistro extends JDialog {
         JPanel encabezado = new JPanel(new BorderLayout(0, 4));
         encabezado.setOpaque(false);
         encabezado.add(Tema.subtitulo("Crea tu cuenta en ConstruTrack"), BorderLayout.NORTH);
-        encabezado.add(Tema.textoSuave("<html><div style='width:380px'>Si eres jefe, crea tu empresa e invita a tu equipo. "
-                + "Si no, después escribe el código de invitación que te dé tu jefe.</div></html>"), BorderLayout.CENTER);
+        encabezado.add(Tema.textoSuave("<html><div style='width:380px'>Si eres gerente, crea tu empresa e invita a tu equipo. "
+                + "Si no, después escribe el código de invitación que te dé tu gerente.</div></html>"), BorderLayout.CENTER);
         contenido.add(encabezado, BorderLayout.NORTH);
 
         Formulario f = new Formulario()
                 .campo("¿Cómo usarás ConstruTrack? *", cboTipo, null)
-                .campo("Nombre de la empresa (solo jefes)", txtEmpresa, "Serás su Jefe y podrás invitar a tu equipo")
+                .campo("Nombre de la empresa (solo gerentes)", txtEmpresa, "Serás su Gerente y podrás invitar a tu equipo")
                 .campo("Correo electrónico *", txtCorreo, "Lo usarás para iniciar sesión")
                 .campo("Nombre *", txtNombre, null, 0, 1)
                 .campo("Apellido *", txtApellido, null, 1, 1)
@@ -69,10 +69,10 @@ public final class DialogoRegistro extends JDialog {
 
         txtEmpresa.setEnabled(false);
         cboTipo.addActionListener(e -> {
-            boolean jefe = esJefe();
-            txtEmpresa.setEnabled(jefe);
-            btnCrear.setText(jefe ? "Crear cuenta y empresa" : "Crear cuenta");
-            if (jefe) {
+            boolean gerente = esGerente();
+            txtEmpresa.setEnabled(gerente);
+            btnCrear.setText(gerente ? "Crear cuenta y empresa" : "Crear cuenta");
+            if (gerente) {
                 txtEmpresa.requestFocusInWindow();
             }
         });
@@ -84,7 +84,7 @@ public final class DialogoRegistro extends JDialog {
 
     public Map<String, String> datos() {
         Map<String, String> datos = new LinkedHashMap<>();
-        datos.put("tipo", esJefe() ? "jefe" : "unirme");
+        datos.put("tipo", esGerente() ? "gerente" : "unirme");
         datos.put("empresa", txtEmpresa.getText());
         datos.put("correo", txtCorreo.getText());
         datos.put("nombre", txtNombre.getText());
@@ -96,8 +96,8 @@ public final class DialogoRegistro extends JDialog {
         return datos;
     }
 
-    private boolean esJefe() {
-        return "jefe".equals(((Opcion) cboTipo.getSelectedItem()).valor());
+    private boolean esGerente() {
+        return "gerente".equals(((Opcion) cboTipo.getSelectedItem()).valor());
     }
 
     public void mostrarError(String mensaje) {

@@ -7,7 +7,7 @@ import construtrack.modelo.Horario;
 import construtrack.modelo.CodigoInvitacion;
 import construtrack.modelo.Cuenta;
 import construtrack.modelo.Invitacion;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Obra;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
@@ -39,7 +39,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         Horario obra = Horario.desdeTexto("LU,MA,MI,JU,VI", "07:00", "16:00");
         Horario sabados = Horario.desdeTexto("MA,MI,JU,VI,SA", "07:00", "15:00");
 
-        Jefe carlos = new Jefe("10000001", "Carlos Méndez", "jefe123", oficina);
+        Gerente carlos = new Gerente("10000001", "Carlos Méndez", "gerente123", oficina);
         empresa.agregarUsuario(carlos);
         Supervisor ana = new Supervisor("20000001", "Ana Rodríguez", "super123", obra);
         Supervisor luis = new Supervisor("20000002", "Luis Pérez", "super123", sabados);
@@ -151,9 +151,9 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
                 "+58 414 7654321", hoy.atTime(8, 0));
         rosa.marcarVerificada();
         empresa.agregarCuenta(rosa);
-        Jefe jefe = (Jefe) empresa.buscarUsuario("10000001");
+        Gerente gerente = (Gerente) empresa.buscarUsuario("10000001");
         Invitacion invitacion = new Invitacion(CodigoInvitacion.de(CODIGO_DEMO), Empleado.ROL,
-                (Supervisor) empresa.buscarUsuario("20000001"), empresa.buscarObra("OB-01"), jefe,
+                (Supervisor) empresa.buscarUsuario("20000001"), empresa.buscarObra("OB-01"), gerente,
                 LocalDateTime.now(reloj).minusHours(1), LocalDateTime.now(reloj).plusDays(30));
         empresa.agregarInvitacion(invitacion);
     }

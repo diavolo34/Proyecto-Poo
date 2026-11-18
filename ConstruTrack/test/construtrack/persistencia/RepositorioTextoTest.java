@@ -41,7 +41,7 @@ class RepositorioTextoTest {
         Cuenta cuenta = new Cuenta("pablo@correo.com", "pablo123", "Pablo", "Rivas", "28555111", "04121234567", AHORA);
         cuenta.marcarVerificada();
         d.empresa.agregarCuenta(cuenta);
-        Invitacion inv = d.jefe.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(5));
+        Invitacion inv = d.gerente.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(5));
         inv.canjear(cuenta, d.empresa, AHORA);
 
         d.laura.setFechaIngreso(HOY.minusDays(3));
@@ -138,7 +138,7 @@ class RepositorioTextoTest {
             throw new AssertionError("Ya hay datos: no debe generarlos otra vez");
         }, fabrica).cargar().empresaDemo();
         assertEquals(9, otra.listarUsuarios().size());
-        assertNotNull(otra.autenticar("10000001", "jefe123"));
+        assertNotNull(otra.autenticar("10000001", "gerente123"));
     }
 
     @Test
@@ -148,7 +148,7 @@ class RepositorioTextoTest {
         AlmacenMemoria memoria = new AlmacenMemoria();
         var plataforma = new RepositorioTexto(memoria, () -> null, fabrica).cargar();
         assertEquals(0, plataforma.listarEmpresas().size());
-        assertEquals(null, plataforma.autenticar("10000001", "jefe123"));
+        assertEquals(null, plataforma.autenticar("10000001", "gerente123"));
         assertEquals(0, new RepositorioTexto(memoria, () -> null, fabrica).cargar().listarEmpresas().size());
     }
 }

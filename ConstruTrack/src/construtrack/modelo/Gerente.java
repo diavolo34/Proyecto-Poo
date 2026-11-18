@@ -9,16 +9,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-public class Jefe extends Usuario implements RevisorIncidencias {
-    public static final String ROL = "Jefe";
+public class Gerente extends Usuario implements RevisorIncidencias {
+    public static final String ROL = "Gerente";
 
     private java.time.Clock reloj = java.time.Clock.systemDefaultZone();
 
-    public Jefe(String cedula, String nombre, String clave, Horario horario) {
+    public Gerente(String cedula, String nombre, String clave, Horario horario) {
         super(cedula, nombre, clave, horario);
     }
 
-    Jefe(String cedula, String nombre, Horario horario) {
+    Gerente(String cedula, String nombre, Horario horario) {
         super(cedula, nombre, horario);
     }
 
@@ -135,7 +135,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
 
     private void verificarRolGestionable(String rol) {
         if (!Empleado.ROL.equals(rol) && !Supervisor.ROL.equals(rol)) {
-            throw new DatoInvalidoException("El jefe solo puede gestionar usuarios con rol Empleado o Supervisor.");
+            throw new DatoInvalidoException("El gerente solo puede gestionar usuarios con rol Empleado o Supervisor.");
         }
     }
 
@@ -197,12 +197,12 @@ public class Jefe extends Usuario implements RevisorIncidencias {
 
     @Override
     public boolean puedeAprobarHorasDe(Usuario otro) {
-        return !(otro instanceof Jefe) && mismaEmpresaQue(otro);
+        return !(otro instanceof Gerente) && mismaEmpresaQue(otro);
     }
 
     @Override
     public boolean puedeRevisar(Incidencia incidencia) {
-        return !(incidencia.getAfectado() instanceof Jefe) && mismaEmpresaQue(incidencia.getAfectado());
+        return !(incidencia.getAfectado() instanceof Gerente) && mismaEmpresaQue(incidencia.getAfectado());
     }
 
     @Override

@@ -6,7 +6,7 @@ import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoHorasExtra;
 import construtrack.modelo.EstadoVerificacion;
 import construtrack.modelo.Estadisticas;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Periodo;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
@@ -130,7 +130,7 @@ public class ServicioSupervision extends ServicioBase {
     }
 
     private List<Usuario> alcance(Usuario actual) {
-        if (actual instanceof Jefe) {
+        if (actual instanceof Gerente) {
             return empresaDe(actual).listarUsuarios();
         }
         if (actual instanceof Supervisor supervisor) {

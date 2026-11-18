@@ -49,8 +49,8 @@ class NotificadorBrevoTest {
     @Test
     @DisplayName("Envía la invitación con la API key, el código y el enlace para unirse")
     void enviaInvitacion() throws IOException {
-        Invitacion inv = d.jefe.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(3));
-        NotificadorBrevo brevo = new NotificadorBrevo(levantar(201), "clave-prueba", "jefe@correo.com", "https://sitio.test/");
+        Invitacion inv = d.gerente.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(3));
+        NotificadorBrevo brevo = new NotificadorBrevo(levantar(201), "clave-prueba", "gerente@correo.com", "https://sitio.test/");
         brevo.enviarInvitacion(inv, "pablo@correo.com");
         assertEquals("clave-prueba", clave.get());
         assertTrue(cuerpo.get().contains("\"email\":\"pablo@correo.com\""));
@@ -63,7 +63,7 @@ class NotificadorBrevoTest {
     @Test
     @DisplayName("El correo para restablecer la clave lleva el enlace con el token y su vencimiento")
     void enviaRestablecimiento() throws IOException {
-        NotificadorBrevo brevo = new NotificadorBrevo(levantar(201), "clave-prueba", "jefe@correo.com", "https://sitio.test");
+        NotificadorBrevo brevo = new NotificadorBrevo(levantar(201), "clave-prueba", "gerente@correo.com", "https://sitio.test");
         brevo.enviarRestablecimiento("pablo@correo.com", "tok_123-abc", Duration.ofMinutes(30));
         assertTrue(cuerpo.get().contains("\"email\":\"pablo@correo.com\""));
         assertTrue(cuerpo.get().contains("https://sitio.test/app.html#restablecer?token=tok_123-abc"), cuerpo.get());
@@ -73,8 +73,8 @@ class NotificadorBrevoTest {
     @Test
     @DisplayName("Si Brevo rechaza el envío, se informa con un mensaje claro")
     void informaRechazo() throws IOException {
-        Invitacion inv = d.jefe.crearInvitacion("Empleado", "", "", 7, AHORA, new Random(4));
-        NotificadorBrevo brevo = new NotificadorBrevo(levantar(401), "mala", "jefe@correo.com", "https://sitio.test");
+        Invitacion inv = d.gerente.crearInvitacion("Empleado", "", "", 7, AHORA, new Random(4));
+        NotificadorBrevo brevo = new NotificadorBrevo(levantar(401), "mala", "gerente@correo.com", "https://sitio.test");
         assertThrows(OperacionInvalidaException.class, () -> brevo.enviarInvitacion(inv, "pablo@correo.com"));
     }
 }

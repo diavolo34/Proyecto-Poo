@@ -43,7 +43,7 @@ public abstract class Usuario {
         return switch (rolValido(rol)) {
             case Empleado.ROL -> new Empleado(cedula, nombre, clave, horario);
             case Supervisor.ROL -> new Supervisor(cedula, nombre, clave, horario);
-            case Jefe.ROL -> new Jefe(cedula, nombre, clave, horario);
+            case Gerente.ROL -> new Gerente(cedula, nombre, clave, horario);
             default -> throw new DatoInvalidoException("Rol no válido: " + rol);
         };
     }
@@ -52,18 +52,20 @@ public abstract class Usuario {
         Usuario usuario = switch (rolValido(rol)) {
             case Empleado.ROL -> new Empleado(cedula, nombre, horario);
             case Supervisor.ROL -> new Supervisor(cedula, nombre, horario);
-            case Jefe.ROL -> new Jefe(cedula, nombre, horario);
+            case Gerente.ROL -> new Gerente(cedula, nombre, horario);
             default -> throw new DatoInvalidoException("Rol no válido: " + rol);
         };
         usuario.restaurarClaveResumen(claveResumen);
         return usuario;
     }
 
+    public static final String ROL_ANTERIOR_GERENTE = "Jefe";
+
     private static String rolValido(String rol) {
         if (rol == null) {
             throw new DatoInvalidoException("Selecciona un rol.");
         }
-        return rol;
+        return ROL_ANTERIOR_GERENTE.equals(rol) ? Gerente.ROL : rol;
     }
 
     public abstract String getRol();
@@ -196,7 +198,7 @@ public abstract class Usuario {
 
     public void activarDosPasos(String secreto, List<String> huellasRespaldo) {
         if (!admiteDosPasos()) {
-            throw new PermisoDenegadoException("Solo los jefes pueden activar la verificación en dos pasos.");
+            throw new PermisoDenegadoException("Solo los gerentes pueden activar la verificación en dos pasos.");
         }
         restaurarDosPasos(secreto, huellasRespaldo);
     }

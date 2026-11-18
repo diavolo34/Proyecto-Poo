@@ -31,14 +31,14 @@ class Chatbot {
     if (tiene('quien falta', 'ausente', 'no vino', 'falta hoy')) return this.consultarPersonal('ausentes');
     if (tiene('cuantos', 'total de empleados')) return this.consultarPersonal('total');
 
-    if (tiene('crear mi empresa', 'crear empresa', 'crear una empresa', 'soy jefe', 'mi empresa')) {
-      return 'Si eres jefe: en «Crear cuenta» elige «Soy jefe: crear mi empresa» y escribe su nombre. Entras de una vez como Jefe; luego crea tus obras y, en «Invitaciones», genera un código para cada supervisor o empleado (se lo puedes enviar por correo).';
+    if (tiene('crear mi empresa', 'crear empresa', 'crear una empresa', 'soy gerente', 'mi empresa')) {
+      return 'Si eres gerente: en «Crear cuenta» elige «Soy gerente: crear mi empresa» y escribe su nombre. Entras de una vez como Gerente; luego crea tus obras y, en «Invitaciones», genera un código para cada supervisor o empleado (se lo puedes enviar por correo).';
     }
     if (tiene('codigo', 'invitacion', 'unirme', 'unirse')) {
-      return 'El código de invitación (formato CT-XXXX-XXXX) te lo da tu jefe. Sirve una sola vez y define tu rol, tu supervisor y tu obra. Lo escribes después de crear tu cuenta, en la pantalla «Únete a tu empresa».';
+      return 'El código de invitación (formato CT-XXXX-XXXX) te lo da tu gerente. Sirve una sola vez y define tu rol, tu supervisor y tu obra. Lo escribes después de crear tu cuenta, en la pantalla «Únete a tu empresa».';
     }
     if (tiene('registr', 'crear cuenta', 'inscrib', 'cuenta nueva')) {
-      return 'Pulsa «Crear cuenta» y elige cómo empezar: si eres jefe, «Soy jefe: crear mi empresa» (escribes el nombre de tu empresa y luego invitas a tu equipo); si no, «Me uno a una empresa» y después escribes el código de invitación que te dé tu jefe.';
+      return 'Pulsa «Crear cuenta» y elige cómo empezar: si eres gerente, «Soy gerente: crear mi empresa» (escribes el nombre de tu empresa y luego invitas a tu equipo); si no, «Me uno a una empresa» y después escribes el código de invitación que te dé tu gerente.';
     }
     if (tiene('reporto', 'reportar', 'falta', 'reposo', 'enfermo', 'permiso')) {
       return 'Ve a «Incidencias», elige el tipo (reposo médico, permiso personal, retardo, accidente…), las fechas y una descripción. Tu supervisor la revisa y la aprueba o la rechaza; un reposo aprobado no cuenta como falta.';
@@ -46,7 +46,7 @@ class Chatbot {
     if (tiene('seguridad', 'casco', 'epp', 'botas', 'chaleco')) return 'En la obra es obligatorio usar casco, botas de seguridad y chaleco reflectivo. Sin equipo de protección no se permite el ingreso.';
     if (tiene('horario', 'oficina', 'abren')) return 'La oficina de RRHH atiende de lunes a viernes de 8:00 a 17:00.';
     if (tiene('contacto', 'telefono', 'direccion')) return 'Oficina de RRHH en la caseta principal de la obra · 0212-555-0100.';
-    if (tiene('rol', 'supervisor', 'jefe')) return 'El Empleado marca su asistencia y reporta incidencias; el Supervisor revisa a su equipo, recibe alertas y genera reportes; el Jefe además gestiona al personal y crea invitaciones.';
+    if (tiene('rol', 'supervisor', 'gerente')) return 'El Empleado marca su asistencia y reporta incidencias; el Supervisor revisa a su equipo, recibe alertas y genera reportes; el Gerente además gestiona al personal y crea invitaciones.';
     if (tiene('hola', 'buenas', 'buenos')) return `¡Hola${usuario ? ', ' + usuario.nombre.split(' ')[0] : ''}! ¿En qué te ayudo?`;
     if (tiene('gracias')) return '¡Con gusto! Aquí estoy si necesitas algo más.';
     return 'No entendí tu pregunta. Prueba con una de las sugerencias o escribe, por ejemplo, «¿cómo reporto una falta?».';
@@ -65,7 +65,7 @@ class Chatbot {
 
   async alertas() {
     const usuario = this.contexto.usuario();
-    if (!usuario || usuario.rol === 'Empleado') return 'Las alertas son para supervisores y jefes.';
+    if (!usuario || usuario.rol === 'Empleado') return 'Las alertas son para supervisores y gerentes.';
     try {
       const alertas = await Api.alertas('ultimos7');
       return alertas.length
@@ -78,8 +78,8 @@ class Chatbot {
 
   async consultarPersonal(consulta) {
     const usuario = this.contexto.usuario();
-    if (!usuario) return 'Inicia sesión como Supervisor o Jefe para consultar al personal.';
-    if (usuario.rol === 'Empleado') return 'Esa consulta es para supervisores y jefes. Tú puedes preguntarme por tu horario o marcar tu entrada.';
+    if (!usuario) return 'Inicia sesión como Supervisor o Gerente para consultar al personal.';
+    if (usuario.rol === 'Empleado') return 'Esa consulta es para supervisores y gerentes. Tú puedes preguntarme por tu horario o marcar tu entrada.';
     let personal;
     try {
       personal = await Api.listarUsuarios();

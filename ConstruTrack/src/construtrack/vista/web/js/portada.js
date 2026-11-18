@@ -51,7 +51,7 @@ const cifra = (valor, texto) =>
     $('#cifras').innerHTML = datos.empresas === 0
       ? `<div class="lp-primera"><p class="lp-primera-titulo">Sé la primera empresa en usar ConstruTrack</p>
           <p>Crea tu empresa en dos minutos, registra tus obras e invita a tu equipo con un código.</p>
-          <a class="btn btn-primario" href="app.html#registro?tipo=jefe">Crear mi empresa</a></div>`
+          <a class="btn btn-primario" href="app.html#registro?tipo=gerente">Crear mi empresa</a></div>`
       : cifras.map(([valor, texto]) => cifra(valor, texto)).join('');
     $('#lista-obras').innerHTML = datos.obras.map((o) => `
       <article class="lp-obra">
@@ -62,7 +62,7 @@ const cifra = (valor, texto) =>
         <p class="lp-obra-pie"><strong>${o.avance}%</strong> del plazo · fin estimado ${fecha(o.finEstimado)}</p>
       </article>`).join('')
       || `<p class="lp-sin-obras">Las obras de cada empresa son privadas: solo las ve su equipo.
-        <a href="app.html#registro?tipo=jefe">Crea tu empresa</a> y registra la primera.</p>`;
+        <a href="app.html#registro?tipo=gerente">Crea tu empresa</a> y registra la primera.</p>`;
     $('#titulo-obras').hidden = datos.obras.length === 0;
     if (datos.empresas === 0) $('#lista-obras').innerHTML = '';
   } catch (e) {

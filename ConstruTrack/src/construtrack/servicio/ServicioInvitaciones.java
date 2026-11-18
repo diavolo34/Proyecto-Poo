@@ -6,7 +6,7 @@ import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoInvitacion;
 import construtrack.modelo.Invitacion;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.NoEncontradoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
@@ -38,7 +38,7 @@ public class ServicioInvitaciones extends ServicioBase {
     public Creada crearYEnviar(Usuario actual, String rol, String cedulaSupervisor, String codigoObra, int dias,
             String correoDestino) {
         String correo = correoDestino == null || correoDestino.isBlank() ? null : Cuenta.validarCorreo(correoDestino);
-        Invitacion invitacion = modificar(() -> comoJefe(actual).crearInvitacion(rol, cedulaSupervisor, codigoObra,
+        Invitacion invitacion = modificar(() -> comoGerente(actual).crearInvitacion(rol, cedulaSupervisor, codigoObra,
                 dias, LocalDateTime.now(reloj), azar));
         if (correo == null) {
             return new Creada(invitacion, null, false);
@@ -52,7 +52,7 @@ public class ServicioInvitaciones extends ServicioBase {
     }
 
     public String enviar(Usuario actual, String codigo, String correoDestino) {
-        comoJefe(actual);
+        comoGerente(actual);
         String correo = Cuenta.validarCorreo(correoDestino);
         Invitacion invitacion = leer(() -> empresaDe(actual).buscarInvitacion(CodigoInvitacion.de(codigo)));
         if (invitacion == null) {
@@ -75,7 +75,7 @@ public class ServicioInvitaciones extends ServicioBase {
     }
 
     public List<Invitacion> listar(Usuario actual) {
-        comoJefe(actual);
+        comoGerente(actual);
         return leer(() -> empresaDe(actual).listarInvitaciones().stream()
                 .sorted(Comparator.comparing(Invitacion::getCreada).reversed()).toList());
     }
@@ -83,7 +83,7 @@ public class ServicioInvitaciones extends ServicioBase {
     public void cancelar(Usuario actual, String codigo) {
         CodigoInvitacion c = CodigoInvitacion.de(codigo);
         modificar(() -> {
-            comoJefe(actual).cancelarInvitacion(c, LocalDateTime.now(reloj));
+            comoGerente(actual).cancelarInvitacion(c, LocalDateTime.now(reloj));
             return null;
         });
     }
@@ -92,10 +92,10 @@ public class ServicioInvitaciones extends ServicioBase {
         return LocalDateTime.now(reloj);
     }
 
-    private Jefe comoJefe(Usuario actual) {
-        if (actual instanceof Jefe jefe) {
-            return jefe;
+    private Gerente comoGerente(Usuario actual) {
+        if (actual instanceof Gerente gerente) {
+            return gerente;
         }
-        throw new PermisoDenegadoException("Solo el Jefe puede gestionar invitaciones.");
+        throw new PermisoDenegadoException("Solo el Gerente puede gestionar invitaciones.");
     }
 }

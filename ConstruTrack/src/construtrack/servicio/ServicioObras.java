@@ -117,7 +117,7 @@ public class ServicioObras extends ServicioBase {
 
     private static void verificarGestion(Usuario actual) {
         if (!actual.puedeGestionarObras()) {
-            throw new PermisoDenegadoException("Solo el Supervisor y el Jefe pueden gestionar obras.");
+            throw new PermisoDenegadoException("Solo el Supervisor y el Gerente pueden gestionar obras.");
         }
     }
 

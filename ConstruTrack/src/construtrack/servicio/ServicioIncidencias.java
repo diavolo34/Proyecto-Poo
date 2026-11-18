@@ -113,7 +113,7 @@ public class ServicioIncidencias extends ServicioBase {
         if (actual == afectado) {
             return true;
         }
-        if (actual instanceof construtrack.modelo.Jefe) {
+        if (actual instanceof construtrack.modelo.Gerente) {
             return true;
         }
         return actual instanceof construtrack.modelo.Supervisor s && s.supervisa(afectado);

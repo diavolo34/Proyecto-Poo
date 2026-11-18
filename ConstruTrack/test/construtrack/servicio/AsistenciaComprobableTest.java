@@ -71,12 +71,12 @@ class AsistenciaComprobableTest {
     }
 
     @Test
-    @DisplayName("El código de la obra cambia cada 30 segundos y solo lo ven el supervisor y el jefe")
+    @DisplayName("El código de la obra cambia cada 30 segundos y solo lo ven el supervisor y el gerente")
     void codigoRotativo() {
         obra.configurarControl(null, null, null, true);
         String primero = servicios.obras().codigoAsistencia(d.ana, "OB-01").codigo();
         reloj.avanzar(Duration.ofSeconds(Totp.PASO_SEGUNDOS));
-        String segundo = servicios.obras().codigoAsistencia(d.jefe, "OB-01").codigo();
+        String segundo = servicios.obras().codigoAsistencia(d.gerente, "OB-01").codigo();
         assertTrue(primero.matches("\\d{6}") && segundo.matches("\\d{6}"));
         assertEquals(codigoActual(), segundo, "Es el código del paso actual");
         assertThrows(PermisoDenegadoException.class, () -> servicios.obras().codigoAsistencia(d.jose, "OB-01"));
@@ -132,7 +132,7 @@ class AsistenciaComprobableTest {
         assertEquals(EstadoVerificacion.RECHAZADA, rechazada.getVerificacion());
         assertEquals(0, d.jose.getHistorial().minutosTrabajados(semana));
         assertNull(d.jose.getHistorial().asistenciaValidaDel(Datos.HOY));
-        assertTrue(servicios.supervision().asistenciasPorConfirmar(d.jefe).isEmpty());
+        assertTrue(servicios.supervision().asistenciasPorConfirmar(d.gerente).isEmpty());
         assertThrows(RuntimeException.class,
                 () -> servicios.supervision().revisarAsistencia(d.ana, "30000001", Datos.HOY, null, "CONFIRMADA"),
                 "Ya no está por confirmar");
@@ -141,7 +141,7 @@ class AsistenciaComprobableTest {
     @Test
     @DisplayName("La configuración de la obra y el estado de cada marca se guardan; los datos antiguos no tienen control")
     void persistencia() {
-        servicios.obras().editar(d.jefe, "OB-01", Map.of("nombre", "Torre Este", "ubicacion", "Caracas",
+        servicios.obras().editar(d.gerente, "OB-01", Map.of("nombre", "Torre Este", "ubicacion", "Caracas",
                 "inicio", obra.getFechaInicio().toString(), "fin", obra.getFechaFinEstimada().toString(),
                 "latitud", "10,4806", "longitud", "-66.9036", "radio", "200", "exigeCodigo", "true"));
         servicios.asistencia().marcarEntrada(d.jose, null, null, null, null);

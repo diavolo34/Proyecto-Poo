@@ -13,7 +13,7 @@ import construtrack.Datos;
 import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoHorasExtra;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.NoEncontradoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
@@ -56,19 +56,19 @@ class MultiempresaTest {
         return cuenta;
     }
 
-    private Jefe registrarJefaNorte() {
-        Cuenta cuenta = servicios.registro().registrar(datos("marta@correo.com", "15111222", "jefe", "Constructora Norte"));
+    private Gerente registrarJefaNorte() {
+        Cuenta cuenta = servicios.registro().registrar(datos("marta@correo.com", "15111222", "gerente", "Constructora Norte"));
         assertFalse(cuenta.perteneceAEmpresa(), "La empresa espera a que confirme el correo");
         Usuario jefa = servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
-        assertTrue(cuenta.perteneceAEmpresa(), "Al confirmar el correo, el jefe queda dentro de su empresa");
+        assertTrue(cuenta.perteneceAEmpresa(), "Al confirmar el correo, el gerente queda dentro de su empresa");
         assertSame(cuenta.getUsuario(), jefa);
-        return (Jefe) jefa;
+        return (Gerente) jefa;
     }
 
     @Test
-    @DisplayName("Un jefe se registra con su empresa: entra sin código y es Jefe de una empresa nueva")
-    void jefeCreaSuEmpresa() {
-        Jefe marta = registrarJefaNorte();
+    @DisplayName("Un gerente se registra con su empresa: entra sin código y es Gerente de una empresa nueva")
+    void gerenteCreaSuEmpresa() {
+        Gerente marta = registrarJefaNorte();
         assertEquals("Constructora Norte", marta.getEmpresa().getNombre());
         assertEquals(2, d.empresa.getPlataforma().listarEmpresas().size());
         assertEquals(HOY, marta.getFechaIngreso());
@@ -77,11 +77,11 @@ class MultiempresaTest {
     }
 
     @Test
-    @DisplayName("Las empresas están aisladas: el jefe de una no ve ni toca nada de la otra")
+    @DisplayName("Las empresas están aisladas: el gerente de una no ve ni toca nada de la otra")
     void aislamiento() {
-        Jefe marta = registrarJefaNorte();
+        Gerente marta = registrarJefaNorte();
         assertEquals(1, servicios.personal().listarVisibles(marta).size(), "Solo se ve a sí misma");
-        assertEquals(5, servicios.personal().listarVisibles(d.jefe).size(), "Carlos no ve a Marta");
+        assertEquals(5, servicios.personal().listarVisibles(d.gerente).size(), "Carlos no ve a Marta");
         assertThrows(NoEncontradoException.class, () -> servicios.personal().ver(marta, "30000001"),
                 "Una cédula de otra empresa «no existe»");
 
@@ -102,13 +102,13 @@ class MultiempresaTest {
     @Test
     @DisplayName("Con un código de la empresa Norte, la persona queda en Norte (no en la otra)")
     void unirseALaEmpresaDelCodigo() {
-        Jefe marta = registrarJefaNorte();
+        Gerente marta = registrarJefaNorte();
         var inv = servicios.invitaciones().crear(marta, "Empleado", "", "", 7, "");
         Cuenta pablo = registrarYConfirmar(datos("pablo@correo.com", "28555111", null, null));
         Usuario ficha = servicios.registro().unirse(pablo, inv.getCodigo().toString());
         assertEquals("Constructora Norte", ficha.getEmpresa().getNombre());
         assertEquals(2, servicios.personal().listarVisibles(marta).size());
-        assertEquals(5, servicios.personal().listarVisibles(d.jefe).size());
+        assertEquals(5, servicios.personal().listarVisibles(d.gerente).size());
     }
 
     @Test
@@ -118,9 +118,9 @@ class MultiempresaTest {
         assertThrows(OperacionInvalidaException.class, () -> servicios.registro().registrar(
                 datos("otra@correo.com", "30000001", null, null)), "La cédula de José ya existe en otra empresa");
         assertThrows(OperacionInvalidaException.class, () -> servicios.registro().registrar(
-                datos("x@correo.com", "17000111", "jefe", "constructora norte")), "Nombre repetido");
+                datos("x@correo.com", "17000111", "gerente", "constructora norte")), "Nombre repetido");
         assertThrows(RuntimeException.class, () -> servicios.registro().registrar(
-                datos("y@correo.com", "17000222", "jefe", "AB")), "Nombre muy corto");
+                datos("y@correo.com", "17000222", "gerente", "AB")), "Nombre muy corto");
         assertEquals(null, d.empresa.getPlataforma().buscarCuenta("x@correo.com"),
                 "Si la empresa no se puede crear, tampoco queda la cuenta");
     }
@@ -130,7 +130,7 @@ class MultiempresaTest {
     void crearEmpresaDespues() {
         Cuenta cuenta = registrarYConfirmar(datos("luisa@correo.com", "19222333", null, null));
         assertFalse(cuenta.perteneceAEmpresa());
-        Jefe luisa = servicios.registro().crearEmpresa(cuenta, "Obras Luisa");
+        Gerente luisa = servicios.registro().crearEmpresa(cuenta, "Obras Luisa");
         assertNotNull(luisa.getEmpresa());
         assertThrows(OperacionInvalidaException.class, () -> servicios.registro().crearEmpresa(cuenta, "Otra más"));
     }
@@ -138,7 +138,7 @@ class MultiempresaTest {
     @Test
     @DisplayName("Guardar y cargar conserva varias empresas con sus personas y cuentas")
     void persistenciaVariasEmpresas() {
-        Jefe marta = registrarJefaNorte();
+        Gerente marta = registrarJefaNorte();
         servicios.obras().crear(marta, Map.of("nombre", "Galpón Norte", "ubicacion", "Maracay",
                 "inicio", HOY.toString(), "fin", HOY.plusMonths(3).toString()));
         FabricaIncidencias fabrica = FabricaIncidencias.conTiposPorDefecto();
@@ -156,7 +156,7 @@ class MultiempresaTest {
     @Test
     @DisplayName("Las cifras de la portada suman todas las empresas sin exponer sus datos")
     void cifrasPublicasAgregadas() {
-        Jefe marta = registrarJefaNorte();
+        Gerente marta = registrarJefaNorte();
         servicios.obras().crear(marta, Map.of("nombre", "Galpón Norte", "ubicacion", "Maracay",
                 "inicio", HOY.toString(), "fin", HOY.plusMonths(3).toString()));
         var cifras = servicios.personal().cifrasPublicas();

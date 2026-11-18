@@ -1,7 +1,7 @@
 package construtrack.controlador.swing;
 
 import construtrack.modelo.Cuenta;
-import construtrack.modelo.Jefe;
+import construtrack.modelo.Gerente;
 import construtrack.modelo.RevisorIncidencias;
 import construtrack.modelo.Usuario;
 import construtrack.servicio.Servicios;
@@ -115,13 +115,13 @@ public final class AplicacionSwing {
         ventana.agregarPestana("Incidencias", "Reporta faltas, retardos, reposos y permisos", incidencias);
 
         if (usuario instanceof RevisorIncidencias) {
-            boolean esJefe = usuario instanceof Jefe;
-            PanelPersonal personal = new PanelPersonal(esJefe ? "Personal" : "Mi equipo", esJefe);
+            boolean esGerente = usuario instanceof Gerente;
+            PanelPersonal personal = new PanelPersonal(esGerente ? "Personal" : "Mi equipo", esGerente);
             refrescos.add(new ControladoraPersonal(personal, servicios.personal(), usuario, refrescarTodo)::refrescar);
-            ventana.agregarPestana(esJefe ? "Personal" : "Mi equipo", "Personas y su estado", personal);
+            ventana.agregarPestana(esGerente ? "Personal" : "Mi equipo", "Personas y su estado", personal);
         }
 
-        if (usuario instanceof Jefe) {
+        if (usuario instanceof Gerente) {
             PanelInvitaciones invitaciones = new PanelInvitaciones();
             refrescos.add(new ControladoraInvitaciones(invitaciones, servicios.invitaciones(), servicios.personal(),
                     usuario)::refrescar);

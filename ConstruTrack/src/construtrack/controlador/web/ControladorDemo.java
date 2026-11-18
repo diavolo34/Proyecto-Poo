@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class ControladorDemo implements ControladorWeb {
     private static final Map<String, String> PERSONAS = Map.of(
-            "Jefe", "10000001", "Supervisor", "20000001", "Empleado", "30000001");
+            "Gerente", "10000001", "Supervisor", "20000001", "Empleado", "30000001");
 
     private final ServicioAutenticacion autenticacion;
     private final GestorSesiones sesiones;
@@ -34,9 +34,9 @@ public class ControladorDemo implements ControladorWeb {
             esperar();
             throw new CredencialesInvalidasException();
         }
-        String cedula = PERSONAS.get(p.cuerpo().getOrDefault("rol", "Jefe"));
+        String cedula = PERSONAS.get(p.cuerpo().getOrDefault("rol", "Gerente"));
         if (cedula == null) {
-            throw new DatoInvalidoException("Elige el rol: Jefe, Supervisor o Empleado.");
+            throw new DatoInvalidoException("Elige el rol: Gerente, Supervisor o Empleado.");
         }
         Usuario usuario = autenticacion.buscar(cedula);
         Ingreso ingreso = new Ingreso(usuario.getCuenta(), usuario);

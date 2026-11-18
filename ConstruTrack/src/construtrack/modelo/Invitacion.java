@@ -11,14 +11,14 @@ public class Invitacion {
     private final String rol;
     private final Supervisor supervisor;
     private final Obra obra;
-    private final Jefe creadaPor;
+    private final Gerente creadaPor;
     private final LocalDateTime creada;
     private final LocalDateTime vence;
     private EstadoInvitacion estado = EstadoInvitacion.VIGENTE;
     private Cuenta usadaPor;
     private LocalDateTime usada;
 
-    public Invitacion(CodigoInvitacion codigo, String rol, Supervisor supervisor, Obra obra, Jefe creadaPor,
+    public Invitacion(CodigoInvitacion codigo, String rol, Supervisor supervisor, Obra obra, Gerente creadaPor,
             LocalDateTime creada, LocalDateTime vence) {
         if (!Empleado.ROL.equals(rol) && !Supervisor.ROL.equals(rol)) {
             throw new DatoInvalidoException("La invitación debe ser para un Empleado o un Supervisor.");
@@ -53,7 +53,7 @@ public class Invitacion {
         EstadoInvitacion actual = estadoEn(ahora);
         if (actual != EstadoInvitacion.VIGENTE) {
             throw new OperacionInvalidaException("Esta invitación está " + actual.getNombre().toLowerCase()
-                    + ". Pide a tu jefe un código nuevo.");
+                    + ". Pide a tu gerente un código nuevo.");
         }
         if (cuenta.perteneceAEmpresa()) {
             throw new OperacionInvalidaException("Tu cuenta ya pertenece a la empresa.");
@@ -61,7 +61,7 @@ public class Invitacion {
         cuenta.exigirVerificada();
         if (empresa.existeCedula(cuenta.getDocumento())) {
             throw new OperacionInvalidaException("Ya hay una persona con el documento " + cuenta.getDocumento()
-                    + " registrada en ConstruTrack. Habla con tu jefe para vincularla a tu cuenta.");
+                    + " registrada en ConstruTrack. Habla con tu gerente para vincularla a tu cuenta.");
         }
         Horario horario = Horario.desdeTexto(DIAS_POR_DEFECTO, "07:00", "16:00");
         Usuario nuevo = Usuario.restaurar(rol, cuenta.getDocumento(), cuenta.getNombreCompleto(), cuenta.getClaveResumen(),
@@ -108,7 +108,7 @@ public class Invitacion {
         return obra;
     }
 
-    public Jefe getCreadaPor() {
+    public Gerente getCreadaPor() {
         return creadaPor;
     }
 

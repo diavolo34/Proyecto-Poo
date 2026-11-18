@@ -78,7 +78,7 @@ function dibujarApp(vista) {
       </header>
       <nav class="lateral" aria-label="Menú principal">
         ${grupos.map((g) => `<div class="titulo-lateral">${esc(g)}</div>` + disponibles.filter((v) => v.grupo === g).map((v) =>
-          `<a href="#${v.id}" ${v.id === vista.id ? 'aria-current="page"' : ''}><span aria-hidden="true">${v.icono}</span>${esc(v.id === 'personal' && !esJefe() ? 'Mi equipo' : v.titulo)}</a>`).join('')).join('')}
+          `<a href="#${v.id}" ${v.id === vista.id ? 'aria-current="page"' : ''}><span aria-hidden="true">${v.icono}</span>${esc(v.id === 'personal' && !esGerente() ? 'Mi equipo' : v.titulo)}</a>`).join('')).join('')}
       </nav>
       <main class="contenido" id="principal" tabindex="-1"><p class="vacio"><span class="girando"></span> Cargando…</p></main>
     </div>`;

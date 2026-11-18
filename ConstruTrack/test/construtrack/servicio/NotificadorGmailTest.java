@@ -50,7 +50,7 @@ class NotificadorGmailTest {
     @Test
     @DisplayName("Envía la clave, el destino y el código, y sigue la redirección de Apps Script")
     void envia() throws IOException {
-        Invitacion inv = d.jefe.crearInvitacion("Empleado", "", "", 7, AHORA, new Random(8));
+        Invitacion inv = d.gerente.crearInvitacion("Empleado", "", "", 7, AHORA, new Random(8));
         new NotificadorGmail(levantar("{\"ok\":true,\"restantes\":99}"), "secreta", "https://sitio.test")
                 .enviarInvitacion(inv, "pablo@correo.com");
         assertTrue(cuerpo.get().contains("\"clave\":\"secreta\""));
@@ -61,7 +61,7 @@ class NotificadorGmailTest {
     @Test
     @DisplayName("Si el script rechaza el pedido (clave incorrecta), se informa el motivo")
     void rechazo() throws IOException {
-        Invitacion inv = d.jefe.crearInvitacion("Empleado", "", "", 7, AHORA, new Random(9));
+        Invitacion inv = d.gerente.crearInvitacion("Empleado", "", "", 7, AHORA, new Random(9));
         NotificadorGmail gmail = new NotificadorGmail(levantar("{\"ok\":false,\"error\":\"Clave incorrecta\"}"), "mala",
                 "https://sitio.test");
         OperacionInvalidaException e = assertThrows(OperacionInvalidaException.class,

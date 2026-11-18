@@ -49,12 +49,12 @@ class IncidenciaTest {
     }
 
     @Test
-    @DisplayName("Un supervisor solo revisa a su equipo; el jefe revisa a todos menos a otro jefe")
+    @DisplayName("Un supervisor solo revisa a su equipo; el gerente revisa a todos menos a otro gerente")
     void autoridadDeRevision() {
         Incidencia i = permisoDeJose();
         assertFalse(d.luis.puedeRevisar(i));
         assertThrows(PermisoDenegadoException.class, () -> d.luis.revisar(i, EstadoIncidencia.APROBADA, "", AHORA));
-        assertTrue(d.jefe.puedeRevisar(i));
+        assertTrue(d.gerente.puedeRevisar(i));
     }
 
     @Test
