@@ -111,7 +111,8 @@ const Marcacion = (() => {
       codigo = await pedirCodigo(tipo);
       if (codigo === undefined) return null;
     }
-    const ubicacion = control && control.geocerca ? await ubicacionActual() : null;
+    if (tipo === 'entrada') aviso('Tomando tu ubicación…', 'aviso');
+    const ubicacion = await ubicacionActual();
     const datos = { codigo: codigo || null, ...(ubicacion || {}) };
     return tipo === 'entrada' ? Api.marcarEntrada(datos) : Api.marcarSalida(datos);
   }

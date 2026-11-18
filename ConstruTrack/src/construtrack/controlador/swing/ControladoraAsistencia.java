@@ -34,9 +34,12 @@ public final class ControladoraAsistencia {
     private void marcar(boolean entrada) {
         try {
             RegistroAsistencia r = entrada ? asistencia.marcarEntrada(usuario) : asistencia.marcarSalida(usuario);
-            vista.mostrarMensaje(entrada
+            String control = r.getVerificacion() == construtrack.modelo.EstadoVerificacion.POR_CONFIRMAR
+                    ? " Queda por confirmar (" + r.getMotivoVerificacion().toLowerCase() + "): el escritorio no envía ubicación."
+                    : "";
+            vista.mostrarMensaje((entrada
                     ? "entrada registrada a las " + r.getHoraEntrada() + (r.isTarde() ? " (llegada tarde)." : ".")
-                    : "salida registrada a las " + r.getHoraSalida() + ".", false);
+                    : "salida registrada a las " + r.getHoraSalida() + ".") + control, false);
             alCambiar.run();
         } catch (ConstruTrackException e) {
             vista.mostrarMensaje(e.getMessage(), true);
@@ -49,6 +52,12 @@ public final class ControladoraAsistencia {
         vista.getLblHorario().setText("Horario: " + h.getDias() + " de " + h.getHoraEntrada() + " a "
                 + h.getHoraSalida() + (usuario.getObra() == null ? "" : " · Obra: " + usuario.getObra().getNombre()));
         vista.mostrarEstado(usuario.estaPresente());
+        construtrack.modelo.novedades.Licencia incapacidad = usuario.getHistorial().incapacidadEl(LocalDate.now());
+        if (incapacidad != null) {
+            vista.getLblHorario().setText(vista.getLblHorario().getText() + " · Incapacidad: reposo médico aprobado hasta el "
+                    + incapacidad.getHasta());
+            vista.getBtnEntrada().setEnabled(false);
+        }
 
         Historial historial = usuario.getHistorial();
         Periodo semana = Periodo.semanaDe(LocalDate.now());
@@ -63,7 +72,9 @@ public final class ControladoraAsistencia {
             vista.getModelo().addRow(new Object[] {r.getFecha(), r.getHoraEntrada(),
                 r.getHoraSalida() == null ? "En curso" : r.getHoraSalida(),
                 r.isTarde() ? "Tarde (" + r.minutosRetraso(h) + " min)" : "Puntual",
-                r.estaAbierto() ? "—" : String.format("%.1f h", r.minutosTrabajados() / 60.0)});
+                r.estaAbierto() ? "—" : String.format("%.1f h", r.minutosTrabajados() / 60.0),
+                r.getVerificacion() == construtrack.modelo.EstadoVerificacion.NO_APLICA ? "—"
+                        : r.getVerificacion().getNombre() + (r.getMotivoVerificacion().isEmpty() ? "" : " · " + r.getMotivoVerificacion())});
         }
     }
 }

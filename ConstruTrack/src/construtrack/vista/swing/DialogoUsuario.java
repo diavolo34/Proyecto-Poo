@@ -32,6 +32,8 @@ public final class DialogoUsuario extends JDialog {
     private final JComboBox<String> cboEntrada = new JComboBox<>(horas());
     private final JComboBox<String> cboSalida = new JComboBox<>(horas());
     private final JComboBox<Opcion> cboSupervisor = new JComboBox<>();
+    private final JComboBox<String> cboPuesto = new JComboBox<>();
+    private final JComboBox<String> cboArea = new JComboBox<>();
     private final JCheckBox chkPresente = new JCheckBox("Está en la obra ahora");
     private final JLabel lblError = Tema.texto(" ");
     private final JButton btnGuardar = Tema.botonPrimario("Guardar");
@@ -52,7 +54,9 @@ public final class DialogoUsuario extends JDialog {
         fila = agregar(form, fila, "Rol", cboRol, null);
         fila = agregar(form, fila, "Cédula", txtCedula, "Entre 6 y 9 dígitos, sin puntos");
         fila = agregar(form, fila, "Nombre completo", txtNombre, null);
-        fila = agregar(form, fila, "Clave", txtClave,
+        fila = agregar(form, fila, "Puesto", cboPuesto, "Del catálogo de puestos de la empresa");
+        fila = agregar(form, fila, "Área", cboArea, null);
+        fila = agregar(form, fila, "Clave", Tema.campoClave(txtClave),
                 edicion ? "Déjala vacía para no cambiarla" : "Mínimo 8 caracteres, con letras y números");
         JPanel dias = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
         dias.setOpaque(false);
@@ -127,6 +131,20 @@ public final class DialogoUsuario extends JDialog {
         return horas.toArray(new String[0]);
     }
 
+    public void cargarCatalogo(List<String> puestos, List<String> areas) {
+        cboPuesto.removeAllItems();
+        cboPuesto.addItem("");
+        puestos.forEach(cboPuesto::addItem);
+        cboArea.removeAllItems();
+        cboArea.addItem("");
+        areas.forEach(cboArea::addItem);
+    }
+
+    public void cargarPuesto(String puesto, String area) {
+        cboPuesto.setSelectedItem(puesto == null ? "" : puesto);
+        cboArea.setSelectedItem(area == null ? "" : area);
+    }
+
     public void cargarSupervisores(List<Opcion> supervisores) {
         cboSupervisor.removeAllItems();
         cboSupervisor.addItem(new Opcion("", "— Sin supervisor —"));
@@ -172,6 +190,8 @@ public final class DialogoUsuario extends JDialog {
         Opcion supervisor = (Opcion) cboSupervisor.getSelectedItem();
         datos.put("supervisor", supervisor == null ? "" : supervisor.valor());
         datos.put("presente", String.valueOf(chkPresente.isSelected()));
+        datos.put("puesto", cboPuesto.getSelectedItem() == null ? "" : String.valueOf(cboPuesto.getSelectedItem()));
+        datos.put("area", cboArea.getSelectedItem() == null ? "" : String.valueOf(cboArea.getSelectedItem()));
         return datos;
     }
 

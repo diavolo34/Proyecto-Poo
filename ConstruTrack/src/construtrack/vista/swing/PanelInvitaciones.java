@@ -19,6 +19,8 @@ public final class PanelInvitaciones extends JPanel {
     private final JComboBox<String> cboRol = new JComboBox<>(new String[] {"Empleado", "Supervisor"});
     private final JComboBox<Opcion> cboSupervisor = new JComboBox<>();
     private final JComboBox<Opcion> cboObra = new JComboBox<>();
+    private final JComboBox<String> cboPuesto = new JComboBox<>();
+    private final JComboBox<String> cboArea = new JComboBox<>();
     private final JSpinner spnDias = new JSpinner(new SpinnerNumberModel(7, 1, 30, 1));
     private final JTextField txtCorreo = new JTextField(18);
     private final JButton btnCrear = Tema.botonPrimario("Crear invitación");
@@ -48,6 +50,8 @@ public final class PanelInvitaciones extends JPanel {
         arriba.add(new Formulario()
                 .campo("Rol", cboRol, null)
                 .campo("Supervisor", cboSupervisor, "Solo para empleados")
+                .campo("Puesto", cboPuesto, null, 0, 1)
+                .campo("Área", cboArea, null, 1, 1)
                 .campo("Obra", cboObra, null)
                 .campo("Vigencia (días)", spnDias, "Entre 1 y 30 días")
                 .campo("Correo de la persona (opcional)", txtCorreo, "Se registra el envío; no se manda un correo real")
@@ -95,6 +99,14 @@ public final class PanelInvitaciones extends JPanel {
 
     public JComboBox<String> getCboRol() {
         return cboRol;
+    }
+
+    public JComboBox<String> getCboPuesto() {
+        return cboPuesto;
+    }
+
+    public JComboBox<String> getCboArea() {
+        return cboArea;
     }
 
     public JComboBox<Opcion> getCboSupervisor() {

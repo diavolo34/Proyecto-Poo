@@ -62,6 +62,17 @@ const Api = {
     return datos;
   },
 
+  async blob(ruta) {
+    const respuesta = await fetch(this.base + this.prefijo() + ruta, { headers: { Authorization: 'Bearer ' + this.token } });
+    if (!respuesta.ok) {
+      const datos = await respuesta.json().catch(() => ({}));
+      throw new Error(datos.error || 'No se pudo abrir el archivo.');
+    }
+    const disposicion = respuesta.headers.get('Content-Disposition') || '';
+    const nombre = (disposicion.match(/filename="([^"]+)"/) || [])[1] || 'archivo';
+    return { nombre, tipo: respuesta.headers.get('Content-Type') || '', datos: await respuesta.blob() };
+  },
+
   async descargar(ruta) {
     const respuesta = await fetch(this.base + this.prefijo() + ruta, { headers: { Authorization: 'Bearer ' + this.token } });
     if (!respuesta.ok) {
@@ -133,15 +144,35 @@ const Api = {
   verUsuario: (cedula) => Api.pedir('GET', '/api/usuarios/' + encodeURIComponent(cedula)),
   registrarUsuario: (datos) => Api.pedir('POST', '/api/usuarios', datos),
   modificarUsuario: (cedula, datos) => Api.pedir('PUT', '/api/usuarios/' + encodeURIComponent(cedula), datos),
-  eliminarUsuario: (cedula) => Api.pedir('DELETE', '/api/usuarios/' + encodeURIComponent(cedula)),
   opcionesPersonal: () => Api.pedir('GET', '/api/personal/opciones'),
+  ubicaciones: (fecha) => Api.pedir('GET', '/api/asistencia/ubicaciones?fecha=' + encodeURIComponent(fecha || '')),
 
-  incidencias: () => Api.pedir('GET', '/api/incidencias'),
-  incidenciasTablero: () => Api.pedir('GET', '/api/incidencias?vista=tablero'),
-  opcionesIncidencias: () => Api.pedir('GET', '/api/incidencias/opciones'),
-  reportarIncidencia: (datos) => Api.pedir('POST', '/api/incidencias', datos),
-  revisarIncidencia: (id, estado, comentario) =>
-    Api.pedir('PUT', `/api/incidencias/${id}/revision`, { estado, comentario }),
+  novedades: (categoria) => Api.pedir('GET', '/api/novedades?categoria=' + categoria),
+  tablero: () => Api.pedir('GET', '/api/novedades?vista=tablero'),
+  opcionesNovedades: (categoria) => Api.pedir('GET', '/api/novedades/opciones?categoria=' + categoria),
+  registrarNovedad: (datos) => Api.pedir('POST', '/api/novedades', datos),
+  revisarNovedad: (id, estado, nota) => Api.pedir('PUT', `/api/novedades/${id}/revision`, { estado, nota }),
+
+  subirArchivo: (datos) => Api.pedir('POST', '/api/archivos', datos),
+  archivo: (id) => Api.blob('/api/archivos/' + encodeURIComponent(id)),
+
+  catalogo: () => Api.pedir('GET', '/api/catalogo'),
+  agregarCatalogo: (tipo, nombre) => Api.pedir('POST', '/api/catalogo/' + tipo, { nombre }),
+  quitarCatalogo: (tipo, nombre) => Api.pedir('POST', `/api/catalogo/${tipo}/quitar`, { nombre }),
+
+  talento: () => Api.pedir('GET', '/api/talento'),
+  pendientesEgreso: (cedula) => Api.pedir('GET', '/api/talento/pendientes/' + encodeURIComponent(cedula)),
+  registrarEgreso: (cedula, datos) => Api.pedir('POST', '/api/talento/egresos/' + encodeURIComponent(cedula), datos),
+  eliminarFicha: (id) => Api.pedir('POST', `/api/talento/egresos/${id}/eliminar-ficha`),
+  descargarExpediente: (id) => Api.descargar(`/api/talento/egresos/${id}/expediente`),
+
+  inventario: () => Api.pedir('GET', '/api/inventario'),
+  crearArticulo: (datos) => Api.pedir('POST', '/api/inventario', datos),
+  editarArticulo: (codigo, datos) => Api.pedir('PUT', '/api/inventario/' + encodeURIComponent(codigo), datos),
+  eliminarArticulo: (codigo) => Api.pedir('DELETE', '/api/inventario/' + encodeURIComponent(codigo)),
+  entregarArticulo: (codigo, datos) => Api.pedir('POST', `/api/inventario/${encodeURIComponent(codigo)}/entregas`, datos),
+  devolverArticulo: (id, condicion, nota) => Api.pedir('PUT', `/api/inventario/entregas/${id}/devolucion`, { condicion, nota }),
+  herramientasDe: (cedula) => Api.pedir('GET', '/api/inventario/a-cargo/' + encodeURIComponent(cedula)),
 
   estadisticas: (periodo) => Api.pedir('GET', '/api/estadisticas?periodo=' + periodo),
   alertas: (periodo) => Api.pedir('GET', '/api/supervision/alertas?periodo=' + periodo),
@@ -156,6 +187,11 @@ const Api = {
   editarObra: (codigo, datos) => Api.pedir('PUT', '/api/obras/' + encodeURIComponent(codigo), datos),
   eliminarObra: (codigo) => Api.pedir('DELETE', '/api/obras/' + encodeURIComponent(codigo)),
   asignarObra: (cedula, obra) => Api.pedir('PUT', `/api/usuarios/${encodeURIComponent(cedula)}/obra`, { obra }),
+  iniciarObra: (codigo) => Api.pedir('POST', `/api/obras/${encodeURIComponent(codigo)}/inicio`),
+  concluirObra: (codigo) => Api.pedir('POST', `/api/obras/${encodeURIComponent(codigo)}/conclusion`),
+  reportarRetraso: (codigo, motivo, nuevaFecha) =>
+    Api.pedir('POST', `/api/obras/${encodeURIComponent(codigo)}/retrasos`, { motivo, nuevaFecha }),
+  revisarRetraso: (codigo, id) => Api.pedir('PUT', `/api/obras/${encodeURIComponent(codigo)}/retrasos/${id}/revision`),
 
   invitaciones: () => Api.pedir('GET', '/api/invitaciones'),
   crearInvitacion: (datos) => Api.pedir('POST', '/api/invitaciones', datos),

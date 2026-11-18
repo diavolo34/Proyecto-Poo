@@ -41,12 +41,12 @@ class Chatbot {
       return 'Pulsa «Crear cuenta» y elige cómo empezar: si eres gerente, «Soy gerente: crear mi empresa» (escribes el nombre de tu empresa y luego invitas a tu equipo); si no, «Me uno a una empresa» y después escribes el código de invitación que te dé tu gerente.';
     }
     if (tiene('reporto', 'reportar', 'falta', 'reposo', 'enfermo', 'permiso')) {
-      return 'Ve a «Incidencias», elige el tipo (reposo médico, permiso personal, retardo, accidente…), las fechas y una descripción. Tu supervisor la revisa y la aprueba o la rechaza; un reposo aprobado no cuenta como falta.';
+      return 'Los permisos laborales y los reposos médicos los registra tu supervisor en «Permisos y reposos» (con los datos del médico y la foto del reposo), y el gerente los aprueba o rechaza con una nota. Un reposo aprobado cuenta como «Incapacidad», no como falta.';
     }
     if (tiene('seguridad', 'casco', 'epp', 'botas', 'chaleco')) return 'En la obra es obligatorio usar casco, botas de seguridad y chaleco reflectivo. Sin equipo de protección no se permite el ingreso.';
     if (tiene('horario', 'oficina', 'abren')) return 'La oficina de RRHH atiende de lunes a viernes de 8:00 a 17:00.';
     if (tiene('contacto', 'telefono', 'direccion')) return 'Oficina de RRHH en la caseta principal de la obra · 0212-555-0100.';
-    if (tiene('rol', 'supervisor', 'gerente')) return 'El Empleado marca su asistencia y reporta incidencias; el Supervisor revisa a su equipo, recibe alertas y genera reportes; el Gerente además gestiona al personal y crea invitaciones.';
+    if (tiene('rol', 'supervisor', 'gerente')) return 'El Empleado marca su asistencia y consulta sus permisos y herramientas; el Supervisor registra permisos, reposos y reportes en obra de su personal y reporta retrasos; el Gerente aprueba, gestiona al personal, el inventario, Talento humano y las invitaciones.';
     if (tiene('hola', 'buenas', 'buenos')) return `¡Hola${usuario ? ', ' + usuario.nombre.split(' ')[0] : ''}! ¿En qué te ayudo?`;
     if (tiene('gracias')) return '¡Con gusto! Aquí estoy si necesitas algo más.';
     return 'No entendí tu pregunta. Prueba con una de las sugerencias o escribe, por ejemplo, «¿cómo reporto una falta?».';

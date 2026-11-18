@@ -1,19 +1,25 @@
 package construtrack.controlador.swing;
 
 import construtrack.modelo.Cuenta;
+import construtrack.modelo.Empleado;
 import construtrack.modelo.Gerente;
-import construtrack.modelo.RevisorIncidencias;
+import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
+import construtrack.modelo.novedades.Categoria;
 import construtrack.servicio.Servicios;
 import construtrack.vista.swing.DialogoCodigo;
 import construtrack.vista.swing.DialogoRegistro;
 import construtrack.vista.swing.DialogoUnirse;
 import construtrack.vista.swing.PanelAsistencia;
-import construtrack.vista.swing.PanelIncidencias;
+import construtrack.vista.swing.PanelCatalogo;
+import construtrack.vista.swing.PanelInventario;
 import construtrack.vista.swing.PanelInvitaciones;
+import construtrack.vista.swing.PanelNovedades;
+import construtrack.vista.swing.PanelObras;
 import construtrack.vista.swing.PanelPersonal;
 import construtrack.vista.swing.PanelSupervision;
 import construtrack.vista.swing.PanelTablero;
+import construtrack.vista.swing.PanelTalento;
 import construtrack.vista.swing.Tema;
 import construtrack.vista.swing.VentanaLogin;
 import construtrack.vista.swing.VentanaPrincipal;
@@ -98,30 +104,56 @@ public final class AplicacionSwing {
 
         PanelAsistencia asistencia = new PanelAsistencia();
         refrescos.add(new ControladoraAsistencia(asistencia, servicios.asistencia(), usuario, refrescarTodo)::refrescar);
-        ventana.agregarPestana("Mi asistencia", "Marca tu entrada y salida y revisa tu historial", asistencia);
+        ventana.agregarPestana("Asistencia", "Marca tu entrada y salida y revisa tu historial", asistencia);
 
-        if (usuario instanceof RevisorIncidencias) {
-            PanelSupervision supervision = new PanelSupervision();
-            refrescos.add(new ControladoraSupervision(supervision, servicios.supervision(), usuario)::refrescar);
-            ventana.agregarPestana("Supervisión", "Indicadores, alertas y reportes de tu equipo", supervision);
+        boolean esGerente = usuario instanceof Gerente;
+        boolean esLider = !(usuario instanceof Empleado);
+        PanelNovedades permisos = new PanelNovedades("Permisos y reposos", "El supervisor los registra; el gerente los aprueba o "
+                + "rechaza con una nota. Un reposo aprobado cuenta como «Incapacidad» y bloquea la marca mientras dure.",
+                ControladoraNovedades.puedeRegistrar(servicios.novedades(), usuario), false, esGerente);
+        refrescos.add(new ControladoraNovedades(permisos, servicios.novedades(), servicios.archivos(), usuario, Categoria.LICENCIA,
+                refrescarTodo)::refrescar);
+        ventana.agregarPestana("Permisos y reposos", "Permisos laborales y reposos médicos", permisos);
+
+        if (esLider) {
+            PanelNovedades reportes = new PanelNovedades("Reportes en obra", "Retardos, inasistencias y accidentes. Los registra el "
+                    + "supervisor y el gerente los aprueba o rechaza con una nota obligatoria.",
+                    ControladoraNovedades.puedeRegistrar(servicios.novedades(), usuario), true, esGerente);
+            refrescos.add(new ControladoraNovedades(reportes, servicios.novedades(), servicios.archivos(), usuario,
+                    Categoria.REPORTE_OBRA, refrescarTodo)::refrescar);
+            ventana.agregarPestana("Reportes en obra", "Lo que pasa en la obra", reportes);
 
             PanelTablero tablero = new PanelTablero(ControladoraTablero.columnas());
-            refrescos.add(new ControladoraTablero(tablero, servicios.incidencias(), usuario, refrescarTodo)::refrescar);
-            ventana.agregarPestana("Tablero", "Incidencias por estado", tablero);
-        }
+            refrescos.add(new ControladoraTablero(tablero, servicios.novedades(), usuario, refrescarTodo)::refrescar);
+            ventana.agregarPestana("Tablero", "Permisos y reportes por estado", tablero);
 
-        PanelIncidencias incidencias = new PanelIncidencias();
-        refrescos.add(new ControladoraIncidencias(incidencias, servicios.incidencias(), usuario, refrescarTodo)::refrescar);
-        ventana.agregarPestana("Incidencias", "Reporta faltas, retardos, reposos y permisos", incidencias);
+            PanelSupervision supervision = new PanelSupervision();
+            refrescos.add(new ControladoraSupervision(supervision, servicios.supervision(), usuario)::refrescar);
+            ventana.agregarPestana("Supervisión", "Indicadores, alertas y reportes del personal", supervision);
 
-        if (usuario instanceof RevisorIncidencias) {
-            boolean esGerente = usuario instanceof Gerente;
-            PanelPersonal personal = new PanelPersonal(esGerente ? "Personal" : "Mi equipo", esGerente);
+            PanelObras obras = new PanelObras(usuario instanceof Supervisor, esGerente);
+            refrescos.add(new ControladoraObras(obras, servicios.obras(), usuario, refrescarTodo)::refrescar);
+            ventana.agregarPestana("Obras", "Inicio, conclusión y retrasos de cada obra", obras);
+
+            PanelPersonal personal = new PanelPersonal("Personal", esGerente);
             refrescos.add(new ControladoraPersonal(personal, servicios.personal(), usuario, refrescarTodo)::refrescar);
-            ventana.agregarPestana(esGerente ? "Personal" : "Mi equipo", "Personas y su estado", personal);
+            ventana.agregarPestana("Personal", "Personas, puestos, áreas y su estado", personal);
         }
 
-        if (usuario instanceof Gerente) {
+        if (esGerente) {
+            PanelTalento talento = new PanelTalento();
+            refrescos.add(new ControladoraTalento(talento, servicios.talento(), servicios.archivos(), usuario, refrescarTodo)::refrescar);
+            ventana.agregarPestana("Talento humano", "Despidos, renuncias y devolución de equipos", talento);
+
+            PanelInventario inventario = new PanelInventario();
+            refrescos.add(new ControladoraInventario(inventario, servicios.inventario(), servicios.personal(), usuario,
+                    refrescarTodo)::refrescar);
+            ventana.agregarPestana("Inventario", "Herramientas, equipos y materiales", inventario);
+
+            PanelCatalogo catalogo = new PanelCatalogo();
+            refrescos.add(new ControladoraCatalogo(catalogo, servicios.catalogo(), usuario, refrescarTodo)::refrescar);
+            ventana.agregarPestana("Puestos y áreas", "Catálogo de cargos y departamentos", catalogo);
+
             PanelInvitaciones invitaciones = new PanelInvitaciones();
             refrescos.add(new ControladoraInvitaciones(invitaciones, servicios.invitaciones(), servicios.personal(),
                     usuario)::refrescar);

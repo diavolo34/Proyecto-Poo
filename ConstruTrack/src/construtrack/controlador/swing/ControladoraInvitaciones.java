@@ -39,10 +39,11 @@ public final class ControladoraInvitaciones {
             String rol = String.valueOf(vista.getCboRol().getSelectedItem());
             Opcion supervisor = (Opcion) vista.getCboSupervisor().getSelectedItem();
             Opcion obra = (Opcion) vista.getCboObra().getSelectedItem();
-            Invitacion v = invitaciones.crear(usuario, rol,
+            Invitacion v = invitaciones.crearYEnviar(usuario, rol,
                     "Empleado".equals(rol) && supervisor != null ? supervisor.valor() : "",
-                    obra == null ? "" : obra.valor(), (Integer) vista.getSpnDias().getValue(),
-                    vista.getTxtCorreo().getText());
+                    obra == null ? "" : obra.valor(), (String) vista.getCboPuesto().getSelectedItem(),
+                    (String) vista.getCboArea().getSelectedItem(), (Integer) vista.getSpnDias().getValue(),
+                    vista.getTxtCorreo().getText()).invitacion();
             vista.mostrarCodigo(v.getCodigo().toString());
             vista.mostrarMensaje("invitación creada. Vence el " + FECHA.format(v.getVence()) + ".", false);
             vista.getTxtCorreo().setText("");
@@ -95,8 +96,16 @@ public final class ControladoraInvitaciones {
         if (vista.getCboObra().getItemCount() == 0) {
             vista.getCboObra().addItem(new Opcion("", "— Sin obra —"));
             for (Obra o : personal.listarObras(usuario)) {
-                vista.getCboObra().addItem(new Opcion(o.getCodigo(), o.getNombre()));
+                if (o.admitePersonal()) {
+                    vista.getCboObra().addItem(new Opcion(o.getCodigo(), o.getNombre()));
+                }
             }
+        }
+        if (vista.getCboPuesto().getItemCount() == 0) {
+            vista.getCboPuesto().addItem("");
+            usuario.getEmpresa().getCatalogo().getPuestos().forEach(vista.getCboPuesto()::addItem);
+            vista.getCboArea().addItem("");
+            usuario.getEmpresa().getCatalogo().getAreas().forEach(vista.getCboArea()::addItem);
         }
         LocalDateTime ahora = invitaciones.ahora();
         vista.getModelo().setRowCount(0);

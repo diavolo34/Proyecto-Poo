@@ -77,8 +77,8 @@ function dibujarApp(vista) {
         <button class="btn btn-secundario btn-chico" id="cerrar-sesion" aria-label="Cerrar sesión">Salir</button>
       </header>
       <nav class="lateral" aria-label="Menú principal">
-        ${grupos.map((g) => `<div class="titulo-lateral">${esc(g)}</div>` + disponibles.filter((v) => v.grupo === g).map((v) =>
-          `<a href="#${v.id}" ${v.id === vista.id ? 'aria-current="page"' : ''}><span aria-hidden="true">${v.icono}</span>${esc(v.id === 'personal' && !esGerente() ? 'Mi equipo' : v.titulo)}</a>`).join('')).join('')}
+        ${grupos.map((g) => (g ? `<div class="titulo-lateral">${esc(g)}</div>` : '') + disponibles.filter((v) => v.grupo === g).map((v) =>
+          `<a href="#${v.id}" ${v.id === vista.id ? 'aria-current="page"' : ''}><span aria-hidden="true">${v.icono}</span>${esc(v.titulo)}</a>`).join('')).join('')}
       </nav>
       <main class="contenido" id="principal" tabindex="-1"><p class="vacio"><span class="girando"></span> Cargando…</p></main>
     </div>`;

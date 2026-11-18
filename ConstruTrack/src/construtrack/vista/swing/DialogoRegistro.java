@@ -40,20 +40,20 @@ public final class DialogoRegistro extends JDialog {
         JPanel encabezado = new JPanel(new BorderLayout(0, 4));
         encabezado.setOpaque(false);
         encabezado.add(Tema.subtitulo("Crea tu cuenta en ConstruTrack"), BorderLayout.NORTH);
-        encabezado.add(Tema.textoSuave("<html><div style='width:380px'>Si eres gerente, crea tu empresa e invita a tu equipo. "
+        encabezado.add(Tema.textoSuave("<html><div style='width:380px'>Si eres gerente, crea tu empresa e invita a tu personal. "
                 + "Si no, después escribe el código de invitación que te dé tu gerente.</div></html>"), BorderLayout.CENTER);
         contenido.add(encabezado, BorderLayout.NORTH);
 
         Formulario f = new Formulario()
                 .campo("¿Cómo usarás ConstruTrack? *", cboTipo, null)
-                .campo("Nombre de la empresa (solo gerentes)", txtEmpresa, "Serás su Gerente y podrás invitar a tu equipo")
+                .campo("Nombre de la empresa (solo gerentes)", txtEmpresa, "Serás su Gerente y podrás invitar a tu personal")
                 .campo("Correo electrónico *", txtCorreo, "Lo usarás para iniciar sesión")
                 .campo("Nombre *", txtNombre, null, 0, 1)
                 .campo("Apellido *", txtApellido, null, 1, 1)
                 .campo("Cédula o DNI *", txtDocumento, "Solo números", 0, 1)
                 .campo("Teléfono *", txtTelefono, "Ej.: +58 412 1234567", 1, 1)
-                .campo("Clave *", txtClave, "Mínimo 8 caracteres, con letras y números", 0, 1)
-                .campo("Repite la clave *", txtConfirmacion, null, 1, 1);
+                .campo("Clave *", Tema.campoClave(txtClave), "Mínimo 8 caracteres, con letras y números", 0, 1)
+                .campo("Repite la clave *", Tema.campoClave(txtConfirmacion), null, 1, 1);
         contenido.add(f.panel(), BorderLayout.CENTER);
 
         JPanel abajo = new JPanel(new BorderLayout());

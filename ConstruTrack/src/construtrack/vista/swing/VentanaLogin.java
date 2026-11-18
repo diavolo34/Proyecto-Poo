@@ -63,7 +63,7 @@ public final class VentanaLogin extends JFrame {
         c.insets = new Insets(18, 0, 4, 0);
         form.add(campo("Correo o cédula *", txtIdentificador, "Por ejemplo: tu@correo.com o 30000001"), c);
         c.insets = new Insets(4, 0, 4, 0);
-        form.add(campo("Clave *", txtClave, "¿La olvidaste? Restablécela desde la página web"), c);
+        form.add(campo("Clave *", Tema.campoClave(txtClave), "¿La olvidaste? Restablécela desde la página web"), c);
         lblError.setForeground(Tema.ROJO);
         form.add(lblError, c);
         c.insets = new Insets(10, 0, 4, 0);
@@ -87,9 +87,10 @@ public final class VentanaLogin extends JFrame {
         return contenedor;
     }
 
-    private static JPanel campo(String etiqueta, JTextField campo, String ayuda) {
+    private static JPanel campo(String etiqueta, javax.swing.JComponent componente, String ayuda) {
         JPanel panel = new JPanel(new BorderLayout(0, 4));
         panel.setOpaque(false);
+        JTextField campo = componente instanceof JTextField t ? t : (JTextField) ((JPanel) componente).getComponent(0);
         JLabel lbl = Tema.texto(etiqueta);
         lbl.setFont(Tema.NEGRITA);
         lbl.setLabelFor(campo);
@@ -99,7 +100,7 @@ public final class VentanaLogin extends JFrame {
         campo.setToolTipText(ayuda);
         campo.getAccessibleContext().setAccessibleName(etiqueta);
         panel.add(lbl, BorderLayout.NORTH);
-        panel.add(campo, BorderLayout.CENTER);
+        panel.add(componente, BorderLayout.CENTER);
         panel.add(Tema.textoSuave(ayuda), BorderLayout.SOUTH);
         return panel;
     }

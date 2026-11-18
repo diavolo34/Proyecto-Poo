@@ -23,7 +23,7 @@ public final class PanelAsistencia extends JPanel {
     private final JLabel lblRetardos = Tema.texto("0");
     private final JLabel lblPuntualidad = Tema.texto("0");
     private final DefaultTableModel modelo =
-            Tema.modeloSoloLectura("Fecha", "Entrada", "Salida", "Llegada", "Horas");
+            Tema.modeloSoloLectura("Fecha", "Entrada", "Salida", "Llegada", "Horas", "Control");
 
     public PanelAsistencia() {
         super(new BorderLayout(12, 12));
@@ -36,7 +36,7 @@ public final class PanelAsistencia extends JPanel {
         add(arriba, BorderLayout.NORTH);
 
         JPanel historial = Tema.tarjeta(new BorderLayout(0, 10));
-        historial.add(Tema.subtitulo("Mi historial reciente"), BorderLayout.NORTH);
+        historial.add(Tema.subtitulo("Historial reciente"), BorderLayout.NORTH);
         JTable tabla = Tema.tabla(modelo);
         tabla.getAccessibleContext().setAccessibleName("Historial de asistencia");
         historial.add(Tema.desplazable(tabla), BorderLayout.CENTER);

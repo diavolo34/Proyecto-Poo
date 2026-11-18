@@ -10,19 +10,19 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public final class TarjetaIncidencia extends JPanel {
+public final class TarjetaNovedad extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private final JPanel acciones = new JPanel(new java.awt.GridLayout(1, 0, 4, 0));
 
-    public TarjetaIncidencia(String titulo, String persona, String fechas, String descripcion,
-            String gravedad, Color colorGravedad, Color fondoGravedad) {
+    public TarjetaNovedad(String titulo, String persona, String fechas, String descripcion,
+            String etiqueta, Color colorEtiqueta, Color fondoEtiqueta) {
         super(new BorderLayout(0, 6));
         setBackground(Tema.SUPERFICIE);
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(Tema.BORDE),
-                        BorderFactory.createMatteBorder(0, 4, 0, 0, colorGravedad)),
+                        BorderFactory.createMatteBorder(0, 4, 0, 0, colorEtiqueta)),
                 Tema.margen(10, 10, 10, 10)));
         setAlignmentX(LEFT_ALIGNMENT);
 
@@ -42,7 +42,7 @@ public final class TarjetaIncidencia extends JPanel {
         pie.setOpaque(false);
         JPanel chip = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         chip.setOpaque(false);
-        chip.add(Tema.chip("Gravedad " + gravedad.toLowerCase(), fondoGravedad, colorGravedad));
+        chip.add(Tema.chip(etiqueta, fondoEtiqueta, colorEtiqueta));
         pie.add(chip, BorderLayout.NORTH);
         acciones.setOpaque(false);
         JPanel separacion = new JPanel(new BorderLayout());

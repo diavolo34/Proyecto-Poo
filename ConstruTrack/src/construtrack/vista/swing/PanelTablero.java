@@ -22,8 +22,8 @@ public final class PanelTablero extends JPanel {
         setBorder(Tema.margen(12, 4, 4, 4));
         JPanel barra = new JPanel(new BorderLayout());
         barra.setOpaque(false);
-        barra.add(Tema.titulo("Tablero de incidencias"), BorderLayout.WEST);
-        barra.add(Tema.textoSuave("Revisa, aprueba o rechaza las novedades de tu equipo"), BorderLayout.SOUTH);
+        barra.add(Tema.titulo("Tablero de permisos y reportes"), BorderLayout.WEST);
+        barra.add(Tema.textoSuave("El gerente aprueba o rechaza con una nota; los revisados salen a las 3 horas"), BorderLayout.SOUTH);
         add(barra, BorderLayout.NORTH);
 
         JPanel tablero = new JPanel(new GridLayout(1, estados.length, 12, 0));
@@ -61,7 +61,7 @@ public final class PanelTablero extends JPanel {
         columnas.values().forEach(JPanel::removeAll);
     }
 
-    public void agregarTarjeta(String estado, TarjetaIncidencia tarjeta) {
+    public void agregarTarjeta(String estado, TarjetaNovedad tarjeta) {
         JPanel columna = columnas.get(estado);
         columna.add(tarjeta);
         columna.add(Box.createVerticalStrut(8));

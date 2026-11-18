@@ -235,7 +235,7 @@ function pantallaRegistro(parametros) {
         <label class="opcion-rol"><input type="radio" name="tipo" value="unirme" checked>
           <span><strong>Me uno a una empresa</strong><span class="pequeno suave">Mi gerente me dará un código de invitación (empleado o supervisor).</span></span></label>
         <label class="opcion-rol"><input type="radio" name="tipo" value="gerente">
-          <span><strong>Soy gerente: crear mi empresa</strong><span class="pequeno suave">Creo la empresa e invito a mi equipo.</span></span></label>
+          <span><strong>Soy gerente: crear mi empresa</strong><span class="pequeno suave">Creo la empresa e invito a mi personal.</span></span></label>
       </fieldset>
       <div class="campo oculto" id="campo-empresa"><label for="r-empresa">Nombre de la empresa *</label>
         <input id="r-empresa" name="empresa" autocomplete="organization" maxlength="60" placeholder="Ej.: Constructora Los Andes">
@@ -295,7 +295,7 @@ function pantallaRegistro(parametros) {
         aviso('Cuenta creada. Te enviamos un código a tu correo para confirmarlo.');
         location.hash = 'unirse';
       } else {
-        aviso(`Tu empresa «${sesion.usuario.empresa}» está lista. Ahora invita a tu equipo.`);
+        aviso(`Tu empresa «${sesion.usuario.empresa}» está lista. Ahora invita a tu personal.`);
         location.hash = 'invitaciones';
       }
       enrutar();
