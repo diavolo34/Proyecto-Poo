@@ -46,7 +46,7 @@ Reglas destacadas:
 - Las **alertas** se generan solas: 3 o más retardos en la semana, faltas sin justificar e incidencias sin resolver por más de 48 h.
 - **Varias empresas**: cada jefe crea la suya y solo ve sus datos (personal, obras, incidencias, reportes). Los empleados y supervisores entran con el código que les da su jefe, y el código define su rol.
 - Los **permisos se validan en el servidor**: un supervisor solo ve y revisa a su equipo.
-- Las claves se guardan como **resumen SHA-256 con sal**, nunca en texto plano.
+- **Seguridad:** las claves se guardan cifradas con **PBKDF2** (600 000 iteraciones y sal aleatoria). Tras 5 intentos fallidos el ingreso se bloquea 15 minutos. **«¿Olvidaste tu clave?»** envía por correo un enlace de un solo uso que vence en 30 minutos. Las sesiones vencen a las 12 horas, y la página y la API envían cabeceras de seguridad (CSP, HSTS y otras). Detalles, lista de verificación y cookies en [docs/seguridad.md](docs/seguridad.md).
 - Las **horas extra** se calculan solas (lo que pasa de la jornada o un día libre completo) y solo cuentan al aprobarse.
 - El **Historial** de cada persona reúne su asistencia y sus incidencias; las faltas se cuentan desde su ingreso.
 - La **cédula** nueva solo admite números; la hora es la de Venezuela aunque el servidor esté en UTC.
@@ -159,17 +159,19 @@ Más capturas en [docs/capturas](docs/capturas).
 | Diagramas UML (casos de uso, clases, paquetes, secuencia) | [docs/diagramas](docs/diagramas) |
 | Scrum: backlog y sprints | [docs/scrum](docs/scrum) |
 | Despliegue (Render + Netlify) | [docs/despliegue.md](docs/despliegue.md) |
+| Seguridad: medidas, cookies, lista de verificación e ideas de asistencia comprobable | [docs/seguridad.md](docs/seguridad.md) |
 | Herramienta de IA y prompts | [docs/prompts.md](docs/prompts.md) |
 
 ## API REST
 
 Autenticación con la cabecera `Authorization: Bearer <token>`; respuestas en JSON y errores como `{"error": "mensaje"}`
-con códigos 400, 401, 403, 404 o 409.
+con códigos 400, 401, 403, 404, 409 o 429 (demasiados intentos).
 
 | Método | Ruta | Acceso |
 |--------|------|--------|
 | `GET` | `/api/estado` · `/api/publico` | Público |
 | `POST` | `/api/login` (correo o cédula) · `/api/registro` | Público |
+| `POST` | `/api/clave/olvido` (envía el enlace) · `/api/clave/restablecer` | Público |
 | `POST` | `/api/unirse` · `/api/empresas` (crear la empresa y quedar como Jefe) | Cuenta registrada |
 | `POST` | `/api/logout` · `GET /api/yo` | Con sesión |
 | `POST` | `/api/asistencia/entrada` · `/api/asistencia/salida` | Con sesión |
@@ -183,7 +185,7 @@ con códigos 400, 401, 403, 404 o 409.
 
 ## Calidad
 
-- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **57 pruebas JUnit 5** y pruebas de humo de la API en modo demostración, en modo producción y de la demo privada.
+- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **69 pruebas JUnit 5** y pruebas de humo de la API en modo demostración, en modo producción y de la demo privada (incluye cabeceras de seguridad, recuperación de clave y bloqueo por intentos).
 - **Pruebas** del modelo, la persistencia y los servicios con reloj fijo; se comprobó que detectan errores introducidos a propósito.
 - Verificado en la interfaz real: recorridos de la web con Playwright, de Swing en pantalla virtual, y despliegue con Docker y CORS.
 

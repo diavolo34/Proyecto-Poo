@@ -34,6 +34,9 @@ Prioridad: **A** (alta, pedido por la profesora o imprescindible) · **M** (medi
 | HU-28 | Como **dueño del producto**, quiero una versión para clientes sin datos de prueba y una demo privada con clave. | A | 7 | Hecho |
 | HU-29 | Como **supervisor**, quiero que las incidencias resueltas salgan del tablero a las 3 h y sigan en los reportes. | M | 7 | Hecho |
 | HU-30 | Como **jefe**, quiero marcar mi asistencia y aparecer destacado, junto a los supervisores, en la tabla de puntualidad. | A | 7 | Hecho |
+| HU-31 | Como **usuario**, quiero restablecer mi clave por correo si la olvido. | A | 8 | Hecho |
+| HU-32 | Como **dueño del producto**, quiero que las claves, las sesiones y la página estén protegidas contra ataques comunes. | A | 8 | Hecho |
+| HU-33 | Como **jefe**, quiero comprobar que la marca de asistencia se hizo en la obra (ubicación o código de la obra). | A | 9 | Por definir |
 
 ## Criterios de aceptación (historias principales)
 

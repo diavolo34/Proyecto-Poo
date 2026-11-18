@@ -57,6 +57,11 @@ Sin esas variables (por ejemplo, en NetBeans) los datos se guardan en `datos_con
   el servidor de clientes: es para presentaciones en local.
 - `DEMO_CLAVE` activa la **demo privada** en la misma página (`app.html#demo`): una empresa de prueba en memoria, aparte
   de los clientes, a la que solo se entra con esa clave. Elige una frase larga y guárdala solo en Render.
+- `URL_SITIO` es la dirección de la página publicada (`https://construtrackfm.netlify.app`). Con ella se arman los enlaces de
+  los correos de invitación y de **«¿Olvidaste tu clave?»**. Sin ella, los enlaces apuntan a `http://localhost:<puerto>`.
+- `CORS_ORIGEN` lista las páginas que pueden usar la API (separadas por coma). Si cambias de dominio en Netlify, agrégalo aquí.
+- Seguridad: las cabeceras de la página en Netlify están en `vista/web/_headers` (viaja dentro del zip). Ver
+  [seguridad.md](seguridad.md).
 - **Empezar de cero:** borra la clave `construtrack:datos` en Upstash (*Data Browser* → la clave → *Delete*) y reinicia el
   servicio en Render. Antes, guarda una copia si la necesitas.
 
