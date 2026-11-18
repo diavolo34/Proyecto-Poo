@@ -12,6 +12,7 @@ import construtrack.modelo.excepciones.OperacionInvalidaException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
@@ -57,6 +58,16 @@ class NotificadorBrevoTest {
         assertTrue(cuerpo.get().contains("https://sitio.test/app.html#registro?correo=pablo%40correo.com"),
                 "El botón abre el registro con el correo ya escrito");
         assertTrue(brevo.envioReal());
+    }
+
+    @Test
+    @DisplayName("El correo para restablecer la clave lleva el enlace con el token y su vencimiento")
+    void enviaRestablecimiento() throws IOException {
+        NotificadorBrevo brevo = new NotificadorBrevo(levantar(201), "clave-prueba", "jefe@correo.com", "https://sitio.test");
+        brevo.enviarRestablecimiento("pablo@correo.com", "tok_123-abc", Duration.ofMinutes(30));
+        assertTrue(cuerpo.get().contains("\"email\":\"pablo@correo.com\""));
+        assertTrue(cuerpo.get().contains("https://sitio.test/app.html#restablecer?token=tok_123-abc"), cuerpo.get());
+        assertTrue(cuerpo.get().contains("30 minutos"));
     }
 
     @Test

@@ -332,7 +332,7 @@ async function formularioPersona(cedula) {
     </div>
     <div class="campo"><label for="p-nombre">Nombre completo</label><input id="p-nombre" name="nombre" value="${esc(u ? u.nombre : '')}"></div>
     <div class="campo"><label for="p-clave">Clave</label><input id="p-clave" name="clave" type="password" autocomplete="new-password">
-      <span class="ayuda">${u ? 'Déjala vacía para no cambiarla.' : 'Mínimo 4 caracteres.'}</span></div>
+      <span class="ayuda">${u ? 'Déjala vacía para no cambiarla.' : 'Mínimo 8 caracteres, con letras y números.'}</span></div>
     <div class="campo"><span class="etiqueta">Días de trabajo</span><div class="casillas">
       ${Object.keys(DIAS).map((d) => `<label><input type="checkbox" name="dias" value="${d}" ${dias.includes(d) ? 'checked' : ''}>${d}</label>`).join('')}</div></div>
     <div class="fila">

@@ -129,9 +129,8 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         for (Usuario u : empresa.listarUsuarios()) {
             String[] partes = u.getNombre().split(" ", 2);
             String correo = (sinTildes(partes[0]) + "." + sinTildes(partes[1])).toLowerCase() + "@construtrack.demo";
-            Cuenta cuenta = new Cuenta(correo, "temporal", partes[0], partes[1], u.getCedula(), "+58 412 555" + u.getCedula().substring(4),
-                    registro);
-            cuenta.restaurarClaveResumen(u.getClaveResumen());
+            Cuenta cuenta = Cuenta.restaurar(correo, u.getClaveResumen(), partes[0], partes[1], u.getCedula(),
+                    "+58 412 555" + u.getCedula().substring(4), registro);
             empresa.agregarCuenta(cuenta);
             u.vincularCuenta(cuenta);
         }

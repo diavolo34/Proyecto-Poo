@@ -22,6 +22,8 @@ import java.time.Clock;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 
 public final class App {
@@ -42,7 +44,13 @@ public final class App {
         RepositorioTexto repositorio = new RepositorioTexto(almacen(),
                 modoDemo ? new GeneradorDatosPrueba(reloj, fabrica) : () -> null, fabrica);
         Plataforma plataforma = repositorio.cargar();
-        Servicios servicios = new Servicios(plataforma, repositorio, reloj, repositorio.siguienteIdIncidencia(), notificador());
+        ExecutorService correos = Executors.newSingleThreadExecutor(tarea -> {
+            Thread hilo = new Thread(tarea, "envio-correos");
+            hilo.setDaemon(true);
+            return hilo;
+        });
+        Servicios servicios = new Servicios(plataforma, repositorio, reloj, repositorio.siguienteIdIncidencia(),
+                notificador(puerto), correos);
         Servicios demo = claveDemo.isEmpty() ? null : demoPrivada(reloj, fabrica);
 
         ServidorWeb web;
@@ -73,8 +81,8 @@ public final class App {
         return new Servicios(plataforma, memoria, reloj, memoria.siguienteIdIncidencia(), new NotificadorConsola());
     }
 
-    private static Notificador notificador() {
-        String sitio = entorno("URL_SITIO", "https://construtrackfm.netlify.app");
+    private static Notificador notificador(int puerto) {
+        String sitio = entorno("URL_SITIO", "http://localhost:" + puerto);
         String script = entorno("GMAIL_SCRIPT_URL", "");
         String claveScript = entorno("GMAIL_SCRIPT_CLAVE", "");
         if (!script.isEmpty() && !claveScript.isEmpty()) {
@@ -85,7 +93,7 @@ public final class App {
         if (!clave.isEmpty() && !remitente.isEmpty()) {
             return new NotificadorBrevo(NotificadorBrevo.API, clave, remitente, sitio);
         }
-        return new NotificadorConsola();
+        return new NotificadorConsola(sitio);
     }
 
     private static Almacen almacen() {

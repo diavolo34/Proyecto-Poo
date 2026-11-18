@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import construtrack.modelo.excepciones.CredencialesInvalidasException;
 import construtrack.modelo.excepciones.DatoInvalidoException;
+import construtrack.modelo.excepciones.DemasiadosIntentosException;
 import construtrack.modelo.excepciones.NoEncontradoException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
@@ -38,6 +39,7 @@ public class ManejadorApi implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        CabecerasSeguridad.api(exchange);
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", origenPara(exchange));
         exchange.getResponseHeaders().add("Vary", "Origin");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
@@ -69,6 +71,8 @@ public class ManejadorApi implements HttpHandler {
             return enrutador.atender(peticion);
         } catch (SesionRequeridaException | CredencialesInvalidasException e) {
             return Respuesta.error(401, e.getMessage());
+        } catch (DemasiadosIntentosException e) {
+            return Respuesta.error(429, e.getMessage());
         } catch (DatoInvalidoException | IllegalArgumentException e) {
             return Respuesta.error(400, e.getMessage());
         } catch (PermisoDenegadoException e) {

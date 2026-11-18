@@ -101,6 +101,8 @@ const Api = {
     return respuesta;
   },
   unirse: (codigo) => Api.pedir('POST', '/api/unirse', { codigo }),
+  olvideClave: (correo) => Api.pedir('POST', '/api/clave/olvido', { correo }),
+  restablecerClave: (token, clave, confirmacion) => Api.pedir('POST', '/api/clave/restablecer', { token, clave, confirmacion }),
   async cerrarSesion() {
     try { await this.pedir('POST', '/api/logout'); } catch (e) { }
     this.guardarToken(null);

@@ -32,8 +32,13 @@ const vistaActual = () => VISTAS.find((v) => v.id === ruta().nombre && v.disponi
 
 function enrutar() {
   const { nombre, parametros } = ruta();
+  if (nombre === 'restablecer') {
+    pantallaRestablecer(parametros);
+    return;
+  }
   if (!estado.usuario && !estado.cuenta) {
     if (nombre === 'registro') pantallaRegistro(parametros);
+    else if (nombre === 'recuperar') pantallaRecuperar();
     else if (nombre === 'demo') pantallaDemo();
     else pantallaLogin();
     return;
@@ -78,7 +83,8 @@ function dibujarApp(vista) {
       return;
     }
     contenido().innerHTML = `<div class="mensaje mensaje-error" role="alert">${esc(e.message)}</div>
-      <button class="btn btn-secundario" onclick="enrutar()">Reintentar</button>`;
+      <button class="btn btn-secundario" id="reintentar">Reintentar</button>`;
+    $('#reintentar').addEventListener('click', enrutar);
   });
 }
 

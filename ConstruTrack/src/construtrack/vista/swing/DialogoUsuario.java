@@ -53,7 +53,7 @@ public final class DialogoUsuario extends JDialog {
         fila = agregar(form, fila, "Cédula", txtCedula, "Entre 6 y 9 dígitos, sin puntos");
         fila = agregar(form, fila, "Nombre completo", txtNombre, null);
         fila = agregar(form, fila, "Clave", txtClave,
-                edicion ? "Déjala vacía para no cambiarla" : "Mínimo 4 caracteres, sin espacios");
+                edicion ? "Déjala vacía para no cambiarla" : "Mínimo 8 caracteres, con letras y números");
         JPanel dias = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
         dias.setOpaque(false);
         for (String dia : DIAS) {

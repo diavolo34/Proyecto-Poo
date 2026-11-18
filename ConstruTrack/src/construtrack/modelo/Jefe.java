@@ -12,12 +12,14 @@ import java.util.Map;
 public class Jefe extends Usuario implements RevisorIncidencias {
     public static final String ROL = "Jefe";
 
-    private static final String CLAVE_TEMPORAL = "temporal";
-
     private java.time.Clock reloj = java.time.Clock.systemDefaultZone();
 
     public Jefe(String cedula, String nombre, String clave, Horario horario) {
         super(cedula, nombre, clave, horario);
+    }
+
+    Jefe(String cedula, String nombre, Horario horario) {
+        super(cedula, nombre, horario);
     }
 
     @Override
@@ -29,6 +31,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         String rol = datos.get("rol");
         verificarRolGestionable(rol);
         validarCedulaNueva(datos.get("cedula"));
+        validarClaveNueva(datos.get("clave"));
         if (getEmpresa().existeCedula(datos.get("cedula"))) {
             throw new OperacionInvalidaException("Ya existe un usuario con la cédula " + datos.get("cedula") + ".");
         }
@@ -53,7 +56,7 @@ public class Jefe extends Usuario implements RevisorIncidencias {
         String nombre = datos.containsKey("nombre") ? Usuario.validarNombre(datos.get("nombre")) : null;
         String clave = datos.get("clave");
         if (clave != null && !clave.isEmpty()) {
-            Usuario.validarClave(clave);
+            Usuario.validarClaveNueva(clave);
         }
         Horario actual = usuario.getHorario();
         Horario horario = Horario.desdeTexto(
@@ -113,7 +116,8 @@ public class Jefe extends Usuario implements RevisorIncidencias {
 
     private Usuario cambiarRol(Usuario anterior, String rol) {
         verificarRolGestionable(rol);
-        Usuario nuevo = Usuario.crear(rol, anterior.getCedula(), anterior.getNombre(), CLAVE_TEMPORAL, anterior.getHorario());
+        Usuario nuevo = Usuario.restaurar(rol, anterior.getCedula(), anterior.getNombre(), anterior.getClaveResumen(),
+                anterior.getHorario());
         nuevo.copiarEstadoDe(anterior);
         getEmpresa().eliminarUsuario(anterior.getCedula());
         getEmpresa().agregarUsuario(nuevo);

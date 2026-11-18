@@ -45,8 +45,8 @@ public class Plataforma {
         }
         verificarNombreDisponible(nombre);
         Empresa empresa = crearEmpresa(nombre);
-        Jefe jefe = new Jefe(cuenta.getDocumento(), cuenta.getNombreCompleto(), "temporal",
-                Horario.desdeTexto("LU,MA,MI,JU,VI", "08:00", "17:00"));
+        Jefe jefe = (Jefe) Usuario.restaurar(Jefe.ROL, cuenta.getDocumento(), cuenta.getNombreCompleto(),
+                cuenta.getClaveResumen(), Horario.desdeTexto("LU,MA,MI,JU,VI", "08:00", "17:00"));
         jefe.setFechaIngreso(hoy);
         empresa.agregarUsuario(jefe);
         jefe.vincularCuenta(cuenta);

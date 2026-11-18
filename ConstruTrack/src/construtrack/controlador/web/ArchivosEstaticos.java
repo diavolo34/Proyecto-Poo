@@ -11,6 +11,7 @@ public class ArchivosEstaticos implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        CabecerasSeguridad.pagina(exchange);
         String ruta = exchange.getRequestURI().getPath();
         if (ruta.equals("/") || ruta.isEmpty()) {
             ruta = "/index.html";

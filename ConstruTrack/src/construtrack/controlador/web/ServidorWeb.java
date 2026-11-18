@@ -28,6 +28,7 @@ public class ServidorWeb {
                 new ControladorSupervision(servicios.supervision()),
                 new ControladorReportes(servicios.supervision()),
                 new ControladorRegistro(servicios.registro(), sesiones),
+                new ControladorRecuperacion(servicios.recuperacion(), servicios.autenticacion(), sesiones),
                 new ControladorInvitaciones(servicios.invitaciones()),
                 new ControladorObras(servicios.obras()),
                 new ControladorPublico(servicios.personal(), modoDemo));

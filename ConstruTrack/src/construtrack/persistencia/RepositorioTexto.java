@@ -150,8 +150,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
     }
 
     private Usuario leerUsuario(String[] c) {
-        Usuario usuario = Usuario.crear(c[1], c[2], c[3], "temporal", Horario.desdeTexto(c[5], c[6], c[7]));
-        usuario.restaurarClaveResumen(c[4]);
+        Usuario usuario = Usuario.restaurar(c[1], c[2], c[3], c[4], Horario.desdeTexto(c[5], c[6], c[7]));
         if (c.length > 9 && !"-".equals(c[9])) {
             usuario.setFechaIngreso(LocalDate.parse(c[9]));
         }
@@ -217,8 +216,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
     }
 
     private void leerCuenta(Plataforma plataforma, String[] c) {
-        Cuenta cuenta = new Cuenta(c[1], "temporal", c[3], c[4], c[5], c[6], LocalDateTime.parse(c[7]));
-        cuenta.restaurarClaveResumen(c[2]);
+        Cuenta cuenta = Cuenta.restaurar(c[1], c[2], c[3], c[4], c[5], c[6], LocalDateTime.parse(c[7]));
         plataforma.agregarCuenta(cuenta);
         Usuario usuario = "-".equals(c[8]) ? null : plataforma.buscarUsuario(c[8]);
         if (usuario != null) {

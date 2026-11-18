@@ -46,6 +46,7 @@ function pantallaLogin() {
         <input id="identificador" name="identificador" autocomplete="username" required placeholder="tu@correo.com o 30000001"></div>
       <div class="campo"><label for="clave">Clave *</label>
         <input id="clave" name="clave" type="password" autocomplete="current-password" required></div>
+      <p class="enlace-olvido"><a href="#recuperar">¿Olvidaste tu clave?</a></p>
       <div class="mensaje mensaje-error oculto" role="alert"></div>
       <button class="btn btn-primario btn-bloque" type="submit">Continuar</button>
     </form>
@@ -91,6 +92,95 @@ function pantallaLogin() {
   $('#identificador').focus();
 }
 
+let tokenRestablecer = null;
+
+function pantallaRecuperar() {
+  marcoAcceso(`
+    <h1>¿Olvidaste tu clave?</h1>
+    <p class="bajada">Escribe el correo con el que te registraste y te enviaremos un enlace para elegir una clave nueva.</p>
+    <form id="form-recuperar" novalidate>
+      <div class="campo"><label for="correo-recuperar">Correo electrónico *</label>
+        <input id="correo-recuperar" name="correo" type="email" autocomplete="email" required placeholder="tu@correo.com"></div>
+      <div class="mensaje mensaje-error oculto" role="alert"></div>
+      <button class="btn btn-primario btn-bloque" type="submit">Enviarme el enlace</button>
+    </form>
+    <p class="nota-acceso">Si tu jefe creó tu usuario solo con la cédula, sin correo, pídele que te asigne una clave nueva.</p>
+    <div class="separador">¿La recordaste?</div>
+    <a class="btn btn-contorno btn-bloque" href="#login">Volver a iniciar sesión</a>`);
+  const formulario = $('#form-recuperar');
+  formulario.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    const correo = $('#correo-recuperar').value.trim();
+    if (!correo.includes('@')) {
+      mostrarErrorFormulario(formulario, 'Escribe el correo con el que te registraste.');
+      return;
+    }
+    const boton = formulario.querySelector('button[type=submit]');
+    boton.disabled = true;
+    boton.textContent = 'Enviando…';
+    try {
+      const respuesta = await Api.olvideClave(correo);
+      formulario.outerHTML = `<div class="mensaje mensaje-info" role="status">${esc(respuesta.mensaje)}
+        El enlace vence en 30 minutos y sirve una sola vez.</div>`;
+    } catch (e) {
+      mostrarErrorFormulario(formulario, e.message);
+      boton.disabled = false;
+      boton.textContent = 'Enviarme el enlace';
+    }
+  });
+  $('#correo-recuperar').focus();
+}
+
+function pantallaRestablecer(parametros) {
+  if (parametros.get('token')) {
+    tokenRestablecer = parametros.get('token');
+    history.replaceState(null, '', '#restablecer');
+  }
+  if (!tokenRestablecer) {
+    marcoAcceso(`
+      <h1>Enlace no válido</h1>
+      <p class="mensaje mensaje-error" role="alert">Este enlace para restablecer la clave no es válido o ya se usó.</p>
+      <a class="btn btn-primario btn-bloque" href="#recuperar">Pedir un enlace nuevo</a>`);
+    return;
+  }
+  marcoAcceso(`
+    <h1>Elige una clave nueva</h1>
+    <p class="bajada">Al guardarla, se cerrarán las sesiones abiertas con tu clave anterior.</p>
+    <form id="form-restablecer" novalidate>
+      <div class="campo"><label for="clave-nueva">Clave nueva *</label>
+        <input id="clave-nueva" name="clave" type="password" autocomplete="new-password" required>
+        <span class="ayuda">Mínimo 8 caracteres, con letras y números.</span></div>
+      <div class="campo"><label for="clave-confirmacion">Repite la clave nueva *</label>
+        <input id="clave-confirmacion" name="confirmacion" type="password" autocomplete="new-password" required></div>
+      <div class="mensaje mensaje-error oculto" role="alert"></div>
+      <button class="btn btn-primario btn-bloque" type="submit">Guardar clave nueva</button>
+    </form>`);
+  const formulario = $('#form-restablecer');
+  formulario.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    const { clave, confirmacion } = datosFormulario(formulario);
+    if (clave !== confirmacion) {
+      mostrarErrorFormulario(formulario, 'Las dos claves no coinciden. Escríbelas de nuevo.');
+      return;
+    }
+    const boton = formulario.querySelector('button[type=submit]');
+    boton.disabled = true;
+    try {
+      const respuesta = await Api.restablecerClave(tokenRestablecer, clave, confirmacion);
+      tokenRestablecer = null;
+      Api.guardarToken(null);
+      estado.usuario = null;
+      estado.cuenta = null;
+      aviso(respuesta.mensaje);
+      location.hash = 'login';
+    } catch (e) {
+      mostrarErrorFormulario(formulario, e.message);
+      boton.disabled = false;
+    }
+  });
+  $('#clave-nueva').focus();
+}
+
 function pantallaRegistro(parametros) {
   marcoAcceso(`
     <h1>Crea tu cuenta</h1>
@@ -121,7 +211,7 @@ function pantallaRegistro(parametros) {
       </div>
       <div class="fila">
         <div class="campo"><label for="clave-nueva">Clave *</label><input id="clave-nueva" name="clave" type="password" autocomplete="new-password" required>
-          <span class="ayuda">Mínimo 4 caracteres.</span></div>
+          <span class="ayuda">Mínimo 8 caracteres, con letras y números.</span></div>
         <div class="campo"><label for="confirmacion">Repite la clave *</label><input id="confirmacion" name="confirmacion" type="password" autocomplete="new-password" required></div>
       </div>
       <div class="mensaje mensaje-error oculto" role="alert"></div>

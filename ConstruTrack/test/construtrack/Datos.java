@@ -14,6 +14,10 @@ import java.time.ZoneId;
 import java.util.Map;
 
 public final class Datos {
+    static {
+        System.setProperty("construtrack.iteraciones", "1000");
+    }
+
     public static final LocalDateTime AHORA = LocalDateTime.of(2026, 11, 18, 10, 0);
     public static final LocalDate HOY = AHORA.toLocalDate();
     public static final Clock RELOJ = Clock.fixed(AHORA.atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
