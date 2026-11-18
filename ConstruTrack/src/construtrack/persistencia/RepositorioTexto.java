@@ -14,6 +14,7 @@ import construtrack.modelo.incidencias.FabricaIncidencias;
 import construtrack.modelo.incidencias.Incidencia;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoHorasExtra;
+import construtrack.modelo.EstadoVerificacion;
 import construtrack.modelo.Horario;
 import construtrack.modelo.RegistroAsistencia;
 import construtrack.modelo.Supervisor;
@@ -108,7 +109,8 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         }
         for (Cuenta c : plataforma.listarCuentas()) {
             lineas.add(unir("C", c.getCorreo(), c.getClaveResumen(), c.getNombre(), c.getApellido(), c.getDocumento(),
-                    c.getTelefono(), c.getRegistrada(), c.getUsuario() == null ? "-" : c.getUsuario().getCedula()));
+                    c.getTelefono(), c.getRegistrada(), c.getUsuario() == null ? "-" : c.getUsuario().getCedula(),
+                    c.estaVerificada()));
         }
         almacen.escribir(String.join("\n", lineas) + "\n");
     }
@@ -119,10 +121,14 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
             Horario h = u.getHorario();
             lineas.add(unir("U", u.getRol(), u.getCedula(), u.getNombre(), u.getClaveResumen(),
                     h.getDias(), h.getHoraEntrada(), h.getHoraSalida(), u.estaPresente(),
-                    u.getFechaIngreso() == null ? "-" : u.getFechaIngreso()));
+                    u.getFechaIngreso() == null ? "-" : u.getFechaIngreso(),
+                    u.tieneDosPasos() ? u.getSecretoDosPasos() : "-",
+                    u.getRespaldosDosPasos().isEmpty() ? "-" : String.join(",", u.getRespaldosDosPasos())));
         }
         for (Obra o : empresa.listarObras()) {
-            lineas.add(unir("O", o.getCodigo(), o.getNombre(), o.getUbicacion(), o.getFechaInicio(), o.getFechaFinEstimada()));
+            lineas.add(unir("O", o.getCodigo(), o.getNombre(), o.getUbicacion(), o.getFechaInicio(), o.getFechaFinEstimada(),
+                    o.getLatitud() == null ? "-" : o.getLatitud(), o.getLongitud() == null ? "-" : o.getLongitud(),
+                    o.getRadioMetros(), o.exigeCodigo(), o.getSecretoCodigo() == null ? "-" : o.getSecretoCodigo()));
         }
         for (Usuario u : empresa.listarUsuarios()) {
             if (u.getObra() != null) {
@@ -133,7 +139,8 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
             }
             for (RegistroAsistencia a : u.getAsistencias()) {
                 lineas.add(unir("A", u.getCedula(), a.getFecha(), a.getHoraEntrada(),
-                        a.getHoraSalida() == null ? "-" : a.getHoraSalida(), a.isTarde(), a.getEstadoExtra().name()));
+                        a.getHoraSalida() == null ? "-" : a.getHoraSalida(), a.isTarde(), a.getEstadoExtra().name(),
+                        a.getVerificacion().name(), Campos.escapar(a.getMotivoVerificacion())));
             }
         }
         for (Usuario u : empresa.listarUsuarios()) {
@@ -154,6 +161,9 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         if (c.length > 9 && !"-".equals(c[9])) {
             usuario.setFechaIngreso(LocalDate.parse(c[9]));
         }
+        if (c.length > 10 && !"-".equals(c[10])) {
+            usuario.restaurarDosPasos(c[10], c.length > 11 && !"-".equals(c[11]) ? List.of(c[11].split(",")) : List.of());
+        }
         return usuario;
     }
 
@@ -172,11 +182,19 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         }
 
         registro.restaurarEstadoExtra(c.length > 6 ? EstadoHorasExtra.valueOf(c[6]) : EstadoHorasExtra.NO_APLICA);
+        if (c.length > 7) {
+            registro.restaurarVerificacion(EstadoVerificacion.valueOf(c[7]), c.length > 8 ? Campos.desescapar(c[8]) : "");
+        }
         return registro;
     }
 
     private Obra leerObra(String[] c) {
-        return new Obra(c[1], c[2], c[3], LocalDate.parse(c[4]), LocalDate.parse(c[5]));
+        Obra obra = new Obra(c[1], c[2], c[3], LocalDate.parse(c[4]), LocalDate.parse(c[5]));
+        if (c.length > 10) {
+            obra.restaurarControl("-".equals(c[6]) ? null : Double.valueOf(c[6]), "-".equals(c[7]) ? null : Double.valueOf(c[7]),
+                    Integer.parseInt(c[8]), Boolean.parseBoolean(c[9]), "-".equals(c[10]) ? null : c[10]);
+        }
+        return obra;
     }
 
     private void leerAsignacionObra(Empresa empresa, String[] c) {
@@ -217,6 +235,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
 
     private void leerCuenta(Plataforma plataforma, String[] c) {
         Cuenta cuenta = Cuenta.restaurar(c[1], c[2], c[3], c[4], c[5], c[6], LocalDateTime.parse(c[7]));
+        cuenta.restaurarVerificada(c.length <= 9 || Boolean.parseBoolean(c[9]));
         plataforma.agregarCuenta(cuenta);
         Usuario usuario = "-".equals(c[8]) ? null : plataforma.buscarUsuario(c[8]);
         if (usuario != null) {

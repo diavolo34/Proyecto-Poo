@@ -7,4 +7,8 @@ public record Ingreso(Cuenta cuenta, Usuario usuario) {
     public boolean pendienteDeUnirse() {
         return usuario == null;
     }
+
+    public boolean requiereDosPasos() {
+        return usuario != null && usuario.tieneDosPasos();
+    }
 }

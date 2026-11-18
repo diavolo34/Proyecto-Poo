@@ -76,6 +76,7 @@ public class ServicioRecuperacion extends ServicioBase {
                 throw new NoEncontradoException("La cuenta ya no existe.");
             }
             cuenta.cambiarClave(clave);
+            cuenta.marcarVerificada();
             return cuenta;
         });
     }

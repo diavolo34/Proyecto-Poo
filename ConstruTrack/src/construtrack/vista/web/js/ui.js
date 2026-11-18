@@ -38,18 +38,20 @@ function aviso(texto, tipo = 'ok') {
     document.body.appendChild(zona);
   }
   const elemento = document.createElement('div');
-  elemento.className = 'aviso' + (tipo === 'error' ? ' aviso-error' : '');
+  elemento.className = 'aviso' + (tipo === 'error' ? ' aviso-error' : tipo === 'aviso' ? ' aviso-alerta' : '');
   elemento.setAttribute('role', tipo === 'error' ? 'alert' : 'status');
-  elemento.textContent = (tipo === 'error' ? '⚠ ' : '✓ ') + texto;
+  elemento.textContent = (tipo === 'ok' ? '✓ ' : '⚠ ') + texto;
   zona.appendChild(elemento);
   setTimeout(() => elemento.remove(), tipo === 'error' ? 6000 : 3500);
 }
 
 const Modal = {
   anterior: null,
-  abrir(titulo, html) {
+  alCerrar: null,
+  abrir(titulo, html, alCerrar) {
     this.cerrar();
     this.anterior = document.activeElement;
+    this.alCerrar = alCerrar || null;
     const fondo = document.createElement('div');
     fondo.className = 'modal-fondo';
     fondo.id = 'modal';
@@ -64,10 +66,13 @@ const Modal = {
   },
   cerrar() {
     const fondo = $('#modal');
+    const alCerrar = this.alCerrar;
+    this.alCerrar = null;
     if (fondo) {
       fondo.remove();
       if (this.anterior) this.anterior.focus();
     }
+    if (alCerrar) alCerrar();
   },
   abierto: () => Boolean($('#modal')),
 };

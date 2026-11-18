@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import construtrack.CorreoFalso;
 import construtrack.Datos;
 import construtrack.modelo.excepciones.CredencialesInvalidasException;
 import construtrack.modelo.excepciones.DatoInvalidoException;
@@ -26,7 +27,8 @@ import org.junit.jupiter.api.Test;
 class ServiciosTest {
     private final Datos d = new Datos();
     private final RepositorioMemoria repositorio = new RepositorioMemoria(d.empresa);
-    private final Servicios servicios = new Servicios(d.empresa, repositorio, Datos.RELOJ, 1);
+    private final CorreoFalso correo = new CorreoFalso();
+    private final Servicios servicios = new Servicios(d.empresa.getPlataforma(), repositorio, Datos.RELOJ, 1, correo);
 
     @Test
     @DisplayName("Reportar una incidencia asigna números consecutivos y guarda los cambios")
@@ -56,6 +58,9 @@ class ServiciosTest {
                 "telefono", "04121234567"));
         assertTrue(servicios.autenticacion().ingresar("pablo@correo.com", "pablo123").pendienteDeUnirse());
         var inv = servicios.invitaciones().crear(d.jefe, "Empleado", "20000001", "", 7, "");
+        assertThrows(OperacionInvalidaException.class, () -> servicios.registro().unirse(cuenta, inv.getCodigo().toString()),
+                "Sin confirmar el correo no puede unirse");
+        servicios.registro().confirmarCorreo(cuenta, correo.ultimoCodigo());
         servicios.registro().unirse(cuenta, inv.getCodigo().toString().toLowerCase());
         assertEquals("Empleado", servicios.autenticacion().ingresar("28555111", "pablo123").usuario().getRol());
         assertThrows(CredencialesInvalidasException.class, () -> servicios.autenticacion().ingresar("pablo@correo.com", "mala"));

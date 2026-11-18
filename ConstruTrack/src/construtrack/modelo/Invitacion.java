@@ -58,6 +58,7 @@ public class Invitacion {
         if (cuenta.perteneceAEmpresa()) {
             throw new OperacionInvalidaException("Tu cuenta ya pertenece a la empresa.");
         }
+        cuenta.exigirVerificada();
         if (empresa.existeCedula(cuenta.getDocumento())) {
             throw new OperacionInvalidaException("Ya hay una persona con el documento " + cuenta.getDocumento()
                     + " registrada en ConstruTrack. Habla con tu jefe para vincularla a tu cuenta.");

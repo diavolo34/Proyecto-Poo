@@ -81,9 +81,18 @@ const Api = {
 
   async iniciarSesion(identificador, clave) {
     const datos = await this.pedir('POST', '/api/login', { identificador, clave });
+    if (datos.token) this.guardarToken(datos.token);
+    return datos;
+  },
+  async completarDosPasos(desafio, codigo) {
+    const datos = await this.pedir('POST', '/api/login/dos-pasos', { desafio, codigo });
     this.guardarToken(datos.token);
     return datos;
   },
+  dosPasos: () => Api.pedir('GET', '/api/dos-pasos'),
+  iniciarDosPasos: () => Api.pedir('POST', '/api/dos-pasos/iniciar'),
+  activarDosPasos: (codigo) => Api.pedir('POST', '/api/dos-pasos/activar', { codigo }),
+  desactivarDosPasos: (clave, codigo) => Api.pedir('POST', '/api/dos-pasos/desactivar', { clave, codigo }),
   async entrarDemo(clave, rol) {
     try { sessionStorage.setItem('construtrack-demo', '1'); } catch (e) { throw new Error('Tu navegador no permite guardar la sesión.'); }
     try {
@@ -101,6 +110,8 @@ const Api = {
     return respuesta;
   },
   unirse: (codigo) => Api.pedir('POST', '/api/unirse', { codigo }),
+  confirmarCorreo: (codigo) => Api.pedir('POST', '/api/verificacion', { codigo }),
+  reenviarCodigo: () => Api.pedir('POST', '/api/verificacion/reenviar'),
   olvideClave: (correo) => Api.pedir('POST', '/api/clave/olvido', { correo }),
   restablecerClave: (token, clave, confirmacion) => Api.pedir('POST', '/api/clave/restablecer', { token, clave, confirmacion }),
   async cerrarSesion() {
@@ -112,8 +123,12 @@ const Api = {
   yo: () => Api.pedir('GET', '/api/yo'),
   crearEmpresa: (nombre) => Api.pedir('POST', '/api/empresas', { nombre }),
 
-  marcarEntrada: () => Api.pedir('POST', '/api/asistencia/entrada'),
-  marcarSalida: () => Api.pedir('POST', '/api/asistencia/salida'),
+  marcarEntrada: (datos) => Api.pedir('POST', '/api/asistencia/entrada', datos || {}),
+  marcarSalida: (datos) => Api.pedir('POST', '/api/asistencia/salida', datos || {}),
+  porConfirmar: () => Api.pedir('GET', '/api/asistencia/por-confirmar'),
+  revisarAsistencia: (cedula, fecha, entrada, estado) =>
+    Api.pedir('PUT', `/api/asistencia/${encodeURIComponent(cedula)}/${fecha}/verificacion`, { entrada, estado }),
+  codigoObra: (codigo) => Api.pedir('GET', `/api/obras/${encodeURIComponent(codigo)}/codigo-asistencia`),
   listarUsuarios: () => Api.pedir('GET', '/api/usuarios'),
   verUsuario: (cedula) => Api.pedir('GET', '/api/usuarios/' + encodeURIComponent(cedula)),
   registrarUsuario: (datos) => Api.pedir('POST', '/api/usuarios', datos),

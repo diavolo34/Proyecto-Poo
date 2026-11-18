@@ -4,6 +4,7 @@ import construtrack.modelo.Plataforma;
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Empresa;
 import construtrack.modelo.EstadoHorasExtra;
+import construtrack.modelo.EstadoVerificacion;
 import construtrack.modelo.Estadisticas;
 import construtrack.modelo.Jefe;
 import construtrack.modelo.Periodo;
@@ -21,6 +22,7 @@ import construtrack.persistencia.EscritorDatos;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -80,6 +82,35 @@ public class ServicioSupervision extends ServicioBase {
                         .map(r -> new HorasExtraPendientes(u, r)))
                 .sorted(Comparator.comparing((HorasExtraPendientes h) -> h.jornada().getFecha()))
                 .toList());
+    }
+
+    public record MarcaPorConfirmar(Usuario persona, RegistroAsistencia jornada) {
+    }
+
+    public List<MarcaPorConfirmar> asistenciasPorConfirmar(Usuario actual) {
+        return leer(() -> alcance(actual).stream()
+                .filter(actual::puedeAprobarHorasDe)
+                .flatMap(u -> u.getHistorial().asistenciasPorConfirmar().stream().map(r -> new MarcaPorConfirmar(u, r)))
+                .sorted(Comparator.comparing((MarcaPorConfirmar h) -> h.jornada().getFecha())
+                        .thenComparing(h -> h.jornada().getHoraEntrada()))
+                .toList());
+    }
+
+    public RegistroAsistencia revisarAsistencia(Usuario actual, String cedula, LocalDate fecha, LocalTime entrada,
+            String estado) {
+        EstadoVerificacion nuevo;
+        try {
+            nuevo = EstadoVerificacion.valueOf(estado == null ? "" : estado.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new DatoInvalidoException("El estado debe ser CONFIRMADA o RECHAZADA.");
+        }
+        return modificar(() -> {
+            Usuario persona = empresaDe(actual).buscarUsuario(cedula);
+            if (persona == null) {
+                throw new NoEncontradoException("No existe una persona con la cédula " + cedula + ".");
+            }
+            return actual.revisarAsistencia(persona, fecha, entrada, nuevo);
+        });
     }
 
     public RegistroAsistencia revisarHorasExtra(Usuario actual, String cedula, LocalDate fecha, String estado) {

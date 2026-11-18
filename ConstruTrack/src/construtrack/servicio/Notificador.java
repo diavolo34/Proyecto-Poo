@@ -8,6 +8,8 @@ public interface Notificador {
 
     void enviarRestablecimiento(String correoDestino, String token, Duration vigencia);
 
+    void enviarCodigoVerificacion(String correoDestino, String codigo, Duration vigencia);
+
     default boolean envioReal() {
         return false;
     }

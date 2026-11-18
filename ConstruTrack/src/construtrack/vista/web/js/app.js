@@ -36,6 +36,14 @@ function enrutar() {
     pantallaRestablecer(parametros);
     return;
   }
+  if (nombre === 'marcar') {
+    const codigo = Marcacion.codigoDesdeTexto(location.href);
+    if (codigo) Marcacion.guardarPendiente(codigo);
+    history.replaceState(null, '', estado.usuario ? '#asistencia' : '#login');
+    if (!estado.usuario) aviso('Inicia sesión para registrar tu marca con el código de la obra.');
+    enrutar();
+    return;
+  }
   if (!estado.usuario && !estado.cuenta) {
     if (nombre === 'registro') pantallaRegistro(parametros);
     else if (nombre === 'recuperar') pantallaRecuperar();
@@ -44,7 +52,8 @@ function enrutar() {
     return;
   }
   if (!estado.usuario) {
-    pantallaUnirse();
+    if (estado.cuenta && estado.cuenta.verificada === false) pantallaVerificarCorreo();
+    else pantallaUnirse();
     return;
   }
   const vista = vistaActual() || VISTAS[0];
@@ -54,7 +63,7 @@ function enrutar() {
 
 function dibujarApp(vista) {
   const u = estado.usuario;
-  const disponibles = VISTAS.filter((v) => v.disponible());
+  const disponibles = VISTAS.filter((v) => v.disponible() && !v.oculta);
   const grupos = [...new Set(disponibles.map((v) => v.grupo))];
   $('#raiz').innerHTML = `<a class="saltar" href="#principal">Saltar al contenido</a>
     <div class="app">
@@ -75,14 +84,16 @@ function dibujarApp(vista) {
     </div>`;
   $('#cerrar-sesion').addEventListener('click', cerrarSesion);
   document.title = vista.titulo + ' · ConstruTrack';
+  const principal = contenido();
   vista.dibujar().catch((e) => {
+    if (!principal.isConnected) return;
     if (e.codigo === 401) {
       estado.usuario = null;
       aviso('Tu sesión expiró. Vuelve a entrar.', 'error');
       enrutar();
       return;
     }
-    contenido().innerHTML = `<div class="mensaje mensaje-error" role="alert">${esc(e.message)}</div>
+    principal.innerHTML = `<div class="mensaje mensaje-error" role="alert">${esc(e.message)}</div>
       <button class="btn btn-secundario" id="reintentar">Reintentar</button>`;
     $('#reintentar').addEventListener('click', enrutar);
   });

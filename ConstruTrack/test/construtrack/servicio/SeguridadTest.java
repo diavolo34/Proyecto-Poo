@@ -8,44 +8,23 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import construtrack.CorreoFalso;
 import construtrack.Datos;
 import construtrack.RelojAjustable;
 import construtrack.controlador.web.GestorSesiones;
 import construtrack.modelo.CifradoClave;
-import construtrack.modelo.Invitacion;
 import construtrack.modelo.excepciones.CredencialesInvalidasException;
 import construtrack.modelo.excepciones.DatoInvalidoException;
 import construtrack.modelo.excepciones.DemasiadosIntentosException;
 import construtrack.modelo.excepciones.OperacionInvalidaException;
 import construtrack.persistencia.RepositorioMemoria;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class SeguridadTest {
-    private static final class CorreoFalso implements Notificador {
-        private final List<String> destinos = new ArrayList<>();
-        private final List<String> tokens = new ArrayList<>();
-
-        @Override
-        public void enviarInvitacion(Invitacion invitacion, String correoDestino) {
-            destinos.add(correoDestino);
-        }
-
-        @Override
-        public void enviarRestablecimiento(String correoDestino, String token, Duration vigencia) {
-            destinos.add(correoDestino);
-            tokens.add(token);
-        }
-
-        String ultimoToken() {
-            return tokens.get(tokens.size() - 1);
-        }
-    }
-
     private final Datos d = new Datos();
     private final RelojAjustable reloj = new RelojAjustable(Datos.RELOJ);
     private final RepositorioMemoria repositorio = new RepositorioMemoria(d.empresa);
@@ -99,7 +78,8 @@ class SeguridadTest {
     void restablecerClave() {
         registrarPablo();
         servicios.recuperacion().solicitar("  Pablo@Correo.com ");
-        assertEquals(List.of("pablo@correo.com"), correo.destinos);
+        assertEquals(1, correo.tokens.size());
+        assertEquals("pablo@correo.com", correo.destinos.get(correo.destinos.size() - 1));
         String token = correo.ultimoToken();
 
         assertThrows(DatoInvalidoException.class, () -> servicios.recuperacion().restablecer(token, "nueva2026", "otra2026"));
@@ -130,17 +110,17 @@ class SeguridadTest {
     @DisplayName("Un correo que no existe no recibe nada ni lo delata, y hay un máximo de 3 enlaces por hora")
     void sinFiltracionYConLimite() {
         servicios.recuperacion().solicitar("nadie@correo.com");
-        assertTrue(correo.destinos.isEmpty());
+        assertTrue(correo.tokens.isEmpty());
         assertThrows(DatoInvalidoException.class, () -> servicios.recuperacion().solicitar("no-es-correo"));
 
         registrarPablo();
         for (int i = 0; i < ServicioRecuperacion.SOLICITUDES_POR_HORA + 2; i++) {
             servicios.recuperacion().solicitar("pablo@correo.com");
         }
-        assertEquals(ServicioRecuperacion.SOLICITUDES_POR_HORA, correo.destinos.size());
+        assertEquals(ServicioRecuperacion.SOLICITUDES_POR_HORA, correo.tokens.size());
         reloj.avanzar(Duration.ofHours(1));
         servicios.recuperacion().solicitar("pablo@correo.com");
-        assertEquals(ServicioRecuperacion.SOLICITUDES_POR_HORA + 1, correo.destinos.size());
+        assertEquals(ServicioRecuperacion.SOLICITUDES_POR_HORA + 1, correo.tokens.size());
     }
 
     @Test

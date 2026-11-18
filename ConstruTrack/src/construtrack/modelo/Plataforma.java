@@ -39,6 +39,7 @@ public class Plataforma {
         if (cuenta.perteneceAEmpresa()) {
             throw new OperacionInvalidaException("Tu cuenta ya pertenece a una empresa.");
         }
+        cuenta.exigirVerificada();
         if (existeCedula(cuenta.getDocumento())) {
             throw new OperacionInvalidaException("Ya hay una persona con el documento " + cuenta.getDocumento()
                     + " en ConstruTrack.");

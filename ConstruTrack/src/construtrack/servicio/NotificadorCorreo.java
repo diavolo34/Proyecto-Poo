@@ -9,6 +9,7 @@ public abstract class NotificadorCorreo implements Notificador {
 
     private final MensajeInvitacion invitaciones;
     private final MensajeRestablecimiento restablecimientos;
+    private final MensajeVerificacion verificaciones = new MensajeVerificacion();
 
     protected NotificadorCorreo(String urlSitio) {
         this.invitaciones = new MensajeInvitacion(urlSitio);
@@ -32,6 +33,13 @@ public abstract class NotificadorCorreo implements Notificador {
         enviar(new Correo(correoDestino, restablecimientos.asunto(), restablecimientos.html(token, vigencia),
                 restablecimientos.texto(token, vigencia)));
         LOG.info(() -> "Enlace para restablecer la clave enviado a " + correoDestino);
+    }
+
+    @Override
+    public void enviarCodigoVerificacion(String correoDestino, String codigo, Duration vigencia) {
+        enviar(new Correo(correoDestino, verificaciones.asunto(codigo), verificaciones.html(codigo, vigencia),
+                verificaciones.texto(codigo, vigencia)));
+        LOG.info(() -> "Código de verificación enviado a " + correoDestino);
     }
 
     protected abstract void enviar(Correo correo);

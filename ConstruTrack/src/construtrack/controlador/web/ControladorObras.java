@@ -26,6 +26,11 @@ public class ControladorObras implements ControladorWeb {
                     obras.eliminar(p.usuario(), p.parametro("codigo"));
                     return Respuesta.json(JsonMapper.ok());
                 })
+                .get("/api/obras/{codigo}/codigo-asistencia", p -> {
+                    ServicioObras.CodigoObra c = obras.codigoAsistencia(p.usuario(), p.parametro("codigo"));
+                    return Respuesta.json(new JsonObjeto().texto("obra", c.obra().getCodigo()).texto("nombre", c.obra().getNombre())
+                            .texto("codigo", c.codigo()).numero("segundosRestantes", c.segundosRestantes()).toString());
+                })
                 .put("/api/usuarios/{cedula}/obra", p -> Respuesta.json(JsonMapper.usuario(
                         obras.asignar(p.usuario(), p.parametro("cedula"), p.cuerpo().get("obra")), false)));
     }
@@ -43,6 +48,10 @@ public class ControladorObras implements ControladorWeb {
                 .texto("inicio", o.getFechaInicio())
                 .texto("fin", o.getFechaFinEstimada())
                 .numero("avance", o.porcentajeTranscurrido(hoy))
+                .numero("latitud", o.getLatitud())
+                .numero("longitud", o.getLongitud())
+                .numero("radio", o.getRadioMetros())
+                .logico("exigeCodigo", o.exigeCodigo())
                 .crudo("personas", Json.lista(op.personas(), u -> new JsonObjeto()
                         .texto("cedula", u.getCedula()).texto("nombre", u.getNombre()).texto("rol", u.getRol()).toString()))
                 .toString();

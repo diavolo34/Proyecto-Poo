@@ -46,7 +46,8 @@ Reglas destacadas:
 - Las **alertas** se generan solas: 3 o más retardos en la semana, faltas sin justificar e incidencias sin resolver por más de 48 h.
 - **Varias empresas**: cada jefe crea la suya y solo ve sus datos (personal, obras, incidencias, reportes). Los empleados y supervisores entran con el código que les da su jefe, y el código define su rol.
 - Los **permisos se validan en el servidor**: un supervisor solo ve y revisa a su equipo.
-- **Seguridad:** las claves se guardan cifradas con **PBKDF2** (600 000 iteraciones y sal aleatoria). Tras 5 intentos fallidos el ingreso se bloquea 15 minutos. **«¿Olvidaste tu clave?»** envía por correo un enlace de un solo uso que vence en 30 minutos. Las sesiones vencen a las 12 horas, y la página y la API envían cabeceras de seguridad (CSP, HSTS y otras). Detalles, lista de verificación y cookies en [docs/seguridad.md](docs/seguridad.md).
+- **Asistencia comprobable:** cada obra puede exigir un **código QR que cambia cada 30 segundos** y una **ubicación con radio** (geocerca). Las marcas sin código o lejos de la obra quedan **por confirmar** hasta que el supervisor o el jefe las revisan, y una jornada rechazada no cuenta.
+- **Seguridad:** las cuentas nuevas **confirman su correo** con un código, y el jefe puede activar la **verificación en dos pasos** (Google Authenticator) con códigos de respaldo. Las claves se guardan cifradas con **PBKDF2** (600 000 iteraciones y sal aleatoria). Tras 5 intentos fallidos el ingreso se bloquea 15 minutos. **«¿Olvidaste tu clave?»** envía por correo un enlace de un solo uso que vence en 30 minutos. Las sesiones vencen a las 12 horas, y la página y la API envían cabeceras de seguridad (CSP, HSTS y otras). Detalles, lista de verificación y cookies en [docs/seguridad.md](docs/seguridad.md).
 - Las **horas extra** se calculan solas (lo que pasa de la jornada o un día libre completo) y solo cuentan al aprobarse.
 - El **Historial** de cada persona reúne su asistencia y sus incidencias; las faltas se cuentan desde su ingreso.
 - La **cédula** nueva solo admite números; la hora es la de Venezuela aunque el servidor esté en UTC.
@@ -172,6 +173,11 @@ con códigos 400, 401, 403, 404, 409 o 429 (demasiados intentos).
 | `GET` | `/api/estado` · `/api/publico` | Público |
 | `POST` | `/api/login` (correo o cédula) · `/api/registro` | Público |
 | `POST` | `/api/clave/olvido` (envía el enlace) · `/api/clave/restablecer` | Público |
+| `POST` | `/api/verificacion` (código del correo) · `/api/verificacion/reenviar` | Cuenta registrada |
+| `POST` | `/api/login/dos-pasos` (código de la aplicación) | Público, con el desafío del login |
+| `GET` `POST` | `/api/dos-pasos` · `/api/dos-pasos/iniciar` · `/activar` · `/desactivar` | Jefe |
+| `GET` `PUT` | `/api/asistencia/por-confirmar` · `/api/asistencia/{cedula}/{fecha}/verificacion` | Supervisor (su equipo) · Jefe |
+| `GET` | `/api/obras/{codigo}/codigo-asistencia` (código QR vigente) | Supervisor · Jefe |
 | `POST` | `/api/unirse` · `/api/empresas` (crear la empresa y quedar como Jefe) | Cuenta registrada |
 | `POST` | `/api/logout` · `GET /api/yo` | Con sesión |
 | `POST` | `/api/asistencia/entrada` · `/api/asistencia/salida` | Con sesión |
@@ -185,7 +191,7 @@ con códigos 400, 401, 403, 404, 409 o 429 (demasiados intentos).
 
 ## Calidad
 
-- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **69 pruebas JUnit 5** y pruebas de humo de la API en modo demostración, en modo producción y de la demo privada (incluye cabeceras de seguridad, recuperación de clave y bloqueo por intentos).
+- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **91 pruebas JUnit 5** y pruebas de humo de la API en modo demostración, en modo producción y de la demo privada (incluye cabeceras de seguridad, recuperación de clave y bloqueo por intentos).
 - **Pruebas** del modelo, la persistencia y los servicios con reloj fijo; se comprobó que detectan errores introducidos a propósito.
 - Verificado en la interfaz real: recorridos de la web con Playwright, de Swing en pantalla virtual, y despliegue con Docker y CORS.
 

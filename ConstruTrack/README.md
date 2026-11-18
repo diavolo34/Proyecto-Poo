@@ -14,7 +14,7 @@ separados por coma). Argumento `--sin-ventana` para levantar solo el servidor.
 
 ## Pruebas
 
-`test/construtrack/` contiene 69 pruebas JUnit 5. En NetBeans: *Test Project* (Alt+F6) con la biblioteca **JUnit 5**.
+`test/construtrack/` contiene 91 pruebas JUnit 5. En NetBeans: *Test Project* (Alt+F6) con la biblioteca **JUnit 5**.
 Por terminal:
 
 ```bash

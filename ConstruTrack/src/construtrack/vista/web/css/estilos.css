@@ -296,3 +296,28 @@ tbody tr:hover { background: #fafbfc; }
 .enlace-olvido { margin: -6px 0 14px; text-align: right; font-size: 14px; }
 .enlace-olvido a { font-weight: 600; }
 .nota-acceso { margin: 14px 0 0; font-size: 13px; color: var(--texto-suave); text-align: center; }
+.tarjeta-angosta { max-width: 760px; }
+.pasos-dos-pasos { padding-left: 20px; display: grid; gap: 12px; }
+.marco-qr { margin: 10px 0; }
+.codigo-qr { display: block; width: 220px; height: 220px; border: 1px solid var(--borde); border-radius: 8px; }
+.clave-manual { display: block; margin-top: 4px; font-family: ui-monospace, Consolas, monospace; font-size: 15px; letter-spacing: 1px; overflow-wrap: anywhere; }
+.fila-activar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+.fila-activar .campo { margin: 0; }
+.fila-activar .mensaje { flex-basis: 100%; }
+.respaldos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.respaldos code { font-family: ui-monospace, Consolas, monospace; font-size: 17px; letter-spacing: 1px; background: var(--gris-suave); padding: 8px; border-radius: 6px; text-align: center; }
+.control-marca { margin: 4px 0 10px; color: var(--azul-oscuro); }
+.control-obra-resumen { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 10px; }
+fieldset.control-obra { border: 1px solid var(--borde); border-radius: 8px; padding: 10px 14px; margin: 4px 0 14px; }
+fieldset.control-obra legend { font-weight: 700; padding: 0 6px; }
+.opcion-check { display: flex; gap: 8px; align-items: center; font-weight: 600; margin-bottom: 4px; }
+.opcion-check input { width: auto; flex: none; }
+.video-qr { display: block; width: 100%; max-height: 280px; object-fit: cover; border-radius: 8px; background: #000; margin: 10px 0; }
+.pantalla-codigo { text-align: center; max-width: 560px; margin: 0 auto; }
+.pantalla-codigo .codigo-qr { width: min(72vw, 360px); height: auto; margin: 10px auto; }
+.pantalla-codigo:fullscreen { max-width: none; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #fff; }
+.pantalla-codigo:fullscreen .codigo-qr { width: min(70vh, 80vw); }
+.codigo-digitos { font-size: 44px; font-weight: 800; letter-spacing: 6px; font-variant-numeric: tabular-nums; margin: 6px 0; }
+.barra-codigo { max-width: 360px; margin: 0 auto 10px; }
+.barra-codigo span { background: var(--azul); }
+.aviso-alerta { background: #7f5f01; }

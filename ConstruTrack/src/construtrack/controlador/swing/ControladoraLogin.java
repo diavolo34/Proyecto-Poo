@@ -5,6 +5,8 @@ import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.ConstruTrackException;
 import construtrack.servicio.Ingreso;
 import construtrack.servicio.ServicioAutenticacion;
+import construtrack.servicio.ServicioDosPasos;
+import construtrack.vista.swing.DialogoCodigo;
 import construtrack.vista.swing.VentanaLogin;
 import java.awt.Desktop;
 import java.net.URI;
@@ -14,14 +16,16 @@ import javax.swing.JOptionPane;
 public final class ControladoraLogin {
     private final VentanaLogin vista;
     private final ServicioAutenticacion autenticacion;
+    private final ServicioDosPasos dosPasos;
     private final Consumer<Usuario> alEntrar;
     private final Consumer<Cuenta> alFaltarEmpresa;
     private final String urlWeb;
 
-    public ControladoraLogin(VentanaLogin vista, ServicioAutenticacion autenticacion, Consumer<Usuario> alEntrar,
-            Consumer<Cuenta> alFaltarEmpresa, Runnable alCrearCuenta, String urlWeb) {
+    public ControladoraLogin(VentanaLogin vista, ServicioAutenticacion autenticacion, ServicioDosPasos dosPasos,
+            Consumer<Usuario> alEntrar, Consumer<Cuenta> alFaltarEmpresa, Runnable alCrearCuenta, String urlWeb) {
         this.vista = vista;
         this.autenticacion = autenticacion;
+        this.dosPasos = dosPasos;
         this.alEntrar = alEntrar;
         this.alFaltarEmpresa = alFaltarEmpresa;
         this.urlWeb = urlWeb;
@@ -41,16 +45,42 @@ public final class ControladoraLogin {
         try {
             Ingreso ingreso = autenticacion.ingresar(identificador, clave);
             vista.getLblError().setText(" ");
-            if (ingreso.pendienteDeUnirse()) {
-                alFaltarEmpresa.accept(ingreso.cuenta());
+            if (ingreso.requiereDosPasos()) {
+                pedirDosPasos(ingreso);
             } else {
-                alEntrar.accept(ingreso.usuario());
+                continuar(ingreso);
             }
         } catch (ConstruTrackException e) {
             mostrarError(e.getMessage());
             vista.getTxtClave().selectAll();
             vista.getTxtClave().requestFocusInWindow();
         }
+    }
+
+    private void continuar(Ingreso ingreso) {
+        if (ingreso.pendienteDeUnirse()) {
+            alFaltarEmpresa.accept(ingreso.cuenta());
+        } else {
+            alEntrar.accept(ingreso.usuario());
+        }
+    }
+
+    private void pedirDosPasos(Ingreso ingreso) {
+        String desafio = dosPasos.crearDesafio(ingreso);
+        DialogoCodigo dialogo = new DialogoCodigo(vista, "Verificación en dos pasos", "Abre tu aplicación de "
+                + "autenticación (por ejemplo, Google Authenticator) y escribe el código de 6 dígitos de ConstruTrack. "
+                + "Si perdiste el teléfono, usa uno de tus códigos de respaldo.", "Código *", "Verificar", null);
+        dialogo.getBtnCancelar().addActionListener(e -> dialogo.dispose());
+        dialogo.getBtnConfirmar().addActionListener(e -> {
+            try {
+                Ingreso confirmado = dosPasos.resolverDesafio(desafio, dialogo.codigo());
+                dialogo.dispose();
+                continuar(confirmado);
+            } catch (ConstruTrackException ex) {
+                dialogo.mostrarError(ex.getMessage());
+            }
+        });
+        dialogo.setVisible(true);
     }
 
     private void mostrarError(String mensaje) {

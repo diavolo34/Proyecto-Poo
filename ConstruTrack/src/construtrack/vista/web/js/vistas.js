@@ -16,9 +16,88 @@ const VISTAS = [
   { id: 'obras', titulo: 'Obras', grupo: 'Equipo', icono: '⌂', disponible: esRevisor, dibujar: vistaObras },
   { id: 'personal', titulo: 'Personal', grupo: 'Equipo', icono: '☰', disponible: esRevisor, dibujar: vistaPersonal },
   { id: 'invitaciones', titulo: 'Invitaciones', grupo: 'Administración', icono: '✉', disponible: esJefe, dibujar: vistaInvitaciones },
+  { id: 'codigo-obra', titulo: 'Código de asistencia', grupo: 'Equipo', icono: '▣', oculta: true, disponible: esRevisor, dibujar: vistaCodigoObra },
+  { id: 'seguridad', titulo: 'Seguridad', grupo: 'Administración', icono: '🔒', disponible: () => Boolean(estado.usuario && estado.usuario.admiteDosPasos), dibujar: vistaSeguridad },
 ];
 
+async function vistaSeguridad() {
+  const zona = contenido();
+  const info = await Api.dosPasos();
+  zona.innerHTML = encabezado('Administración /', 'Seguridad') + `
+    <section class="tarjeta tarjeta-angosta" aria-labelledby="t-dos-pasos">
+      <h2 id="t-dos-pasos">Verificación en dos pasos ${info.activa ? chip('Activa', 'verde') : chip('Desactivada', 'gris')}</h2>
+      <p class="suave">Además de tu clave, al entrar se te pedirá un código de 6 dígitos que genera una aplicación en tu
+        teléfono. Así, aunque alguien descubra tu clave, no podrá entrar a tu empresa.</p>
+      <div id="zona-dos-pasos"></div>
+    </section>`;
+  const panel = zona.querySelector('#zona-dos-pasos');
+  if (info.activa) {
+    panel.innerHTML = `<p>Te quedan <strong>${info.respaldosRestantes}</strong> códigos de respaldo.</p>
+      <form id="form-desactivar" novalidate>
+        <h3>Desactivar</h3>
+        <div class="campo"><label for="d-clave">Tu clave *</label><input id="d-clave" name="clave" type="password" autocomplete="current-password"></div>
+        <div class="campo"><label for="d-codigo">Código de la aplicación *</label><input id="d-codigo" name="codigo" inputmode="numeric" autocomplete="one-time-code"></div>
+        <div class="mensaje mensaje-error oculto" role="alert"></div>
+        <button class="btn btn-secundario" type="submit">Desactivar verificación en dos pasos</button>
+      </form>`;
+    const formulario = $('#form-desactivar');
+    formulario.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      try {
+        const respuesta = await Api.desactivarDosPasos($('#d-clave').value, $('#d-codigo').value.trim());
+        estado.usuario.dosPasos = false;
+        aviso(respuesta.mensaje);
+        vistaSeguridad();
+      } catch (e) {
+        mostrarErrorFormulario(formulario, e.message);
+      }
+    });
+    return;
+  }
+  panel.innerHTML = '<button class="btn btn-primario" id="iniciar-dos-pasos" type="button">Activar verificación en dos pasos</button>';
+  $('#iniciar-dos-pasos').addEventListener('click', async () => {
+    const inscripcion = await Api.iniciarDosPasos();
+    panel.innerHTML = `<ol class="pasos-dos-pasos">
+        <li>Instala <strong>Google Authenticator</strong> o <strong>Microsoft Authenticator</strong> en tu teléfono.</li>
+        <li>En la aplicación, elige «Escanear un código QR» y apunta a este código:
+          <div class="marco-qr">${QR.svg(inscripcion.enlace, 'Código QR para la aplicación de autenticación')}</div>
+          <span class="pequeno suave">¿No puedes escanearlo? Elige «Ingresar una clave» y escribe:</span>
+          <code class="clave-manual">${esc(inscripcion.secreto.replace(/(.{4})/g, '$1 ').trim())}</code></li>
+        <li>Escribe el código de 6 dígitos que aparece en la aplicación:</li>
+      </ol>
+      <form id="form-activar" novalidate class="fila-activar">
+        <div class="campo"><label for="a-codigo" class="solo-lector">Código de 6 dígitos</label>
+          <input id="a-codigo" class="codigo-grande" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></div>
+        <div class="mensaje mensaje-error oculto" role="alert"></div>
+        <button class="btn btn-primario" type="submit">Activar</button>
+      </form>`;
+    const formulario = $('#form-activar');
+    formulario.addEventListener('submit', async (evento) => {
+      evento.preventDefault();
+      try {
+        const respuesta = await Api.activarDosPasos($('#a-codigo').value.trim());
+        estado.usuario.dosPasos = true;
+        aviso(respuesta.mensaje);
+        zona.querySelector('#t-dos-pasos').innerHTML = 'Verificación en dos pasos ' + chip('Activa', 'verde');
+        const texto = 'Códigos de respaldo de ConstruTrack (cada uno sirve una sola vez):\n\n' + respuesta.respaldos.join('\n') + '\n';
+        panel.innerHTML = `<div class="mensaje mensaje-info" role="status">Guarda estos códigos en un lugar seguro.
+            Si pierdes el teléfono, cada uno te deja entrar una sola vez.</div>
+          <div class="respaldos">${respuesta.respaldos.map((r) => `<code>${esc(r)}</code>`).join('')}</div>
+          <div class="acciones" style="justify-content:flex-start">
+            <a class="btn btn-secundario" download="construtrack-codigos-respaldo.txt"
+              href="${URL.createObjectURL(new Blob([texto], { type: 'text/plain' }))}">Descargar códigos</a>
+            <button class="btn btn-primario" id="respaldos-listo" type="button">Ya los guardé</button></div>`;
+        $('#respaldos-listo').addEventListener('click', vistaSeguridad);
+      } catch (e) {
+        mostrarErrorFormulario(formulario, e.message);
+      }
+    });
+    $('#a-codigo').focus();
+  });
+}
+
 async function vistaAsistencia() {
+  const zona = contenido();
   const u = estado.usuario = await Api.yo();
   const lunes = new Date();
   lunes.setDate(lunes.getDate() - ((lunes.getDay() + 6) % 7));
@@ -32,7 +111,9 @@ async function vistaAsistencia() {
     ? chip('+' + formatoHoras(a.minutosExtra), a.estadoExtra === 'Aprobadas' ? 'verde' : a.estadoExtra === 'Rechazadas' ? 'gris' : 'amarillo')
       + `<br><span class="pequeno suave">${esc(a.estadoExtra)}</span>`
     : '—');
-  contenido().innerHTML = encabezado('Mi trabajo /', 'Mi asistencia') + `
+  zona.innerHTML = encabezado('Mi trabajo /', 'Mi asistencia') + `
+    ${u.admiteDosPasos && !u.dosPasos ? `<div class="mensaje mensaje-info">Protege tu empresa:
+      <a href="#seguridad">activa la verificación en dos pasos</a>.</div>` : ''}
     <div class="rejilla-2">
       <section class="tarjeta" aria-labelledby="t-hoy">
         <h2 id="t-hoy">Hola, ${esc(u.nombre.split(' ')[0])}</h2>
@@ -40,6 +121,8 @@ async function vistaAsistencia() {
           ${hoy ? `<span class="suave pequeno">Entraste hoy a las ${esc(hoy.horaEntrada)}${hoy.tarde ? ' (tarde)' : ''}</span>` : ''}</div>
         <p class="suave pequeno">Horario: ${esc(textoDias(u.horario.dias))}, de ${esc(u.horario.horaEntrada)} a ${esc(u.horario.horaSalida)}
           ${u.obra ? ' · Obra: ' + esc(u.obra) : ''}${u.supervisor ? ' · Supervisor: ' + esc(u.supervisor.nombre) : ''}</p>
+        ${u.controlObra && (u.controlObra.exigeCodigo || u.controlObra.geocerca) ? `<p class="pequeno control-marca">Tu obra comprueba la marca con
+          ${[u.controlObra.exigeCodigo ? 'el código QR de la obra' : '', u.controlObra.geocerca ? 'tu ubicación' : ''].filter(Boolean).join(' y ')}.</p>` : ''}
         <div class="acciones" style="justify-content:flex-start">
           <button class="btn btn-primario" id="marcar-entrada" ${u.presente ? 'disabled' : ''}>Marcar entrada</button>
           <button class="btn btn-secundario" id="marcar-salida" ${u.presente ? '' : 'disabled'}>Marcar salida</button>
@@ -56,23 +139,78 @@ async function vistaAsistencia() {
     </div>
     <section class="tarjeta" style="margin-top:16px"><h2>Mi historial reciente</h2>
       <div class="tabla-contenedor"><table>
-        <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th><th>Horas</th><th>Extra</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Llegada</th><th>Horas</th><th>Extra</th><th>Control</th></tr></thead>
         <tbody>${u.asistencias.map((a) => `<tr><td>${fecha(a.fecha)}</td><td>${esc(a.horaEntrada)}</td>
           <td>${a.horaSalida ? esc(a.horaSalida) : chip('En curso', 'azul')}</td>
-          <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td><td>${horas(a)}</td><td>${extra(a)}</td></tr>`).join('')
-          || '<tr><td colspan="6" class="vacio">Aún no tienes jornadas registradas. Marca tu primera entrada.</td></tr>'}</tbody>
+          <td>${a.tarde ? chip('Tarde', 'amarillo') : chip('Puntual', 'verde')}</td><td>${horas(a)}</td><td>${extra(a)}</td>
+          <td>${chipControl(a)}</td></tr>`).join('')
+          || '<tr><td colspan="7" class="vacio">Aún no tienes jornadas registradas. Marca tu primera entrada.</td></tr>'}</tbody>
       </table></div></section>`;
-  const marcar = async (accion) => {
+  const marcar = async (tipo, codigo) => {
     try {
-      const respuesta = await accion();
-      aviso(respuesta.mensaje);
+      const respuesta = await Marcacion.marcar(tipo, u.controlObra, codigo);
+      if (!respuesta) return;
+      aviso(respuesta.mensaje, respuesta.mensaje.includes('por confirmar') ? 'aviso' : 'ok');
       await vistaAsistencia();
     } catch (e) {
       aviso(e.message, 'error');
     }
   };
-  $('#marcar-entrada').addEventListener('click', () => marcar(Api.marcarEntrada));
-  $('#marcar-salida').addEventListener('click', () => marcar(Api.marcarSalida));
+  $('#marcar-entrada').addEventListener('click', () => marcar('entrada'));
+  $('#marcar-salida').addEventListener('click', () => marcar('salida'));
+  const pendiente = Marcacion.tomarPendiente();
+  if (pendiente) marcar(u.presente ? 'salida' : 'entrada', pendiente);
+}
+
+function chipControl(a) {
+  const colores = { VERIFICADA: 'verde', CONFIRMADA: 'verde', POR_CONFIRMAR: 'amarillo', RECHAZADA: 'rojo' };
+  if (!colores[a.verificacion]) return '—';
+  return `<span title="${esc(a.motivo || '')}">${chip(a.verificacionTexto, colores[a.verificacion])}</span>`
+    + (a.verificacion !== 'VERIFICADA' && a.motivo ? `<br><span class="pequeno suave">${esc(a.motivo)}</span>` : '');
+}
+
+async function vistaCodigoObra() {
+  const zona = contenido();
+  const codigoObra = ruta().parametros.get('obra');
+  const primero = await Api.codigoObra(codigoObra);
+  zona.innerHTML = encabezado('Equipo / Obras /', 'Código de asistencia',
+    '<button class="btn btn-secundario" id="pantalla-completa" type="button">Pantalla completa</button>') + `
+    <section class="tarjeta pantalla-codigo" id="pantalla-codigo" aria-labelledby="codigo-obra-nombre">
+      <h2 id="codigo-obra-nombre">${esc(primero.nombre)}</h2>
+      <p class="suave">Escanéalo con el celular para marcar la entrada o la salida. Cambia cada 30 segundos.</p>
+      <div class="marco-codigo-qr"></div>
+      <p class="codigo-digitos" aria-live="polite"></p>
+      <div class="barra-pista barra-codigo"><span></span></div>
+      <p class="pequeno suave">¿No pueden escanear? Que escriban estos 6 dígitos en «Mi asistencia».</p>
+    </section>`;
+  const dibujar = (dato) => {
+    const enlace = `${location.origin}${location.pathname}#marcar?obra=${encodeURIComponent(dato.obra)}&codigo=${dato.codigo}`;
+    zona.querySelector('.marco-codigo-qr').innerHTML = QR.svg(enlace, 'Código QR de asistencia de ' + dato.nombre);
+    zona.querySelector('.codigo-digitos').textContent = dato.codigo.replace(/(\d{3})(\d{3})/, '$1 $2');
+    const barra = zona.querySelector('.barra-codigo span');
+    barra.style.transition = 'none';
+    barra.style.width = Math.round(100 * dato.segundosRestantes / 30) + '%';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      barra.style.transition = `width ${dato.segundosRestantes}s linear`;
+      barra.style.width = '0%';
+    }));
+  };
+  const refrescar = (espera) => setTimeout(async () => {
+    if (!zona.isConnected) return;
+    try {
+      const dato = await Api.codigoObra(codigoObra);
+      dibujar(dato);
+      refrescar(dato.segundosRestantes * 1000 + 400);
+    } catch (e) {
+      refrescar(5000);
+    }
+  }, espera);
+  dibujar(primero);
+  refrescar(primero.segundosRestantes * 1000 + 400);
+  $('#pantalla-completa').addEventListener('click', () => {
+    const pantalla = zona.querySelector('#pantalla-codigo');
+    if (pantalla.requestFullscreen) pantalla.requestFullscreen();
+  });
 }
 
 const EXTRAS = {
@@ -84,9 +222,10 @@ const EXTRAS = {
 };
 
 async function vistaIncidencias() {
+  const zona = contenido();
   const [opciones, lista] = await Promise.all([Api.opcionesIncidencias(), Api.incidencias()]);
   const hoy = new Date().toISOString().slice(0, 10);
-  contenido().innerHTML = encabezado('Mi trabajo /', 'Incidencias') + `
+  zona.innerHTML = encabezado('Mi trabajo /', 'Incidencias') + `
     <div class="rejilla-incidencias">
       <form class="tarjeta" id="form-incidencia" novalidate aria-labelledby="t-reportar">
         <h2 id="t-reportar">Reportar una incidencia</h2>
@@ -130,6 +269,7 @@ async function vistaIncidencias() {
 }
 
 async function vistaTablero() {
+  const zona = contenido();
   const lista = await Api.incidenciasTablero();
   const columnas = ['Pendiente', 'En revisión', 'Aprobada', 'Rechazada'];
   const filtro = estado.filtroTablero || '';
@@ -144,7 +284,7 @@ async function vistaTablero() {
         <button class="btn btn-exito btn-chico" data-revisar="${i.id}" data-estado="APROBADA">Aprobar</button>
         <button class="btn btn-peligro btn-chico" data-revisar="${i.id}" data-estado="RECHAZADA">Rechazar</button></div>` : ''}
     </article>`;
-  contenido().innerHTML = encabezado('Equipo /', 'Tablero de incidencias',
+  zona.innerHTML = encabezado('Equipo /', 'Tablero de incidencias',
     `<label class="solo-lector" for="filtro-tablero">Buscar en el tablero</label>
      <input id="filtro-tablero" placeholder="Buscar persona o tipo…" value="${esc(filtro)}" style="width:240px">`) + `
     <p class="suave pequeno" style="margin-top:-8px">Las aprobadas y rechazadas salen del tablero 3 horas después de revisarlas.
@@ -159,7 +299,7 @@ async function vistaTablero() {
     estado.filtroTablero = buscador.value;
     vistaTablero().then(() => { const b = $('#filtro-tablero'); b.focus(); b.setSelectionRange(b.value.length, b.value.length); });
   });
-  contenido().querySelectorAll('[data-revisar]').forEach((boton) => boton.addEventListener('click', () =>
+  zona.querySelectorAll('[data-revisar]').forEach((boton) => boton.addEventListener('click', () =>
     revisarIncidencia(Number(boton.dataset.revisar), boton.dataset.estado)));
 }
 
@@ -189,14 +329,16 @@ async function revisarIncidencia(id, nuevoEstado) {
 }
 
 async function vistaSupervision() {
+  const zona = contenido();
   const periodo = estado.periodo || 'ultimos7';
-  const [est, alertas, extras] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo), Api.horasExtra()]);
+  const [est, alertas, extras, marcas] = await Promise.all([Api.estadisticas(periodo), Api.alertas(periodo), Api.horasExtra(),
+    Api.porConfirmar()]);
   const color = (v) => (v >= 90 ? '#22a06b' : v >= 75 ? '#e2b203' : '#c9372c');
   const nivel = { Jefe: 0, Supervisor: 1 };
   est.personas = est.personas.map((p, i) => ({ ...p, orden: i }))
     .sort((a, b) => (nivel[a.rol] ?? 2) - (nivel[b.rol] ?? 2) || a.orden - b.orden);
   const lider = (p) => p.rol !== 'Empleado';
-  contenido().innerHTML = encabezado('Equipo /', 'Supervisión', `
+  zona.innerHTML = encabezado('Equipo /', 'Supervisión', `
     <label for="periodo" class="pequeno">Período</label>
     <select id="periodo" style="width:auto">${[['ultimos7', 'Últimos 7 días'], ['semana', 'Esta semana'], ['mes', 'Este mes']]
       .map(([v, t]) => `<option value="${v}" ${v === periodo ? 'selected' : ''}>${t}</option>`).join('')}</select>`) + `
@@ -232,6 +374,16 @@ async function vistaSupervision() {
           <td>${p.extraPendiente ? chip(formatoHoras(p.extraPendiente), 'amarillo') : '—'}</td>
           <td>${p.retardos ? chip(p.retardos, 'amarillo') : 0}</td><td>${p.ausencias ? chip(p.ausencias, 'rojo') : 0}</td>
           <td>${p.justificadas}</td><td>${Math.round(p.puntualidad)}%</td></tr>`).join('')}</tbody></table></div></section>
+    <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-marcas"><h2 id="t-marcas">Marcas por confirmar</h2>
+      <p class="suave pequeno" style="margin-top:-6px">Entradas o salidas hechas sin el código de la obra o lejos de ella.
+        Si rechazas una, esa jornada no cuenta como asistencia.</p>
+      ${marcas.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Obra</th><th>Fecha</th>
+        <th>Entrada – salida</th><th>Motivo</th><th><span class="solo-lector">Acciones</span></th></tr></thead><tbody>
+        ${marcas.map((m) => `<tr><td>${esc(m.nombre)}</td><td>${esc(m.obra || '—')}</td><td>${fecha(m.fecha)}</td>
+          <td>${esc(m.horaEntrada)} – ${esc(m.horaSalida || '…')}</td><td>${esc(m.motivo)}</td>
+          <td style="white-space:nowrap"><button class="btn btn-exito btn-chico" data-marca="CONFIRMADA" data-cedula="${esc(m.cedula)}" data-fecha="${esc(m.fecha)}" data-entrada="${esc(m.horaEntrada)}">Confirmar</button>
+            <button class="btn btn-peligro btn-chico" data-marca="RECHAZADA" data-cedula="${esc(m.cedula)}" data-fecha="${esc(m.fecha)}" data-entrada="${esc(m.horaEntrada)}">Rechazar</button></td></tr>`).join('')}
+        </tbody></table></div>` : '<p class="suave">No hay marcas por confirmar.</p>'}</section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-extra"><h2 id="t-extra">Horas extra por aprobar</h2>
       <p class="suave pequeno" style="margin-top:-6px">Se calculan solas con la entrada y la salida: lo que pasa de la jornada, o todo lo trabajado en un día libre (desde 15 min).</p>
       ${extras.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Fecha</th><th>Entrada – salida</th>
@@ -255,7 +407,16 @@ async function vistaSupervision() {
         <button class="btn btn-primario" id="descargar-reporte">Descargar reporte</button>
       </div></section>`;
   $('#periodo').addEventListener('change', (e) => { estado.periodo = e.target.value; vistaSupervision(); });
-  contenido().querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', async () => {
+  zona.querySelectorAll('[data-marca]').forEach((b) => b.addEventListener('click', async () => {
+    try {
+      await Api.revisarAsistencia(b.dataset.cedula, b.dataset.fecha, b.dataset.entrada, b.dataset.marca);
+      aviso(b.dataset.marca === 'CONFIRMADA' ? 'Marca confirmada.' : 'Marca rechazada: esa jornada no cuenta.');
+      vistaSupervision();
+    } catch (e) {
+      aviso(e.message, 'error');
+    }
+  }));
+  zona.querySelectorAll('[data-extra]').forEach((b) => b.addEventListener('click', async () => {
     try {
       await Api.revisarHorasExtra(b.dataset.cedula, b.dataset.fecha, b.dataset.extra);
       aviso(b.dataset.extra === 'APROBADAS' ? 'Horas extra aprobadas.' : 'Horas extra rechazadas.');
@@ -275,10 +436,11 @@ async function vistaSupervision() {
 }
 
 async function vistaPersonal() {
+  const zona = contenido();
   const lista = await Api.listarUsuarios();
   const filtro = (estado.filtroPersonal || '').toLowerCase();
   const visibles = lista.filter((u) => !filtro || [u.nombre, u.cedula, u.rol, u.obra, u.correo].join(' ').toLowerCase().includes(filtro));
-  contenido().innerHTML = encabezado('Equipo /', esJefe() ? 'Personal' : 'Mi equipo', `
+  zona.innerHTML = encabezado('Equipo /', esJefe() ? 'Personal' : 'Mi equipo', `
     <label class="solo-lector" for="buscar-personal">Buscar</label>
     <input id="buscar-personal" placeholder="Buscar nombre, cédula, obra…" value="${esc(estado.filtroPersonal || '')}" style="width:240px">
     ${esJefe() ? '<button class="btn btn-primario" id="registrar-persona">+ Registrar persona</button>' : ''}`) + `
@@ -300,9 +462,9 @@ async function vistaPersonal() {
     vistaPersonal().then(() => { const b = $('#buscar-personal'); b.focus(); b.setSelectionRange(b.value.length, b.value.length); });
   });
   if (esJefe()) $('#registrar-persona').addEventListener('click', () => formularioPersona(null));
-  contenido().querySelectorAll('[data-editar]').forEach((b) => b.addEventListener('click', () => formularioPersona(b.dataset.editar)));
-  contenido().querySelectorAll('[data-historial]').forEach((b) => b.addEventListener('click', () => historialPersona(b.dataset.historial)));
-  contenido().querySelectorAll('[data-eliminar]').forEach((b) => b.addEventListener('click', () => {
+  zona.querySelectorAll('[data-editar]').forEach((b) => b.addEventListener('click', () => formularioPersona(b.dataset.editar)));
+  zona.querySelectorAll('[data-historial]').forEach((b) => b.addEventListener('click', () => historialPersona(b.dataset.historial)));
+  zona.querySelectorAll('[data-eliminar]').forEach((b) => b.addEventListener('click', () => {
     const modal = Modal.abrir('Eliminar persona', `<p>¿Seguro que quieres eliminar a <strong>${esc(b.dataset.nombre)}</strong>?
       Esta acción no se puede deshacer. Su cuenta seguirá existiendo, pero sin empresa.</p>
       <div class="acciones"><button class="btn btn-secundario" data-cerrar>Cancelar</button>
@@ -409,14 +571,17 @@ async function historialPersona(cedula) {
 }
 
 async function vistaObras() {
+  const zona = contenido();
   const [obras, visibles] = await Promise.all([Api.obras(), Api.listarUsuarios()]);
 
   const asignables = esJefe() ? visibles : [estado.usuario, ...visibles];
-  contenido().innerHTML = encabezado('Equipo /', 'Obras', '<button class="btn btn-primario" id="nueva-obra">+ Nueva obra</button>') + `
+  zona.innerHTML = encabezado('Equipo /', 'Obras', '<button class="btn btn-primario" id="nueva-obra">+ Nueva obra</button>') + `
     <p class="suave" style="margin-top:-8px">Los lugares donde trabaja el personal. Las gestionan el supervisor y el jefe.</p>
     <div class="rejilla-obras">${obras.map((o) => `<section class="tarjeta" aria-labelledby="obra-${esc(o.codigo)}">
       <div class="titulo-vista" style="margin:0 0 4px"><h2 id="obra-${esc(o.codigo)}" style="margin:0">${esc(o.nombre)}</h2>${chip(o.codigo, 'gris')}</div>
       <p class="suave pequeno" style="margin:0 0 10px">${esc(o.ubicacion || 'Sin ubicación')} · ${fecha(o.inicio)} → ${fecha(o.fin)}</p>
+      <p class="control-obra-resumen">${o.exigeCodigo ? chip('Código QR', 'azul') : ''}${o.latitud !== null ? chip(`Ubicación · ${o.radio} m`, 'azul') : ''}
+        ${!o.exigeCodigo && o.latitud === null ? '<span class="pequeno suave">Sin control de asistencia</span>' : ''}</p>
       <div class="barra-pista" role="img" aria-label="${o.avance}% del plazo transcurrido"><span style="width:${o.avance}%;background:#0c66e4"></span></div>
       <p class="pequeno suave" style="margin:4px 0 12px">${o.avance}% del plazo</p>
       <h3 class="pequeno" style="margin:0 0 6px">Personas (${o.personas.length})</h3>
@@ -428,6 +593,7 @@ async function vistaObras() {
         <select id="sumar-${esc(o.codigo)}" data-sumar="${esc(o.codigo)}" style="width:auto;max-width:100%">
           <option value="">+ Sumar persona…</option>${asignables.filter((a) => !o.personas.some((p) => p.cedula === a.cedula))
             .map((a) => `<option value="${esc(a.cedula)}">${esc(a.nombre)}${a.obra ? ' (en ' + esc(a.obra) + ')' : ''}</option>`).join('')}</select>
+        ${o.exigeCodigo ? `<a class="btn btn-primario btn-chico" href="#codigo-obra?obra=${encodeURIComponent(o.codigo)}">Mostrar QR de asistencia</a>` : ''}
         <button class="btn btn-secundario btn-chico" data-editar-obra="${esc(o.codigo)}">Editar</button>
         <button class="btn btn-peligro btn-chico" data-eliminar-obra="${esc(o.codigo)}">Eliminar</button>
       </div></section>`).join('') || '<p class="suave">Aún no hay obras. Crea la primera.</p>'}</div>`;
@@ -440,20 +606,20 @@ async function vistaObras() {
     }
   };
   $('#nueva-obra').addEventListener('click', () => formularioObra(null));
-  contenido().querySelectorAll('[data-editar-obra]').forEach((b) => b.addEventListener('click',
+  zona.querySelectorAll('[data-editar-obra]').forEach((b) => b.addEventListener('click',
     () => formularioObra(obras.find((o) => o.codigo === b.dataset.editarObra))));
-  contenido().querySelectorAll('[data-eliminar-obra]').forEach((b) => b.addEventListener('click', intentar(async () => {
+  zona.querySelectorAll('[data-eliminar-obra]').forEach((b) => b.addEventListener('click', intentar(async () => {
     const obra = obras.find((o) => o.codigo === b.dataset.eliminarObra);
     if (!confirm(`¿Eliminar la obra «${obra.nombre}»? Esta acción no se puede deshacer.`)) return;
     await Api.eliminarObra(obra.codigo);
     await recargar('Obra eliminada.');
   })));
-  contenido().querySelectorAll('[data-sumar]').forEach((s) => s.addEventListener('change', intentar(async () => {
+  zona.querySelectorAll('[data-sumar]').forEach((s) => s.addEventListener('change', intentar(async () => {
     if (!s.value) return;
     const persona = await Api.asignarObra(s.value, s.dataset.sumar);
     await recargar(persona.nombre + ' ahora trabaja en esta obra.');
   })));
-  contenido().querySelectorAll('[data-quitar]').forEach((b) => b.addEventListener('click', intentar(async () => {
+  zona.querySelectorAll('[data-quitar]').forEach((b) => b.addEventListener('click', intentar(async () => {
     const persona = await Api.asignarObra(b.dataset.quitar, '');
     await recargar(persona.nombre + ' quedó sin obra asignada.');
   })));
@@ -468,10 +634,33 @@ function formularioObra(obra) {
       <div class="campo"><label for="o-inicio">Inicio *</label><input id="o-inicio" name="inicio" type="date" required value="${esc(obra ? obra.inicio : hoy)}"></div>
       <div class="campo"><label for="o-fin">Fin estimado *</label><input id="o-fin" name="fin" type="date" required value="${esc(obra ? obra.fin : '')}"></div>
     </div>
+    <fieldset class="control-obra"><legend>Control de asistencia</legend>
+      <label class="opcion-check"><input type="checkbox" name="exigeCodigo" value="true" ${obra && obra.exigeCodigo ? 'checked' : ''}>
+        Exigir el código QR de la obra al marcar</label>
+      <p class="ayuda">El supervisor muestra en su teléfono un QR que cambia cada 30 segundos. Quien marca sin él queda por confirmar.</p>
+      <div class="fila">
+        <div class="campo"><label for="o-lat">Latitud</label><input id="o-lat" name="latitud" inputmode="decimal" value="${obra && obra.latitud !== null ? obra.latitud : ''}" placeholder="10.4806"></div>
+        <div class="campo"><label for="o-lon">Longitud</label><input id="o-lon" name="longitud" inputmode="decimal" value="${obra && obra.longitud !== null ? obra.longitud : ''}" placeholder="-66.9036"></div>
+        <div class="campo"><label for="o-radio">Radio (m)</label><input id="o-radio" name="radio" type="number" min="20" max="2000" value="${obra && obra.radio ? obra.radio : 150}"></div>
+      </div>
+      <button type="button" class="btn btn-secundario btn-chico" id="o-mi-ubicacion">Usar mi ubicación actual</button>
+      <p class="ayuda">Con la ubicación, las marcas hechas lejos de la obra quedan por confirmar. Déjala vacía para no usarla.</p>
+    </fieldset>
     <div class="mensaje mensaje-error oculto" role="alert"></div>
     <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
       <button class="btn btn-primario" type="submit">Guardar</button></div></form>`);
   const formulario = modal.querySelector('form');
+  modal.querySelector('#o-mi-ubicacion').addEventListener('click', () => {
+    if (!navigator.geolocation) {
+      mostrarErrorFormulario(formulario, 'Este navegador no puede leer la ubicación.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition((p) => {
+      modal.querySelector('#o-lat').value = p.coords.latitude.toFixed(6);
+      modal.querySelector('#o-lon').value = p.coords.longitude.toFixed(6);
+    }, () => mostrarErrorFormulario(formulario, 'No se pudo leer tu ubicación. Revisa el permiso del navegador.'),
+    { enableHighAccuracy: true, timeout: 12000 });
+  });
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
     try {
@@ -487,8 +676,9 @@ function formularioObra(obra) {
 }
 
 async function vistaInvitaciones() {
+  const zona = contenido();
   const [opciones, lista, config] = await Promise.all([Api.opcionesPersonal(), Api.invitaciones(), Api.configuracionInvitaciones()]);
-  contenido().innerHTML = encabezado('Administración /', 'Invitaciones') + `
+  zona.innerHTML = encabezado('Administración /', 'Invitaciones') + `
     <p class="suave" style="margin-top:-8px">Cada código sirve una sola vez. Compártelo por WhatsApp o correo con la persona que quieres sumar.</p>
     <div class="rejilla-incidencias">
       <form class="tarjeta" id="form-invitacion" novalidate aria-labelledby="t-nueva">
@@ -540,7 +730,7 @@ async function vistaInvitaciones() {
       aviso(e.message, 'error');
     }
   });
-  contenido().querySelectorAll('[data-enviar]').forEach((b) => b.addEventListener('click', () => {
+  zona.querySelectorAll('[data-enviar]').forEach((b) => b.addEventListener('click', () => {
     const modal = Modal.abrir('Enviar ' + b.dataset.enviar + ' por correo', `<form novalidate>
       <div class="campo"><label for="e-correo">Correo de la persona</label><input id="e-correo" name="correo" type="email" required placeholder="nombre@correo.com"></div>
       ${config.correoReal ? '' : '<p class="mensaje mensaje-info pequeno">El envío de correos no está configurado en este servidor: quedará registrado, pero no llegará.</p>'}
@@ -564,7 +754,7 @@ async function vistaInvitaciones() {
       }
     });
   }));
-  contenido().querySelectorAll('[data-cancelar]').forEach((b) => b.addEventListener('click', async () => {
+  zona.querySelectorAll('[data-cancelar]').forEach((b) => b.addEventListener('click', async () => {
     try {
       await Api.cancelarInvitacion(b.dataset.cancelar);
       aviso('Invitación ' + b.dataset.cancelar + ' cancelada.');

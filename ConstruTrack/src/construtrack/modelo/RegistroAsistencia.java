@@ -11,6 +11,8 @@ public class RegistroAsistencia {
     private LocalTime horaSalida;
     private final boolean tarde;
     private EstadoHorasExtra estadoExtra = EstadoHorasExtra.PENDIENTE;
+    private EstadoVerificacion verificacion = EstadoVerificacion.NO_APLICA;
+    private String motivoVerificacion = "";
 
     public static final int MINIMO_EXTRA_MINUTOS = 15;
 
@@ -69,6 +71,44 @@ public class RegistroAsistencia {
                     + estadoExtra.getNombre().toLowerCase() + ".");
         }
         estadoExtra = nuevo;
+    }
+
+    public void marcarVerificada() {
+        if (verificacion == EstadoVerificacion.NO_APLICA) {
+            verificacion = EstadoVerificacion.VERIFICADA;
+        }
+    }
+
+    public void marcarPorConfirmar(String motivo) {
+        verificacion = EstadoVerificacion.POR_CONFIRMAR;
+        motivoVerificacion = motivoVerificacion.isEmpty() ? motivo : motivoVerificacion + "; " + motivo;
+    }
+
+    void revisarVerificacion(EstadoVerificacion nuevo) {
+        if (nuevo != EstadoVerificacion.CONFIRMADA && nuevo != EstadoVerificacion.RECHAZADA) {
+            throw new OperacionInvalidaException("Elige confirmar o rechazar la marca.");
+        }
+        if (verificacion != EstadoVerificacion.POR_CONFIRMAR) {
+            throw new OperacionInvalidaException("La marca del " + fecha + " no está por confirmar.");
+        }
+        verificacion = nuevo;
+    }
+
+    public boolean cuenta() {
+        return verificacion != EstadoVerificacion.RECHAZADA;
+    }
+
+    public EstadoVerificacion getVerificacion() {
+        return verificacion;
+    }
+
+    public String getMotivoVerificacion() {
+        return motivoVerificacion;
+    }
+
+    public void restaurarVerificacion(EstadoVerificacion estado, String motivo) {
+        this.verificacion = estado;
+        this.motivoVerificacion = motivo == null ? "" : motivo;
     }
 
     public EstadoHorasExtra getEstadoExtra() {

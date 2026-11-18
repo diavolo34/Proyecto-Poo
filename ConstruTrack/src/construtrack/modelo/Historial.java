@@ -3,6 +3,7 @@ package construtrack.modelo;
 import construtrack.modelo.incidencias.Incidencia;
 import construtrack.modelo.incidencias.Justificable;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,10 +59,42 @@ public class Historial {
         return null;
     }
 
+    public RegistroAsistencia asistenciaValidaDel(LocalDate fecha) {
+        for (int i = asistencias.size() - 1; i >= 0; i--) {
+            RegistroAsistencia r = asistencias.get(i);
+            if (r.getFecha().equals(fecha) && r.cuenta()) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    public RegistroAsistencia jornada(LocalDate fecha, LocalTime entrada) {
+        if (entrada == null) {
+            return asistenciaDel(fecha);
+        }
+        for (RegistroAsistencia r : asistencias) {
+            if (r.getFecha().equals(fecha) && r.getHoraEntrada().equals(entrada)) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    public List<RegistroAsistencia> asistenciasPorConfirmar() {
+        List<RegistroAsistencia> resultado = new ArrayList<>();
+        for (RegistroAsistencia r : asistencias) {
+            if (r.getVerificacion() == EstadoVerificacion.POR_CONFIRMAR) {
+                resultado.add(r);
+            }
+        }
+        return resultado;
+    }
+
     public List<RegistroAsistencia> asistenciasEn(Periodo periodo) {
         List<RegistroAsistencia> resultado = new ArrayList<>();
         for (RegistroAsistencia r : asistencias) {
-            if (periodo.contiene(r.getFecha())) {
+            if (periodo.contiene(r.getFecha()) && r.cuenta()) {
                 resultado.add(r);
             }
         }
@@ -117,7 +150,7 @@ public class Historial {
     public List<RegistroAsistencia> horasExtraPendientes(Horario horario) {
         List<RegistroAsistencia> pendientes = new ArrayList<>();
         for (RegistroAsistencia r : asistencias) {
-            if (r.tieneHorasExtra(horario) && r.getEstadoExtra() == EstadoHorasExtra.PENDIENTE) {
+            if (r.cuenta() && r.tieneHorasExtra(horario) && r.getEstadoExtra() == EstadoHorasExtra.PENDIENTE) {
                 pendientes.add(r);
             }
         }
@@ -136,7 +169,7 @@ public class Historial {
     public List<LocalDate> ausenciasSinJustificar(Horario horario, Periodo periodo, LocalDate hoy) {
         List<LocalDate> ausencias = new ArrayList<>();
         for (LocalDate fecha : diasLaborables(horario, periodo, hoy)) {
-            if (asistenciaDel(fecha) == null && !estaJustificado(fecha)) {
+            if (asistenciaValidaDel(fecha) == null && !estaJustificado(fecha)) {
                 ausencias.add(fecha);
             }
         }
@@ -146,7 +179,7 @@ public class Historial {
     public List<LocalDate> ausenciasJustificadas(Horario horario, Periodo periodo, LocalDate hoy) {
         List<LocalDate> justificadas = new ArrayList<>();
         for (LocalDate fecha : diasLaborables(horario, periodo, hoy)) {
-            if (asistenciaDel(fecha) == null && estaJustificado(fecha)) {
+            if (asistenciaValidaDel(fecha) == null && estaJustificado(fecha)) {
                 justificadas.add(fecha);
             }
         }

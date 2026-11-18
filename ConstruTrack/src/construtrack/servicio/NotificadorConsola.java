@@ -23,6 +23,12 @@ public class NotificadorConsola implements Notificador {
     }
 
     @Override
+    public void enviarCodigoVerificacion(String correoDestino, String codigo, Duration vigencia) {
+        LOG.info(() -> "Código para confirmar el correo " + correoDestino + ": " + codigo + " (vence en "
+                + vigencia.toMinutes() + " min)");
+    }
+
+    @Override
     public void enviarRestablecimiento(String correoDestino, String token, Duration vigencia) {
         LOG.info(() -> "Enlace para restablecer la clave de " + correoDestino + " (vence en " + vigencia.toMinutes()
                 + " min): " + restablecimientos.enlace(token));

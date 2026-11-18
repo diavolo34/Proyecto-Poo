@@ -4,21 +4,20 @@ import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.PermisoDenegadoException;
 import construtrack.servicio.Ingreso;
 import construtrack.servicio.ServicioAutenticacion;
+import construtrack.servicio.ServicioDosPasos;
 
 public class ControladorSesion implements ControladorWeb {
     private final ServicioAutenticacion autenticacion;
+    private final ServicioDosPasos dosPasos;
     private final GestorSesiones sesiones;
     private final boolean modoDemo;
     private final boolean demoPrivada;
     private final boolean permitirIngreso;
 
-    public ControladorSesion(ServicioAutenticacion autenticacion, GestorSesiones sesiones) {
-        this(autenticacion, sesiones, false, false, true);
-    }
-
-    public ControladorSesion(ServicioAutenticacion autenticacion, GestorSesiones sesiones, boolean modoDemo,
-            boolean demoPrivada, boolean permitirIngreso) {
+    public ControladorSesion(ServicioAutenticacion autenticacion, ServicioDosPasos dosPasos, GestorSesiones sesiones,
+            boolean modoDemo, boolean demoPrivada, boolean permitirIngreso) {
         this.autenticacion = autenticacion;
+        this.dosPasos = dosPasos;
         this.sesiones = sesiones;
         this.modoDemo = modoDemo;
         this.demoPrivada = demoPrivada;
@@ -29,6 +28,7 @@ public class ControladorSesion implements ControladorWeb {
     public void registrarRutas(Enrutador enrutador) {
         enrutador.get("/api/estado", this::estado)
                 .post("/api/login", this::iniciarSesion)
+                .post("/api/login/dos-pasos", this::completarDosPasos)
                 .post("/api/logout", this::cerrarSesion)
                 .get("/api/yo", this::yo);
     }
@@ -58,6 +58,15 @@ public class ControladorSesion implements ControladorWeb {
         }
         String identificador = p.cuerpo().getOrDefault("identificador", p.cuerpo().get("cedula"));
         Ingreso ingreso = autenticacion.ingresar(identificador, p.cuerpo().get("clave"));
+        if (ingreso.requiereDosPasos()) {
+            return Respuesta.json(new JsonObjeto().logico("dosPasos", true).texto("desafio", dosPasos.crearDesafio(ingreso))
+                    .toString());
+        }
+        return Respuesta.json(JsonMapper.sesion(sesiones.iniciarSesion(ingreso), ingreso));
+    }
+
+    private Respuesta completarDosPasos(Peticion p) {
+        Ingreso ingreso = dosPasos.resolverDesafio(p.cuerpo().get("desafio"), p.cuerpo().get("codigo"));
         return Respuesta.json(JsonMapper.sesion(sesiones.iniciarSesion(ingreso), ingreso));
     }
 

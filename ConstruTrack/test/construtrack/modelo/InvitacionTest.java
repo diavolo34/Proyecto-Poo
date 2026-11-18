@@ -19,6 +19,7 @@ class InvitacionTest {
 
     private Cuenta pablo() {
         Cuenta cuenta = new Cuenta("Pablo.Rivas@Correo.com", "pablo123", "Pablo", "Rivas", "28555111", "+58 424 1112233", AHORA);
+        cuenta.marcarVerificada();
         d.empresa.agregarCuenta(cuenta);
         return cuenta;
     }

@@ -5,6 +5,7 @@ import construtrack.modelo.Jefe;
 import construtrack.modelo.RevisorIncidencias;
 import construtrack.modelo.Usuario;
 import construtrack.servicio.Servicios;
+import construtrack.vista.swing.DialogoCodigo;
 import construtrack.vista.swing.DialogoRegistro;
 import construtrack.vista.swing.DialogoUnirse;
 import construtrack.vista.swing.PanelAsistencia;
@@ -47,22 +48,40 @@ public final class AplicacionSwing {
             login.dispose();
             mostrarPrincipal(usuario);
         };
-        new ControladoraLogin(login, servicios.autenticacion(), entrar,
-                cuenta -> mostrarUnirse(login, cuenta, entrar),
+        new ControladoraLogin(login, servicios.autenticacion(), servicios.dosPasos(), entrar,
+                cuenta -> continuarCuenta(login, cuenta, entrar),
                 () -> mostrarRegistro(login, entrar), urlWeb);
         login.setVisible(true);
     }
 
     private void mostrarRegistro(Window dueno, Consumer<Usuario> entrar) {
         DialogoRegistro registro = new DialogoRegistro(dueno);
-        new ControladoraRegistro(registro, servicios.registro(), cuenta -> {
-            if (cuenta.perteneceAEmpresa()) {
-                entrar.accept(cuenta.getUsuario());
+        new ControladoraRegistro(registro, servicios.registro(), cuenta -> continuarCuenta(dueno, cuenta, entrar));
+        registro.setVisible(true);
+    }
+
+    private void continuarCuenta(Window dueno, Cuenta cuenta, Consumer<Usuario> entrar) {
+        if (cuenta.perteneceAEmpresa()) {
+            entrar.accept(cuenta.getUsuario());
+        } else if (!cuenta.estaVerificada()) {
+            mostrarVerificacion(dueno, cuenta, entrar);
+        } else {
+            mostrarUnirse(dueno, cuenta, entrar);
+        }
+    }
+
+    private void mostrarVerificacion(Window dueno, Cuenta cuenta, Consumer<Usuario> entrar) {
+        DialogoCodigo dialogo = new DialogoCodigo(dueno, "Confirma tu correo", "Te enviamos un código de 6 dígitos a "
+                + cuenta.getCorreo() + ". Escríbelo para activar tu cuenta. Si no te llega, revisa la carpeta de spam.",
+                "Código de 6 dígitos *", "Confirmar correo", "Reenviar código");
+        new ControladoraVerificacionCorreo(dialogo, servicios.registro(), cuenta, usuario -> {
+            if (usuario != null) {
+                entrar.accept(usuario);
             } else {
                 mostrarUnirse(dueno, cuenta, entrar);
             }
         });
-        registro.setVisible(true);
+        dialogo.setVisible(true);
     }
 
     private void mostrarUnirse(Window dueno, Cuenta cuenta, Consumer<Usuario> entrar) {

@@ -39,6 +39,7 @@ class RepositorioTextoTest {
         d.jose.reportar(reposo);
         d.ana.revisar(reposo, EstadoIncidencia.RECHAZADA, "Falta firma\ndel médico", AHORA);
         Cuenta cuenta = new Cuenta("pablo@correo.com", "pablo123", "Pablo", "Rivas", "28555111", "04121234567", AHORA);
+        cuenta.marcarVerificada();
         d.empresa.agregarCuenta(cuenta);
         Invitacion inv = d.jefe.crearInvitacion("Empleado", "20000001", "", 7, AHORA, new Random(5));
         inv.canjear(cuenta, d.empresa, AHORA);

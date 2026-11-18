@@ -19,6 +19,7 @@ import construtrack.modelo.Usuario;
 import construtrack.modelo.incidencias.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class GeneradorDatosPrueba implements Supplier<Empresa> {
@@ -57,6 +58,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         empresa.agregarObra(torre);
         empresa.agregarObra(puente);
         ana.setObra(torre);
+        torre.configurarControl(10.4969, -66.8539, 150, true);
         luis.setObra(puente);
 
         for (Usuario lider : new Usuario[] {carlos, ana, luis}) {
@@ -119,10 +121,21 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         }
         agregarIncidenciasDemo(empresa, fabrica, hoy);
         agregarCuentasDemo(empresa, hoy);
+        marcaPorConfirmarDemo(empresa, hoy);
         return empresa;
     }
 
     public static final String CODIGO_DEMO = "CT-RQ7K-4M2P";
+
+    private void marcaPorConfirmarDemo(Empresa empresa, LocalDate hoy) {
+        List<RegistroAsistencia> jornadas = empresa.buscarUsuario("30000003").getAsistencias();
+        for (int i = jornadas.size() - 1; i >= 0; i--) {
+            if (jornadas.get(i).getFecha().isBefore(hoy)) {
+                jornadas.get(i).marcarPorConfirmar("Entrada a 1,3 km de la obra");
+                return;
+            }
+        }
+    }
 
     private void agregarCuentasDemo(Empresa empresa, LocalDate hoy) {
         LocalDateTime registro = hoy.minusMonths(2).atTime(9, 0);
@@ -134,8 +147,10 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             empresa.agregarCuenta(cuenta);
             u.vincularCuenta(cuenta);
         }
-        empresa.agregarCuenta(new Cuenta("rosa.gutierrez@correo.com", "rosa1234", "Rosa", "Gutiérrez", "25123456",
-                "+58 414 7654321", hoy.atTime(8, 0)));
+        Cuenta rosa = new Cuenta("rosa.gutierrez@correo.com", "rosa1234", "Rosa", "Gutiérrez", "25123456",
+                "+58 414 7654321", hoy.atTime(8, 0));
+        rosa.marcarVerificada();
+        empresa.agregarCuenta(rosa);
         Jefe jefe = (Jefe) empresa.buscarUsuario("10000001");
         Invitacion invitacion = new Invitacion(CodigoInvitacion.de(CODIGO_DEMO), Empleado.ROL,
                 (Supervisor) empresa.buscarUsuario("20000001"), empresa.buscarObra("OB-01"), jefe,
