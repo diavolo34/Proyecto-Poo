@@ -53,7 +53,7 @@ def abrir_navegador(p):
 
 CORRECCION = [
     ("Es Programación Orientada a Objetos, no Algoritmos III", "Materia corregida en todo el proyecto; el diseño se centra en POO: herencia, polimorfismo, interfaces, composición, objetos de valor y SOLID."),
-    ("Darle profundidad al proyecto", "Se pasó de 13 a más de 150 clases en capas MVC: permisos y reposos, reportes en obra, historial, alertas, estadísticas, reportes, registro con correo, invitaciones, multiempresa, talento humano, inventario, vista Swing, 103 pruebas y CI."),
+    ("Darle profundidad al proyecto", "Se pasó de 13 a más de 150 clases en capas MVC: permisos y reposos, reportes en obra, historial, alertas, estadísticas, reportes, registro con correo, invitaciones, multiempresa, talento humano, inventario, vista Swing, 105 pruebas y CI."),
     ("Sin gestores ni APIs en los diagramas de secuencia", "Los 7 diagramas de secuencia usan solo objetos de clases del modelo (Supervisor, Gerente, Historial, ReposoMedico, MonitorSupervision…)."),
     ("Página operativa, no solo modo demostración", "La página publicada trabaja con datos reales: siempre usa el servidor Java, local en NetBeans o publicado en Render (Docker), con Netlify llamándolo por CORS. Los datos de ejemplo solo aparecen si se activan a propósito."),
     ("¿Dónde está la clase Historial? ¿Dónde se registran las incidencias?", "Historial (composición en Usuario) guarda jornadas, permisos, reposos y reportes en obra. Novedad es abstracta, con Licencia (permiso laboral y reposo médico) y ReporteObra (retardo, inasistencia, accidente); el supervisor registra y el gerente aprueba con nota."),

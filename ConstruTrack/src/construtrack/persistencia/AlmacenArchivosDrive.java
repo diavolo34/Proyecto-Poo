@@ -82,8 +82,11 @@ public class AlmacenArchivosDrive implements AlmacenArchivos {
             if (error.contains("No encontrado")) {
                 throw new NoEncontradoException("El archivo ya no está en Google Drive.");
             }
-            throw new OperacionInvalidaException("Google Drive no guardó el archivo: " + error
-                    + (error.contains("Acción") ? ". Actualiza el script con la versión nueva de tools/correo-gmail/Codigo.gs." : ""));
+            if (error.contains("Correo de destino") || error.contains("Acción desconocida")) {
+                throw new OperacionInvalidaException("El script de Google está desactualizado: reemplázalo por la versión nueva de "
+                        + "tools/correo-gmail/Codigo.gs, ejecuta «autorizar» para darle permiso de Drive y publica una nueva versión.");
+            }
+            throw new OperacionInvalidaException("Google Drive no guardó el archivo: " + error);
         }
         return datos;
     }
