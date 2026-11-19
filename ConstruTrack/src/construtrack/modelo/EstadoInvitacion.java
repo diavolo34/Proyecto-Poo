@@ -2,9 +2,9 @@ package construtrack.modelo;
 
 public enum EstadoInvitacion {
     VIGENTE("Vigente"),
-    USADA("Usada"),
-    CANCELADA("Cancelada"),
-    VENCIDA("Vencida");
+    USADA("Usado"),
+    CANCELADA("Cancelado"),
+    VENCIDA("Vencido");
 
     private final String nombre;
 

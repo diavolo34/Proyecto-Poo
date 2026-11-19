@@ -52,7 +52,7 @@ public final class Expediente {
             linea(t, "Días de incapacidad", h.diasDeIncapacidad(persona.getHorario(), periodo, corte).size());
             List<RegistroAsistencia> rechazadas = h.getAsistencias().stream().filter(r -> !r.cuenta()).toList();
             linea(t, "Marcas rechazadas", rechazadas.size());
-            t.append("\nPERMISOS, REPOSOS Y REPORTES EN OBRA\n");
+            t.append("\nPERMISOS, REPOSOS Y REPORTES DE PROYECTO\n");
             if (h.getNovedades().isEmpty()) {
                 t.append("  Ninguno\n");
             }

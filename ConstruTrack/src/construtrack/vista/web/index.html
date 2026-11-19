@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ConstruTrack · Gestión de personal y operaciones en obra</title>
-  <meta name="description" content="Plataforma de gestión de personal en obra: asistencia verificable con geolocalización y QR, permisos y reposos con aprobación, reportes en obra, inventario de herramientas y talento humano.">
+  <title>ConstruTrack · Gestión de personal y operaciones por proyecto</title>
+  <meta name="description" content="Plataforma de gestión de personal por proyecto: asistencia verificable con geolocalización y QR, permisos y reposos con aprobación, reportes de proyecto, áreas con su supervisor, inventario de herramientas y talento humano.">
   <meta name="theme-color" content="#0c66e4">
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/estilos.css">
@@ -20,7 +20,7 @@
         <a href="#funciones">Funciones</a>
         <a href="#roles">Roles</a>
         <a href="#empezar">Cómo empezar</a>
-        <a href="#obras">Obras</a>
+        <a href="#obras">Proyectos</a>
         <a class="lp-solo-menu" href="app.html#login">Iniciar sesión</a>
         <a class="lp-solo-menu" href="app.html#registro">Crear cuenta</a>
       </nav>
@@ -39,12 +39,12 @@
     <section class="lp-hero" aria-labelledby="lp-titulo">
       <div class="lp-contenedor lp-hero-rejilla">
         <div class="lp-hero-texto">
-          <p class="lp-etiqueta">Gestión de personal y operaciones en obra</p>
-          <h1 id="lp-titulo"><span class="solo-lector">Gestión de obra con asistencia verificable, aprobaciones trazables e inventario bajo control</span>
-            <span aria-hidden="true">Gestión de obra con <span class="lp-rotador" id="lp-rotador"
+          <p class="lp-etiqueta">Gestión de personal y operaciones por proyecto</p>
+          <h1 id="lp-titulo"><span class="solo-lector">Gestión de proyectos con asistencia verificable, aprobaciones trazables e inventario bajo control</span>
+            <span aria-hidden="true">Gestión de proyectos con <span class="lp-rotador" id="lp-rotador"
               data-palabras="asistencia verificable|aprobaciones trazables|inventario bajo control|alertas a tiempo"><span class="lp-resalte lp-rotador-palabra">asistencia verificable</span></span></span></h1>
           <p class="lp-bajada">Centraliza la asistencia con geolocalización y código QR, los permisos y reposos médicos,
-            los reportes en obra, el inventario de herramientas y los egresos del personal. Cada registro guarda quién lo hizo,
+            los reportes de proyecto, las áreas de trabajo, el inventario de herramientas y los egresos del personal. Cada registro guarda quién lo hizo,
             cuándo y quién lo autorizó.</p>
           <form class="lp-hero-formulario" id="form-empezar" novalidate>
             <label for="correo-empezar">Tu correo electrónico</label>
@@ -70,7 +70,7 @@
           </figure>
           <div class="lp-celular lp-hero-celular">
             <img src="img/producto-asistencia-movil.png" width="390" height="820"
-              alt="ConstruTrack en el celular: un empleado aparece «En la obra» tras marcar su entrada a las 06:58.">
+              alt="ConstruTrack en el celular: un empleado aparece «En el proyecto» tras marcar su entrada a las 06:58.">
           </div>
         </div>
       </div>
@@ -97,20 +97,20 @@
       <div class="lp-contenedor">
         <header class="lp-encabezado lp-aparece">
           <p class="lp-antetitulo">Plataforma</p>
-          <h2 id="t-funciones">Un solo sistema para el ciclo completo de la obra</h2>
-          <p class="lp-intro">Desde la primera marca de entrada hasta la conclusión de la obra: procesos estandarizados,
+          <h2 id="t-funciones">Un solo sistema para el ciclo completo del proyecto</h2>
+          <p class="lp-intro">Desde la primera marca de entrada hasta la conclusión del proyecto: procesos estandarizados,
             permisos por rol y registros listos para auditoría.</p>
         </header>
 
         <article class="lp-fila lp-aparece">
           <div class="lp-fila-texto">
             <p class="lp-antetitulo">Asistencia</p>
-            <h3>Marcas con evidencia, no con buena fe</h3>
-            <p>Cada entrada registra la <strong>ubicación del teléfono</strong> y, si la obra lo exige, el código QR rotativo
+            <h3>Cada marca, respaldada con evidencia</h3>
+            <p>Cada entrada registra la <strong>ubicación del teléfono</strong> y, si el proyecto lo exige, el código QR rotativo
               que muestra el supervisor. Las marcas fuera del radio o sin ubicación quedan <strong>por confirmar</strong>, y el
               supervisor ve en el mapa dónde se hizo cada una.</p>
             <ul class="lp-lista">
-              <li>Geocerca por obra con radio configurable</li>
+              <li>Geocerca por proyecto con radio configurable</li>
               <li>Tolerancia de 10 minutos y horas extra con aprobación</li>
               <li>Un reposo aprobado bloquea la marca mientras dure la incapacidad</li>
             </ul>
@@ -123,23 +123,23 @@
 
         <article class="lp-fila lp-fila-invertida lp-aparece">
           <div class="lp-fila-texto">
-            <p class="lp-antetitulo">Permisos, reposos y reportes en obra</p>
+            <p class="lp-antetitulo">Permisos, reposos y reportes de proyecto</p>
             <h3>Un flujo de aprobación claro para cada novedad</h3>
-            <p>El supervisor registra el permiso laboral, el reposo médico o el reporte en obra; el gerente lo
+            <p>El supervisor registra el permiso laboral, el reposo médico o el reporte de proyecto; el gerente lo
               <strong>aprueba o rechaza con una nota obligatoria</strong> y su nombre queda como autorizador. El reposo exige
               médico, matrícula, centro asistencial, tipo de consulta y el documento escaneado.</p>
             <ul class="lp-lista">
               <li>Los días de reposo aprobado se marcan como «Incapacidad»</li>
               <li>Alerta cuando alguien falta dos días seguidos sin justificar</li>
-              <li>Tablero por estado y documentos guardados en Google Drive</li>
+              <li>Panel de control por estado y documentos guardados en Google Drive</li>
             </ul>
           </div>
           <div class="lp-fila-visual lp-fondo-ambar lp-visual-producto">
             <figure class="lp-navegador">
               <div class="lp-navegador-barra" aria-hidden="true"><span></span><span></span><span></span>
-                <div class="lp-navegador-url">ConstruTrack · Tablero</div></div>
+                <div class="lp-navegador-url">ConstruTrack · Panel de control</div></div>
               <img src="img/producto-tablero.png" width="1280" height="720" loading="lazy"
-              alt="Tablero de ConstruTrack con columnas Pendientes, Aprobados y Rechazados: reportes en obra y un permiso laboral pendientes, y un reposo médico aprobado por el gerente.">
+              alt="Panel de control de ConstruTrack con columnas Pendientes, Aprobados y Rechazados: reportes de proyecto y un permiso laboral pendientes, y un reposo médico aprobado por el gerente.">
             </figure>
             <img class="lp-pegatina lp-pegatina-izquierda" src="img/ilustracion-kanban.svg" width="280" height="210" loading="lazy" alt="">
           </div>
@@ -149,12 +149,12 @@
           <div class="lp-fila-texto">
             <p class="lp-antetitulo">Alertas y reportes</p>
             <h3>Las excepciones llegan solas, antes de que escalen</h3>
-            <p>Retardos reiterados, faltas consecutivas, aprobaciones vencidas, <strong>retrasos de obra</strong> y herramientas
+            <p>Retardos reiterados, faltas consecutivas, aprobaciones vencidas, <strong>retrasos de proyecto</strong> y herramientas
               sin devolver aparecen como alertas, de la más antigua a la más reciente. La tabla de puntualidad consolida horas
               trabajadas, horas extra aprobadas y días de incapacidad.</p>
             <ul class="lp-lista">
               <li>Últimos 7 días, esta semana, este mes o todo el historial</li>
-              <li>Reportes de asistencia, puntualidad, permisos y reportes en obra en Excel (CSV)</li>
+              <li>Reportes de asistencia, puntualidad, permisos y reportes de proyecto en Excel (CSV)</li>
             </ul>
           </div>
           <div class="lp-fila-visual lp-fondo-rosa">
@@ -165,26 +165,26 @@
 
         <article class="lp-fila lp-fila-invertida lp-aparece">
           <div class="lp-fila-texto">
-            <p class="lp-antetitulo">Obras, inventario y talento humano</p>
-            <h3>Del inicio de obra al egreso del personal, sin cabos sueltos</h3>
-            <p>Cada obra avanza de <strong>Planificada</strong> a <strong>En curso</strong> y a <strong>Concluida</strong>, con
+            <p class="lp-antetitulo">Proyectos, áreas, inventario y talento humano</p>
+            <h3>Del inicio del proyecto al egreso del personal, sin cabos sueltos</h3>
+            <p>Cada proyecto avanza de <strong>Planificado</strong> a <strong>En curso</strong> y a <strong>Concluido</strong>, con
               retrasos reportados y revisados. El gerente administra el inventario, entrega herramientas a cada persona y registra
               despidos o renuncias con voucher de pago, carta de renuncia y devolución de equipos.</p>
             <ul class="lp-lista">
-              <li>Catálogo de puestos y áreas de la empresa</li>
-              <li>Invitaciones con código de un solo uso que caducan solas</li>
+              <li>Áreas de trabajo, cada una con su supervisor, y catálogo de puestos</li>
+              <li>Registro de personal con códigos de un solo uso que caducan solos</li>
               <li>Quien egresa queda inactivo y su historial se conserva</li>
             </ul>
           </div>
           <div class="lp-fila-visual lp-fondo-azul lp-visual-producto">
             <figure class="lp-navegador">
               <div class="lp-navegador-barra" aria-hidden="true"><span></span><span></span><span></span>
-                <div class="lp-navegador-url">ConstruTrack · Obras</div></div>
+                <div class="lp-navegador-url">ConstruTrack · Proyectos</div></div>
               <img src="img/producto-obras.png" width="1280" height="640" loading="lazy"
-              alt="Pantalla de Obras de ConstruTrack: obras en curso y planificadas con su avance, los retrasos reportados y las personas asignadas.">
+              alt="Pantalla de Proyectos de ConstruTrack: proyectos en curso y planificados con su avance, los retrasos reportados y las personas asignadas.">
             </figure>
             <img class="lp-pegatina lp-pegatina-derecha" src="img/ilustracion-invitacion.svg" width="300" height="250" loading="lazy"
-              alt="Ilustración: sobre con un código de invitación de un solo uso.">
+              alt="Ilustración: sobre con un código de registro de un solo uso.">
           </div>
         </article>
       </div>
@@ -195,18 +195,18 @@
         <div class="lp-envivo-cabeza lp-aparece">
           <div>
             <p class="lp-antetitulo lp-antetitulo-claro">En vivo</p>
-            <h2 id="t-obras">Lo que está pasando en las obras</h2>
+            <h2 id="t-obras">Lo que está pasando en los proyectos</h2>
           </div>
           <p class="lp-envivo-nota">Cifras reales de todas las empresas, sin información personal.</p>
         </div>
         <div class="lp-cifras" id="cifras">
           <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">Personas registradas</span></div>
-          <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">En la obra ahora</span></div>
-          <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">Obras activas</span></div>
+          <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">En el proyecto ahora</span></div>
+          <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">Proyectos activos</span></div>
           <div class="lp-cifra"><span class="lp-cifra-valor">—</span><span class="lp-cifra-texto">Avance promedio del plazo</span></div>
         </div>
-        <h3 class="lp-subtitulo" id="titulo-obras">Obras en curso</h3>
-        <div class="lp-obras" id="lista-obras"><p class="lp-cargando"><span class="girando"></span> Cargando obras…</p></div>
+        <h3 class="lp-subtitulo" id="titulo-obras">Proyectos en curso</h3>
+        <div class="lp-obras" id="lista-obras"><p class="lp-cargando"><span class="girando"></span> Cargando proyectos…</p></div>
       </div>
     </section>
 
@@ -231,11 +231,11 @@
           <article class="lp-rol lp-rol-supervisor lp-aparece">
             <img src="img/rol-supervisor.svg" width="160" height="160" loading="lazy" alt="">
             <h3>Supervisor</h3>
-            <p class="lp-rol-lema">Registra, confirma y reporta desde la obra.</p>
+            <p class="lp-rol-lema">Registra, confirma y reporta desde el proyecto.</p>
             <ul class="lp-lista">
-              <li>Registra permisos, reposos y reportes en obra</li>
+              <li>Registra permisos, reposos y reportes de proyecto</li>
               <li>Confirma marcas dudosas viendo el mapa</li>
-              <li>Inicia y concluye obras, y reporta retrasos</li>
+              <li>Inicia y concluye proyectos, reporta retrasos y suma personas a su área</li>
             </ul>
           </article>
           <article class="lp-rol lp-rol-gerente lp-aparece">
@@ -244,7 +244,7 @@
             <p class="lp-rol-lema">Aprueba, decide y audita toda la empresa.</p>
             <ul class="lp-lista">
               <li>Aprueba o rechaza con nota y recibe las alertas de retraso</li>
-              <li>Administra inventario, puestos, áreas e invitaciones</li>
+              <li>Administra áreas, inventario, puestos y el registro de personal</li>
               <li>Registra egresos con sus documentos en Talento humano</li>
             </ul>
           </article>
@@ -262,12 +262,12 @@
         <div class="lp-caminos">
           <article class="lp-camino lp-camino-gerente lp-aparece">
             <img src="img/camino-gerente.svg" width="360" height="220" loading="lazy" alt="">
-            <p class="lp-camino-para">Para dueños y gerentes de obra</p>
+            <p class="lp-camino-para">Para dueños y gerentes de proyecto</p>
             <h3>Soy gerente: crear mi empresa</h3>
             <ol class="lp-pasos" role="list">
               <li>Crea tu cuenta con tu correo.</li>
               <li>Crea tu empresa: quedas como su gerente.</li>
-              <li>Agrega tus obras, define puestos y áreas e invita a tu personal con un código.</li>
+              <li>Agrega tus proyectos, crea tus áreas con su supervisor y registra a tu personal con un código.</li>
             </ol>
             <a class="btn btn-primario btn-grande" href="app.html#registro?tipo=gerente">Crear mi empresa</a>
           </article>
@@ -276,9 +276,9 @@
             <p class="lp-camino-para">Para empleados y supervisores</p>
             <h3>Me uno a una empresa</h3>
             <ol class="lp-pasos" role="list">
-              <li>Pide a tu gerente tu código de invitación (CT-XXXX-XXXX).</li>
+              <li>Pide a tu gerente tu código de registro (CT-XXXX-XXXX).</li>
               <li>Crea tu cuenta con tu correo.</li>
-              <li>Escribe el código y entras con tu rol y tu obra.</li>
+              <li>Escribe el código y entras con tu rol y tu proyecto.</li>
             </ol>
             <a class="btn lp-btn-ambar btn-grande" href="app.html#registro?tipo=unirme">Unirme con un código</a>
           </article>
@@ -289,8 +289,8 @@
 
     <section class="lp-cta" id="ayuda" aria-labelledby="t-cta">
       <div class="lp-contenedor lp-cta-caja lp-aparece">
-        <h2 id="t-cta">Estandariza la operación de tu próxima obra</h2>
-        <p>Configura tu empresa en minutos y suma a tu personal con un código de invitación. ¿Dudas? Pregúntale a Arqui, el asistente.</p>
+        <h2 id="t-cta">Estandariza la operación de tu próximo proyecto</h2>
+        <p>Configura tu empresa en minutos y suma a tu personal con un código de registro. ¿Dudas? Pregúntale a Arqui, el asistente.</p>
         <div class="lp-cta-acciones">
           <a class="btn lp-btn-ambar btn-grande" href="app.html#registro?tipo=gerente">Crear mi empresa</a>
           <a class="btn lp-btn-claro btn-grande" href="app.html#registro?tipo=unirme">Unirme con un código</a>
@@ -311,7 +311,7 @@
         <ul>
           <li><a href="#funciones">Funciones</a></li>
           <li><a href="#roles">Roles</a></li>
-          <li><a href="#obras">Obras en curso</a></li>
+          <li><a href="#obras">Proyectos en curso</a></li>
         </ul>
       </nav>
       <nav aria-labelledby="pie-cuenta">

@@ -35,7 +35,7 @@ public final class ControladoraObras {
     private String obraSeleccionada() {
         Object codigo = vista.getObras().valorSeleccionado(0);
         if (codigo == null) {
-            vista.getObras().mostrarMensaje("selecciona una obra en la tabla.", true);
+            vista.getObras().mostrarMensaje("selecciona un proyecto en la tabla.", true);
         }
         return codigo == null ? null : codigo.toString();
     }
@@ -46,7 +46,7 @@ public final class ControladoraObras {
             return;
         }
         String nombre = String.valueOf(vista.getObras().valorSeleccionado(1));
-        if (!Dialogos.confirmar(vista, iniciar ? "Inicio de obra" : "Conclusión de la obra", "¿Registrar hoy "
+        if (!Dialogos.confirmar(vista, iniciar ? "Inicio del proyecto" : "Conclusión del proyecto", "¿Registrar hoy "
                 + (iniciar ? "el inicio" : "la conclusión") + " de «" + nombre + "»?")) {
             return;
         }

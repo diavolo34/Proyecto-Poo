@@ -10,6 +10,7 @@ import construtrack.servicio.Servicios;
 import construtrack.vista.swing.DialogoCodigo;
 import construtrack.vista.swing.DialogoRegistro;
 import construtrack.vista.swing.DialogoUnirse;
+import construtrack.vista.swing.PanelAreas;
 import construtrack.vista.swing.PanelAsistencia;
 import construtrack.vista.swing.PanelCatalogo;
 import construtrack.vista.swing.PanelInventario;
@@ -116,16 +117,16 @@ public final class AplicacionSwing {
         ventana.agregarPestana("Permisos y reposos", "Permisos laborales y reposos médicos", permisos);
 
         if (esLider) {
-            PanelNovedades reportes = new PanelNovedades("Reportes en obra", "Retardos, inasistencias y accidentes. Los registra el "
+            PanelNovedades reportes = new PanelNovedades("Reportes de proyecto", "Retardos, inasistencias y accidentes. Los registra el "
                     + "supervisor y el gerente los aprueba o rechaza con una nota obligatoria.",
                     ControladoraNovedades.puedeRegistrar(servicios.novedades(), usuario), true, esGerente);
             refrescos.add(new ControladoraNovedades(reportes, servicios.novedades(), servicios.archivos(), usuario,
                     Categoria.REPORTE_OBRA, refrescarTodo)::refrescar);
-            ventana.agregarPestana("Reportes en obra", "Lo que pasa en la obra", reportes);
+            ventana.agregarPestana("Reportes de proyecto", "Lo que pasa en cada proyecto", reportes);
 
             PanelTablero tablero = new PanelTablero(ControladoraTablero.columnas());
             refrescos.add(new ControladoraTablero(tablero, servicios.novedades(), usuario, refrescarTodo)::refrescar);
-            ventana.agregarPestana("Tablero", "Permisos y reportes por estado", tablero);
+            ventana.agregarPestana("Panel de control", "Permisos y reportes por estado", tablero);
 
             PanelSupervision supervision = new PanelSupervision();
             refrescos.add(new ControladoraSupervision(supervision, servicios.supervision(), usuario)::refrescar);
@@ -133,7 +134,11 @@ public final class AplicacionSwing {
 
             PanelObras obras = new PanelObras(usuario instanceof Supervisor, esGerente);
             refrescos.add(new ControladoraObras(obras, servicios.obras(), usuario, refrescarTodo)::refrescar);
-            ventana.agregarPestana("Obras", "Inicio, conclusión y retrasos de cada obra", obras);
+            ventana.agregarPestana("Proyectos", "Inicio, conclusión y retrasos de cada proyecto", obras);
+
+            PanelAreas areas = new PanelAreas(esGerente);
+            refrescos.add(new ControladoraAreas(areas, servicios.areas(), usuario, refrescarTodo)::refrescar);
+            ventana.agregarPestana("Áreas", "Áreas, su supervisor y sus integrantes", areas);
 
             PanelPersonal personal = new PanelPersonal("Personal", esGerente);
             refrescos.add(new ControladoraPersonal(personal, servicios.personal(), usuario, refrescarTodo)::refrescar);
@@ -152,12 +157,12 @@ public final class AplicacionSwing {
 
             PanelCatalogo catalogo = new PanelCatalogo();
             refrescos.add(new ControladoraCatalogo(catalogo, servicios.catalogo(), usuario, refrescarTodo)::refrescar);
-            ventana.agregarPestana("Puestos y áreas", "Catálogo de cargos y departamentos", catalogo);
+            ventana.agregarPestana("Puestos", "Catálogo de cargos", catalogo);
 
             PanelInvitaciones invitaciones = new PanelInvitaciones();
             refrescos.add(new ControladoraInvitaciones(invitaciones, servicios.invitaciones(), servicios.personal(),
                     usuario)::refrescar);
-            ventana.agregarPestana("Invitaciones", "Códigos para que nuevas personas se unan", invitaciones);
+            ventana.agregarPestana("Registro de personal", "Códigos de registro para que nuevas personas se unan", invitaciones);
         }
 
         ventana.getBtnSalir().addActionListener(e -> {

@@ -25,7 +25,7 @@ public abstract class NotificadorCorreo implements Notificador {
     public void enviarInvitacion(Invitacion invitacion, String correoDestino) {
         enviar(new Correo(correoDestino, invitaciones.asunto(invitacion), invitaciones.html(invitacion, correoDestino),
                 invitaciones.texto(invitacion, correoDestino)));
-        LOG.info(() -> "Invitación " + invitacion.getCodigo() + " enviada a " + correoDestino);
+        LOG.info(() -> "Código de registro " + invitacion.getCodigo() + " enviado a " + correoDestino);
     }
 
     @Override

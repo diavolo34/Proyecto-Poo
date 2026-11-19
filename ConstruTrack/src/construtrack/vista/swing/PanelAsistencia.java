@@ -95,7 +95,7 @@ public final class PanelAsistencia extends JPanel {
     }
 
     public void mostrarEstado(boolean presente) {
-        lblEstado.setText(presente ? "● En la obra" : "○ Fuera de la obra");
+        lblEstado.setText(presente ? "● En el proyecto" : "○ Fuera del proyecto");
         lblEstado.setBackground(presente ? Tema.VERDE_SUAVE : Tema.GRIS_SUAVE);
         lblEstado.setForeground(presente ? Tema.VERDE : Tema.TEXTO_SUAVE);
         btnEntrada.setEnabled(!presente);

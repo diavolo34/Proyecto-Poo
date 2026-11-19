@@ -12,7 +12,7 @@ public final class Ilustracion extends JPanel {
     private static final long serialVersionUID = 1L;
 
     public Ilustracion() {
-        getAccessibleContext().setAccessibleDescription("Ilustración de una obra en construcción");
+        getAccessibleContext().setAccessibleDescription("Ilustración de un proyecto en construcción");
     }
 
     @Override

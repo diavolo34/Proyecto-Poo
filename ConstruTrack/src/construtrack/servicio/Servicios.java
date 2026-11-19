@@ -32,6 +32,7 @@ public class Servicios {
     private final ServicioTalento talento;
     private final ServicioInventario inventario;
     private final ServicioArchivos archivos;
+    private final ServicioAreas areas;
 
     public Servicios(Empresa empresa, EscritorDatos escritor, Clock reloj, int siguienteIdNovedad) {
         this(empresa.getPlataforma(), escritor, reloj, siguienteIdNovedad, new NotificadorConsola());
@@ -69,6 +70,11 @@ public class Servicios {
         this.talento = new ServicioTalento(plataforma, escritor, reloj);
         this.inventario = new ServicioInventario(plataforma, escritor, reloj);
         this.archivos = new ServicioArchivos(plataforma, escritor, reloj, almacenArchivos);
+        this.areas = new ServicioAreas(plataforma, escritor, reloj);
+    }
+
+    public ServicioAreas areas() {
+        return areas;
     }
 
     public ServicioCatalogo catalogo() {

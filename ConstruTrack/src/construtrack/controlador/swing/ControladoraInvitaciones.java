@@ -2,7 +2,6 @@ package construtrack.controlador.swing;
 
 import construtrack.modelo.Invitacion;
 import construtrack.modelo.Obra;
-import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.ConstruTrackException;
 import construtrack.servicio.ServicioInvitaciones;
@@ -37,15 +36,13 @@ public final class ControladoraInvitaciones {
     private void crear() {
         try {
             String rol = String.valueOf(vista.getCboRol().getSelectedItem());
-            Opcion supervisor = (Opcion) vista.getCboSupervisor().getSelectedItem();
             Opcion obra = (Opcion) vista.getCboObra().getSelectedItem();
-            Invitacion v = invitaciones.crearYEnviar(usuario, rol,
-                    "Empleado".equals(rol) && supervisor != null ? supervisor.valor() : "",
+            Invitacion v = invitaciones.crearYEnviar(usuario, rol, "",
                     obra == null ? "" : obra.valor(), (String) vista.getCboPuesto().getSelectedItem(),
-                    (String) vista.getCboArea().getSelectedItem(), (Integer) vista.getSpnDias().getValue(),
+                    null, (Integer) vista.getSpnDias().getValue(),
                     vista.getTxtCorreo().getText()).invitacion();
             vista.mostrarCodigo(v.getCodigo().toString());
-            vista.mostrarMensaje("invitación creada. Vence el " + FECHA.format(v.getVence()) + ".", false);
+            vista.mostrarMensaje("código de registro generado. Vence el " + FECHA.format(v.getVence()) + ".", false);
             vista.getTxtCorreo().setText("");
             refrescar();
         } catch (ConstruTrackException ex) {
@@ -66,17 +63,17 @@ public final class ControladoraInvitaciones {
     private void cancelar() {
         int fila = vista.getTabla().getSelectedRow();
         if (fila < 0) {
-            vista.mostrarMensaje("selecciona una invitación en la tabla.", true);
+            vista.mostrarMensaje("selecciona un código en la tabla.", true);
             return;
         }
         String codigo = String.valueOf(vista.getModelo().getValueAt(vista.getTabla().convertRowIndexToModel(fila), 0));
-        if (JOptionPane.showConfirmDialog(vista, "¿Cancelar la invitación " + codigo + "? Ya no se podrá usar.",
-                "Cancelar invitación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION) {
+        if (JOptionPane.showConfirmDialog(vista, "¿Cancelar el código " + codigo + "? Ya no se podrá usar.",
+                "Cancelar código", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION) {
             return;
         }
         try {
             invitaciones.cancelar(usuario, codigo);
-            vista.mostrarMensaje("la invitación " + codigo + " fue cancelada.", false);
+            vista.mostrarMensaje("el código " + codigo + " fue cancelado.", false);
             refrescar();
         } catch (ConstruTrackException ex) {
             vista.mostrarMensaje(ex.getMessage(), true);
@@ -84,17 +81,8 @@ public final class ControladoraInvitaciones {
     }
 
     public void refrescar() {
-        Object supervisorElegido = vista.getCboSupervisor().getSelectedItem();
-        vista.getCboSupervisor().removeAllItems();
-        vista.getCboSupervisor().addItem(new Opcion("", "— Sin supervisor —"));
-        for (Supervisor s : personal.listarSupervisores(usuario)) {
-            vista.getCboSupervisor().addItem(new Opcion(s.getCedula(), s.getNombre()));
-        }
-        if (supervisorElegido != null) {
-            vista.getCboSupervisor().setSelectedItem(supervisorElegido);
-        }
         if (vista.getCboObra().getItemCount() == 0) {
-            vista.getCboObra().addItem(new Opcion("", "— Sin obra —"));
+            vista.getCboObra().addItem(new Opcion("", "— Sin proyecto —"));
             for (Obra o : personal.listarObras(usuario)) {
                 if (o.admitePersonal()) {
                     vista.getCboObra().addItem(new Opcion(o.getCodigo(), o.getNombre()));
@@ -104,14 +92,11 @@ public final class ControladoraInvitaciones {
         if (vista.getCboPuesto().getItemCount() == 0) {
             vista.getCboPuesto().addItem("");
             usuario.getEmpresa().getCatalogo().getPuestos().forEach(vista.getCboPuesto()::addItem);
-            vista.getCboArea().addItem("");
-            usuario.getEmpresa().getCatalogo().getAreas().forEach(vista.getCboArea()::addItem);
         }
         LocalDateTime ahora = invitaciones.ahora();
         vista.getModelo().setRowCount(0);
         for (Invitacion v : invitaciones.listar(usuario)) {
             vista.getModelo().addRow(new Object[] {v.getCodigo(), v.getRol(),
-                v.getSupervisor() == null ? "—" : v.getSupervisor().getNombre(),
                 v.getObra() == null ? "—" : v.getObra().getNombre(), v.estadoEn(ahora).getNombre(),
                 FECHA.format(v.getVence()), v.getUsadaPor() == null ? "—" : v.getUsadaPor().getNombreCompleto()});
         }

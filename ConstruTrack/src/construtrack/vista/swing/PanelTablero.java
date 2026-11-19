@@ -22,7 +22,7 @@ public final class PanelTablero extends JPanel {
         setBorder(Tema.margen(12, 4, 4, 4));
         JPanel barra = new JPanel(new BorderLayout());
         barra.setOpaque(false);
-        barra.add(Tema.titulo("Tablero de permisos y reportes"), BorderLayout.WEST);
+        barra.add(Tema.titulo("Panel de control de permisos y reportes"), BorderLayout.WEST);
         barra.add(Tema.textoSuave("El gerente aprueba o rechaza con una nota; los revisados salen a las 3 horas"), BorderLayout.SOUTH);
         add(barra, BorderLayout.NORTH);
 

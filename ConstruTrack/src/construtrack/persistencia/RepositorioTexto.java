@@ -1,6 +1,7 @@
 package construtrack.persistencia;
 
 import construtrack.modelo.ArchivoAdjunto;
+import construtrack.modelo.Area;
 import construtrack.modelo.CodigoInvitacion;
 import construtrack.modelo.Cuenta;
 import construtrack.modelo.Empleado;
@@ -88,6 +89,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
             switch (c[0]) {
                 case "EMPRESA" -> empresa = plataforma.crearEmpresa(Campos.desescapar(c[1]));
                 case "K" -> leerCatalogo(empresa, c);
+                case "AR" -> leerArea(empresa, c);
                 case "U" -> empresa.agregarUsuario(leerUsuario(c));
                 case "S" -> leerSupervision(empresa, c);
                 case "A" -> empresa.buscarUsuario(c[1]).agregarAsistencia(leerAsistencia(c));
@@ -108,6 +110,7 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         }
         cuentas.forEach(c -> leerCuenta(plataforma, c));
         invitaciones.forEach((c, e) -> leerInvitacion(e, c));
+        plataforma.listarEmpresas().forEach(Empresa::depurarAreas);
         return plataforma;
     }
 
@@ -139,7 +142,6 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         lineas.add("EMPRESA" + SEPARADOR + Campos.escapar(empresa.getNombre()));
         lineas.add(unir("K", NULO));
         empresa.getCatalogo().getPuestos().forEach(p -> lineas.add(unir("K", "P", Campos.escapar(p))));
-        empresa.getCatalogo().getAreas().forEach(a -> lineas.add(unir("K", "A", Campos.escapar(a))));
         for (Usuario u : empresa.listarTodos()) {
             Horario h = u.getHorario();
             lineas.add(unir("U", u.getRol(), u.getCedula(), u.getNombre(), u.getClaveResumen(),
@@ -147,6 +149,9 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
                     u.tieneDosPasos() ? u.getSecretoDosPasos() : NULO,
                     u.getRespaldosDosPasos().isEmpty() ? NULO : String.join(",", u.getRespaldosDosPasos()),
                     u.estaActivo(), nulo(u.getFechaEgreso()), texto(u.getPuesto()), texto(u.getArea())));
+        }
+        for (Area a : empresa.listarAreas()) {
+            lineas.add(unir("AR", Campos.escapar(a.getNombre()), a.getSupervisor() == null ? NULO : a.getSupervisor().getCedula()));
         }
         for (Obra o : empresa.listarObras()) {
             lineas.add(unir("O", o.getCodigo(), o.getNombre(), o.getUbicacion(), o.getFechaInicio(), o.getFechaFinEstimada(),
@@ -246,10 +251,14 @@ public class RepositorioTexto implements LectorDatos, EscritorDatos {
         switch (c[1]) {
             case NULO -> empresa.getCatalogo().vaciar();
             case "P" -> empresa.getCatalogo().agregarPuesto(Campos.desescapar(c[2]));
-            case "A" -> empresa.getCatalogo().agregarArea(Campos.desescapar(c[2]));
             default -> {
             }
         }
+    }
+
+    private void leerArea(Empresa empresa, String[] c) {
+        Supervisor supervisor = NULO.equals(c[2]) || !(empresa.buscarUsuario(c[2]) instanceof Supervisor s) ? null : s;
+        empresa.restaurarArea(Campos.desescapar(c[1]), supervisor);
     }
 
     private Usuario leerUsuario(String[] c) {

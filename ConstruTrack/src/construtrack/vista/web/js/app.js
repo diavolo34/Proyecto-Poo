@@ -23,9 +23,12 @@ const estado = { usuario: null, cuenta: null, periodo: 'ultimos7' };
   enrutar();
 }());
 
+const RUTAS_ANTERIORES = { obras: 'proyectos', tablero: 'panel', invitaciones: 'registro-personal', 'reportes-obra': 'reportes-proyecto',
+  'codigo-obra': 'codigo-proyecto' };
+
 function ruta() {
   const [nombre, consulta] = location.hash.slice(1).split('?');
-  return { nombre: nombre || '', parametros: new URLSearchParams(consulta || '') };
+  return { nombre: RUTAS_ANTERIORES[nombre] || nombre || '', parametros: new URLSearchParams(consulta || '') };
 }
 
 const vistaActual = () => VISTAS.find((v) => v.id === ruta().nombre && v.disponible());
@@ -40,7 +43,7 @@ function enrutar() {
     const codigo = Marcacion.codigoDesdeTexto(location.href);
     if (codigo) Marcacion.guardarPendiente(codigo);
     history.replaceState(null, '', estado.usuario ? '#asistencia' : '#login');
-    if (!estado.usuario) aviso('Inicia sesión para registrar tu marca con el código de la obra.');
+    if (!estado.usuario) aviso('Inicia sesión para registrar tu marca con el código del proyecto.');
     enrutar();
     return;
   }

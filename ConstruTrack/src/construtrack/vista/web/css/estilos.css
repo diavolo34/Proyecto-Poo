@@ -360,3 +360,7 @@ fieldset.control-obra legend { font-weight: 700; padding: 0 6px; }
 @media (max-width: 900px) {
   .kanban-3 { grid-template-columns: repeat(3, 260px); }
 }
+
+.area-supervisor { margin: 0 0 10px; }
+.acciones-integrante { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.tarjeta-area .fila-agregar { margin: 0 0 8px; }

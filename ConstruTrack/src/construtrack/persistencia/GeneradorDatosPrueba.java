@@ -52,30 +52,27 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
 
         Gerente carlos = new Gerente("10000001", "Carlos Méndez", "gerente123", oficina);
         carlos.setPuesto("Gerente");
-        carlos.setArea("Administración");
         empresa.agregarUsuario(carlos);
         Supervisor ana = new Supervisor("20000001", "Ana Rodríguez", "super123", obra);
-        ana.setPuesto("Jefe de obra");
-        ana.setArea("Obra civil");
+        ana.setPuesto("Jefe de proyecto");
         Supervisor luis = new Supervisor("20000002", "Luis Pérez", "super123", sabados);
         luis.setPuesto("Supervisor del equipo de mantenimiento");
-        luis.setArea("Mantenimiento");
         empresa.agregarUsuario(ana);
         empresa.agregarUsuario(luis);
 
         String[][] empleados = {
-            {"30000001", "José García", "Albañil", "Obra civil"}, {"30000002", "María López", "Electricista", "Electricidad"},
-            {"30000003", "Pedro Ramírez", "Ayudante de obra", "Obra civil"},
+            {"30000001", "José García", "Plomero", "Plomería"}, {"30000002", "María López", "Electricista", "Electricidad"},
+            {"30000003", "Pedro Ramírez", "Ayudante de obra", "Plomería"},
             {"30000004", "Laura Torres", "Electricista", "Mantenimiento"},
-            {"30000005", "Miguel Herrera", "Operador de maquinaria", "Mantenimiento"},
+            {"30000005", "Miguel Herrera", "Chofer", "Transporte"},
             {"30000006", "Sofía Castillo", "Ayudante de obra", "Mantenimiento"}
         };
         LocalDate hoy = LocalDate.now(reloj);
-        Obra torre = new Obra("OB-01", "Torre Residencial Este", "Av. Principal, Caracas",
+        Obra torre = new Obra("PR-01", "Torre Residencial Este", "Av. Principal, Caracas",
                 hoy.minusMonths(2), hoy.plusMonths(6));
-        Obra puente = new Obra("OB-02", "Puente Vial del Sur", "Autopista Sur, Los Teques",
+        Obra puente = new Obra("PR-02", "Puente Vial del Sur", "Autopista Sur, Los Teques",
                 hoy.minusWeeks(3), hoy.plusMonths(9));
-        Obra galpon = new Obra("OB-03", "Galpón Industrial Norte", "Zona Industrial, Guarenas",
+        Obra galpon = new Obra("PR-03", "Galpón Industrial Norte", "Zona Industrial, Guarenas",
                 hoy.plusWeeks(3), hoy.plusMonths(8));
         torre.iniciar(hoy.minusMonths(2));
         puente.iniciar(hoy.minusWeeks(3));
@@ -113,7 +110,6 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
             boolean extraHecha = false;
             Empleado e = new Empleado(empleados[i][0], empleados[i][1], "emp123", i < 3 ? obra : sabados);
             e.setPuesto(empleados[i][2]);
-            e.setArea(empleados[i][3]);
             e.setSupervisor(i < 3 ? ana : luis);
             e.setObra(i < 3 ? torre : puente);
             empresa.agregarUsuario(e);
@@ -164,6 +160,13 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         for (Usuario u : empresa.listarUsuarios()) {
             u.setFechaIngreso(hoy.minusDays(14));
         }
+        empresa.crearArea("Plomería", ana);
+        empresa.crearArea("Electricidad", ana);
+        empresa.crearArea("Mantenimiento", luis);
+        empresa.crearArea("Transporte", luis);
+        for (String[] e : empleados) {
+            empresa.incluirEnArea(empresa.buscarUsuario(e[0]), e[3]);
+        }
         agregarNovedadesDemo(empresa, fabrica, hoy);
         agregarInventarioDemo(empresa, hoy);
         agregarCuentasDemo(empresa, hoy);
@@ -177,7 +180,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         List<RegistroAsistencia> jornadas = empresa.buscarUsuario("30000003").getAsistencias();
         for (int i = jornadas.size() - 1; i >= 0; i--) {
             if (jornadas.get(i).getFecha().isBefore(hoy)) {
-                jornadas.get(i).marcarPorConfirmar("Entrada a 1,3 km de la obra");
+                jornadas.get(i).marcarPorConfirmar("Entrada a 1,3 km del proyecto");
                 jornadas.get(i).registrarUbicacionEntrada(10.50859, -66.85390, 20.0);
                 return;
             }
@@ -200,7 +203,7 @@ public class GeneradorDatosPrueba implements Supplier<Empresa> {
         empresa.agregarCuenta(rosa);
         Gerente gerente = (Gerente) empresa.buscarUsuario("10000001");
         Invitacion invitacion = new Invitacion(CodigoInvitacion.de(CODIGO_DEMO), Empleado.ROL,
-                (Supervisor) empresa.buscarUsuario("20000001"), empresa.buscarObra("OB-01"), gerente,
+                (Supervisor) empresa.buscarUsuario("20000001"), empresa.buscarObra("PR-01"), gerente,
                 LocalDateTime.now(reloj).minusHours(1), LocalDateTime.now(reloj).plusDays(30));
         empresa.agregarInvitacion(invitacion);
     }

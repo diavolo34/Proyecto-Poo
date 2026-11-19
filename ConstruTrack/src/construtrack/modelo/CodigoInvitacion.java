@@ -28,7 +28,7 @@ public final class CodigoInvitacion {
     public static CodigoInvitacion de(String texto) {
         String limpio = texto == null ? "" : texto.replaceAll("\\s", "").toUpperCase();
         if (!limpio.matches(FORMATO)) {
-            throw new DatoInvalidoException("El código de invitación tiene el formato CT-XXXX-XXXX. Revísalo e intenta de nuevo.");
+            throw new DatoInvalidoException("El código de registro tiene el formato CT-XXXX-XXXX. Revísalo e intenta de nuevo.");
         }
         return new CodigoInvitacion(limpio);
     }

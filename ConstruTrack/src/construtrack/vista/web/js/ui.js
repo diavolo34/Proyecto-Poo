@@ -25,8 +25,8 @@ const chip = (texto, color) => `<span class="chip chip-${color}">${esc(texto)}</
 const chipRol = (rol) => chip(rol, { Gerente: 'morado', Supervisor: 'azul', Empleado: 'gris' }[rol] || 'gris');
 const chipEstado = (estado) => chip(estado, {
   Pendiente: 'amarillo', Aprobada: 'verde', Rechazada: 'rojo',
-  Vigente: 'azul', Usada: 'verde', Cancelada: 'gris', Vencida: 'amarillo',
-  Planificada: 'gris', 'En curso': 'azul', Concluida: 'verde',
+  Vigente: 'azul', Usado: 'verde', Cancelado: 'gris', Vencido: 'amarillo',
+  Planificado: 'gris', 'En curso': 'azul', Concluido: 'verde',
   Operativo: 'verde', 'En mantenimiento': 'amarillo', 'De baja': 'gris',
 }[estado] || 'gris');
 

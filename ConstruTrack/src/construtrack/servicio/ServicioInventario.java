@@ -77,7 +77,7 @@ public class ServicioInventario extends ServicioBase {
             String nombreObra = null;
             if (obra != null && !obra.isBlank()) {
                 if (empresaDe(actual).buscarObra(obra) == null) {
-                    throw new NoEncontradoException("No existe la obra " + obra + ".");
+                    throw new NoEncontradoException("No existe el proyecto " + obra + ".");
                 }
                 nombreObra = empresaDe(actual).buscarObra(obra).getNombre();
             } else if (persona.getObra() != null) {

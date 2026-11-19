@@ -85,7 +85,7 @@ public final class PanelNovedades extends JPanel {
         fila = campo(form, fila, "Tipo", cboTipo);
         fila = campo(form, fila, "Persona", cboPersona);
         if (conObra) {
-            fila = campo(form, fila, "Obra", cboObra);
+            fila = campo(form, fila, "Proyecto", cboObra);
         }
         txtDesde.setToolTipText("Formato AAAA-MM-DD");
         txtHasta.setToolTipText("Opcional: déjalo vacío si es un solo día");
@@ -105,7 +105,7 @@ public final class PanelNovedades extends JPanel {
             "Documento del reposo"}, new JComponent[] {txtMedico, txtMatricula, txtCentro, cboConsulta, archivo}), "REPOSO_MEDICO");
         panelExtras.add(extras(new String[] {"Minutos de retraso"}, new JComponent[] {spnMinutos}), "RETARDO");
         chkAtencion.setOpaque(false);
-        panelExtras.add(extras(new String[] {"Lugar de la obra", ""}, new JComponent[] {txtLugar, chkAtencion}), "ACCIDENTE_LABORAL");
+        panelExtras.add(extras(new String[] {"Lugar del proyecto", ""}, new JComponent[] {txtLugar, chkAtencion}), "ACCIDENTE_LABORAL");
         GridBagConstraints c = restricciones(fila);
         c.gridwidth = 2;
         form.add(panelExtras, c);

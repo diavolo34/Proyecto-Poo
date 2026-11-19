@@ -20,7 +20,11 @@ public class ControladorUsuarios implements ControladorWeb {
                             .texto("codigo", o.getCodigo()).texto("nombre", o.getNombre())
                             .logico("admitePersonal", o.admitePersonal()).toString());
                     return Respuesta.json(new JsonObjeto().crudo("supervisores", supervisores).crudo("obras", obras)
-                            .crudo("catalogo", ControladorCatalogo.json(p.usuario().getEmpresa().getCatalogo())).toString());
+                            .crudo("catalogo", ControladorCatalogo.json(p.usuario().getEmpresa().getCatalogo()))
+                            .crudo("areas", Json.lista(p.usuario().getEmpresa().listarAreas(), a -> new JsonObjeto()
+                                    .texto("nombre", a.getNombre())
+                                    .texto("supervisor", a.getSupervisor() == null ? null : a.getSupervisor().getNombre())
+                                    .toString())).toString());
                 })
                 .get("/api/usuarios", p -> Respuesta.json(JsonMapper.usuarios(personal.listarVisibles(p.usuario()))))
                 .post("/api/usuarios", p -> Respuesta.creado(

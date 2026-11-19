@@ -50,7 +50,7 @@ public final class ControladoraAsistencia {
         Horario h = usuario.getHorario();
         vista.getLblSaludo().setText("Hola, " + usuario.getNombre().split(" ")[0]);
         vista.getLblHorario().setText("Horario: " + h.getDias() + " de " + h.getHoraEntrada() + " a "
-                + h.getHoraSalida() + (usuario.getObra() == null ? "" : " · Obra: " + usuario.getObra().getNombre()));
+                + h.getHoraSalida() + (usuario.getObra() == null ? "" : " · Proyecto: " + usuario.getObra().getNombre()));
         vista.mostrarEstado(usuario.estaPresente());
         construtrack.modelo.novedades.Licencia incapacidad = usuario.getHistorial().incapacidadEl(LocalDate.now());
         if (incapacidad != null) {

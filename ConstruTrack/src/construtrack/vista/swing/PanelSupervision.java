@@ -30,7 +30,7 @@ public final class PanelSupervision extends JPanel {
     private final JList<Alerta> lstAlertas = new JList<>(modeloAlertas);
     private final JComboBox<Opcion> cboReporte = new JComboBox<>(new Opcion[] {
         new Opcion("asistencia", "Asistencia"), new Opcion("puntualidad", "Puntualidad"),
-        new Opcion("permisos", "Permisos y reposos"), new Opcion("reportes-obra", "Reportes en obra")});
+        new Opcion("permisos", "Permisos y reposos"), new Opcion("reportes-obra", "Reportes de proyecto")});
     private final JComboBox<Opcion> cboFormato = new JComboBox<>(new Opcion[] {
         new Opcion("csv", "CSV (Excel)"), new Opcion("txt", "Texto")});
     private final JButton btnExportar = Tema.botonPrimario("Exportar reporte");

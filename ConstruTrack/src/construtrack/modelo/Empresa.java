@@ -17,6 +17,7 @@ public final class Empresa {
     private final Map<String, Obra> obras = new LinkedHashMap<>();
     private final Map<CodigoInvitacion, Invitacion> invitaciones = new LinkedHashMap<>();
     private final Catalogo catalogo = new Catalogo();
+    private final Map<String, Area> areas = new LinkedHashMap<>();
     private final Inventario inventario = new Inventario();
     private final List<Egreso> egresos = new ArrayList<>();
     private final Map<String, ArchivoAdjunto> archivos = new LinkedHashMap<>();
@@ -66,14 +67,187 @@ public final class Empresa {
         soltarRelaciones(usuario);
     }
 
-    private static void soltarRelaciones(Usuario usuario) {
+    private void soltarRelaciones(Usuario usuario) {
         if (usuario instanceof Empleado empleado) {
             empleado.setSupervisor(null);
         } else if (usuario instanceof Supervisor supervisor) {
+            soltarAreasDe(supervisor);
             for (Empleado empleado : supervisor.verEmpleadosACargo()) {
                 empleado.setSupervisor(null);
             }
         }
+    }
+
+    public Area crearArea(String nombre, Usuario supervisor) {
+        String limpio = Area.validarNombre(nombre);
+        if (buscarArea(limpio) != null) {
+            throw new OperacionInvalidaException("Ya existe el área «" + buscarArea(limpio).getNombre() + "».");
+        }
+        Supervisor responsable = supervisorActivo(supervisor);
+        Area area = new Area(limpio, responsable);
+        areas.put(clave(limpio), area);
+        ubicarResponsable(responsable, area);
+        return area;
+    }
+
+    public void restaurarArea(String nombre, Supervisor supervisor) {
+        Area area = new Area(nombre, supervisor);
+        areas.put(clave(area.getNombre()), area);
+    }
+
+    public void cambiarSupervisorDeArea(String nombre, Usuario nuevo) {
+        Area area = areaExistente(nombre);
+        Supervisor responsable = supervisorActivo(nuevo);
+        Supervisor anterior = area.getSupervisor();
+        area.asignarSupervisor(responsable);
+        ubicarResponsable(responsable, area);
+        if (anterior != null && anterior != responsable && area.seLlama(anterior.getArea())) {
+            areasDirigidasPor(anterior).stream().findFirst().ifPresent(otra -> anterior.setArea(otra.getNombre()));
+        }
+        for (Usuario u : integrantes(area)) {
+            if (u instanceof Empleado empleado) {
+                empleado.setSupervisor(responsable);
+            }
+        }
+    }
+
+    public void incluirEnArea(Usuario persona, String nombre) {
+        Area area = areaExistente(nombre);
+        if (persona instanceof Gerente) {
+            throw new OperacionInvalidaException("El gerente está por encima de todas las áreas: no se incluye en ninguna.");
+        }
+        persona.verificarActivo();
+        List<Area> dirigidas = areasDirigidasPor(persona);
+        if (!dirigidas.isEmpty() && !dirigidas.contains(area)) {
+            throw new OperacionInvalidaException(persona.getNombre() + " dirige " + nombres(dirigidas)
+                    + ": solo puede pertenecer a un área que dirige. Asígnale otro supervisor a esa área primero.");
+        }
+        persona.setArea(area.getNombre());
+        if (persona instanceof Empleado empleado) {
+            empleado.setSupervisor(area.getSupervisor());
+        }
+    }
+
+    public void sacarDeArea(Usuario persona) {
+        List<Area> dirigidas = areasDirigidasPor(persona);
+        if (!dirigidas.isEmpty()) {
+            throw new OperacionInvalidaException(persona.getNombre() + " dirige " + nombres(dirigidas)
+                    + ": para sacarlo, asígnale otro supervisor a esa área primero.");
+        }
+        persona.setArea(null);
+        if (persona instanceof Empleado empleado) {
+            empleado.setSupervisor(null);
+        }
+    }
+
+    public List<Usuario> eliminarArea(String nombre) {
+        Area area = areaExistente(nombre);
+        List<Usuario> integrantes = integrantes(area);
+        areas.remove(clave(area.getNombre()));
+        for (Usuario u : usuarios.values()) {
+            if (area.seLlama(u.getArea())) {
+                u.setArea(areasDirigidasPor(u).stream().findFirst().map(Area::getNombre).orElse(null));
+                if (u instanceof Empleado empleado) {
+                    empleado.setSupervisor(null);
+                }
+            }
+        }
+        return integrantes.stream().filter(u -> u.getArea() == null).toList();
+    }
+
+    public void soltarAreasDe(Supervisor supervisor) {
+        for (Area area : areas.values()) {
+            if (area.esDirigidaPor(supervisor)) {
+                area.asignarSupervisor(null);
+                for (Usuario u : integrantes(area)) {
+                    if (u instanceof Empleado empleado) {
+                        empleado.setSupervisor(null);
+                    }
+                }
+            }
+        }
+    }
+
+    public Area buscarArea(String nombre) {
+        return nombre == null ? null : areas.get(clave(nombre));
+    }
+
+    public Area areaDe(Usuario persona) {
+        return buscarArea(persona.getArea());
+    }
+
+    public List<Area> listarAreas() {
+        return new ArrayList<>(areas.values());
+    }
+
+    public List<Area> areasDirigidasPor(Usuario supervisor) {
+        List<Area> resultado = new ArrayList<>();
+        for (Area area : areas.values()) {
+            if (area.esDirigidaPor(supervisor)) {
+                resultado.add(area);
+            }
+        }
+        return resultado;
+    }
+
+    public List<Usuario> integrantes(Area area) {
+        List<Usuario> resultado = new ArrayList<>();
+        for (Usuario u : usuarios.values()) {
+            if (u.estaActivo() && area.seLlama(u.getArea())) {
+                resultado.add(u);
+            }
+        }
+        return resultado;
+    }
+
+    public List<Usuario> sinArea() {
+        List<Usuario> resultado = new ArrayList<>();
+        for (Usuario u : usuarios.values()) {
+            if (u.estaActivo() && !(u instanceof Gerente) && buscarArea(u.getArea()) == null) {
+                resultado.add(u);
+            }
+        }
+        return resultado;
+    }
+
+    public void depurarAreas() {
+        for (Usuario u : usuarios.values()) {
+            if (u.getArea() != null && buscarArea(u.getArea()) == null) {
+                u.setArea(null);
+            } else if (u.getArea() != null) {
+                u.setArea(buscarArea(u.getArea()).getNombre());
+            }
+        }
+    }
+
+    private Area areaExistente(String nombre) {
+        Area area = buscarArea(nombre);
+        if (area == null) {
+            throw new DatoInvalidoException("No existe el área «" + (nombre == null ? "" : nombre.trim()) + "».");
+        }
+        return area;
+    }
+
+    private void ubicarResponsable(Supervisor responsable, Area area) {
+        Area propia = areaDe(responsable);
+        if (propia == null || !propia.esDirigidaPor(responsable)) {
+            responsable.setArea(area.getNombre());
+        }
+    }
+
+    private static String nombres(List<Area> lista) {
+        return String.join(", ", lista.stream().map(a -> "«" + a.getNombre() + "»").toList());
+    }
+
+    private Supervisor supervisorActivo(Usuario usuario) {
+        if (!(usuario instanceof Supervisor supervisor) || !supervisor.estaActivo() || !incluye(supervisor)) {
+            throw new DatoInvalidoException("Cada área necesita un supervisor activo de la empresa como responsable.");
+        }
+        return supervisor;
+    }
+
+    private static String clave(String nombre) {
+        return nombre.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
     Egreso registrarEgreso(Usuario persona, Egreso.Datos datos, Firma registra, LocalDateTime ahora) {
@@ -84,6 +258,7 @@ public final class Empresa {
         }
         soltarRelaciones(persona);
         persona.desactivar(datos.fecha());
+        persona.setArea(null);
         egresos.add(egreso);
         return egreso;
     }
@@ -133,16 +308,6 @@ public final class Empresa {
         catalogo.quitarPuesto(puesto);
     }
 
-    public void quitarArea(String area) {
-        for (Usuario u : usuarios.values()) {
-            if (u.estaActivo() && area.equalsIgnoreCase(u.getArea())) {
-                throw new OperacionInvalidaException("El área «" + u.getArea() + "» la tiene " + u.getNombre()
-                        + ". Cámbiale el área antes de quitarla del catálogo.");
-            }
-        }
-        catalogo.quitarArea(area);
-    }
-
     public void agregarArchivo(ArchivoAdjunto archivo) {
         archivos.put(archivo.id(), archivo);
     }
@@ -163,7 +328,7 @@ public final class Empresa {
 
     public void agregarObra(Obra obra) {
         if (obras.containsKey(obra.getCodigo())) {
-            throw new OperacionInvalidaException("Ya existe una obra con el código " + obra.getCodigo() + ".");
+            throw new OperacionInvalidaException("Ya existe un proyecto con el código " + obra.getCodigo() + ".");
         }
         obras.put(obra.getCodigo(), obra);
     }
@@ -176,7 +341,7 @@ public final class Empresa {
                 mayor = Math.max(mayor, Integer.parseInt(numero));
             }
         }
-        return String.format("OB-%02d", mayor + 1);
+        return String.format("PR-%02d", mayor + 1);
     }
 
     public List<Usuario> personasEn(Obra obra) {
@@ -192,12 +357,12 @@ public final class Empresa {
     public void eliminarObra(String codigo) {
         Obra obra = obras.get(codigo);
         if (obra == null) {
-            throw new OperacionInvalidaException("No existe la obra " + codigo + ".");
+            throw new OperacionInvalidaException("No existe el proyecto " + codigo + ".");
         }
         int personas = personasEn(obra).size();
         if (personas > 0) {
-            throw new OperacionInvalidaException("La obra «" + obra.getNombre() + "» tiene " + personas
-                    + " persona(s) asignada(s). Cámbialas de obra antes de eliminarla.");
+            throw new OperacionInvalidaException("El proyecto «" + obra.getNombre() + "» tiene " + personas
+                    + " persona(s) asignada(s). Cámbialas de proyecto antes de eliminarlo.");
         }
         obras.remove(codigo);
     }
@@ -220,7 +385,7 @@ public final class Empresa {
 
     public void agregarInvitacion(Invitacion invitacion) {
         if (plataforma.existeInvitacion(invitacion.getCodigo())) {
-            throw new OperacionInvalidaException("Ya existe una invitación con el código " + invitacion.getCodigo() + ".");
+            throw new OperacionInvalidaException("Ya existe el código de registro " + invitacion.getCodigo() + ".");
         }
         invitaciones.put(invitacion.getCodigo(), invitacion);
     }

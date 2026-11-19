@@ -23,13 +23,13 @@ public class Invitacion {
     public Invitacion(CodigoInvitacion codigo, String rol, Supervisor supervisor, Obra obra, Gerente creadaPor,
             LocalDateTime creada, LocalDateTime vence) {
         if (!Empleado.ROL.equals(rol) && !Supervisor.ROL.equals(rol)) {
-            throw new DatoInvalidoException("La invitación debe ser para un Empleado o un Supervisor.");
+            throw new DatoInvalidoException("El código de registro debe ser para un Empleado o un Supervisor.");
         }
         if (supervisor != null && !Empleado.ROL.equals(rol)) {
             throw new DatoInvalidoException("Solo los empleados tienen supervisor.");
         }
         if (!vence.isAfter(creada)) {
-            throw new DatoInvalidoException("La invitación debe vencer después de crearse.");
+            throw new DatoInvalidoException("El código de registro debe vencer después de generarse.");
         }
         this.codigo = codigo;
         this.rol = rol;
@@ -69,11 +69,11 @@ public class Invitacion {
 
     public Usuario canjear(Cuenta cuenta, Empresa empresa, LocalDateTime ahora) {
         if (creadaPor.getEmpresa() != null && creadaPor.getEmpresa() != empresa) {
-            throw new OperacionInvalidaException("Esta invitación es de otra empresa.");
+            throw new OperacionInvalidaException("Este código de registro es de otra empresa.");
         }
         EstadoInvitacion actual = estadoEn(ahora);
         if (actual != EstadoInvitacion.VIGENTE) {
-            throw new OperacionInvalidaException("Esta invitación está " + actual.getNombre().toLowerCase()
+            throw new OperacionInvalidaException("Este código de registro está " + actual.getNombre().toLowerCase()
                     + ". Pide a tu gerente un código nuevo.");
         }
         if (cuenta.perteneceAEmpresa()) {
@@ -90,12 +90,14 @@ public class Invitacion {
         nuevo.vincularCuenta(cuenta);
         nuevo.setFechaIngreso(ahora.toLocalDate());
         nuevo.setPuesto(puesto);
-        nuevo.setArea(area);
         if (nuevo instanceof Empleado empleado && supervisor != null && supervisor.estaActivo()) {
             empleado.setSupervisor(supervisor);
         }
         nuevo.setObra(obra != null && obra.admitePersonal() ? obra : null);
         empresa.agregarUsuario(nuevo);
+        if (area != null && empresa.buscarArea(area) != null) {
+            empresa.incluirEnArea(nuevo, area);
+        }
         estado = EstadoInvitacion.USADA;
         usadaPor = cuenta;
         usada = ahora;
@@ -104,7 +106,7 @@ public class Invitacion {
 
     public void cancelar(LocalDateTime ahora) {
         if (estadoEn(ahora) != EstadoInvitacion.VIGENTE) {
-            throw new OperacionInvalidaException("Solo se pueden cancelar invitaciones vigentes.");
+            throw new OperacionInvalidaException("Solo se pueden cancelar códigos de registro vigentes.");
         }
         estado = EstadoInvitacion.CANCELADA;
     }

@@ -40,8 +40,8 @@ public final class DialogoRegistro extends JDialog {
         JPanel encabezado = new JPanel(new BorderLayout(0, 4));
         encabezado.setOpaque(false);
         encabezado.add(Tema.subtitulo("Crea tu cuenta en ConstruTrack"), BorderLayout.NORTH);
-        encabezado.add(Tema.textoSuave("<html><div style='width:380px'>Si eres gerente, crea tu empresa e invita a tu personal. "
-                + "Si no, después escribe el código de invitación que te dé tu gerente.</div></html>"), BorderLayout.CENTER);
+        encabezado.add(Tema.textoSuave("<html><div style='width:380px'>Si eres gerente, crea tu empresa y registra a tu personal. "
+                + "Si no, después escribe el código de registro que te dé tu gerente.</div></html>"), BorderLayout.CENTER);
         contenido.add(encabezado, BorderLayout.NORTH);
 
         Formulario f = new Formulario()

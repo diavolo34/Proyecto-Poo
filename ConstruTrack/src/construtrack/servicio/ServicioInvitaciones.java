@@ -55,7 +55,7 @@ public class ServicioInvitaciones extends ServicioBase {
             notificador.enviarInvitacion(invitacion, correo);
             return new Creada(invitacion, mensajeEnviado(correo), notificador.envioReal());
         } catch (RuntimeException e) {
-            return new Creada(invitacion, "La invitación se creó, pero el correo no se pudo enviar: " + e.getMessage(), false);
+            return new Creada(invitacion, "El código de registro se generó, pero el correo no se pudo enviar: " + e.getMessage(), false);
         }
     }
 
@@ -64,10 +64,10 @@ public class ServicioInvitaciones extends ServicioBase {
         String correo = Cuenta.validarCorreo(correoDestino);
         Invitacion invitacion = leer(() -> empresaDe(actual).buscarInvitacion(CodigoInvitacion.de(codigo)));
         if (invitacion == null) {
-            throw new NoEncontradoException("No existe la invitación " + codigo + ".");
+            throw new NoEncontradoException("No existe el código de registro " + codigo + ".");
         }
         if (invitacion.estadoEn(LocalDateTime.now(reloj)) != EstadoInvitacion.VIGENTE) {
-            throw new OperacionInvalidaException("Solo se pueden enviar invitaciones vigentes.");
+            throw new OperacionInvalidaException("Solo se pueden enviar códigos de registro vigentes.");
         }
         notificador.enviarInvitacion(invitacion, correo);
         return mensajeEnviado(correo);
@@ -78,7 +78,7 @@ public class ServicioInvitaciones extends ServicioBase {
     }
 
     private String mensajeEnviado(String correo) {
-        return notificador.envioReal() ? "Invitación enviada por correo a " + correo + "."
+        return notificador.envioReal() ? "Código de registro enviado por correo a " + correo + "."
                 : "El envío de correos no está configurado: comparte el código con " + correo + " por otro medio.";
     }
 
@@ -111,6 +111,6 @@ public class ServicioInvitaciones extends ServicioBase {
         if (actual instanceof Gerente gerente) {
             return gerente;
         }
-        throw new PermisoDenegadoException("Solo el gerente gestiona las invitaciones.");
+        throw new PermisoDenegadoException("Solo el gerente gestiona el registro de personal.");
     }
 }

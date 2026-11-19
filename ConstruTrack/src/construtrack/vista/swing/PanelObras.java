@@ -8,13 +8,13 @@ import javax.swing.JPanel;
 public final class PanelObras extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    private final PanelTabla obras = new PanelTabla("Obras", "Planificada → En curso con el «Inicio de obra» → Concluida con la "
-            + "«Conclusión de la obra». Si la fecha estimada se mueve, el supervisor reporta el retraso y el gerente recibe la alerta.",
-            "Código", "Obra", "Estado", "Inicio", "Fin estimado", "Personas", "Retrasos sin revisar");
-    private final PanelTabla retrasos = new PanelTabla("Retrasos reportados", null, "Obra", "Id", "Reportado", "Por", "Fin anterior",
+    private final PanelTabla obras = new PanelTabla("Proyectos", "Planificado → En curso con el «Inicio del proyecto» → Concluido con la "
+            + "«Conclusión del proyecto». Si la fecha estimada se mueve, el supervisor reporta el retraso y el gerente recibe la alerta.",
+            "Código", "Proyecto", "Estado", "Inicio", "Fin estimado", "Personas", "Retrasos sin revisar");
+    private final PanelTabla retrasos = new PanelTabla("Retrasos reportados", null, "Proyecto", "Id", "Reportado", "Por", "Fin anterior",
             "Nuevo fin", "Días", "Motivo", "Revisado por");
-    private final JButton btnIniciar = Tema.botonExito("Inicio de obra");
-    private final JButton btnConcluir = Tema.botonExito("Conclusión de la obra");
+    private final JButton btnIniciar = Tema.botonExito("Inicio del proyecto");
+    private final JButton btnConcluir = Tema.botonExito("Conclusión del proyecto");
     private final JButton btnRetraso = Tema.botonPeligro("Reportar retraso");
     private final JButton btnRevisado = Tema.botonSecundario("Marcar como revisado");
 

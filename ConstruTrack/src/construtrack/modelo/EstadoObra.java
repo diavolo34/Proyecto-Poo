@@ -1,9 +1,9 @@
 package construtrack.modelo;
 
 public enum EstadoObra {
-    PLANIFICADA("Planificada"),
+    PLANIFICADA("Planificado"),
     EN_CURSO("En curso"),
-    CONCLUIDA("Concluida");
+    CONCLUIDA("Concluido");
 
     private final String nombre;
 

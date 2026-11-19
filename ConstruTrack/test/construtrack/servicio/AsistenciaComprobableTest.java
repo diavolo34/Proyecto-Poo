@@ -77,11 +77,11 @@ class AsistenciaComprobableTest {
         reloj.avanzar(Duration.ofHours(2));
         RegistroAsistencia salida = servicios.asistencia().marcarSalida(d.jose, null, null, null, null);
         assertEquals(EstadoVerificacion.POR_CONFIRMAR, salida.getVerificacion());
-        assertEquals("Salida sin el código de la obra", salida.getMotivoVerificacion());
+        assertEquals("Salida sin el código del proyecto", salida.getMotivoVerificacion());
     }
 
     @Test
-    @DisplayName("El código de la obra cambia cada 30 segundos y solo lo ven el supervisor y el gerente")
+    @DisplayName("El código del proyecto cambia cada 30 segundos y solo lo ven el supervisor y el gerente")
     void codigoRotativo() {
         obra.configurarControl(null, null, null, true);
         String primero = servicios.obras().codigoAsistencia(d.ana, "OB-01").codigo();
@@ -105,7 +105,7 @@ class AsistenciaComprobableTest {
         reloj.avanzar(Duration.ofHours(1));
         RegistroAsistencia salida = servicios.asistencia().marcarSalida(d.jose, null, LAT + 0.011, LON, 10.0);
         assertEquals(EstadoVerificacion.POR_CONFIRMAR, salida.getVerificacion());
-        assertEquals("Salida a 1,2 km de la obra", salida.getMotivoVerificacion());
+        assertEquals("Salida a 1,2 km del proyecto", salida.getMotivoVerificacion());
 
         reloj.avanzar(Duration.ofMinutes(10));
         RegistroAsistencia sinUbicacion = servicios.asistencia().marcarEntrada(d.jose, null, null, null, null);
@@ -149,7 +149,7 @@ class AsistenciaComprobableTest {
     }
 
     @Test
-    @DisplayName("La configuración de la obra y el estado de cada marca se guardan; los datos antiguos no tienen control")
+    @DisplayName("La configuración del proyecto y el estado de cada marca se guardan; los datos antiguos no tienen control")
     void persistencia() {
         servicios.obras().editar(d.gerente, "OB-01", Map.of("nombre", "Torre Este", "ubicacion", "Caracas",
                 "inicio", obra.getFechaInicio().toString(), "fin", obra.getFechaFinEstimada().toString(),
@@ -166,7 +166,7 @@ class AsistenciaComprobableTest {
         assertEquals(obra.getSecretoCodigo(), copia.getSecretoCodigo());
         RegistroAsistencia marca = cargada.buscarUsuario("30000001").getAsistencias().get(0);
         assertEquals(EstadoVerificacion.POR_CONFIRMAR, marca.getVerificacion());
-        assertEquals("Entrada sin el código de la obra y sin ubicación", marca.getMotivoVerificacion());
+        assertEquals("Entrada sin el código del proyecto y sin ubicación", marca.getMotivoVerificacion());
 
         StringBuilder antiguo = new StringBuilder();
         for (String linea : almacen.leer().orElseThrow().split("\n")) {

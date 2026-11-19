@@ -17,19 +17,17 @@ public final class PanelInvitaciones extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private final JComboBox<String> cboRol = new JComboBox<>(new String[] {"Empleado", "Supervisor"});
-    private final JComboBox<Opcion> cboSupervisor = new JComboBox<>();
     private final JComboBox<Opcion> cboObra = new JComboBox<>();
     private final JComboBox<String> cboPuesto = new JComboBox<>();
-    private final JComboBox<String> cboArea = new JComboBox<>();
     private final JSpinner spnDias = new JSpinner(new SpinnerNumberModel(7, 1, 30, 1));
     private final JTextField txtCorreo = new JTextField(18);
-    private final JButton btnCrear = Tema.botonPrimario("Crear invitación");
+    private final JButton btnCrear = Tema.botonPrimario("Generar código");
     private final JLabel lblCodigo = Tema.texto("—");
     private final JButton btnCopiar = Tema.botonSecundario("Copiar código");
-    private final JButton btnCancelar = Tema.botonPeligro("Cancelar invitación");
+    private final JButton btnCancelar = Tema.botonPeligro("Cancelar código");
     private final JLabel lblMensaje = Tema.texto(" ");
     private final DefaultTableModel modelo =
-            Tema.modeloSoloLectura("Código", "Rol", "Supervisor", "Obra", "Estado", "Vence", "Usada por");
+            Tema.modeloSoloLectura("Código", "Rol", "Proyecto", "Estado", "Vence", "Usado por");
     private final JTable tabla = Tema.tabla(modelo);
 
     public PanelInvitaciones() {
@@ -37,22 +35,20 @@ public final class PanelInvitaciones extends JPanel {
         setBorder(Tema.margen(12, 4, 4, 4));
         JPanel barra = new JPanel(new BorderLayout());
         barra.setOpaque(false);
-        barra.add(Tema.titulo("Invitaciones"), BorderLayout.WEST);
+        barra.add(Tema.titulo("Registro de personal"), BorderLayout.WEST);
         barra.add(Tema.textoSuave("Cada código sirve una sola vez. Compártelo por WhatsApp o correo con la persona que "
                 + "quieres sumar."), BorderLayout.SOUTH);
         add(barra, BorderLayout.NORTH);
 
         JPanel formulario = Tema.tarjeta(new BorderLayout(0, 12));
-        formulario.add(Tema.subtitulo("Nueva invitación"), BorderLayout.NORTH);
+        formulario.add(Tema.subtitulo("Nuevo código de registro"), BorderLayout.NORTH);
         JPanel arriba = new JPanel(new BorderLayout());
         arriba.setOpaque(false);
         formulario.add(arriba, BorderLayout.CENTER);
         arriba.add(new Formulario()
                 .campo("Rol", cboRol, null)
-                .campo("Supervisor", cboSupervisor, "Solo para empleados")
-                .campo("Puesto", cboPuesto, null, 0, 1)
-                .campo("Área", cboArea, null, 1, 1)
-                .campo("Obra", cboObra, null)
+                .campo("Puesto", cboPuesto, "El área se asigna después, en «Áreas»")
+                .campo("Proyecto", cboObra, null)
                 .campo("Vigencia (días)", spnDias, "Entre 1 y 30 días")
                 .campo("Correo de la persona (opcional)", txtCorreo, "Se registra el envío; no se manda un correo real")
                 .panel(), BorderLayout.NORTH);
@@ -74,7 +70,7 @@ public final class PanelInvitaciones extends JPanel {
         JPanel lista = Tema.tarjeta(new BorderLayout(0, 10));
         JPanel encabezado = new JPanel(new BorderLayout());
         encabezado.setOpaque(false);
-        encabezado.add(Tema.subtitulo("Invitaciones creadas"), BorderLayout.WEST);
+        encabezado.add(Tema.subtitulo("Códigos generados"), BorderLayout.WEST);
         encabezado.add(btnCancelar, BorderLayout.EAST);
         lista.add(encabezado, BorderLayout.NORTH);
         Tema.anchos(tabla, 120, 80, 120, 150, 80, 85, 130);
@@ -84,7 +80,6 @@ public final class PanelInvitaciones extends JPanel {
         division.setBorder(null);
         division.setDividerLocation(360);
         add(division, BorderLayout.CENTER);
-        cboRol.addActionListener(e -> cboSupervisor.setEnabled("Empleado".equals(cboRol.getSelectedItem())));
     }
 
     public void mostrarCodigo(String codigo) {
@@ -105,13 +100,7 @@ public final class PanelInvitaciones extends JPanel {
         return cboPuesto;
     }
 
-    public JComboBox<String> getCboArea() {
-        return cboArea;
-    }
 
-    public JComboBox<Opcion> getCboSupervisor() {
-        return cboSupervisor;
-    }
 
     public JComboBox<Opcion> getCboObra() {
         return cboObra;
