@@ -71,7 +71,7 @@ Lo mismo con:
 - Cualquier `Usuario` (Empleado, Supervisor o Gerente) puede marcar asistencia: `Usuario.marcarEntrada` funciona igual
   para los tres. Las subclases **ajustan** permisos con métodos pensados para eso (`puedeRegistrarNovedadPara`,
   `exigeUbicacionAlMarcar`), sin lanzar excepciones inesperadas.
-- Toda `Novedad` sigue el mismo ciclo (`revisar` + `EstadoNovedad`), así que `Historial`, el tablero y los reportes
+- Toda `Novedad` sigue el mismo ciclo (`revisar` + `EstadoNovedad`), así que `Historial`, el panel de control y los reportes
   tratan las cinco subclases sin distinguirlas.
 
 Se evitó la «herencia engañosa» del ejemplo `Cuadrado extends Rectangulo`: por eso `Inasistencia` y `Retardo` **no** heredan
@@ -124,4 +124,4 @@ Los principios son una guía, no una ley. Se evitó la «explosión de clases» 
 | `Horario`, `Periodo` y `CodigoInvitacion` son clases concretas | Son objetos de valor simples; una interfaz no tendría una segunda implementación. |
 | Un solo tipo de base de datos (archivo de texto) | Suficiente para la entrega; `LectorDatos`/`EscritorDatos` dejan abierta la puerta a otra sin preparar nada más. |
 
-Cuando la necesidad sea real (por ejemplo, cientos de obras), se introducirán las abstracciones; no antes.
+Cuando la necesidad sea real (por ejemplo, cientos de proyectos), se introducirán las abstracciones; no antes.

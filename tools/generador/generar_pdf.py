@@ -53,48 +53,49 @@ def abrir_navegador(p):
 
 CORRECCION = [
     ("Es Programación Orientada a Objetos, no Algoritmos III", "Materia corregida en todo el proyecto; el diseño se centra en POO: herencia, polimorfismo, interfaces, composición, objetos de valor y SOLID."),
-    ("Darle profundidad al proyecto", "Se pasó de 13 a más de 150 clases en capas MVC: permisos y reposos, reportes en obra, historial, alertas, estadísticas, reportes, registro con correo, invitaciones, multiempresa, talento humano, inventario, vista Swing, 105 pruebas y CI."),
+    ("Darle profundidad al proyecto", "Se pasó de 13 a más de 150 clases en capas MVC: permisos y reposos, reportes de proyecto, áreas con su supervisor, historial, alertas, estadísticas, reportes, registro con correo, códigos de registro, multiempresa, talento humano, inventario, vista Swing, 112 pruebas y CI."),
     ("Sin gestores ni APIs en los diagramas de secuencia", "Los 7 diagramas de secuencia usan solo objetos de clases del modelo (Supervisor, Gerente, Historial, ReposoMedico, MonitorSupervision…)."),
     ("Página operativa, no solo modo demostración", "La página publicada trabaja con datos reales: siempre usa el servidor Java, local en NetBeans o publicado en Render (Docker), con Netlify llamándolo por CORS. Los datos de ejemplo solo aparecen si se activan a propósito."),
-    ("¿Dónde está la clase Historial? ¿Dónde se registran las incidencias?", "Historial (composición en Usuario) guarda jornadas, permisos, reposos y reportes en obra. Novedad es abstracta, con Licencia (permiso laboral y reposo médico) y ReporteObra (retardo, inasistencia, accidente); el supervisor registra y el gerente aprueba con nota."),
-    ("Apoyar al supervisor: reportes, estadísticas e incidencias", "Alertas automáticas (retardos, faltas seguidas sin justificar, aprobaciones vencidas, retrasos de obra, herramientas sin devolver), estadísticas, tablero por estado, mapa de marcas y reportes CSV/TXT."),
+    ("¿Dónde está la clase Historial? ¿Dónde se registran las incidencias?", "Historial (composición en Usuario) guarda jornadas, permisos, reposos y reportes de proyecto. Novedad es abstracta, con Licencia (permiso laboral y reposo médico) y ReporteObra (retardo, inasistencia, accidente); el supervisor registra y el gerente aprueba con nota."),
+    ("Apoyar al supervisor: reportes, estadísticas e incidencias", "Alertas automáticas (retardos, faltas seguidas sin justificar, aprobaciones vencidas, retrasos de proyecto, herramientas sin devolver, áreas sin supervisor), estadísticas, panel de control por estado, mapa de marcas y reportes CSV/TXT."),
 ]
 
 DIAGRAMAS = [
     ("casos_de_uso", "Diagrama de casos de uso"),
     ("clases_dominio", "Diagrama de clases · Modelo de dominio"),
-    ("clases_nucleo", "Modelo detallado 1/5 · Núcleo"),
-    ("clases_novedades", "Modelo detallado 2/5 · Permisos, reposos y reportes en obra"),
+    ("clases_nucleo", "Modelo detallado 1/5 · Núcleo y áreas"),
+    ("clases_novedades", "Modelo detallado 2/5 · Permisos, reposos y reportes de proyecto"),
     ("clases_supervision", "Modelo detallado 3/5 · Alertas, estadísticas y reportes"),
     ("clases_servicio_persistencia", "Modelo detallado 4/5 · Servicios y persistencia"),
-    ("clases_talento_inventario", "Modelo detallado 5/5 · Obras, talento humano e inventario"),
+    ("clases_talento_inventario", "Modelo detallado 5/5 · Proyectos, talento humano e inventario"),
     ("paquetes_mvc", "Paquetes · Arquitectura MVC"),
     ("secuencia_marcar_entrada", "Secuencia · Marcar entrada"),
     ("secuencia_registrar_novedad", "Secuencia · El supervisor registra un reposo médico"),
     ("secuencia_revisar_novedad", "Secuencia · El gerente lo aprueba con nota"),
     ("secuencia_evaluar_alertas", "Secuencia · Evaluar alertas"),
     ("secuencia_generar_reporte", "Secuencia · Generar reporte"),
-    ("secuencia_unirse_empresa", "Secuencia · Unirse con invitación"),
+    ("secuencia_unirse_empresa", "Secuencia · Unirse con el código de registro"),
     ("secuencia_crear_empresa", "Secuencia · Un gerente crea su empresa"),
 ]
 
 CAPTURAS = [
     ("web_01_portada", "Portada pública"), ("web_14_dos_formas", "Portada: dos formas de empezar"),
     ("web_02_login_error", "Inicio de sesión con mensaje de error"),
-    ("web_03_registro", "Crear cuenta: el gerente crea su empresa"), ("web_04_unirse", "Unirse con código de invitación"),
+    ("web_03_registro", "Crear cuenta: el gerente crea su empresa"), ("web_04_unirse", "Unirse con el código de registro"),
     ("web_05_empleado_asistencia", "Empleado: asistencia, días sin marcar y herramientas a su cargo"),
     ("web_18_registrar_reposo", "Supervisor: registrar un reposo médico con su documento"),
     ("web_06_permisos", "Gerente: aprobar o rechazar permisos y reposos con nota"),
-    ("web_21_reportes_obra", "Supervisor: reportes en obra"), ("web_07_tablero", "Tablero de permisos y reportes"),
+    ("web_21_reportes_proyecto", "Supervisor: reportes de proyecto"), ("web_07_panel_control", "Panel de control de permisos y reportes"),
     ("web_08_supervision", "Supervisión: alertas, estadísticas, mapa de marcas y reportes"), ("web_22_mapa", "Dónde marcó cada persona"),
-    ("web_16_obras", "Obras: inicio, conclusión y retrasos"), ("web_09_personal", "Personal con puesto y área"),
+    ("web_16_proyectos", "Proyectos: inicio, conclusión y retrasos"), ("web_25_areas", "Áreas, cada una con su supervisor"),
+    ("web_09_personal", "Personal con puesto y área"),
     ("web_15_historial", "Historial: asistencia, días sin marcar, permisos, reportes y herramientas"),
     ("web_19_talento", "Talento humano: egresos"), ("web_23_egreso", "Registrar una renuncia con voucher, carta y equipos"),
-    ("web_20_inventario", "Inventario y entregas"), ("web_24_catalogo", "Catálogo de puestos y áreas"),
-    ("web_11_invitaciones", "Gerente: invitaciones con puesto y área"), ("web_17_demo_privada", "Demostración privada con clave"),
+    ("web_20_inventario", "Inventario y entregas"), ("web_24_puestos", "Catálogo de puestos"),
+    ("web_11_registro_personal", "Gerente: registro de personal con código"), ("web_17_demo_privada", "Demostración privada con clave"),
     ("swing_07_permisos", "Escritorio (Swing): permisos y reposos"), ("swing_08_talento", "Escritorio (Swing): talento humano"),
-    ("swing_09_inventario", "Escritorio (Swing): inventario"), ("swing_10_obras", "Escritorio (Swing): obras y retrasos"),
-    ("swing_02_supervision", "Escritorio (Swing): supervisión"), ("swing_03_tablero", "Escritorio (Swing): tablero"),
+    ("swing_09_inventario", "Escritorio (Swing): inventario"), ("swing_10_proyectos", "Escritorio (Swing): proyectos y retrasos"), ("swing_11_areas", "Escritorio (Swing): áreas"),
+    ("swing_02_supervision", "Escritorio (Swing): supervisión"), ("swing_03_panel_control", "Escritorio (Swing): panel de control"), ("swing_05_registro_personal", "Escritorio (Swing): registro de personal"),
 ]
 
 
@@ -102,7 +103,7 @@ def construir() -> str:
     url = DATOS["url_publicacion"]
     filas = "".join(f"<tr><td>{e(a)}</td><td>{e(b)}</td></tr>" for a, b in CORRECCION)
     scrum = md(DOCS / "scrum" / "README.md") + md(DOCS / "scrum" / "product-backlog.md") + "".join(
-        md(DOCS / "scrum" / f"sprint-{n}.md", 2) for n in range(1, 11))
+        md(DOCS / "scrum" / f"sprint-{n}.md", 2) for n in range(1, 12))
     prompts = md(DOCS / "prompts.md").split("<h2>Entrega 1</h2>")[0]
     diagramas = "".join(figura(DOCS / "diagramas" / "img" / f"{a}.svg", p, "diagrama") for a, p in DIAGRAMAS)
     capturas = "".join(figura(DOCS / "capturas" / f"{a}.png", p, "captura") for a, p in CAPTURAS)
@@ -168,7 +169,7 @@ demostración. Usuarios del modo demostración (empresa «Constructora Demo»):<
 <tr><td>Supervisora</td><td>ana.rodriguez@construtrack.demo</td><td>20000001</td><td>super123</td></tr>
 <tr><td>Empleado</td><td>jose.garcia@construtrack.demo</td><td>30000001</td><td>emp123</td></tr>
 <tr><td>Registrada sin empresa</td><td>rosa.gutierrez@correo.com</td><td>—</td><td>rosa1234</td></tr></table>
-<p>Código de invitación de prueba: <b>CT-RQ7K-4M2P</b>.</p>
+<p>Código de registro de prueba: <b>CT-RQ7K-4M2P</b>.</p>
 </body></html>"""
 
 

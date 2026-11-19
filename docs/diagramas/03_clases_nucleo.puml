@@ -22,6 +22,8 @@ abstract class Usuario {
   + verificarClave(clave : String) : boolean
   + vincularCuenta(cuenta : Cuenta) : void
   + {static} validarDocumento(documento : String) : String
+  + puedeIncluirEnArea(persona : Usuario, area : Area) : boolean
+  - area : String
 }
 class Empleado {
   + {static} ROL : String = "Empleado"
@@ -35,14 +37,15 @@ class Supervisor {
   + consultarAsistencia(e : Empleado) : List<RegistroAsistencia>
   + puedeRevisar(n : Novedad) : boolean
   + revisar(n : Novedad, nuevo : EstadoNovedad, nota : String, ahora : LocalDateTime) : void
+  + puedeIncluirEnArea(persona : Usuario, area : Area) : boolean
 }
 class Gerente {
   + {static} ROL : String = "Gerente"
   + registrarUsuario(datos : Map<String,String>) : Usuario
   + modificarUsuario(cedula : String, datos : Map<String,String>) : Usuario
   + eliminarUsuario(cedula : String) : void
-  + asignarSupervisor(e : Empleado, cedulaSupervisor : String) : void
-  + crearInvitacion(rol : String, cedulaSupervisor : String, codigoObra : String, dias : int, ahora : LocalDateTime, azar : RandomGenerator) : Invitacion
+  + puedeIncluirEnArea(persona : Usuario, area : Area) : boolean
+  + crearInvitacion(rol : String, codigoObra : String, puesto : String, dias : int, ahora : LocalDateTime, azar : RandomGenerator) : Invitacion
   + cancelarInvitacion(codigo : CodigoInvitacion, ahora : LocalDateTime) : void
 }
 interface RevisorNovedades {
@@ -125,8 +128,23 @@ class Empresa {
   + buscarUsuario(cedula : String) : Usuario
   + buscarInvitacion(c : CodigoInvitacion) : Invitacion
   + listarObras() : List<Obra>
+  + crearArea(nombre : String, supervisor : Usuario) : Area
+  + cambiarSupervisorDeArea(nombre : String, nuevo : Usuario) : void
+  + incluirEnArea(persona : Usuario, nombre : String) : void
+  + sacarDeArea(persona : Usuario) : void
+  + eliminarArea(nombre : String) : List<Usuario>
+  + integrantes(a : Area) : List<Usuario>
+  + sinArea() : List<Usuario>
 }
-class Obra {
+class Area {
+  - nombre : String
+  + {static} validarNombre(nombre : String) : String
+  + seLlama(otro : String) : boolean
+  + tieneSupervisor() : boolean
+  + esDirigidaPor(u : Usuario) : boolean
+  ~ asignarSupervisor(s : Supervisor) : void
+}
+class "Obra (proyecto)" as Obra {
   - codigo : String
   - nombre : String
   - ubicacion : String
@@ -158,6 +176,9 @@ Plataforma "1" *-- "0..*" Cuenta
 Empresa "1" o-- "0..*" Usuario
 Usuario --> Empresa : getEmpresa()
 Empresa "1" *-- "0..*" Obra
+Empresa "1" *-- "0..*" Area
+Area "0..*" --> "0..1" Supervisor : supervisor
+Usuario "0..*" ..> "0..1" Area : pertenece a (por nombre)
 Empresa "1" *-- "0..*" Invitacion
 Historial ..> Periodo
 @enduml

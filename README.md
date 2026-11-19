@@ -1,8 +1,8 @@
-# ConstruTrack · Gestión de personal en obra
+# ConstruTrack · Gestión de personal por proyecto
 
 [![CI](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml/badge.svg)](https://github.com/diavolo34/Proyecto-Poo/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-17%2B-orange?logo=openjdk)
-![Pruebas](https://img.shields.io/badge/JUnit%205-105%20pruebas-brightgreen)
+![Pruebas](https://img.shields.io/badge/JUnit%205-112%20pruebas-brightgreen)
 ![Arquitectura](https://img.shields.io/badge/arquitectura-MVC%20%2B%20SOLID-blue)
 ![Dependencias](https://img.shields.io/badge/dependencias-0-brightgreen)
 [![Demo en vivo](https://img.shields.io/badge/demo-en%20vivo-0052CC?logo=netlify)](https://construtrackfm.netlify.app)
@@ -12,8 +12,9 @@
 > [modo demostración](#modo-demostración).
 > El servidor usa el plan gratuito de Render: si nadie lo usó en un rato, la primera carga tarda unos 50 segundos.
 
-Sistema para empresas de construcción que **controla la asistencia verificable del personal de obra, gestiona sus permisos
-y reposos médicos, los reportes en obra, el inventario de herramientas y los egresos (talento humano), y apoya al
+Sistema para empresas de construcción que **controla la asistencia verificable del personal de cada proyecto, lo organiza en
+áreas con su supervisor, gestiona sus permisos y reposos médicos, los reportes de proyecto, el inventario de herramientas
+y los egresos (talento humano), y apoya al
 supervisor y al gerente con alertas automáticas, estadísticas y reportes**.
 Tiene **dos vistas sobre el mismo modelo**: una aplicación de escritorio (Swing) y una aplicación web.
 
@@ -38,9 +39,9 @@ herencia, polimorfismo, interfaces, composición y los principios **SOLID**, en 
 | Rol | Qué puede hacer |
 |-----|-----------------|
 | **Visitante** | Ver la portada, consultar a **Arqui**, el asistente virtual, y **crear su cuenta** con correo, nombre, apellido, cédula o DNI y teléfono, eligiendo **«Soy gerente: crear mi empresa»** o **«Me uno a una empresa»**. |
-| **Empleado** | Unirse a la empresa con un **código de invitación**, marcar entrada y salida **con su ubicación** (y el QR de la obra si se exige), ver su historial, sus **días sin marcar**, sus **permisos y reposos** y las **herramientas a su cargo**. |
-| **Supervisor** | Todo lo anterior + **registrar permisos laborales, reposos médicos y reportes en obra** de su personal, **confirmar marcas dudosas viendo el mapa**, aprobar horas extra, **iniciar y concluir obras** y **reportar retrasos**, alertas, tabla de puntualidad y reportes en CSV o texto. |
-| **Gerente** | **Crea su empresa** al registrarse. **Aprueba o rechaza con nota** permisos, reposos y reportes en obra (queda como autorizador), recibe las **alertas de retraso** y de herramientas sin devolver, gestiona al **personal**, el **catálogo de puestos y áreas**, el **inventario**, **Talento humano** (despidos y renuncias) y las **invitaciones**. |
+| **Empleado** | Unirse a la empresa con un **código de registro**, marcar entrada y salida **con su ubicación** (y el QR del proyecto si se exige), ver su historial, sus **días sin marcar**, sus **permisos y reposos** y las **herramientas a su cargo**. |
+| **Supervisor** | Todo lo anterior + **registrar permisos laborales, reposos médicos y reportes de proyecto** de su personal, **sumar a su área a quien no tiene una**, **confirmar marcas dudosas viendo el mapa**, aprobar horas extra, **iniciar y concluir proyectos** y **reportar retrasos**, alertas, tabla de puntualidad y reportes en CSV o texto. |
+| **Gerente** | **Crea su empresa** al registrarse. **Aprueba o rechaza con nota** permisos, reposos y reportes de proyecto (queda como autorizador), recibe las **alertas de retraso** y de herramientas sin devolver, gestiona al **personal**, las **áreas** con su supervisor, el **catálogo de puestos**, el **inventario**, **Talento humano** (despidos y renuncias) y el **registro de personal**. |
 
 Reglas destacadas:
 - **Permisos y reposos:** los registra el supervisor y quedan pendientes hasta que el gerente los aprueba o rechaza con una
@@ -48,18 +49,22 @@ Reglas destacadas:
   emergencia) y la **foto o PDF del reposo**, que se guarda en **Google Drive**.
 - **Incapacidad:** un reposo aprobado justifica esos días como «Incapacidad» y **bloquea la marca** mientras dure; faltar
   **dos días laborables seguidos** sin justificar genera una alerta alta.
-- **Reportes en obra** (retardo, inasistencia, accidente laboral): solo para supervisores y gerente; el empleado no los ve.
-- **Obras:** Planificada → En curso («Inicio de obra») → Concluida («Conclusión de la obra»). El supervisor reporta
+- **Reportes de proyecto** (retardo, inasistencia, accidente laboral): solo para supervisores y gerente; el empleado no los ve.
+- **Áreas** (plomería, electricidad, transporte…): cada una tiene **un supervisor responsable** y cada persona pertenece
+  a una sola. **El área manda:** al entrar a un área, el empleado queda a cargo de su supervisor, y si el área cambia de
+  supervisor, cambia para todos. El gerente crea, elimina y mueve; el supervisor solo suma a su área a quien no tiene una.
+- **Proyectos:** Planificado → En curso («Inicio del proyecto») → Concluido («Conclusión del proyecto»). Los nuevos se
+  numeran PR-01, PR-02… (los antiguos conservan su código OB-). El supervisor reporta
   **retrasos** con motivo y nueva fecha estimada, y el gerente recibe la alerta hasta marcarlo como revisado.
 - **Talento humano:** el egreso (despido o renuncia) exige el **voucher de pago**, la **carta de renuncia** si aplica y si
   **devolvió o no los equipos** (con nota de lo que falta). La persona queda **inactiva**: no entra ni aparece en el
   personal, y su historial se conserva. «Eliminar ficha» libera su cédula y guarda un **expediente** descargable.
-- **Inventario:** herramientas, equipos y materiales con código, serie y cantidad; entregas por persona y obra con fecha de
+- **Inventario:** herramientas, equipos y materiales con código, serie y cantidad; entregas por persona y proyecto con fecha de
   devolución; la devolución registra si llegó en buen estado, con daños (pasa a mantenimiento) o extraviado.
-- **Asistencia comprobable:** cada entrada guarda la **ubicación**; sin ubicación, o lejos de la obra, o sin el **código QR
+- **Asistencia comprobable:** cada entrada guarda la **ubicación**; sin ubicación, o lejos del proyecto, o sin el **código QR
   que cambia cada 30 segundos**, la marca queda **por confirmar** y el supervisor la revisa en el mapa.
-- **Varias empresas**: cada gerente crea la suya y solo ve sus datos. Los empleados y supervisores entran con el código
-  que les da su gerente (con rol, puesto, área y obra). Las invitaciones vencidas o canceladas **se borran solas**.
+- **Varias empresas**: cada gerente crea la suya y solo ve sus datos. Los empleados y supervisores entran con el **código
+  de registro** que les da su gerente (con rol, puesto y proyecto). Los códigos vencidos o cancelados **se borran solos**.
 - **Seguridad:** correo verificado, **verificación en dos pasos** para el gerente, claves con **PBKDF2**, bloqueo tras 5
   intentos, recuperación de clave por correo, sesiones de 12 h, cabeceras de seguridad y **ojo para mostrar la clave**.
   Detalles en [docs/seguridad.md](docs/seguridad.md).
@@ -79,7 +84,7 @@ flowchart LR
     end
     subgraph Modelo
         SV[servicio<br/>casos de uso]
-        MD[modelo<br/>Usuario · Historial · Novedad<br/>Obra · Inventario · Egreso<br/>Alertas · Reportes]
+        MD[modelo<br/>Usuario · Area · Historial · Novedad<br/>Obra / proyecto · Inventario · Egreso<br/>Alertas · Reportes]
         PE[persistencia<br/>EscritorDatos · RepositorioTexto · Almacen]
     end
     SW -- eventos --> CS
@@ -146,20 +151,23 @@ Usuarios del modo demostración:
 | Empleado | `jose.garcia@construtrack.demo` (+5 más) | `30000001` … `30000006` | `emp123` |
 | Registrada sin empresa | `rosa.gutierrez@correo.com` | — | `rosa1234` |
 
-Código de invitación de prueba: **`CT-RQ7K-4M2P`** (Empleado, supervisora Ana, obra Torre Residencial Este).
+Código de registro de prueba: **`CT-RQ7K-4M2P`** (Empleado, proyecto Torre Residencial Este). Áreas de ejemplo:
+Plomería y Electricidad (Ana), Mantenimiento y Transporte (Luis).
 Para volver a empezar en local, borra `datos_construtrack.txt` y reinicia (vacío, o con los datos de ejemplo si usas `--demo`).
 
 ## Capturas
 
-| Permisos y reposos (el gerente aprueba con nota) | Tablero |
+| Permisos y reposos (el gerente aprueba con nota) | Panel de control |
 |---|---|
-| ![](docs/capturas/web_06_permisos.png) | ![](docs/capturas/web_07_tablero.png) |
+| ![](docs/capturas/web_06_permisos.png) | ![](docs/capturas/web_07_panel_control.png) |
+| **Áreas con su supervisor** | **Escritorio (Swing): áreas** |
+| ![](docs/capturas/web_25_areas.png) | ![](docs/capturas/swing_11_areas.png) |
 | **Registrar un reposo médico (supervisor)** | **Dónde marcó cada persona (mapa)** |
 | ![](docs/capturas/web_18_registrar_reposo.png) | ![](docs/capturas/web_22_mapa.png) |
 | **Talento humano** | **Inventario** |
 | ![](docs/capturas/web_19_talento.png) | ![](docs/capturas/web_20_inventario.png) |
-| **Obras: inicio, conclusión y retrasos** | **Escritorio (Swing): permisos y reposos** |
-| ![](docs/capturas/web_16_obras.png) | ![](docs/capturas/swing_07_permisos.png) |
+| **Proyectos: inicio, conclusión y retrasos** | **Escritorio (Swing): permisos y reposos** |
+| ![](docs/capturas/web_16_proyectos.png) | ![](docs/capturas/swing_07_permisos.png) |
 
 Más capturas en [docs/capturas](docs/capturas).
 
@@ -190,7 +198,7 @@ con códigos 400, 401, 403, 404, 409 o 429 (demasiados intentos).
 | `POST` | `/api/login/dos-pasos` (código de la aplicación) | Público, con el desafío del login |
 | `GET` `POST` | `/api/dos-pasos` · `/api/dos-pasos/iniciar` · `/activar` · `/desactivar` | Gerente |
 | `GET` `PUT` | `/api/asistencia/por-confirmar` · `/api/asistencia/{cedula}/{fecha}/verificacion` | Supervisor (su personal) · Gerente |
-| `GET` | `/api/obras/{codigo}/codigo-asistencia` (código QR vigente) | Supervisor · Gerente |
+| `GET` | `/api/obras/{codigo}/codigo-asistencia` (código QR vigente del proyecto) | Supervisor · Gerente |
 | `POST` | `/api/unirse` · `/api/empresas` (crear la empresa y quedar como Gerente) | Cuenta registrada |
 | `POST` | `/api/logout` · `GET /api/yo` | Con sesión |
 | `POST` | `/api/asistencia/entrada` · `/api/asistencia/salida` | Con sesión |
@@ -201,16 +209,17 @@ con códigos 400, 401, 403, 404, 409 o 429 (demasiados intentos).
 | `POST` `PUT` | `/api/obras/{codigo}/inicio` · `/conclusion` · `/retrasos` · `/retrasos/{id}/revision` | Supervisor (retraso) · Gerente (revisión) |
 | `GET` `POST` | `/api/talento` · `/api/talento/pendientes/{cedula}` · `/api/talento/egresos/{cedula}` · `/egresos/{id}/eliminar-ficha` · `/egresos/{id}/expediente` | Gerente |
 | `GET` `POST` `PUT` `DELETE` | `/api/inventario[/{codigo}]` · `/api/inventario/{codigo}/entregas` · `/api/inventario/entregas/{id}/devolucion` · `GET /api/inventario/a-cargo/{cedula}` | Gerente (a cargo: la persona y su supervisor) |
-| `GET` `POST` | `/api/catalogo` · `/api/catalogo/{puestos\|areas}` · `/api/catalogo/{tipo}/quitar` | Gerente (lectura: todos) |
+| `GET` `POST` | `/api/catalogo` · `/api/catalogo/puestos` · `/api/catalogo/puestos/quitar` | Gerente (lectura: todos) |
+| `GET` `POST` | `/api/areas` · `/api/areas/supervisor` · `/api/areas/eliminar` · `/api/areas/incluir` · `/api/areas/sacar` | Gerente · Supervisor (ve sus áreas e incluye a personas sin área) |
 | `GET` | `/api/estadisticas` · `/api/supervision/alertas` · `/api/reportes/{tipo}` | Supervisor (su personal) · Gerente |
 | `GET` `POST` `PUT` | `/api/usuarios[/{cedula}]` · `GET /api/personal/opciones` | Gerente (Supervisor: solo lectura de su personal) |
 | `GET` `PUT` | `/api/horas-extra` · `/api/horas-extra/{cedula}/{fecha}` | Supervisor (su personal) · Gerente |
-| `GET` `POST` `PUT` `DELETE` | `/api/obras[/{codigo}]` · `PUT /api/usuarios/{cedula}/obra` | Supervisor · Gerente |
-| `GET` `POST` `DELETE` | `/api/invitaciones[/{codigo}]` · `POST /api/invitaciones/{codigo}/enviar` | Gerente |
+| `GET` `POST` `PUT` `DELETE` | `/api/obras[/{codigo}]` (proyectos) · `PUT /api/usuarios/{cedula}/obra` | Supervisor · Gerente |
+| `GET` `POST` `DELETE` | `/api/invitaciones[/{codigo}]` (códigos de registro) · `POST /api/invitaciones/{codigo}/enviar` | Gerente |
 
 ## Calidad
 
-- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **105 pruebas JUnit 5** y pruebas de humo de la API (incluidos permisos, inventario, talento humano, catálogo y obras) en modo demostración, en modo producción y de la demo privada (incluye cabeceras de seguridad, recuperación de clave y bloqueo por intentos).
+- **CI en GitHub Actions:** compila con `-Xlint:all -Werror`, ejecuta las **112 pruebas JUnit 5** y pruebas de humo de la API (incluidos permisos, inventario, talento humano, catálogo, áreas y proyectos) en modo demostración, en modo producción y de la demo privada (incluye cabeceras de seguridad, recuperación de clave y bloqueo por intentos).
 - **Pruebas** del modelo, la persistencia y los servicios con reloj fijo; se comprobó que detectan errores introducidos a propósito.
 - Verificado en la interfaz real: recorridos de la web con Playwright, de Swing en pantalla virtual, y despliegue con Docker y CORS.
 

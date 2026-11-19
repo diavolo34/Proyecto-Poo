@@ -15,7 +15,7 @@ dicen qué hacer. **UI** (la capa visual): tipografía, color, tarjetas y microi
 ### 1. Visibilidad del estado del sistema
 El usuario siempre sabe qué está pasando:
 - La barra superior muestra **quién inició sesión y con qué rol** (avatar + etiqueta).
-- En «Asistencia», la etiqueta **● En la obra / ○ Fuera de la obra** y la hora de entrada de hoy.
+- En «Asistencia», la etiqueta **● En el proyecto / ○ Fuera del proyecto** y la hora de entrada de hoy.
 - Si el servidor tarda (Render gratuito «despierta» en ~1 min), la página muestra **«Conectando con el servidor… N s»**
   con un indicador giratorio, en lugar de quedarse en blanco o simular datos (`js/app.js`).
 - Cada acción confirma con un aviso breve: «✓ Reposo médico #6 registrado. Queda pendiente hasta que lo apruebe el gerente».
@@ -23,13 +23,15 @@ El usuario siempre sabe qué está pasando:
 ![Asistencia](../capturas/web_05_empleado_asistencia.png)
 
 ### 2. Coincidencia entre el sistema y el mundo real
-Se usa el idioma de una obra de construcción, sin jerga técnica: «Marcar entrada», «Reposo médico», «Obra»,
+Se usa el idioma de una obra de construcción, sin jerga técnica: «Marcar entrada», «Reposo médico», «Proyecto»,
 «Supervisor», «Llegada tarde (25 min)». Las fechas se muestran como `15/11/2026` y los días como «lunes a viernes».
-El tablero imita la pizarra con columnas que se usa en las obras (Pendiente → En revisión → Aprobada / Rechazada).
+El panel de control imita la pizarra con columnas que se usa en los proyectos de construcción (Pendiente → Aprobada / Rechazada).
+Las áreas usan los nombres de los oficios (Plomería, Electricidad, Transporte) y muestran a su supervisor responsable.
 
 ### 3. Control y libertad del usuario
 - Todo modal se cierra con **Esc**, con **✕** o haciendo clic fuera (`js/ui.js → Modal`).
-- Eliminar a una persona y cancelar una invitación **piden confirmación**.
+- Eliminar a una persona, cancelar un código de registro y eliminar un área **piden confirmación**; al eliminar un área se
+  avisa cuántas personas quedarán sin área.
 - Aprobar o rechazar abre un cuadro para la nota que se puede **cancelar** sin cambiar nada.
 - «Más tarde» en la pantalla de unirse y «Volver a la portada» en el acceso: siempre hay salida.
 
@@ -43,10 +45,10 @@ El tablero imita la pizarra con columnas que se usa en las obras (Pendiente → 
 
 ### 5. Prevención de errores
 - **Listas desplegables y casillas** en lugar de texto libre: tipo de permiso o reporte, persona, puesto, área, horas (cada 30 min),
-  días de trabajo, supervisor y obra.
-- El botón «Marcar entrada» se **deshabilita** cuando la persona ya está en la obra (y «Marcar salida» cuando no lo está).
+  días de trabajo, área (con su supervisor) y proyecto.
+- El botón «Marcar entrada» se **deshabilita** cuando la persona ya está en el proyecto (y «Marcar salida» cuando no lo está).
 - Campos de fecha nativos (`type="date"`), y el campo «Hasta» es opcional.
-- El código de invitación usa un alfabeto **sin caracteres que se confunden** (sin 0/O ni 1/I/L) y acepta minúsculas y
+- El código de registro usa un alfabeto **sin caracteres que se confunden** (sin 0/O ni 1/I/L) y acepta minúsculas y
   espacios (`CodigoInvitacion`).
 - Las reglas se validan también en el servidor: nadie puede saltarse un permiso manipulando la página.
 
@@ -62,7 +64,7 @@ El tablero imita la pizarra con columnas que se usa en las obras (Pendiente → 
 ### 7. Flexibilidad y eficiencia de uso
 - **Enter** envía formularios; **Tab** recorre todo; atajos con Alt en Swing (Alt+I «Iniciar sesión», Alt+E «Marcar
   entrada», Alt+S «Marcar salida»).
-- Búsqueda en vivo en el tablero y en Personal.
+- Búsqueda en vivo en el panel de control y en Personal.
 - El chatbot permite marcar la entrada escribiendo «ya llegué».
 - Iniciar sesión con **correo o cédula**, lo que cada persona recuerde.
 
@@ -78,7 +80,7 @@ Los mensajes dicen **qué pasó y qué hacer**, en español y sin códigos técn
 | Situación | Mensaje |
 |-----------|---------|
 | Clave incorrecta | «Correo, cédula o clave incorrectos. Revisa los datos e intenta de nuevo.» |
-| Código usado | «Esta invitación está usada. Pide a tu gerente un código nuevo.» |
+| Código usado | «Este código de registro está usado. Pide a tu gerente un código nuevo.» |
 | Rechazo sin motivo | «Indica el motivo del rechazo para que el trabajador lo sepa.» |
 | Puerto ocupado (NetBeans) | «El puerto 8080 ya está en uso. ¿Tienes ConstruTrack abierto en otra ventana?…» |
 
@@ -98,9 +100,9 @@ Los errores se muestran con texto rojo **y** con la palabra «Error:» o el íco
 | Ley o efecto | Dónde se aplica |
 |--------------|-----------------|
 | **Ley de Hick:** más opciones, más tiempo para decidir | El menú se reduce según el rol; el formulario de permisos oculta los campos que no aplican; la portada tiene una sola acción principal («Crear cuenta»). |
-| **Continuidad (Gestalt):** el ojo sigue un flujo | Las columnas del tablero se leen de izquierda a derecha en el orden del ciclo de vida; los 3 pasos de «Cómo funciona» están numerados en línea. |
+| **Continuidad (Gestalt):** el ojo sigue un flujo | Las columnas del panel de control se leen de izquierda a derecha en el orden del ciclo de vida; los 3 pasos de «Cómo funciona» están numerados en línea. |
 | **Proximidad (Gestalt)** | Cada grupo de información va en su tarjeta: estado de hoy, resumen de la semana, historial. |
-| **Efecto Von Restorff:** lo distinto se recuerda | El único botón azul de cada pantalla es la acción principal («Marcar entrada», «Crear cuenta»); las demás son grises. El código de invitación creado aparece grande sobre fondo azul. |
+| **Efecto Von Restorff:** lo distinto se recuerda | El único botón azul de cada pantalla es la acción principal («Marcar entrada», «Crear cuenta»); las demás son grises. El código de registro creado aparece grande sobre fondo azul. |
 | **Estética y usabilidad:** lo atractivo se percibe más usable | Ilustraciones propias (Java2D y SVG), bloques de color en la portada y tarjetas con sombra suave. |
 | **Percepción, atención y memoria** | Layout de barra superior + menú lateral (percepción), navegación siempre visible (atención) y colores constantes por significado: verde = bien, ámbar = atención, rojo = problema (memoria). |
 
@@ -121,7 +123,7 @@ Siguen el ciclo **disparador → regla → respuesta → bucle** visto en clase:
 | **Contraste mínimo 4.5:1** | Medido con la fórmula de WCAG para cada combinación usada (tabla abajo). |
 | **Texto alternativo** | Las ilustraciones decorativas llevan `aria-hidden`; las barras de progreso tienen `aria-label` con su valor; en Swing el gráfico expone su descripción textual. |
 | **Navegación por teclado** | Todo funciona con Tab y Enter; foco visible (contorno azul de 3 px); enlace «Saltar al contenido». |
-| **No depender solo del color** | Estados con texto (`● En la obra`, «Incapacidad», «Vencida», «Error:») además del color. |
+| **No depender solo del color** | Estados con texto (`● En el proyecto`, «Incapacidad», «Vencida», «Error:») además del color. |
 | **Etiquetas en formularios** | Cada campo tiene su `<label for>` (en Swing, `setLabelFor`); avisos con `role="alert"` / `aria-live`. |
 | **Adaptable** | Funciona en celular sin desplazamiento horizontal (verificado a 390 px de ancho). |
 

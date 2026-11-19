@@ -11,8 +11,8 @@ Fuentes en [PlantUML](https://plantuml.com/) (`*.puml`, con el estilo común `es
 |---|----------|--------|
 | 1 | Casos de uso (actores con generalización, `<<include>>` y `<<extend>>` con su condición) | ![](img/casos_de_uso.svg) |
 | 2 | Clases · Modelo de dominio (solo nombres, relaciones, roles y cardinalidad) | ![](img/clases_dominio.svg) |
-| 3 | Clases detallado 1/5 · Núcleo (usuarios, historial, cuentas, invitaciones) | [ver](img/clases_nucleo.svg) |
-| 4 | Clases detallado 2/5 · Permisos, reposos y reportes en obra (herencia en dos niveles, interfaz `Justificable`, fábrica) | [ver](img/clases_novedades.svg) |
+| 3 | Clases detallado 1/5 · Núcleo (usuarios, áreas, historial, cuentas, códigos de registro) | [ver](img/clases_nucleo.svg) |
+| 4 | Clases detallado 2/5 · Permisos, reposos y reportes de proyecto (herencia en dos niveles, interfaz `Justificable`, fábrica) | [ver](img/clases_novedades.svg) |
 | 5 | Clases detallado 3/5 · Alertas, estadísticas y reportes (OCP y Template Method) | [ver](img/clases_supervision.svg) |
 | 6 | Paquetes · Arquitectura MVC | ![](img/paquetes_mvc.svg) |
 | 7 | Clases detallado 4/5 · Servicios y persistencia (DIP) | [ver](img/clases_servicio_persistencia.svg) |

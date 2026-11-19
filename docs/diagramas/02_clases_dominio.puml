@@ -6,7 +6,8 @@ hide circle
 
 class Plataforma
 class Empresa
-class Obra
+class "Obra (proyecto)" as Obra
+class Area
 class Cuenta
 class Invitacion
 abstract class "Usuario {abstract}" as Usuario
@@ -36,6 +37,9 @@ Plataforma "1" *-- "1..*" Empresa : agrupa >
 Plataforma "1" *-- "0..*" Cuenta : registra >
 Empresa "1" o-- "0..*" Usuario : emplea >
 Empresa "1" *-- "0..*" Obra : ejecuta >
+Empresa "1" *-- "0..*" Area : organiza >
+Area "0..*" -- "0..1" Supervisor : responsable >
+Usuario "0..*" -- "0..1" Area : pertenece a >
 Empresa "1" *-- "0..*" Invitacion : guarda >
 Usuario <|-- Empleado
 Usuario <|-- Supervisor
@@ -61,7 +65,7 @@ Justificable <|.. Licencia
 Justificable <|.. AccidenteLaboral
 RevisorNovedades <|.. Gerente
 Supervisor "1" -- "0..*" Novedad : registra >
-Empresa "1" *-- "1" Catalogo : puestos y áreas >
+Empresa "1" *-- "1" Catalogo : puestos >
 Empresa "1" *-- "1" Inventario : tiene >
 Inventario "1" *-- "0..*" Articulo : contiene >
 Articulo "0..*" -- "0..*" Usuario : entregado a >

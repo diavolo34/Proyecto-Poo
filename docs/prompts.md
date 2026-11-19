@@ -35,6 +35,10 @@ El trabajo se hizo en sesiones de conversación con Claude Code sobre el reposit
    «Personal» y «Área» en vez de «equipo»; catálogo de puestos y áreas; «Talento humano» con despidos, renuncias,
    voucher de pago, carta de renuncia y devolución de equipos; inventario de herramientas; borrar las invitaciones
    que ya no sirven; el rol «Jefe» pasa a llamarse «Gerente».
+10. Cambiar «Marcas con evidencia, no con buena fe» de la portada; «obra» pasa a «proyecto» en toda la aplicación;
+    «Tablero» por un nombre más técnico («Panel de control») e «Invitaciones» por «Registro de personal»; y una pestaña
+    de «Áreas» (plomería, electricidad, transporte…) en la que cada persona registrada se incluya en un área y cada área
+    tenga su supervisor. Se pidió a la IA que hiciera todas las preguntas necesarias antes de programar.
 ```
 
 ```text
