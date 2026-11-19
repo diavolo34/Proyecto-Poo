@@ -76,7 +76,7 @@ public class ServicioObras extends ServicioBase {
             }
             Obra obra = codigoObra == null || codigoObra.isBlank() ? null : buscar(actual, codigoObra);
             if (obra != null && !obra.admitePersonal()) {
-                throw new OperacionInvalidaException("La obra «" + obra.getNombre() + "» ya concluyó: no admite personal.");
+                throw new OperacionInvalidaException("El proyecto «" + obra.getNombre() + "» ya concluyó: no admite personal.");
             }
             persona.verificarActivo();
             actual.asignarObra(persona, obra);
@@ -104,7 +104,7 @@ public class ServicioObras extends ServicioBase {
 
     public RetrasoObra reportarRetraso(Usuario actual, String codigo, String motivo, String nuevaFecha) {
         if (!(actual instanceof Supervisor)) {
-            throw new PermisoDenegadoException("El retraso lo reporta el supervisor de la obra; el gerente lo recibe como alerta.");
+            throw new PermisoDenegadoException("El retraso lo reporta el supervisor del proyecto; el gerente lo recibe como alerta.");
         }
         LocalDate fin = fecha(nuevaFecha, "nueva fecha estimada de conclusión");
         return modificar(() -> buscar(actual, codigo).reportarRetraso(Firma.de(actual), motivo, fin, LocalDateTime.now(reloj)));
@@ -157,14 +157,14 @@ public class ServicioObras extends ServicioBase {
     private Obra buscar(Usuario actual, String codigo) {
         Obra obra = empresaDe(actual).buscarObra(codigo);
         if (obra == null) {
-            throw new NoEncontradoException("No existe la obra " + codigo + ".");
+            throw new NoEncontradoException("No existe el proyecto " + codigo + ".");
         }
         return obra;
     }
 
     private static void verificarGestion(Usuario actual) {
         if (!actual.puedeGestionarObras()) {
-            throw new PermisoDenegadoException("Solo el supervisor y el gerente gestionan las obras.");
+            throw new PermisoDenegadoException("Solo el supervisor y el gerente gestionan los proyectos.");
         }
     }
 
@@ -172,7 +172,7 @@ public class ServicioObras extends ServicioBase {
         try {
             return LocalDate.parse(texto);
         } catch (DateTimeParseException | NullPointerException e) {
-            throw new DatoInvalidoException("Indica la fecha de " + campo + " de la obra.");
+            throw new DatoInvalidoException("Indica la fecha de " + campo + " del proyecto.");
         }
     }
 }

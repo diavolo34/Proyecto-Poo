@@ -22,7 +22,7 @@ public class ReporteNovedades extends Reporte {
 
     @Override
     protected List<String> columnas() {
-        return List.of("Id", "Tipo", "Persona", "Obra", "Desde", "Hasta", "Días", "Estado", "Detalle", "Descripción",
+        return List.of("Id", "Tipo", "Persona", "Proyecto", "Desde", "Hasta", "Días", "Estado", "Detalle", "Descripción",
                 "Registrado por", "Fecha de registro", "Autorizado o rechazado por", "Fecha de revisión", "Nota");
     }
 

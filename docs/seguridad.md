@@ -36,7 +36,7 @@ Este documento resume cómo se protegen la aplicación y los datos. Tiene cinco 
   privada del Google Drive de la empresa, sin enlaces públicos: el servidor los lee con la clave del script y solo se
   los muestra a quien tiene permiso. Los de Talento humano son **confidenciales**: solo los ve el gerente. El reposo lo
   ven el gerente, el supervisor que lo registró y la propia persona.
-- **Aprobaciones con responsable:** cada permiso, reposo y reporte en obra guarda quién lo registró, quién lo aprobó o
+- **Aprobaciones con responsable:** cada permiso, reposo y reporte de proyecto guarda quién lo registró, quién lo aprobó o
   rechazó, cuándo y con qué nota (obligatoria). Solo el gerente aprueba; solo el supervisor registra.
 - **Egresos:** al registrar un despido o una renuncia, la persona queda inactiva: su sesión abierta se cierra en la
   siguiente petición y ya no puede volver a entrar. Su historial se conserva; si se elimina la ficha, queda un
@@ -134,23 +134,23 @@ Para usar cookies, la API y la página tienen que estar en el mismo dominio. Si 
 
 **Ya está implementada** la combinación recomendada más abajo: geocerca, código QR rotativo y confirmación del supervisor.
 
-**Configurar la obra.** En **Obras → Editar**, en «Control de asistencia», el supervisor o el gerente pueden:
-- marcar «Exigir el código QR de la obra»;
-- escribir la latitud y la longitud de la obra, o tocar «Usar mi ubicación actual» estando en ella;
+**Configurar el proyecto.** En **Proyectos → Editar**, en «Control de asistencia», el supervisor o el gerente pueden:
+- marcar «Exigir el código QR del proyecto»;
+- escribir la latitud y la longitud del proyecto, o tocar «Usar mi ubicación actual» estando en él;
 - fijar el radio, por ejemplo 150 m.
 
-Cada parte es opcional. Una obra sin nada configurado funciona como antes.
+Cada parte es opcional. Un proyecto sin nada configurado funciona como antes.
 
-**En la obra.** El supervisor toca «Mostrar QR de asistencia»: aparece un QR, con sus 6 dígitos escritos, que cambia cada 30 segundos. Se puede poner en pantalla completa en un teléfono o una tablet.
+**En el proyecto.** El supervisor toca «Mostrar QR de asistencia»: aparece un QR, con sus 6 dígitos escritos, que cambia cada 30 segundos. Se puede poner en pantalla completa en un teléfono o una tablet.
 
 **Al marcar.** El trabajador puede hacerlo de tres formas:
 - escanear el QR desde «Asistencia», donde el navegador lo permite;
 - escanearlo con la cámara del teléfono, que abre la aplicación y marca sola después de entrar;
 - escribir los 6 dígitos.
 
-Si la obra tiene ubicación, el teléfono la envía al marcar. El servidor compara la distancia con el radio y deja un margen según la precisión del GPS. Un código incorrecto o vencido se rechaza para que lo vuelva a intentar.
+Si el proyecto tiene ubicación, el teléfono la envía al marcar. El servidor compara la distancia con el radio y deja un margen según la precisión del GPS. Un código incorrecto o vencido se rechaza para que lo vuelva a intentar.
 
-**Marcas dudosas.** Una marca sin código, sin ubicación o lejos de la obra se registra igual, pero queda **por confirmar**, con su motivo (por ejemplo, «Entrada a 1,3 km de la obra»). En **Supervisión → Marcas por confirmar**, el supervisor de esa persona o el gerente la confirman o la rechazan. Una jornada rechazada no cuenta como asistencia: sus horas no suman y el día queda como falta.
+**Marcas dudosas.** Una marca sin código, sin ubicación o lejos del proyecto se registra igual, pero queda **por confirmar**, con su motivo (por ejemplo, «Entrada a 1,3 km del proyecto»). En **Supervisión → Marcas por confirmar**, el supervisor de esa persona o el gerente la confirman o la rechazan. Una jornada rechazada no cuenta como asistencia: sus horas no suman y el día queda como falta.
 
 ## Ideas que se evaluaron
 
@@ -158,13 +158,13 @@ La marca siempre usó la hora del servidor, así que el trabajador no puede camb
 
 | Idea | Cómo funciona | A favor | En contra |
 |------|---------------|---------|-----------|
-| **1. Geocerca (GPS)** | Cada obra guarda su ubicación y un radio, por ejemplo 150 m. Al marcar, el celular envía su ubicación. Si está fuera del radio, la marca queda «por revisar». | No necesita equipos; los celulares ya traen GPS. | El GPS se puede falsificar con aplicaciones y bajo techo pierde precisión. Solo se toma la ubicación al marcar, no se sigue a la persona. |
-| **2. Código QR rotativo de la obra** | Un teléfono o tablet del supervisor en la obra muestra un QR que cambia cada 30 segundos. Para marcar, el trabajador lo escanea con su celular. | Demuestra que la persona estaba frente al código, en la obra. Una foto del QR deja de servir en segundos. | Hace falta una pantalla en la obra. |
-| **3. Código de 6 dígitos de la obra** | La misma idea que el QR, pero el trabajador escribe un número que cambia cada minuto. | No necesita cámara y funciona en cualquier celular. | Alguien podría dictar el número por teléfono, aunque solo dura un minuto. |
+| **1. Geocerca (GPS)** | Cada proyecto guarda su ubicación y un radio, por ejemplo 150 m. Al marcar, el celular envía su ubicación. Si está fuera del radio, la marca queda «por revisar». | No necesita equipos; los celulares ya traen GPS. | El GPS se puede falsificar con aplicaciones y bajo techo pierde precisión. Solo se toma la ubicación al marcar, no se sigue a la persona. |
+| **2. Código QR rotativo del proyecto** | Un teléfono o tablet del supervisor en el proyecto muestra un QR que cambia cada 30 segundos. Para marcar, el trabajador lo escanea con su celular. | Demuestra que la persona estaba frente al código, en la obra. Una foto del QR deja de servir en segundos. | Hace falta una pantalla en la obra. |
+| **3. Código de 6 dígitos del proyecto** | La misma idea que el QR, pero el trabajador escribe un número que cambia cada minuto. | No necesita cámara y funciona en cualquier celular. | Alguien podría dictar el número por teléfono, aunque solo dura un minuto. |
 | **4. Confirmación del supervisor** | Las marcas quedan pendientes hasta que el supervisor las confirma en una lista del día, igual que ya se hace con las horas extra. | Sencillo y con responsabilidad humana. | Le suma trabajo al supervisor. |
 | **5. Celular registrado** | Cada persona solo puede marcar desde el teléfono que registró la primera vez. | Evita que un compañero marque por otro con su clave. | Si cambia de teléfono, el gerente tiene que autorizar el nuevo. |
 | **6. Foto al marcar** | El celular toma una foto al marcar y el supervisor puede verla. | Disuade la suplantación. | Ocupa almacenamiento, toca datos sensibles (la cara) y alguien tiene que revisarla. |
-| **7. Kiosco en la entrada** | Una tablet fija en la obra donde cada trabajador marca con su cédula y un PIN. | Controla el lugar y el equipo con que se marca. | Hay que comprar la tablet y cuidarla. |
+| **7. Kiosco en la entrada** | Una tablet fija en el proyecto donde cada trabajador marca con su cédula y un PIN. | Controla el lugar y el equipo con que se marca. | Hay que comprar la tablet y cuidarla. |
 | **8. Alertas de anomalías** | Se guarda desde qué dispositivo y red se marca, y se avisa al supervisor si algo no cuadra (dos personas en el mismo celular, marcas desde lejos). | Detecta abusos sin molestar a quien cumple. | No los impide, solo los señala. |
 
 **Elegida e implementada:** la **geocerca (1)** más el **código QR rotativo (2)**, con los 6 dígitos (3) para quien no pueda escanear. Las marcas que no cumplen pasan a la **confirmación del supervisor (4)**. Quedan para más adelante el celular registrado (5), la foto (6), el kiosco (7) y las alertas de anomalías (8).

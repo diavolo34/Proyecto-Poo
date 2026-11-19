@@ -31,10 +31,9 @@ public final class DialogoUsuario extends JDialog {
     private final transient List<JCheckBox> chkDias = new ArrayList<>();
     private final JComboBox<String> cboEntrada = new JComboBox<>(horas());
     private final JComboBox<String> cboSalida = new JComboBox<>(horas());
-    private final JComboBox<Opcion> cboSupervisor = new JComboBox<>();
     private final JComboBox<String> cboPuesto = new JComboBox<>();
     private final JComboBox<String> cboArea = new JComboBox<>();
-    private final JCheckBox chkPresente = new JCheckBox("Está en la obra ahora");
+    private final JCheckBox chkPresente = new JCheckBox("Está en el proyecto ahora");
     private final JLabel lblError = Tema.texto(" ");
     private final JButton btnGuardar = Tema.botonPrimario("Guardar");
     private final JButton btnCancelar = Tema.botonSecundario("Cancelar");
@@ -55,7 +54,7 @@ public final class DialogoUsuario extends JDialog {
         fila = agregar(form, fila, "Cédula", txtCedula, "Entre 6 y 9 dígitos, sin puntos");
         fila = agregar(form, fila, "Nombre completo", txtNombre, null);
         fila = agregar(form, fila, "Puesto", cboPuesto, "Del catálogo de puestos de la empresa");
-        fila = agregar(form, fila, "Área", cboArea, null);
+        fila = agregar(form, fila, "Área", cboArea, "El supervisor del empleado es el del área");
         fila = agregar(form, fila, "Clave", Tema.campoClave(txtClave),
                 edicion ? "Déjala vacía para no cambiarla" : "Mínimo 8 caracteres, con letras y números");
         JPanel dias = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
@@ -75,7 +74,6 @@ public final class DialogoUsuario extends JDialog {
         horas.add(Tema.texto("a"));
         horas.add(cboSalida);
         fila = agregar(form, fila, "Horario", horas, "Se toleran 10 minutos de retraso");
-        fila = agregar(form, fila, "Supervisor", cboSupervisor, "Solo aplica a empleados");
         chkPresente.setOpaque(false);
         agregar(form, fila, "", chkPresente, null);
         contenido.add(form, BorderLayout.CENTER);
@@ -94,7 +92,6 @@ public final class DialogoUsuario extends JDialog {
         setContentPane(contenido);
         getRootPane().setDefaultButton(btnGuardar);
         txtCedula.setEnabled(!edicion);
-        cboRol.addActionListener(e -> cboSupervisor.setEnabled("Empleado".equals(cboRol.getSelectedItem())));
         pack();
         setLocationRelativeTo(dueno);
     }
@@ -145,14 +142,8 @@ public final class DialogoUsuario extends JDialog {
         cboArea.setSelectedItem(area == null ? "" : area);
     }
 
-    public void cargarSupervisores(List<Opcion> supervisores) {
-        cboSupervisor.removeAllItems();
-        cboSupervisor.addItem(new Opcion("", "— Sin supervisor —"));
-        supervisores.forEach(cboSupervisor::addItem);
-    }
-
     public void cargar(String rol, String cedula, String nombre, String dias, String entrada, String salida,
-            String cedulaSupervisor, boolean presente) {
+            boolean presente) {
         cboRol.setSelectedItem(rol);
         txtCedula.setText(cedula);
         txtNombre.setText(nombre);
@@ -161,11 +152,6 @@ public final class DialogoUsuario extends JDialog {
         }
         cboEntrada.setSelectedItem(entrada);
         cboSalida.setSelectedItem(salida);
-        for (int i = 0; i < cboSupervisor.getItemCount(); i++) {
-            if (cboSupervisor.getItemAt(i).valor().equals(cedulaSupervisor)) {
-                cboSupervisor.setSelectedIndex(i);
-            }
-        }
         chkPresente.setSelected(presente);
     }
 
@@ -187,8 +173,6 @@ public final class DialogoUsuario extends JDialog {
         datos.put("dias", String.join(",", dias));
         datos.put("horaEntrada", String.valueOf(cboEntrada.getSelectedItem()));
         datos.put("horaSalida", String.valueOf(cboSalida.getSelectedItem()));
-        Opcion supervisor = (Opcion) cboSupervisor.getSelectedItem();
-        datos.put("supervisor", supervisor == null ? "" : supervisor.valor());
         datos.put("presente", String.valueOf(chkPresente.isSelected()));
         datos.put("puesto", cboPuesto.getSelectedItem() == null ? "" : String.valueOf(cboPuesto.getSelectedItem()));
         datos.put("area", cboArea.getSelectedItem() == null ? "" : String.valueOf(cboArea.getSelectedItem()));

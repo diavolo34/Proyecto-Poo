@@ -14,7 +14,7 @@ separados por coma). Argumento `--sin-ventana` para levantar solo el servidor.
 
 ## Pruebas
 
-`test/construtrack/` contiene 91 pruebas JUnit 5. En NetBeans: *Test Project* (Alt+F6) con la biblioteca **JUnit 5**.
+`test/construtrack/` contiene 112 pruebas JUnit 5. En NetBeans: *Test Project* (Alt+F6) con la biblioteca **JUnit 5**.
 Por terminal:
 
 ```bash
@@ -28,12 +28,13 @@ java -jar junit-platform-console-standalone.jar execute -cp out:out-test --scan-
 | Paquete | Contenido |
 |---------|-----------|
 | `construtrack` | `App`: arma las dependencias y arranca las dos vistas |
-| `modelo` | `Usuario` (abstracta), `Empleado`, `Supervisor`, `Jefe`, `Horario`, `Historial`, `RegistroAsistencia`, `Empresa`, `Obra`, `Periodo`, `Cuenta`, `Invitacion`, `CodigoInvitacion`, `Estadisticas` |
-| `modelo.incidencias` | `Incidencia` (abstracta) y 5 tipos, `EstadoIncidencia`, `Gravedad`, `Justificable`, `FabricaIncidencias` |
-| `modelo.alertas` | `ReglaAlerta` y 3 reglas, `Alerta`, `MonitorSupervision` |
+| `modelo` | `Usuario` (abstracta), `Empleado`, `Supervisor`, `Gerente`, `Area`, `Horario`, `Historial`, `RegistroAsistencia`, `Plataforma`, `Empresa`, `Obra` (proyecto) y `RetrasoObra`, `Catalogo` (puestos), `Periodo`, `Cuenta`, `Invitacion` y `CodigoInvitacion` (código de registro), `Firma`, `Estadisticas` |
+| `modelo.novedades` | `Novedad` (abstracta) → `Licencia` (permiso laboral, reposo médico) y `ReporteObra` (retardo, inasistencia, accidente), `Justificable`, `FabricaNovedades` |
+| `modelo.talento` · `modelo.inventario` | `Egreso`, `Expediente` · `Inventario`, `Articulo`, `Asignacion` |
+| `modelo.alertas` | `ReglaAlerta` y 4 reglas, `Alerta`, `MonitorSupervision` |
 | `modelo.reportes` | `Reporte` (Template Method) y 3 reportes, `Documento`, `FormateadorReporte` (CSV y texto) |
 | `modelo.excepciones` | Errores del negocio (dato inválido, permiso denegado, no encontrado, operación inválida…) |
-| `servicio` | Casos de uso: autenticación, asistencia, personal, incidencias, supervisión, registro, invitaciones |
+| `servicio` | Casos de uso: autenticación, asistencia, personal, áreas, permisos y reportes, proyectos, talento humano, inventario, archivos, supervisión, registro y códigos de registro |
 | `persistencia` | `LectorDatos`, `EscritorDatos`, `RepositorioTexto`, `Almacen` (`AlmacenArchivo`, `AlmacenUpstash`), `RepositorioMemoria`, `GeneradorDatosPrueba` |
 | `controlador.swing` | Una `Controladora` por pantalla y `AplicacionSwing` |
 | `controlador.web` | `ServidorWeb`, `ManejadorApi`, `Enrutador`, controladores por recurso, `JsonMapper` |

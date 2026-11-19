@@ -13,7 +13,7 @@ public final class PanelPersonal extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private final DefaultTableModel modelo =
-            Tema.modeloSoloLectura("Cédula", "Nombre", "Rol", "Puesto", "Área", "Estado", "Horario", "Supervisor", "Obra");
+            Tema.modeloSoloLectura("Cédula", "Nombre", "Rol", "Puesto", "Área", "Estado", "Horario", "Supervisor", "Proyecto");
     private final JTable tabla = Tema.tabla(modelo);
     private final JTextField txtBuscar = new JTextField(22);
     private final JButton btnRegistrar = Tema.botonPrimario("+ Registrar persona");
@@ -31,7 +31,7 @@ public final class PanelPersonal extends JPanel {
         acciones.setOpaque(false);
         JLabel lblBuscar = Tema.texto("Buscar:");
         lblBuscar.setLabelFor(txtBuscar);
-        txtBuscar.setToolTipText("Filtra por nombre, cédula, rol, puesto, área u obra mientras escribes");
+        txtBuscar.setToolTipText("Filtra por nombre, cédula, rol, puesto, área o proyecto mientras escribes");
         acciones.add(lblBuscar);
         acciones.add(txtBuscar);
         if (puedeEditar) {

@@ -19,7 +19,7 @@ public class NotificadorConsola implements Notificador {
 
     @Override
     public void enviarInvitacion(Invitacion invitacion, String correoDestino) {
-        LOG.info(() -> "Invitación " + invitacion.getCodigo() + " (" + invitacion.getRol() + ") para " + correoDestino);
+        LOG.info(() -> "Código de registro " + invitacion.getCodigo() + " (" + invitacion.getRol() + ") para " + correoDestino);
     }
 
     @Override

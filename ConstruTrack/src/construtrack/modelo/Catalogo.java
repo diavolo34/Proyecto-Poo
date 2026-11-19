@@ -6,50 +6,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Catalogo {
-    public static final List<String> PUESTOS_INICIALES = List.of("Gerente", "Jefe de obra",
-            "Supervisor del equipo de mantenimiento", "Electricista", "Maestro de obra", "Albañil", "Ayudante de obra",
-            "Operador de maquinaria");
-    public static final List<String> AREAS_INICIALES = List.of("Administración", "Obra civil", "Electricidad",
-            "Mantenimiento");
+    public static final List<String> PUESTOS_INICIALES = List.of("Gerente", "Jefe de proyecto",
+            "Supervisor del equipo de mantenimiento", "Electricista", "Plomero", "Chofer", "Maestro de obra", "Albañil",
+            "Ayudante de obra", "Operador de maquinaria");
 
     private final List<String> puestos = new ArrayList<>(PUESTOS_INICIALES);
-    private final List<String> areas = new ArrayList<>(AREAS_INICIALES);
 
     public List<String> getPuestos() {
         return List.copyOf(puestos);
     }
 
-    public List<String> getAreas() {
-        return List.copyOf(areas);
-    }
-
     public void vaciar() {
         puestos.clear();
-        areas.clear();
     }
 
     public String agregarPuesto(String nombre) {
         return agregar(puestos, nombre, "puesto");
     }
 
-    public String agregarArea(String nombre) {
-        return agregar(areas, nombre, "área");
-    }
-
     public void quitarPuesto(String nombre) {
         quitar(puestos, nombre, "puesto");
     }
 
-    public void quitarArea(String nombre) {
-        quitar(areas, nombre, "área");
-    }
-
     public String puestoValido(String nombre) {
         return valido(puestos, nombre, "puesto");
-    }
-
-    public String areaValida(String nombre) {
-        return valido(areas, nombre, "área");
     }
 
     private static String agregar(List<String> lista, String nombre, String que) {

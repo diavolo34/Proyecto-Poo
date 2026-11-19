@@ -58,6 +58,12 @@ public class Supervisor extends Usuario {
     }
 
     @Override
+    public boolean puedeIncluirEnArea(Usuario persona, Area area) {
+        return area.esDirigidaPor(this) && !(persona instanceof Gerente) && persona.estaActivo() && mismaEmpresaQue(persona)
+                && getEmpresa().areaDe(persona) == null;
+    }
+
+    @Override
     public boolean puedeRegistrarNovedadPara(Usuario afectado) {
         return afectado == this || supervisa(afectado);
     }

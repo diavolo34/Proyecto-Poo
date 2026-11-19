@@ -20,9 +20,7 @@ public final class ControladoraCatalogo {
         this.usuario = usuario;
         this.alCambiar = alCambiar;
         vista.getBtnAgregarPuesto().addActionListener(e -> agregar(ServicioCatalogo.Tipo.PUESTOS, vista.getTxtPuesto(), vista.getPuestos()));
-        vista.getBtnAgregarArea().addActionListener(e -> agregar(ServicioCatalogo.Tipo.AREAS, vista.getTxtArea(), vista.getAreas()));
         vista.getBtnQuitarPuesto().addActionListener(e -> quitar(ServicioCatalogo.Tipo.PUESTOS, vista.getPuestos()));
-        vista.getBtnQuitarArea().addActionListener(e -> quitar(ServicioCatalogo.Tipo.AREAS, vista.getAreas()));
     }
 
     private void agregar(ServicioCatalogo.Tipo tipo, JTextField campo, PanelTabla tabla) {
@@ -55,7 +53,5 @@ public final class ControladoraCatalogo {
         Catalogo c = catalogo.ver(usuario);
         vista.getPuestos().limpiar();
         c.getPuestos().forEach(p -> vista.getPuestos().fila(p));
-        vista.getAreas().limpiar();
-        c.getAreas().forEach(a -> vista.getAreas().fila(a));
     }
 }

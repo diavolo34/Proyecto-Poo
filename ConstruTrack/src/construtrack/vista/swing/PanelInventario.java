@@ -10,7 +10,7 @@ public final class PanelInventario extends JPanel {
     private final PanelTabla articulos = new PanelTabla("Inventario", "Herramientas, equipos y materiales de la empresa. Entrega cada "
             + "artículo a un supervisor o empleado y registra la devolución con su estado; todo queda en el historial.",
             "Código", "Artículo", "Categoría", "Marca / serie", "Disponibles", "Total", "Estado");
-    private final PanelTabla entregas = new PanelTabla("Entregas activas", null, "Id", "Artículo", "Tiene", "Cantidad", "Obra",
+    private final PanelTabla entregas = new PanelTabla("Entregas activas", null, "Id", "Artículo", "Tiene", "Cantidad", "Proyecto",
             "Entregado", "Devolver el");
     private final JButton btnAgregar = Tema.botonPrimario("Agregar…");
     private final JButton btnEditar = Tema.botonSecundario("Editar…");

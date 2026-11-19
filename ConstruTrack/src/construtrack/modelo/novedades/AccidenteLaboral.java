@@ -15,7 +15,7 @@ public class AccidenteLaboral extends ReporteObra implements Justificable {
         this.lugar = datos.extra("lugar");
         this.requirioAtencion = Boolean.parseBoolean(datos.extra("requirioAtencion"));
         if (lugar.length() < 3) {
-            throw new DatoInvalidoException("Indica el lugar de la obra donde ocurrió el accidente.");
+            throw new DatoInvalidoException("Indica el lugar del proyecto donde ocurrió el accidente.");
         }
     }
 

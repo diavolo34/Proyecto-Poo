@@ -127,9 +127,9 @@ class TalentoHumanoTest {
     @DisplayName("Egresos, archivos, puestos e inactivos sobreviven a guardar y cargar")
     void persistencia() {
         d.jose.setPuesto("Albañil");
-        d.jose.setArea("Obra civil");
+        servicios.areas().crear(d.gerente, "Obra civil", "20000001");
+        servicios.areas().incluir(d.gerente, "30000001", "obra civil");
         servicios.talento().registrarEgreso(d.gerente, "30000004", renuncia());
-        servicios.catalogo().agregar(d.gerente, ServicioCatalogo.Tipo.AREAS, "Seguridad industrial");
         servicios.catalogo().quitar(d.gerente, ServicioCatalogo.Tipo.PUESTOS, "Operador de maquinaria");
         AlmacenMemoria almacen = new AlmacenMemoria();
         FabricaNovedades fabrica = FabricaNovedades.conTiposPorDefecto();
@@ -143,24 +143,26 @@ class TalentoHumanoTest {
         Egreso egreso = empresa.listarEgresos().get(0);
         assertEquals("No devolvió el taladro", egreso.getNotaEquipos());
         assertNotNull(empresa.buscarArchivo(egreso.getCarta()));
-        assertTrue(empresa.getCatalogo().getAreas().contains("Seguridad industrial"));
+        assertEquals("Obra civil", empresa.buscarUsuario("30000001").getArea());
+        assertEquals("Ana Rodríguez", empresa.buscarArea("Obra civil").getSupervisor().getNombre());
         assertFalse(empresa.getCatalogo().getPuestos().contains("Operador de maquinaria"));
         assertNull(cargada.autenticar("30000004", "emp123"), "Inactiva no puede entrar");
     }
 
     @Test
-    @DisplayName("El catálogo lo administra el gerente y no deja quitar un puesto en uso")
+    @DisplayName("El catálogo de puestos lo administra el gerente y no deja quitar un puesto en uso")
     void catalogo() {
         assertTrue(servicios.catalogo().ver(d.jose).getPuestos().containsAll(java.util.List.of("Electricista",
-                "Supervisor del equipo de mantenimiento", "Gerente", "Jefe de obra")));
+                "Supervisor del equipo de mantenimiento", "Gerente", "Jefe de proyecto", "Plomero", "Chofer")));
         assertThrows(PermisoDenegadoException.class, () -> servicios.catalogo().agregar(d.ana, ServicioCatalogo.Tipo.PUESTOS, "Soldador"));
-        servicios.personal().actualizar(d.gerente, "30000001", Map.of("puesto", "electricista", "area", "Electricidad"));
+        servicios.personal().actualizar(d.gerente, "30000001", Map.of("puesto", "electricista"));
         assertEquals("Electricista", d.jose.getPuesto(), "Se guarda con el nombre del catálogo");
         assertThrows(OperacionInvalidaException.class, () -> servicios.catalogo().quitar(d.gerente, ServicioCatalogo.Tipo.PUESTOS,
                 "Electricista"));
         assertThrows(DatoInvalidoException.class, () -> servicios.personal().actualizar(d.gerente, "30000001",
                 Map.of("puesto", "Astronauta")));
-        assertThrows(OperacionInvalidaException.class, () -> servicios.catalogo().agregar(d.gerente, ServicioCatalogo.Tipo.AREAS,
-                "electricidad"));
+        assertThrows(OperacionInvalidaException.class, () -> servicios.catalogo().agregar(d.gerente, ServicioCatalogo.Tipo.PUESTOS,
+                "electricista"));
+        assertThrows(DatoInvalidoException.class, () -> ServicioCatalogo.Tipo.desdeTexto("areas"));
     }
 }

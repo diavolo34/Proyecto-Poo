@@ -42,15 +42,15 @@ const cifra = (valor, texto) =>
     const obrasActivas = typeof datos.obrasActivas === 'number' ? datos.obrasActivas : datos.obras.length;
     const cifras = [
       [datos.personal, 'Personas registradas'],
-      [datos.presentes, 'En la obra ahora'],
-      [obrasActivas, 'Obras activas'],
+      [datos.presentes, 'En el proyecto ahora'],
+      [obrasActivas, 'Proyectos activos'],
       [promedio + '%', 'Avance promedio del plazo'],
     ];
 
     if (typeof datos.empresas === 'number') cifras.unshift([datos.empresas, datos.empresas === 1 ? 'Empresa usa ConstruTrack' : 'Empresas usan ConstruTrack']);
     $('#cifras').innerHTML = datos.empresas === 0
       ? `<div class="lp-primera"><p class="lp-primera-titulo">Sé la primera empresa en usar ConstruTrack</p>
-          <p>Crea tu empresa en dos minutos, registra tus obras e invita a tu personal con un código.</p>
+          <p>Crea tu empresa en dos minutos, registra tus proyectos y suma a tu personal con un código de registro.</p>
           <a class="btn btn-primario" href="app.html#registro?tipo=gerente">Crear mi empresa</a></div>`
       : cifras.map(([valor, texto]) => cifra(valor, texto)).join('');
     $('#lista-obras').innerHTML = datos.obras.map((o) => `
@@ -61,7 +61,7 @@ const cifra = (valor, texto) =>
           aria-label="Avance del plazo de ${esc(o.nombre)}"><span style="width:${o.avance}%"></span></div>
         <p class="lp-obra-pie"><strong>${o.avance}%</strong> del plazo · fin estimado ${fecha(o.finEstimado)}</p>
       </article>`).join('')
-      || `<p class="lp-sin-obras">Las obras de cada empresa son privadas: solo las ve su personal.
+      || `<p class="lp-sin-obras">Los proyectos de cada empresa son privados: solo los ve su personal.
         <a href="app.html#registro?tipo=gerente">Crea tu empresa</a> y registra la primera.</p>`;
     $('#titulo-obras').hidden = datos.obras.length === 0;
     if (datos.empresas === 0) $('#lista-obras').innerHTML = '';

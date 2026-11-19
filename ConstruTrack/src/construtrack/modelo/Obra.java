@@ -33,7 +33,7 @@ public class Obra {
 
     public Obra(String codigo, String nombre, String ubicacion, LocalDate fechaInicio, LocalDate fechaFinEstimada) {
         if (codigo == null || !codigo.matches("[A-Z]{2,4}-\\d{2,4}")) {
-            throw new DatoInvalidoException("El código de obra debe tener el formato OB-01.");
+            throw new DatoInvalidoException("El código del proyecto debe tener el formato PR-01.");
         }
         this.codigo = codigo;
         setNombre(nombre);
@@ -43,7 +43,7 @@ public class Obra {
 
     public void iniciar(LocalDate hoy) {
         if (estado != EstadoObra.PLANIFICADA) {
-            throw new OperacionInvalidaException("La obra «" + nombre + "» ya está " + estado.getNombre().toLowerCase() + ".");
+            throw new OperacionInvalidaException("El proyecto «" + nombre + "» ya está " + estado.getNombre().toLowerCase() + ".");
         }
         estado = EstadoObra.EN_CURSO;
         fechaInicioReal = hoy;
@@ -51,7 +51,7 @@ public class Obra {
 
     public void concluir(LocalDate hoy) {
         if (estado != EstadoObra.EN_CURSO) {
-            throw new OperacionInvalidaException("Solo se puede concluir una obra en curso. «" + nombre + "» está "
+            throw new OperacionInvalidaException("Solo se puede concluir un proyecto en curso. «" + nombre + "» está "
                     + estado.getNombre().toLowerCase() + ".");
         }
         estado = EstadoObra.CONCLUIDA;
@@ -60,7 +60,7 @@ public class Obra {
 
     public RetrasoObra reportarRetraso(Firma quien, String motivo, LocalDate nuevoFin, LocalDateTime ahora) {
         if (estado == EstadoObra.CONCLUIDA) {
-            throw new OperacionInvalidaException("La obra «" + nombre + "» ya concluyó.");
+            throw new OperacionInvalidaException("El proyecto «" + nombre + "» ya concluyó.");
         }
         RetrasoObra retraso = new RetrasoObra(retrasos.size() + 1, ahora, quien, motivo, fechaFinEstimada, nuevoFin);
         fechaFinEstimada = nuevoFin;
@@ -74,7 +74,7 @@ public class Obra {
                 return r;
             }
         }
-        throw new DatoInvalidoException("La obra «" + nombre + "» no tiene el retraso #" + id + ".");
+        throw new DatoInvalidoException("El proyecto «" + nombre + "» no tiene el retraso #" + id + ".");
     }
 
     public List<RetrasoObra> getRetrasos() {
@@ -135,7 +135,7 @@ public class Obra {
 
     public final void setNombre(String nombre) {
         if (nombre == null || nombre.trim().length() < 3) {
-            throw new DatoInvalidoException("El nombre de la obra debe tener al menos 3 caracteres.");
+            throw new DatoInvalidoException("El nombre del proyecto debe tener al menos 3 caracteres.");
         }
         this.nombre = nombre.trim();
     }
@@ -158,7 +158,7 @@ public class Obra {
 
     public final void setFechas(LocalDate inicio, LocalDate finEstimada) {
         if (inicio == null || finEstimada == null || !finEstimada.isAfter(inicio)) {
-            throw new DatoInvalidoException("La fecha estimada de fin debe ser posterior al inicio de la obra.");
+            throw new DatoInvalidoException("La fecha estimada de fin debe ser posterior al inicio del proyecto.");
         }
         this.fechaInicio = inicio;
         this.fechaFinEstimada = finEstimada;
@@ -166,14 +166,14 @@ public class Obra {
 
     public void configurarControl(Double latitud, Double longitud, Integer radio, boolean exigeCodigo) {
         if ((latitud == null) != (longitud == null)) {
-            throw new DatoInvalidoException("Indica la latitud y la longitud de la obra, o deja ambas vacías.");
+            throw new DatoInvalidoException("Indica la latitud y la longitud del proyecto, o deja ambas vacías.");
         }
         if (latitud != null && (latitud < -90 || latitud > 90 || longitud < -180 || longitud > 180)) {
-            throw new DatoInvalidoException("La ubicación de la obra no es válida.");
+            throw new DatoInvalidoException("La ubicación del proyecto no es válida.");
         }
         int r = radio == null ? 150 : radio;
         if (latitud != null && (r < RADIO_MINIMO || r > RADIO_MAXIMO)) {
-            throw new DatoInvalidoException("El radio de la obra debe estar entre " + RADIO_MINIMO + " y " + RADIO_MAXIMO + " metros.");
+            throw new DatoInvalidoException("El radio del proyecto debe estar entre " + RADIO_MINIMO + " y " + RADIO_MAXIMO + " metros.");
         }
         this.latitud = latitud;
         this.longitud = longitud;
@@ -202,7 +202,7 @@ public class Obra {
 
     public String codigoAsistencia(Instant ahora) {
         if (!exigeCodigo) {
-            throw new DatoInvalidoException("La obra " + nombre + " no usa código de asistencia.");
+            throw new DatoInvalidoException("El proyecto " + nombre + " no usa código de asistencia.");
         }
         return Totp.codigo(secretoCodigo, Totp.paso(ahora));
     }
@@ -220,9 +220,9 @@ public class Obra {
         List<String> motivos = new ArrayList<>();
         if (exigeCodigo) {
             if (!marca.tieneCodigo()) {
-                motivos.add("sin el código de la obra");
+                motivos.add("sin el código del proyecto");
             } else if (Totp.verificar(secretoCodigo, marca.codigo(), marca.momento(), VENTANA_CODIGO) == Totp.SIN_COINCIDENCIA) {
-                throw new DatoInvalidoException("El código de la obra no es correcto o ya cambió. Escanea el QR otra vez "
+                throw new DatoInvalidoException("El código del proyecto no es correcto o ya cambió. Escanea el QR otra vez "
                         + "o escribe el código que se ve ahora.");
             }
         }
@@ -233,7 +233,7 @@ public class Obra {
                 double distancia = distanciaMetros(marca.latitud(), marca.longitud());
                 double tolerancia = marca.precision() == null ? 0 : Math.min(Math.max(marca.precision(), 0), TOLERANCIA_MAXIMA);
                 if (distancia > radioMetros + tolerancia) {
-                    motivos.add("a " + textoDistancia(distancia) + " de la obra");
+                    motivos.add("a " + textoDistancia(distancia) + " del proyecto");
                 }
             }
         }

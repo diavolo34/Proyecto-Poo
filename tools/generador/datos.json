@@ -1,8 +1,8 @@
 {
   "universidad": "Universidad Católica Andrés Bello",
   "materia": "Programación Orientada a Objetos",
-  "titulo": "ConstruTrack: Sistema de Gestión de Personal en Obra",
-  "subtitulo": "Entrega 2 · MVC, SOLID, UX/UI y Scrum: asistencia verificable, permisos y reposos, reportes en obra, talento humano e inventario",
+  "titulo": "ConstruTrack: Sistema de Gestión de Personal por Proyecto",
+  "subtitulo": "Entrega 2 · MVC, SOLID, UX/UI y Scrum: asistencia verificable, áreas con su supervisor, permisos y reposos, reportes de proyecto, talento humano e inventario",
   "integrantes": [
     "Francisco Javier Manzano Valero"
   ],

@@ -66,10 +66,10 @@ const Marcacion = (() => {
         Modal.cerrar();
       };
       const modal = Modal.abrir(`Marcar ${tipo}`, `<form novalidate>
-        <p>Tu obra pide el <strong>código de asistencia</strong>. Escanea el QR que muestra tu supervisor o escribe sus 6 dígitos.</p>
+        <p>Tu proyecto pide el <strong>código de asistencia</strong>. Escanea el QR que muestra tu supervisor o escribe sus 6 dígitos.</p>
         ${puedeEscanear() ? `<button type="button" class="btn btn-secundario btn-bloque" id="m-escanear">Escanear el QR con la cámara</button>
           <video id="m-video" class="video-qr oculto" playsinline muted></video>` : ''}
-        <div class="campo"><label for="m-codigo">Código de la obra</label>
+        <div class="campo"><label for="m-codigo">Código del proyecto</label>
           <input id="m-codigo" class="codigo-grande" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="000000"></div>
         <div class="mensaje mensaje-error oculto" role="alert"></div>
         <div class="acciones">
@@ -82,7 +82,7 @@ const Marcacion = (() => {
         evento.preventDefault();
         const codigo = codigoDesdeTexto(modal.querySelector('#m-codigo').value);
         if (!codigo) {
-          mostrarErrorFormulario(formulario, 'Escribe los 6 dígitos del código de la obra.');
+          mostrarErrorFormulario(formulario, 'Escribe los 6 dígitos del código del proyecto.');
           return;
         }
         terminar(codigo);

@@ -83,7 +83,7 @@ public abstract class Usuario {
                     + " al " + incapacidad.getHasta() + ". Mientras dure la incapacidad no se marca asistencia.");
         }
         if (estaPresente()) {
-            throw new OperacionInvalidaException(nombre + " ya registró su entrada y sigue en la obra.");
+            throw new OperacionInvalidaException(nombre + " ya registró su entrada y sigue en el proyecto.");
         }
         LocalTime hora = ahora.toLocalTime().withSecond(0).withNano(0);
         RegistroAsistencia registro = new RegistroAsistencia(ahora.toLocalDate(), hora, horario.esLlegadaTarde(hora));
@@ -195,13 +195,17 @@ public abstract class Usuario {
         return false;
     }
 
+    public boolean puedeIncluirEnArea(Usuario persona, Area area) {
+        return false;
+    }
+
     public boolean puedeVerNovedadesDe(Usuario afectado) {
         return afectado == this;
     }
 
     public void registrarNovedad(Novedad novedad) {
         if (!novedad.getRegistradaPor().esDe(this) || !puedeRegistrarNovedadPara(novedad.getAfectado())) {
-            throw new PermisoDenegadoException("Solo el supervisor registra permisos, reposos y reportes en obra de su personal.");
+            throw new PermisoDenegadoException("Solo el supervisor registra permisos, reposos y reportes de proyecto de su personal.");
         }
         if (!novedad.getAfectado().estaActivo()) {
             throw new OperacionInvalidaException(novedad.getAfectado().getNombre() + " ya no está activo en la empresa.");
@@ -278,7 +282,7 @@ public abstract class Usuario {
 
     public void asignarObra(Usuario persona, Obra obra) {
         if (!puedeAsignarObraA(persona)) {
-            throw new PermisoDenegadoException("No puedes cambiar la obra de " + persona.getNombre() + ".");
+            throw new PermisoDenegadoException("No puedes cambiar el proyecto de " + persona.getNombre() + ".");
         }
         persona.setObra(obra);
     }

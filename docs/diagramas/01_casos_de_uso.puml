@@ -11,31 +11,34 @@ Empleado -|> Visitante
 Supervisor -|> Empleado
 Gerente -|> Supervisor
 
-rectangle "Sistema ConstruTrack · Gestión de personal en obra" {
+rectangle "Sistema ConstruTrack · Gestión de personal por proyecto" {
   usecase "Consultar portada\ny chatbot" as UC_Portada
   usecase "Crear cuenta\ncon correo" as UC_Registro
   usecase "Unirse a la empresa\ncon código" as UC_Unirse
-  usecase "Validar invitación" as UC_Validar
+  usecase "Validar código\nde registro" as UC_Validar
   usecase "Iniciar sesión\n(correo o cédula)" as UC_Login
   usecase "Marcar entrada / salida" as UC_Marcar
   usecase "Verificar puntualidad" as UC_Puntual
   usecase "Registrar ubicación" as UC_Ubicacion
   usecase "Consultar mi historial" as UC_Historial
   usecase "Consultar permisos\ny herramientas" as UC_Consultar
-  usecase "Registrar permiso, reposo\no reporte en obra" as UC_Reportar
+  usecase "Registrar permiso, reposo\no reporte de proyecto" as UC_Reportar
   usecase "Adjuntar datos y documento\ndel reposo médico" as UC_Certificado
   usecase "Aprobar o rechazar\ncon nota" as UC_Revisar
   usecase "Confirmar marca\nen el mapa" as UC_Confirmar
-  usecase "Iniciar / concluir obra\ny reportar retraso" as UC_Obra
+  usecase "Iniciar / concluir proyecto\ny reportar retraso" as UC_Obra
   usecase "Registrar egreso\n(despido / renuncia)" as UC_Egreso
   usecase "Registrar devolución\nde equipos" as UC_Devolucion
   usecase "Gestionar inventario\ny entregas" as UC_Inventario
-  usecase "Gestionar puestos\ny áreas" as UC_Catalogo
+  usecase "Gestionar puestos" as UC_Catalogo
+  usecase "Incluir en un área\na personas sin área" as UC_Incluir
+  usecase "Gestionar áreas\ny su supervisor" as UC_Areas
+  usecase "Asignar al empleado\nel supervisor del área" as UC_SupArea
   usecase "Consultar alertas\nautomáticas" as UC_Alertas
   usecase "Consultar estadísticas" as UC_Estadisticas
   usecase "Exportar reporte\n(CSV / TXT)" as UC_Exportar
   usecase "Gestionar personal" as UC_Personal
-  usecase "Crear / cancelar\ninvitación" as UC_Invitar
+  usecase "Generar / cancelar\ncódigo de registro" as UC_Invitar
 }
 
 Visitante -- UC_Portada
@@ -51,6 +54,8 @@ Gerente -- UC_Revisar
 Gerente -- UC_Egreso
 Gerente -- UC_Inventario
 Gerente -- UC_Catalogo
+Supervisor -- UC_Incluir
+Gerente -- UC_Areas
 Supervisor -- UC_Alertas
 Supervisor -- UC_Estadisticas
 Supervisor -- UC_Exportar
@@ -65,4 +70,6 @@ UC_Revisar ..> UC_Login : <<include>>
 UC_Marcar ..> UC_Ubicacion : <<include>>
 UC_Certificado ..> UC_Reportar : <<extend>>\n{tipo = Reposo médico}
 UC_Devolucion ..> UC_Egreso : <<extend>>\n{tenía equipos a su cargo}
+UC_Incluir ..> UC_SupArea : <<include>>
+UC_Areas ..> UC_SupArea : <<include>>
 @enduml

@@ -60,6 +60,13 @@ public class ServicioSupervision extends ServicioBase {
                                 r.getFecha(), ahora));
                     }
                 }
+                for (construtrack.modelo.Area area : empresaDe(actual).listarAreas()) {
+                    if (!area.tieneSupervisor()) {
+                        alertas.add(Alerta.general(Nivel.ALTA, area.getNombre(), "Área " + area.getNombre() + " sin supervisor",
+                                "Asígnale un supervisor en «Áreas»: mientras tanto, sus empleados no tienen quién los supervise.",
+                                hoy.atStartOfDay(), ahora));
+                    }
+                }
                 for (Asignacion a : empresaDe(actual).getInventario().vencidas(hoy)) {
                     alertas.add(Alerta.general(Nivel.MEDIA, a.getPersona().cedula(), a.getPersona().nombre(),
                             "Debía devolver «" + a.getArticulo().getNombre() + "» (" + a.getArticulo().getCodigo() + ") el "
@@ -84,7 +91,7 @@ public class ServicioSupervision extends ServicioBase {
         Reporte reporte = reportes.get(tipo);
         FormateadorReporte formateador = formatos.get(nombreFormato);
         if (reporte == null) {
-            throw new DatoInvalidoException("Tipo de reporte no válido. Usa asistencia, puntualidad, permisos o reportes-obra.");
+            throw new DatoInvalidoException("Tipo de reporte no válido. Usa asistencia, puntualidad, permisos o reportes-obra (reportes de proyecto).");
         }
         if (formateador == null) {
             throw new DatoInvalidoException("Formato no válido. Usa txt o csv.");

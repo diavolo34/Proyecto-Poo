@@ -27,13 +27,13 @@ public final class DialogoUnirse extends JDialog {
         encabezado.setOpaque(false);
         encabezado.add(Tema.subtitulo("¡Hola, " + nombre + "! Únete a tu empresa"), BorderLayout.NORTH);
         encabezado.add(Tema.textoSuave("<html><div style='width:360px'>Tu cuenta ya está creada. Escribe el código de "
-                + "invitación que te dio tu gerente (formato CT-XXXX-XXXX). Al unirte tendrás el rol, el supervisor y la "
-                + "obra que él definió.</div></html>"), BorderLayout.CENTER);
+                + "registro que te dio tu gerente (formato CT-XXXX-XXXX). Al unirte tendrás el rol, el puesto y el "
+                + "proyecto que él definió.</div></html>"), BorderLayout.CENTER);
         contenido.add(encabezado, BorderLayout.NORTH);
 
         txtCodigo.setFont(Tema.SUBTITULO.deriveFont(18f));
         txtCodigo.setToolTipText("Puedes escribirlo en minúsculas; los espacios se ignoran");
-        contenido.add(new Formulario().campo("Código de invitación *", txtCodigo, "Formato: CT-XXXX-XXXX").panel(),
+        contenido.add(new Formulario().campo("Código de registro *", txtCodigo, "Formato: CT-XXXX-XXXX").panel(),
                 BorderLayout.CENTER);
 
         JPanel abajo = new JPanel(new BorderLayout());

@@ -13,7 +13,7 @@ const CAMPOS_NOVEDAD = {
   PERMISO_LABORAL: '',
   RETARDO: `<div class="campo"><label for="n-minutos">Minutos de retraso *</label><input id="n-minutos" name="minutos" type="number" min="1" max="600" value="15"></div>`,
   INASISTENCIA: '',
-  ACCIDENTE_LABORAL: `<div class="campo"><label for="n-lugar">Lugar de la obra *</label><input id="n-lugar" name="lugar" placeholder="Ej.: Andamio 3, piso 4"></div>
+  ACCIDENTE_LABORAL: `<div class="campo"><label for="n-lugar">Lugar del proyecto *</label><input id="n-lugar" name="lugar" placeholder="Ej.: Andamio 3, piso 4"></div>
     <label class="casillas"><label><input type="checkbox" name="requirioAtencion" value="true"> Requirió atención médica</label></label>`,
 };
 
@@ -28,11 +28,11 @@ const TEXTOS_CATEGORIA = {
       + 'Un reposo médico aprobado justifica esos días como «Incapacidad» y bloquea la marca de asistencia mientras dure.',
   },
   REPORTE_OBRA: {
-    titulo: 'Reportes en obra',
-    registrar: 'Nuevo reporte en obra',
+    titulo: 'Reportes de proyecto',
+    registrar: 'Nuevo reporte de proyecto',
     boton: 'Registrar reporte',
-    lista: 'Reportes de la obra',
-    vacio: 'No hay reportes en obra.',
+    lista: 'Reportes del proyecto',
+    vacio: 'No hay reportes de proyecto.',
     ayuda: 'Los registra el supervisor (retardos, inasistencias y accidentes) y el gerente los aprueba o rechaza con una nota obligatoria.',
   },
 };
@@ -59,8 +59,8 @@ async function vistaNovedades(categoria) {
         ${Object.entries(opciones.tipos).map(([codigo, nombre]) => `<option value="${esc(codigo)}">${esc(nombre)}</option>`).join('')}</select></div>
       <div class="campo"><label for="n-persona">Persona *</label><select id="n-persona" name="cedula">
         ${opciones.personas.map((p) => `<option value="${esc(p.cedula)}" data-obra="${esc(p.obra || '')}">${esc(p.nombre)}${p.puesto ? ' · ' + esc(p.puesto) : ''}</option>`).join('')}</select></div>
-      ${categoria === 'REPORTE_OBRA' ? `<div class="campo"><label for="n-obra">Obra</label><select id="n-obra" name="obra">
-        <option value="">— La obra de la persona —</option>${opciones.obras.map((o) => `<option>${esc(o.nombre)}</option>`).join('')}</select></div>` : ''}
+      ${categoria === 'REPORTE_OBRA' ? `<div class="campo"><label for="n-obra">Proyecto</label><select id="n-obra" name="obra">
+        <option value="">— El proyecto de la persona —</option>${opciones.obras.map((o) => `<option>${esc(o.nombre)}</option>`).join('')}</select></div>` : ''}
       <div class="fila">
         <div class="campo"><label for="n-desde">Desde *</label><input id="n-desde" name="desde" type="date" value="${hoy}"></div>
         <div class="campo"><label for="n-hasta">Hasta</label><input id="n-hasta" name="hasta" type="date"><span class="ayuda">Vacío = un día</span></div>
@@ -179,14 +179,14 @@ async function vistaTablero() {
         <button class="btn btn-peligro btn-chico" data-revisar="${n.id}" data-estado="RECHAZADA">Rechazar</button></div>` : ''}
     </article>`;
   if (!zona.isConnected) return;
-  zona.innerHTML = encabezado('', 'Tablero',
+  zona.innerHTML = encabezado('', 'Panel de control',
     `<label class="solo-lector" for="categoria-tablero">Mostrar</label>
      <select id="categoria-tablero" style="width:auto"><option value="">Todo</option>
        <option value="LICENCIA" ${categoria === 'LICENCIA' ? 'selected' : ''}>Permisos y reposos</option>
-       <option value="REPORTE_OBRA" ${categoria === 'REPORTE_OBRA' ? 'selected' : ''}>Reportes en obra</option></select>
-     <label class="solo-lector" for="filtro-tablero">Buscar en el tablero</label>
+       <option value="REPORTE_OBRA" ${categoria === 'REPORTE_OBRA' ? 'selected' : ''}>Reportes de proyecto</option></select>
+     <label class="solo-lector" for="filtro-tablero">Buscar en el panel de control</label>
      <input id="filtro-tablero" placeholder="Buscar persona o tipo…" value="${esc(filtro)}" style="width:220px">`) + `
-    <p class="suave pequeno" style="margin-top:-8px">Los aprobados y rechazados salen del tablero 3 horas después de revisarse.
+    <p class="suave pequeno" style="margin-top:-8px">Los aprobados y rechazados salen del panel de control 3 horas después de revisarse.
       Siguen en el historial de cada persona y en <a href="#supervision">Supervisión → Reportes</a>.</p>
     <div class="kanban kanban-3">${columnas.map(([valor, titulo]) => {
       const tarjetas = visibles.filter((n) => n.estado === valor);

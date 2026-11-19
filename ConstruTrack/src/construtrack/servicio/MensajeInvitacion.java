@@ -17,7 +17,7 @@ public class MensajeInvitacion {
     public String asunto(Invitacion invitacion) {
         String empresa = invitacion.getCreadaPor().getEmpresa() == null ? "ConstruTrack"
                 : invitacion.getCreadaPor().getEmpresa().getNombre();
-        return "Tu invitación a " + empresa + " en ConstruTrack: " + invitacion.getCodigo();
+        return "Tu código de registro para " + empresa + " en ConstruTrack: " + invitacion.getCodigo();
     }
 
     public String enlace(String correo) {
@@ -27,20 +27,20 @@ public class MensajeInvitacion {
     private String detalle(Invitacion v) {
         return "Rol: " + v.getRol()
                 + (v.getSupervisor() == null ? "" : " · Supervisor: " + v.getSupervisor().getNombre())
-                + (v.getObra() == null ? "" : " · Obra: " + v.getObra().getNombre())
+                + (v.getObra() == null ? "" : " · Proyecto: " + v.getObra().getNombre())
                 + " · Vence el " + v.getVence().format(FECHA);
     }
 
     public String texto(Invitacion v, String correo) {
-        return "Te invitaron a unirte a ConstruTrack.\n\nTu código de invitación es: " + v.getCodigo()
+        return "Tu gerente te registró en ConstruTrack.\n\nTu código de registro es: " + v.getCodigo()
                 + "\n" + detalle(v) + "\n\n1. Crea tu cuenta con este correo: " + enlace(correo)
                 + "\n2. Escribe el código en «Únete a tu empresa».\n\nEl código sirve una sola vez.";
     }
 
     public String html(Invitacion v, String correo) {
         return "<div style=\"font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#172b4d\">"
-                + "<h2 style=\"color:#0c66e4\">Te invitaron a ConstruTrack</h2>"
-                + "<p>Tu gerente te invitó a unirte al sistema de asistencia de la obra. Este es tu código:</p>"
+                + "<h2 style=\"color:#0c66e4\">Tu código de registro en ConstruTrack</h2>"
+                + "<p>Tu gerente te registró en el sistema de asistencia de la empresa. Este es tu código de registro:</p>"
                 + "<p style=\"font-size:26px;font-weight:bold;letter-spacing:2px;background:#e9f2ff;padding:12px;"
                 + "text-align:center;border-radius:8px\">" + v.getCodigo() + "</p>"
                 + "<p style=\"color:#44546f\">" + escaparHtml(detalle(v)) + "</p>"

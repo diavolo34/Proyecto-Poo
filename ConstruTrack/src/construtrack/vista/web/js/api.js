@@ -156,6 +156,12 @@ const Api = {
   subirArchivo: (datos) => Api.pedir('POST', '/api/archivos', datos),
   archivo: (id) => Api.blob('/api/archivos/' + encodeURIComponent(id)),
 
+  areas: () => Api.pedir('GET', '/api/areas'),
+  crearArea: (nombre, supervisor) => Api.pedir('POST', '/api/areas', { nombre, supervisor }),
+  cambiarSupervisorArea: (area, supervisor) => Api.pedir('POST', '/api/areas/supervisor', { area, supervisor }),
+  eliminarArea: (area) => Api.pedir('POST', '/api/areas/eliminar', { area }),
+  incluirEnArea: (cedula, area) => Api.pedir('POST', '/api/areas/incluir', { cedula, area }),
+  sacarDeArea: (cedula) => Api.pedir('POST', '/api/areas/sacar', { cedula }),
   catalogo: () => Api.pedir('GET', '/api/catalogo'),
   agregarCatalogo: (tipo, nombre) => Api.pedir('POST', '/api/catalogo/' + tipo, { nombre }),
   quitarCatalogo: (tipo, nombre) => Api.pedir('POST', `/api/catalogo/${tipo}/quitar`, { nombre }),

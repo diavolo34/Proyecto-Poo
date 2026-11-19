@@ -93,7 +93,7 @@ public class ServicioRegistro extends ServicioBase {
         return modificar(() -> {
             Invitacion invitacion = plataforma.buscarInvitacion(codigo);
             if (invitacion == null) {
-                throw new NoEncontradoException("No encontramos la invitación " + codigo + ". Revisa el código o pide uno nuevo.");
+                throw new NoEncontradoException("No encontramos el código de registro " + codigo + ". Revisa el código o pide uno nuevo.");
             }
             return invitacion.canjear(cuenta, LocalDateTime.now(reloj));
         });

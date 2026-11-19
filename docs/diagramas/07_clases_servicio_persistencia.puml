@@ -18,6 +18,7 @@ class Servicios {
   + talento() : ServicioTalento
   + inventario() : ServicioInventario
   + catalogo() : ServicioCatalogo
+  + areas() : ServicioAreas
   + archivos() : ServicioArchivos
   + supervision() : ServicioSupervision
   + registro() : ServicioRegistro
@@ -53,6 +54,14 @@ interface Notificador {
 class NotificadorConsola
 class NotificadorBrevo {
   + NotificadorBrevo(api, clave, remitente, urlSitio)
+}
+class ServicioAreas {
+  + ver(actual : Usuario) : Vista
+  + crear(actual : Usuario, nombre : String, cedulaSupervisor : String) : Area
+  + cambiarSupervisor(actual : Usuario, nombre : String, cedulaSupervisor : String) : void
+  + incluir(actual : Usuario, cedula : String, nombre : String) : Usuario
+  + sacar(actual : Usuario, cedula : String) : Usuario
+  + eliminar(actual : Usuario, nombre : String) : List<Usuario>
 }
 class ServicioObras {
   + crear(actual, datos) : Obra
@@ -101,6 +110,8 @@ ServicioInvitaciones --> Notificador
 Notificador <|.. NotificadorConsola
 Notificador <|.. NotificadorBrevo
 ServicioBase <|-- ServicioObras
+ServicioBase <|-- ServicioAreas
+Servicios *-- ServicioAreas
 LectorDatos <|.. RepositorioTexto
 EscritorDatos <|.. RepositorioTexto
 LectorDatos <|.. RepositorioMemoria

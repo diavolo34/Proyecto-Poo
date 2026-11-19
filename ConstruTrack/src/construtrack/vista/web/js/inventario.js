@@ -23,7 +23,7 @@ async function vistaInventario() {
       <div class="cifra"><div class="descripcion">En mantenimiento</div><div class="valor">${enTaller}</div></div>
     </div>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-entregas"><h2 id="t-entregas">Entregas activas</h2>
-      ${entregas.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Artículo</th><th>Tiene</th><th>Cantidad</th><th>Obra</th>
+      ${entregas.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Artículo</th><th>Tiene</th><th>Cantidad</th><th>Proyecto</th>
         <th>Entregado</th><th>Devolución</th><th><span class="solo-lector">Acciones</span></th></tr></thead><tbody>
         ${entregas.map((e) => `<tr><td><strong>${esc(e.nombreArticulo)}</strong><br><span class="pequeno suave">${esc(e.articulo)} · ${esc(e.categoria)}</span></td>
           <td>${esc(e.persona)}</td><td>${e.cantidad}</td><td>${esc(e.obra || '—')}</td>
@@ -123,7 +123,7 @@ function formularioEntrega(a, personas, obras) {
       <div class="campo"><label for="g-prevista">Devolver el</label><input id="g-prevista" name="devolucionPrevista" type="date">
         <span class="ayuda">Opcional. Si pasa la fecha, el gerente recibe una alerta.</span></div>
     </div>
-    <div class="campo"><label for="g-obra">Obra</label><select id="g-obra" name="obra"><option value="">— La obra de la persona —</option>
+    <div class="campo"><label for="g-obra">Proyecto</label><select id="g-obra" name="obra"><option value="">— El proyecto de la persona —</option>
       ${obras.filter((o) => o.estado !== 'CONCLUIDA').map((o) => `<option value="${esc(o.codigo)}">${esc(o.nombre)}</option>`).join('')}</select></div>
     <div class="campo"><label for="g-nota">Nota</label><input id="g-nota" name="nota" maxlength="300" placeholder="Ej.: con maletín y 2 baterías"></div>
     <div class="mensaje mensaje-error oculto" role="alert"></div>

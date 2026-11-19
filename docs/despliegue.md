@@ -58,14 +58,14 @@ Sin esas variables (por ejemplo, en NetBeans) los datos se guardan en `datos_con
 - `DEMO_CLAVE` activa la **demo privada** en la misma página (`app.html#demo`): una empresa de prueba en memoria, aparte
   de los clientes, a la que solo se entra con esa clave. Elige una frase larga y guárdala solo en Render.
 - `URL_SITIO` es la dirección de la página publicada (`https://construtrackfm.netlify.app`). Con ella se arman los enlaces de
-  los correos de invitación y de **«¿Olvidaste tu clave?»**. Sin ella, los enlaces apuntan a `http://localhost:<puerto>`.
+  los correos con el código de registro y de **«¿Olvidaste tu clave?»**. Sin ella, los enlaces apuntan a `http://localhost:<puerto>`.
 - `CORS_ORIGEN` lista las páginas que pueden usar la API (separadas por coma). Si cambias de dominio en Netlify, agrégalo aquí.
 - Seguridad: las cabeceras de la página en Netlify están en `vista/web/_headers` (viaja dentro del zip). Ver
   [seguridad.md](seguridad.md).
 - **Empezar de cero:** borra la clave `construtrack:datos` en Upstash (*Data Browser* → la clave → *Delete*) y reinicia el
   servicio en Render. Antes, guarda una copia si la necesitas.
 
-### Invitaciones por correo desde Gmail (recomendado, gratis y sin teléfono)
+### Códigos de registro por correo desde Gmail (recomendado, gratis y sin teléfono)
 
 Brevo exige verificar un teléfono y no acepta números de Venezuela; por eso la opción principal es enviar desde tu propio
 Gmail con un Google Apps Script (`NotificadorGmail`). Google permite unos 100 correos al día.
@@ -97,7 +97,7 @@ Al arrancar, el registro de Render dice `adjuntos en Google Drive`. Sin el scrip
 documentos se guardan en la carpeta `adjuntos_construtrack` junto al proyecto (variable `ADJUNTOS`). Para no usar Drive
 aunque el script esté configurado, define `ADJUNTOS_EN_DRIVE=false`.
 
-### Invitaciones por correo con Brevo (alternativa)
+### Códigos de registro por correo con Brevo (alternativa)
 
 Render gratis bloquea el envío por SMTP, así que el correo sale por la **API HTTP de Brevo** (`NotificadorBrevo`).
 
@@ -108,7 +108,7 @@ Render gratis bloquea el envío por SMTP, así que el correo sale por la **API H
 4. En Render → `construtrack-api` → **Environment** agrega `BREVO_API_KEY` (la clave) y `CORREO_REMITENTE`
    (el correo verificado del paso 2) → **Save changes**.
 
-Al arrancar, el registro dice `correo con Brevo`. En **Invitaciones** el Gerente escribe el correo de la persona y le llega
+Al arrancar, el registro dice `correo con Brevo`. En **Registro de personal** el Gerente escribe el correo de la persona y le llega
 un mensaje con el código y un botón para crear su cuenta. Sin estas variables, el envío solo se registra en la consola.
 
 ### Hora de Venezuela
@@ -129,7 +129,7 @@ Alternativa rápida sin conectar: arrastra otra vez la carpeta `ConstruTrack/src
 
 ## 3. Comprobar
 
-- https://construtrackfm.netlify.app → la portada muestra **«● Sistema en línea»** y las obras en vivo.
+- https://construtrackfm.netlify.app → la portada muestra **«● Sistema en línea»** y los proyectos en vivo.
 - **Iniciar sesión** con `carlos.mendez@construtrack.demo` / `gerente123`: ya no aparece el aviso de modo demostración.
 
 ## Ejecutar todo en local (NetBeans)

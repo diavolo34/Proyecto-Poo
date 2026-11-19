@@ -49,6 +49,10 @@ Prioridad: **A** (alta, pedido por la profesora o imprescindible) · **M** (medi
 | HU-43 | Como **gerente**, quiero cargar el inventario de herramientas y saber qué se llevó cada supervisor o empleado. | A | 10 | Hecho |
 | HU-44 | Como **supervisor**, quiero ver en un mapa dónde marcó cada persona; sin ubicación, la marca queda por confirmar. | A | 10 | Hecho |
 | HU-45 | Como **usuario**, quiero ver la clave que escribo y una portada con textos más profesionales. | M | 10 | Hecho |
+| HU-46 | Como **gerente**, quiero crear áreas (plomería, electricidad, transporte…), cada una con un supervisor responsable, e incluir en ellas a cada persona. | A | 11 | Hecho |
+| HU-47 | Como **supervisor**, quiero sumar a mi área a las personas que todavía no tienen una. | M | 11 | Hecho |
+| HU-48 | Como **cliente**, quiero que «obra» se llame «proyecto» en toda la aplicación, con códigos PR- para los nuevos. | A | 11 | Hecho |
+| HU-49 | Como **cliente**, quiero nombres más técnicos: «Panel de control» en lugar de «Tablero» y «Registro de personal» en lugar de «Invitaciones». | M | 11 | Hecho |
 
 ## Criterios de aceptación (historias principales)
 
@@ -68,9 +72,10 @@ Prioridad: **A** (alta, pedido por la profesora o imprescindible) · **M** (medi
 - Una incidencia sin resolver por más de 48 h genera una alerta.
 - El supervisor solo ve alertas de su equipo; el empleado no tiene acceso.
 
-**HU-12 · Invitaciones**
+**HU-12 · Códigos de registro**
 - El código tiene el formato CT-XXXX-XXXX, sirve una sola vez y vence en los días indicados (1 a 30).
-- Al usarlo se crea la ficha con el rol, el supervisor y la obra de la invitación.
+- Al usarlo se crea la ficha con el rol, el puesto y el proyecto del código; el área (y con ella el supervisor) se
+  asigna después, en «Áreas».
 - Un código usado, cancelado o vencido muestra un mensaje que indica pedir uno nuevo.
 
 **HU-13 · Página operativa**
@@ -88,6 +93,15 @@ Prioridad: **A** (alta, pedido por la profesora o imprescindible) · **M** (medi
 - Si no los devolvió, hay que anotar qué falta; si los devolvió, sus entregas del inventario se cierran solas.
 - La persona queda inactiva: no entra, no aparece en el personal y su historial se conserva. Eliminar la ficha deja un
   expediente.
+
+**HU-46 · Áreas con supervisor**
+- Solo el gerente crea, elimina un área o le cambia el supervisor; toda área tiene un supervisor activo como responsable.
+- Cada persona pertenece a una sola área y el gerente no pertenece a ninguna. El supervisor responsable queda en su área
+  y no se le puede mover fuera ni sacar mientras la dirija.
+- Al incluir a un empleado en un área, su supervisor pasa a ser el del área; si el área cambia de supervisor, cambia para
+  todos sus integrantes.
+- Al eliminar un área, sus integrantes quedan sin área y sin supervisor, después de confirmarlo.
+- Si el supervisor egresa, el área queda sin supervisor y el gerente recibe una alerta alta hasta asignarle uno.
 
 **HU-43 · Inventario**
 - Cada artículo tiene código (HE, EQ o MA), cantidad y, si tiene serie, es una sola unidad.

@@ -37,15 +37,14 @@ public class Gerente extends Usuario implements RevisorNovedades {
         }
         Horario horario = Horario.desdeTexto(datos.get("dias"), datos.get("horaEntrada"), datos.get("horaSalida"));
         String puesto = getEmpresa().getCatalogo().puestoValido(datos.get("puesto"));
-        String area = getEmpresa().getCatalogo().areaValida(datos.get("area"));
+        String area = areaValida(datos.get("area"));
         Usuario nuevo = Usuario.crear(rol, datos.get("cedula"), datos.get("nombre"), datos.get("clave"), horario);
         nuevo.setFechaIngreso(LocalDate.now(reloj));
         nuevo.setPuesto(puesto);
-        nuevo.setArea(area);
-        if (nuevo instanceof Empleado) {
-            asignarSupervisor((Empleado) nuevo, datos.get("supervisor"));
-        }
         getEmpresa().agregarUsuario(nuevo);
+        if (area != null) {
+            getEmpresa().incluirEnArea(nuevo, area);
+        }
         if ("true".equals(datos.get("presente"))) {
             nuevo.marcarEntrada(LocalDateTime.now(reloj));
         }
@@ -56,7 +55,8 @@ public class Gerente extends Usuario implements RevisorNovedades {
         Usuario usuario = buscarGestionable(cedula);
         usuario.verificarActivo();
         String puesto = datos.containsKey("puesto") ? getEmpresa().getCatalogo().puestoValido(datos.get("puesto")) : usuario.getPuesto();
-        String area = datos.containsKey("area") ? getEmpresa().getCatalogo().areaValida(datos.get("area")) : usuario.getArea();
+        boolean cambiaArea = datos.containsKey("area");
+        String area = cambiaArea ? areaValida(datos.get("area")) : usuario.getArea();
 
         String rol = datos.getOrDefault("rol", usuario.getRol());
         verificarRolGestionable(rol);
@@ -70,16 +70,6 @@ public class Gerente extends Usuario implements RevisorNovedades {
                 datos.getOrDefault("dias", actual.getDias()),
                 datos.getOrDefault("horaEntrada", actual.getHoraEntrada().toString()),
                 datos.getOrDefault("horaSalida", actual.getHoraSalida().toString()));
-        String cedulaSupervisor = datos.get("supervisor");
-        if ("Empleado".equals(rol) && cedulaSupervisor != null && !cedulaSupervisor.isEmpty()) {
-            if (cedulaSupervisor.equals(cedula)) {
-                throw new DatoInvalidoException("Un empleado no puede ser su propio supervisor.");
-            }
-            if (!(getEmpresa().buscarUsuario(cedulaSupervisor) instanceof Supervisor)) {
-                throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor.");
-            }
-        }
-
         if (nombre != null) {
             usuario.setNombre(nombre);
         }
@@ -88,12 +78,16 @@ public class Gerente extends Usuario implements RevisorNovedades {
         }
         usuario.setHorario(horario);
         usuario.setPuesto(puesto);
-        usuario.setArea(area);
-        if (!rol.equals(usuario.getRol())) {
+        boolean cambiaRol = !rol.equals(usuario.getRol());
+        if (cambiaRol) {
             usuario = cambiarRol(usuario, rol);
         }
-        if (usuario instanceof Empleado && datos.containsKey("supervisor")) {
-            asignarSupervisor((Empleado) usuario, cedulaSupervisor);
+        if (area == null) {
+            if (cambiaArea && getEmpresa().areaDe(usuario) != null) {
+                getEmpresa().sacarDeArea(usuario);
+            }
+        } else if (cambiaArea || cambiaRol) {
+            getEmpresa().incluirEnArea(usuario, area);
         }
         if (datos.containsKey("presente")) {
             boolean presente = "true".equals(datos.get("presente"));
@@ -116,16 +110,20 @@ public class Gerente extends Usuario implements RevisorNovedades {
         getEmpresa().eliminarFicha(idEgreso, expediente, ahora);
     }
 
-    public void asignarSupervisor(Empleado empleado, String cedulaSupervisor) {
-        if (cedulaSupervisor == null || cedulaSupervisor.isEmpty()) {
-            empleado.setSupervisor(null);
-            return;
+    private String areaValida(String nombre) {
+        if (nombre == null || nombre.isBlank()) {
+            return null;
         }
-        Usuario supervisor = getEmpresa().buscarUsuario(cedulaSupervisor);
-        if (!(supervisor instanceof Supervisor) || !supervisor.estaActivo()) {
-            throw new DatoInvalidoException("La cédula " + cedulaSupervisor + " no pertenece a un supervisor.");
+        Area area = getEmpresa().buscarArea(nombre);
+        if (area == null) {
+            throw new DatoInvalidoException("No existe el área «" + nombre.trim() + "».");
         }
-        empleado.setSupervisor((Supervisor) supervisor);
+        return area.getNombre();
+    }
+
+    @Override
+    public boolean puedeIncluirEnArea(Usuario persona, Area area) {
+        return !(persona instanceof Gerente) && mismaEmpresaQue(persona);
     }
 
     private Usuario cambiarRol(Usuario anterior, String rol) {
@@ -161,9 +159,9 @@ public class Gerente extends Usuario implements RevisorNovedades {
     public Invitacion crearInvitacion(String rol, String cedulaSupervisor, String codigoObra, String puesto, String area,
             int dias, LocalDateTime ahora, java.util.random.RandomGenerator azar) {
         String puestoValido = getEmpresa().getCatalogo().puestoValido(puesto);
-        String areaValida = getEmpresa().getCatalogo().areaValida(area);
+        String areaValida = areaValida(area);
         if (dias < 1 || dias > 30) {
-            throw new DatoInvalidoException("La invitación debe durar entre 1 y 30 días.");
+            throw new DatoInvalidoException("El código de registro debe durar entre 1 y 30 días.");
         }
         Supervisor supervisor = null;
         if (cedulaSupervisor != null && !cedulaSupervisor.isBlank()) {
@@ -176,10 +174,10 @@ public class Gerente extends Usuario implements RevisorNovedades {
         if (codigoObra != null && !codigoObra.isBlank()) {
             obra = getEmpresa().buscarObra(codigoObra);
             if (obra == null) {
-                throw new DatoInvalidoException("No existe la obra " + codigoObra + ".");
+                throw new DatoInvalidoException("No existe el proyecto " + codigoObra + ".");
             }
             if (!obra.admitePersonal()) {
-                throw new OperacionInvalidaException("La obra «" + obra.getNombre() + "» ya concluyó.");
+                throw new OperacionInvalidaException("El proyecto «" + obra.getNombre() + "» ya concluyó.");
             }
         }
         CodigoInvitacion codigo;
@@ -195,7 +193,7 @@ public class Gerente extends Usuario implements RevisorNovedades {
     public void cancelarInvitacion(CodigoInvitacion codigo, LocalDateTime ahora) {
         Invitacion invitacion = getEmpresa().buscarInvitacion(codigo);
         if (invitacion == null) {
-            throw new DatoInvalidoException("No existe la invitación " + codigo + ".");
+            throw new DatoInvalidoException("No existe el código de registro " + codigo + ".");
         }
         invitacion.cancelar(ahora);
     }

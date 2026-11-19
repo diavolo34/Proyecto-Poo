@@ -37,7 +37,7 @@ public class ControladorAsistencia implements ControladorWeb {
 
     private static String verificacion(RegistroAsistencia registro) {
         return switch (registro.getVerificacion()) {
-            case VERIFICADA -> " Verificada en la obra.";
+            case VERIFICADA -> " Verificada en el proyecto.";
             case POR_CONFIRMAR -> " Quedó por confirmar (" + registro.getMotivoVerificacion() + "): tu supervisor la revisará.";
             default -> "";
         };

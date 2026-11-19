@@ -2,7 +2,7 @@ package construtrack.modelo.novedades;
 
 public enum Categoria {
     LICENCIA("Permisos y reposos", "permiso o reposo"),
-    REPORTE_OBRA("Reportes en obra", "reporte en obra");
+    REPORTE_OBRA("Reportes de proyecto", "reporte de proyecto");
 
     private final String nombre;
     private final String singular;

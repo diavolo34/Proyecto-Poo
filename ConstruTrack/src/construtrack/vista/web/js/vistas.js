@@ -9,22 +9,23 @@ function encabezado(migas, titulo, acciones = '') {
     <div class="titulo-vista"><h1>${esc(titulo)}</h1><div class="acciones" style="margin:0">${acciones}</div></div>`;
 }
 
-const GRUPO_OBRAS = 'Personal y obras';
+const GRUPO_OBRAS = 'Personal y proyectos';
 const GRUPO_ADMIN = 'Administración';
 
 const VISTAS = [
   { id: 'asistencia', titulo: 'Asistencia', grupo: '', icono: '⏱', disponible: () => true, dibujar: vistaAsistencia },
   { id: 'permisos', titulo: 'Permisos y reposos', grupo: '', icono: '✚', disponible: () => true, dibujar: vistaPermisos },
-  { id: 'reportes-obra', titulo: 'Reportes en obra', grupo: '', icono: '⚑', disponible: esRevisor, dibujar: vistaReportesObra },
-  { id: 'tablero', titulo: 'Tablero', grupo: GRUPO_OBRAS, icono: '▦', disponible: esRevisor, dibujar: vistaTablero },
+  { id: 'reportes-proyecto', titulo: 'Reportes de proyecto', grupo: '', icono: '⚑', disponible: esRevisor, dibujar: vistaReportesObra },
+  { id: 'panel', titulo: 'Panel de control', grupo: GRUPO_OBRAS, icono: '▦', disponible: esRevisor, dibujar: vistaTablero },
   { id: 'supervision', titulo: 'Supervisión', grupo: GRUPO_OBRAS, icono: '▤', disponible: esRevisor, dibujar: vistaSupervision },
-  { id: 'obras', titulo: 'Obras', grupo: GRUPO_OBRAS, icono: '⌂', disponible: esRevisor, dibujar: vistaObras },
+  { id: 'proyectos', titulo: 'Proyectos', grupo: GRUPO_OBRAS, icono: '⌂', disponible: esRevisor, dibujar: vistaObras },
   { id: 'personal', titulo: 'Personal', grupo: GRUPO_OBRAS, icono: '☰', disponible: esRevisor, dibujar: vistaPersonal },
+  { id: 'areas', titulo: 'Áreas', grupo: GRUPO_OBRAS, icono: '◫', disponible: esRevisor, dibujar: vistaAreas },
   { id: 'talento', titulo: 'Talento humano', grupo: GRUPO_ADMIN, icono: '⚇', disponible: esGerente, dibujar: vistaTalento },
   { id: 'inventario', titulo: 'Inventario', grupo: GRUPO_ADMIN, icono: '⚒', disponible: esGerente, dibujar: vistaInventario },
-  { id: 'catalogo', titulo: 'Puestos y áreas', grupo: GRUPO_ADMIN, icono: '☷', disponible: esGerente, dibujar: vistaCatalogo },
-  { id: 'invitaciones', titulo: 'Invitaciones', grupo: GRUPO_ADMIN, icono: '✉', disponible: esGerente, dibujar: vistaInvitaciones },
-  { id: 'codigo-obra', titulo: 'Código de asistencia', grupo: GRUPO_OBRAS, icono: '▣', oculta: true, disponible: esRevisor, dibujar: vistaCodigoObra },
+  { id: 'catalogo', titulo: 'Puestos', grupo: GRUPO_ADMIN, icono: '☷', disponible: esGerente, dibujar: vistaCatalogo },
+  { id: 'registro-personal', titulo: 'Registro de personal', grupo: GRUPO_ADMIN, icono: '✉', disponible: esGerente, dibujar: vistaInvitaciones },
+  { id: 'codigo-proyecto', titulo: 'Código de asistencia', grupo: GRUPO_OBRAS, icono: '▣', oculta: true, disponible: esRevisor, dibujar: vistaCodigoObra },
   { id: 'seguridad', titulo: 'Seguridad', grupo: GRUPO_ADMIN, icono: '🔒', disponible: () => Boolean(estado.usuario && estado.usuario.admiteDosPasos), dibujar: vistaSeguridad },
 ];
 
@@ -132,11 +133,11 @@ async function vistaAsistencia() {
     <div class="rejilla-2">
       <section class="tarjeta" aria-labelledby="t-hoy">
         <h2 id="t-hoy">Hola, ${esc(u.nombre.split(' ')[0])}</h2>
-        <div class="estado-jornada">${u.presente ? chip('● En la obra', 'verde') : chip('○ Fuera de la obra', 'gris')}
+        <div class="estado-jornada">${u.presente ? chip('● En el proyecto', 'verde') : chip('○ Fuera del proyecto', 'gris')}
           ${hoy ? `<span class="suave pequeno">Entraste hoy a las ${esc(hoy.horaEntrada)}${hoy.tarde ? ' (tarde)' : ''}</span>` : ''}</div>
         <p class="suave pequeno">Horario: ${esc(textoDias(u.horario.dias))}, de ${esc(u.horario.horaEntrada)} a ${esc(u.horario.horaSalida)}
-          ${u.puesto ? ' · ' + esc(u.puesto) : ''}${u.obra ? ' · Obra: ' + esc(u.obra) : ''}${u.supervisor ? ' · Supervisor: ' + esc(u.supervisor.nombre) : ''}</p>
-        <p class="pequeno control-marca">Al marcar se registra tu ubicación${u.controlObra && u.controlObra.exigeCodigo ? ' y se pide el código QR de la obra' : ''}.
+          ${u.puesto ? ' · ' + esc(u.puesto) : ''}${u.obra ? ' · Proyecto: ' + esc(u.obra) : ''}${u.supervisor ? ' · Supervisor: ' + esc(u.supervisor.nombre) : ''}</p>
+        <p class="pequeno control-marca">Al marcar se registra tu ubicación${u.controlObra && u.controlObra.exigeCodigo ? ' y se pide el código QR del proyecto' : ''}.
           ${u.rol === 'Gerente' ? '' : 'Si no permites la ubicación, la marca queda por confirmar hasta que la revise tu supervisor.'}</p>
         <div class="acciones" style="justify-content:flex-start">
           <button class="btn btn-primario" id="marcar-entrada" ${u.presente || incapacidad ? 'disabled' : ''}>Marcar entrada</button>
@@ -201,7 +202,7 @@ async function vistaCodigoObra() {
   const codigoObra = ruta().parametros.get('obra');
   const primero = await Api.codigoObra(codigoObra);
   if (!zona.isConnected) return;
-  zona.innerHTML = encabezado('Obras /', 'Código de asistencia',
+  zona.innerHTML = encabezado('Proyectos /', 'Código de asistencia',
     '<button class="btn btn-secundario" id="pantalla-completa" type="button">Pantalla completa</button>') + `
     <section class="tarjeta pantalla-codigo" id="pantalla-codigo" aria-labelledby="codigo-obra-nombre">
       <h2 id="codigo-obra-nombre">${esc(primero.nombre)}</h2>
@@ -245,7 +246,7 @@ function distanciaObra(punto, obra) {
   if (!punto || !obra || obra.latitud === null || obra.latitud === undefined) return '';
   const metros = Mapa.distancia(punto, obra);
   const fuera = obra.radio && metros > obra.radio + Math.min(punto.precision || 0, 100);
-  return `<br><span class="pequeno ${fuera ? 'texto-rojo' : 'suave'}">a ${Mapa.texto(metros)} de la obra</span>`;
+  return `<br><span class="pequeno ${fuera ? 'texto-rojo' : 'suave'}">a ${Mapa.texto(metros)} del proyecto</span>`;
 }
 
 async function vistaSupervision() {
@@ -297,9 +298,9 @@ async function vistaSupervision() {
           <td>${p.retardos ? chip(p.retardos, 'amarillo') : 0}</td><td>${p.ausencias ? chip(p.ausencias, 'rojo') : 0}</td>
           <td>${p.justificadas}</td><td>${p.incapacidad ? chip(p.incapacidad + ' d', 'morado') : 0}</td><td>${Math.round(p.puntualidad)}%</td></tr>`).join('')}</tbody></table></div></section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-ubicaciones"><h2 id="t-ubicaciones">Dónde marcó cada persona</h2>
-      <p class="suave pequeno" style="margin-top:-6px">La ubicación que envió el teléfono al marcar entrada y salida. Ábrela en el mapa para compararla con la obra.</p>
+      <p class="suave pequeno" style="margin-top:-6px">La ubicación que envió el teléfono al marcar entrada y salida. Ábrela en el mapa para compararla con la del proyecto.</p>
       <div class="campo" style="max-width:220px"><label for="dia-mapa">Día</label><input id="dia-mapa" type="date" value="${esc(diaMapa)}"></div>
-      ${ubicaciones.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Obra</th><th>Entrada</th><th>Salida</th>
+      ${ubicaciones.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Proyecto</th><th>Entrada</th><th>Salida</th>
         <th>Control</th></tr></thead><tbody>
         ${ubicaciones.map((m) => `<tr><td>${esc(m.nombre)}</td><td>${esc(m.obra ? m.obra.nombre : '—')}</td>
           <td>${esc(m.jornada.horaEntrada)}<br>${Mapa.boton(m.jornada.ubicacionEntrada, 'Entrada de ' + m.nombre, m.obra)}${distanciaObra(m.jornada.ubicacionEntrada, m.obra)}</td>
@@ -307,9 +308,9 @@ async function vistaSupervision() {
             + distanciaObra(m.jornada.ubicacionSalida, m.obra) : chip('En curso', 'azul')}</td>
           <td>${chipControl(m.jornada)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="suave">Nadie marcó ese día.</p>'}</section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-marcas"><h2 id="t-marcas">Marcas por confirmar</h2>
-      <p class="suave pequeno" style="margin-top:-6px">Entradas o salidas hechas sin el código de la obra o lejos de ella.
+      <p class="suave pequeno" style="margin-top:-6px">Entradas o salidas hechas sin el código del proyecto o lejos de él.
         Si rechazas una, esa jornada no cuenta como asistencia.</p>
-      ${marcas.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Obra</th><th>Fecha</th>
+      ${marcas.length ? `<div class="tabla-contenedor"><table><thead><tr><th>Persona</th><th>Proyecto</th><th>Fecha</th>
         <th>Entrada – salida</th><th>Motivo</th><th><span class="solo-lector">Acciones</span></th></tr></thead><tbody>
         ${marcas.map((m) => `<tr><td>${esc(m.nombre)}</td><td>${esc(m.obra || '—')}</td><td>${fecha(m.fecha)}</td>
           <td>${esc(m.horaEntrada)} – ${esc(m.horaSalida || '…')}</td><td>${esc(m.motivo)}<br>${Mapa.boton(m.ubicacionEntrada, 'Entrada de ' + m.nombre, m.obraMapa)}</td>
@@ -327,12 +328,12 @@ async function vistaSupervision() {
             <button class="btn btn-peligro btn-chico" data-extra="RECHAZADAS" data-cedula="${esc(x.cedula)}" data-fecha="${esc(x.jornada.fecha)}">Rechazar</button></td></tr>`).join('')}
         </tbody></table></div>` : '<p class="suave">No hay horas extra por aprobar.</p>'}</section>
     <section class="tarjeta" style="margin-top:16px" aria-labelledby="t-reportes"><h2 id="t-reportes">Reportes</h2>
-      <p class="suave pequeno" style="margin-top:-6px">Se abren en Excel para revisarlos o imprimirlos. Los de permisos y de reportes en obra
-        incluyen también los aprobados y rechazados que ya salieron del tablero, con quién los autorizó y su nota.</p>
+      <p class="suave pequeno" style="margin-top:-6px">Se abren en Excel para revisarlos o imprimirlos. Los de permisos y de reportes de proyecto
+        incluyen también los aprobados y rechazados que ya salieron del panel de control, con quién los autorizó y su nota.</p>
       <div class="acciones" style="justify-content:flex-start;align-items:flex-end">
         <div class="campo" style="margin:0"><label for="tipo-reporte">Tipo</label><select id="tipo-reporte">
           <option value="asistencia">Asistencia</option><option value="puntualidad">Puntualidad</option>
-          <option value="permisos">Permisos y reposos</option><option value="reportes-obra">Reportes en obra</option></select></div>
+          <option value="permisos">Permisos y reposos</option><option value="reportes-obra">Reportes de proyecto</option></select></div>
         <div class="campo" style="margin:0"><label for="formato-reporte">Formato</label><select id="formato-reporte">
           <option value="csv">Excel (CSV)</option><option value="txt">Texto</option></select></div>
         <div class="campo" style="margin:0"><label for="periodo-reporte">Período</label><select id="periodo-reporte">
@@ -387,12 +388,12 @@ async function vistaPersonal() {
     ${esGerente() ? '<button class="btn btn-primario" id="registrar-persona">+ Registrar persona</button>' : ''}`) + `
     ${esGerente() ? '<p class="suave pequeno" style="margin-top:-8px">Los despidos y renuncias se registran en <a href="#talento">Talento humano</a>.</p>' : ''}
     <div class="tabla-contenedor"><table>
-      <thead><tr><th>Persona</th><th>Cédula</th><th>Rol</th><th>Puesto y área</th><th>Estado</th><th>Horario</th><th>Supervisor</th><th>Obra</th><th><span class="solo-lector">Acciones</span></th></tr></thead>
+      <thead><tr><th>Persona</th><th>Cédula</th><th>Rol</th><th>Puesto y área</th><th>Estado</th><th>Horario</th><th>Supervisor</th><th>Proyecto</th><th><span class="solo-lector">Acciones</span></th></tr></thead>
       <tbody>${visibles.map((u) => `<tr>
         <td><strong>${esc(u.nombre)}</strong>${u.correo ? `<br><span class="suave pequeno">${esc(u.correo)}</span>` : ''}</td>
         <td>${esc(u.cedula)}</td><td>${chipRol(u.rol)}</td>
         <td>${esc(u.puesto || '—')}<br><span class="suave pequeno">${esc(u.area || 'Sin área')}</span></td>
-        <td>${u.presente ? chip('En la obra', 'verde') : chip('Fuera', 'gris')}</td>
+        <td>${u.presente ? chip('En el proyecto', 'verde') : chip('Fuera', 'gris')}</td>
         <td class="pequeno">${esc(u.horario.dias)}<br>${esc(u.horario.horaEntrada)}–${esc(u.horario.horaSalida)}</td>
         <td>${u.supervisor ? esc(u.supervisor.nombre) : '—'}</td><td>${esc(u.obra || '—')}</td>
         <td style="white-space:nowrap"><button class="btn btn-enlace btn-chico" data-historial="${esc(u.cedula)}">Historial</button>
@@ -426,10 +427,10 @@ async function formularioPersona(cedula) {
     <div class="fila">
       <div class="campo"><label for="p-puesto">Puesto</label><select id="p-puesto" name="puesto">
         ${opcionesLista(opciones.catalogo.puestos, u && u.puesto, '— Sin puesto —')}</select></div>
-      <div class="campo"><label for="p-area">Área</label><select id="p-area" name="area">
-        ${opcionesLista(opciones.catalogo.areas, u && u.area, '— Sin área —')}</select></div>
+      <div class="campo"><label for="p-area">Área</label><select id="p-area" name="area"><option value="">— Sin área —</option>
+        ${opciones.areas.map((a) => `<option value="${esc(a.nombre)}" ${u && u.area === a.nombre ? 'selected' : ''}>${esc(a.nombre)}${a.supervisor ? ' · ' + esc(a.supervisor) : ''}</option>`).join('')}</select></div>
     </div>
-    <p class="ayuda" style="margin-top:-8px">Los puestos y las áreas se administran en <a href="#catalogo">Puestos y áreas</a>.</p>
+    <p class="ayuda" style="margin-top:-8px">El supervisor de un empleado es el de su área. Los puestos están en <a href="#catalogo">Puestos</a> y las áreas en <a href="#areas">Áreas</a>.</p>
     <div class="campo"><label for="p-clave">Clave</label><input id="p-clave" name="clave" type="password" autocomplete="new-password">
       <span class="ayuda">${u ? 'Déjala vacía para no cambiarla.' : 'Mínimo 8 caracteres, con letras y números.'}</span></div>
     <div class="campo"><span class="etiqueta">Días de trabajo</span><div class="casillas">
@@ -438,20 +439,13 @@ async function formularioPersona(cedula) {
       <div class="campo"><label for="horaEntrada">Entrada</label>${horas('horaEntrada', u ? u.horario.horaEntrada : '07:00')}</div>
       <div class="campo"><label for="horaSalida">Salida</label>${horas('horaSalida', u ? u.horario.horaSalida : '16:00')}</div>
     </div>
-    <div class="campo" id="campo-supervisor"><label for="supervisor">Supervisor</label><select id="supervisor" name="supervisor">
-      <option value="">— Sin supervisor —</option>${opciones.supervisores.map((s) =>
-        `<option value="${esc(s.cedula)}" ${u && u.supervisor && u.supervisor.cedula === s.cedula ? 'selected' : ''}>${esc(s.nombre)}</option>`).join('')}</select></div>
-    <div class="campo"><label for="p-obra">Obra</label><select id="p-obra" name="obra">
-      <option value="">— Sin obra —</option>${opciones.obras.filter((o) => o.admitePersonal || (u && u.obra === o.nombre)).map((o) =>
+    <div class="campo"><label for="p-obra">Proyecto</label><select id="p-obra" name="obra">
+      <option value="">— Sin proyecto —</option>${opciones.obras.filter((o) => o.admitePersonal || (u && u.obra === o.nombre)).map((o) =>
         `<option value="${esc(o.codigo)}" ${u && u.obra === o.nombre ? 'selected' : ''}>${esc(o.nombre)}</option>`).join('')}</select></div>
     <div class="mensaje mensaje-error oculto" role="alert"></div>
     <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
       <button class="btn btn-primario" type="submit">Guardar</button></div></form>`);
   const formulario = modal.querySelector('form');
-  const rol = $('#rol');
-  const alternarSupervisor = () => $('#campo-supervisor').classList.toggle('oculto', rol.value !== 'Empleado');
-  rol.addEventListener('change', alternarSupervisor);
-  alternarSupervisor();
   formulario.addEventListener('submit', async (evento) => {
     evento.preventDefault();
     const datos = datosFormulario(formulario);
@@ -498,7 +492,7 @@ async function historialPersona(cedula) {
       ['h-asistencia', `Asistencia (${u.asistencias.length})`],
       ['h-ausencias', `Días sin marcar (${ausencias.length})`],
       ['h-permisos', `Permisos y reposos (${licencias.length})`],
-      ...(esRevisor() ? [['h-reportes', `Reportes en obra (${reportes.length})`]] : []),
+      ...(esRevisor() ? [['h-reportes', `Reportes de proyecto (${reportes.length})`]] : []),
       ['h-herramientas', `Herramientas (${herramientas.length})`],
     ];
     const modal = Modal.abrir('Historial de ' + u.nombre, `<p class="suave">${esc(u.puesto || 'Sin puesto')} · ${esc(u.area || 'Sin área')} ·
@@ -516,7 +510,7 @@ async function historialPersona(cedula) {
         ${chip(a.tipo, a.tipo === 'Incapacidad' ? 'morado' : a.justificada ? 'azul' : 'rojo')}</li>`).join('')}</ul>`
         : '<p class="suave">Sin días sin marcar en los últimos 30 días.</p>'}</div>
       <div id="h-permisos" role="tabpanel" class="oculto">${tablaNovedades(licencias, false, 'Sin permisos ni reposos.')}</div>
-      <div id="h-reportes" role="tabpanel" class="oculto">${tablaNovedades(reportes, false, 'Sin reportes en obra.')}</div>
+      <div id="h-reportes" role="tabpanel" class="oculto">${tablaNovedades(reportes, false, 'Sin reportes de proyecto.')}</div>
       <div id="h-herramientas" role="tabpanel" class="oculto">${herramientas.length ? `<ul class="lista-simple">${herramientas.map((h) =>
         `<li><span><strong>${esc(h.nombreArticulo)}</strong> ${h.cantidad > 1 ? '× ' + h.cantidad : ''}
           <span class="pequeno suave">${esc(h.articulo)} · entregado el ${fecha(h.fecha)}</span></span>
@@ -540,11 +534,11 @@ async function vistaObras() {
   const asignables = esGerente() ? visibles : [estado.usuario, ...visibles];
   const sinRevisar = obras.flatMap((o) => o.retrasos.filter((r) => !r.revisado).map((r) => ({ ...r, obra: o })));
   const plazo = (o) => (o.estado === 'PLANIFICADA' ? `Inicio previsto: ${fecha(o.inicio)}`
-    : o.estado === 'CONCLUIDA' ? `Concluida el ${fecha(o.conclusion)}` : `${o.avance}% del plazo`);
+    : o.estado === 'CONCLUIDA' ? `Concluido el ${fecha(o.conclusion)}` : `${o.avance}% del plazo`);
   if (!zona.isConnected) return;
-  zona.innerHTML = encabezado('', 'Obras', '<button class="btn btn-primario" id="nueva-obra">+ Nueva obra</button>') + `
-    <p class="suave" style="margin-top:-8px">Cada obra pasa de <strong>Planificada</strong> a <strong>En curso</strong> con el «Inicio de obra»
-      y termina con la «Conclusión de la obra». Si la fecha estimada se mueve, el supervisor reporta el retraso y el gerente recibe la alerta.</p>
+  zona.innerHTML = encabezado('', 'Proyectos', '<button class="btn btn-primario" id="nueva-obra">+ Nuevo proyecto</button>') + `
+    <p class="suave" style="margin-top:-8px">Cada proyecto pasa de <strong>Planificado</strong> a <strong>En curso</strong> con el «Inicio del proyecto»
+      y termina con la «Conclusión del proyecto». Si la fecha estimada se mueve, el supervisor reporta el retraso y el gerente recibe la alerta.</p>
     ${esGerente() && sinRevisar.length ? `<div class="mensaje mensaje-error" role="alert"><strong>${sinRevisar.length} retraso(s) sin revisar:</strong>
       ${sinRevisar.map((r) => `${esc(r.obra.nombre)} (+${r.dias} día(s), reportado por ${esc(r.reportadoPor)})`).join(' · ')}</div>` : ''}
     <div class="rejilla-obras">${obras.map((o) => `<section class="tarjeta tarjeta-obra estado-${o.estado.toLowerCase()}" aria-labelledby="obra-${esc(o.codigo)}">
@@ -563,20 +557,20 @@ async function vistaObras() {
           ${!r.revisado && esGerente() ? `<button class="btn btn-secundario btn-chico" data-revisar-retraso="${r.id}" data-obra="${esc(o.codigo)}">Marcar como revisado</button>` : ''}</li>`).join('')}</ul></details>` : ''}
       <h3 class="pequeno" style="margin:0 0 6px">Personas (${o.personas.length})</h3>
       <ul class="lista-personas">${o.personas.map((p) => `<li>${esc(p.nombre)} ${chipRol(p.rol)}
-        ${asignables.some((a) => a.cedula === p.cedula) ? `<button class="btn btn-enlace btn-chico" data-quitar="${esc(p.cedula)}" aria-label="Quitar a ${esc(p.nombre)} de la obra">Quitar</button>` : ''}</li>`).join('')
+        ${asignables.some((a) => a.cedula === p.cedula) ? `<button class="btn btn-enlace btn-chico" data-quitar="${esc(p.cedula)}" aria-label="Quitar a ${esc(p.nombre)} del proyecto">Quitar</button>` : ''}</li>`).join('')
         || '<li class="suave">Nadie asignado todavía.</li>'}</ul>
       <div class="acciones" style="justify-content:flex-start;flex-wrap:wrap">
         ${o.estado !== 'CONCLUIDA' ? `<label class="solo-lector" for="sumar-${esc(o.codigo)}">Sumar persona a ${esc(o.nombre)}</label>
         <select id="sumar-${esc(o.codigo)}" data-sumar="${esc(o.codigo)}" style="width:auto;max-width:100%">
           <option value="">+ Sumar persona…</option>${asignables.filter((a) => !o.personas.some((p) => p.cedula === a.cedula))
             .map((a) => `<option value="${esc(a.cedula)}">${esc(a.nombre)}${a.obra ? ' (en ' + esc(a.obra) + ')' : ''}</option>`).join('')}</select>` : ''}
-        ${o.estado === 'PLANIFICADA' ? `<button class="btn btn-exito btn-chico" data-iniciar="${esc(o.codigo)}">Inicio de obra</button>` : ''}
-        ${o.estado === 'EN_CURSO' ? `<button class="btn btn-exito btn-chico" data-concluir="${esc(o.codigo)}">Conclusión de la obra</button>` : ''}
+        ${o.estado === 'PLANIFICADA' ? `<button class="btn btn-exito btn-chico" data-iniciar="${esc(o.codigo)}">Inicio del proyecto</button>` : ''}
+        ${o.estado === 'EN_CURSO' ? `<button class="btn btn-exito btn-chico" data-concluir="${esc(o.codigo)}">Conclusión del proyecto</button>` : ''}
         ${o.estado !== 'CONCLUIDA' && esSupervisor() ? `<button class="btn btn-peligro btn-chico" data-retraso="${esc(o.codigo)}">Reportar retraso</button>` : ''}
-        ${o.exigeCodigo && o.estado !== 'CONCLUIDA' ? `<a class="btn btn-primario btn-chico" href="#codigo-obra?obra=${encodeURIComponent(o.codigo)}">Mostrar QR de asistencia</a>` : ''}
+        ${o.exigeCodigo && o.estado !== 'CONCLUIDA' ? `<a class="btn btn-primario btn-chico" href="#codigo-proyecto?obra=${encodeURIComponent(o.codigo)}">Mostrar QR de asistencia</a>` : ''}
         <button class="btn btn-secundario btn-chico" data-editar-obra="${esc(o.codigo)}">Editar</button>
         <button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-eliminar-obra="${esc(o.codigo)}">Eliminar</button>
-      </div></section>`).join('') || '<p class="suave">Aún no hay obras. Crea la primera.</p>'}</div>`;
+      </div></section>`).join('') || '<p class="suave">Aún no hay proyectos. Crea el primero.</p>'}</div>`;
   const recargar = async (mensaje) => { aviso(mensaje); await vistaObras(); };
   const intentar = (accion) => async (evento) => {
     try {
@@ -590,22 +584,22 @@ async function vistaObras() {
   zona.querySelectorAll('[data-editar-obra]').forEach((b) => b.addEventListener('click', () => formularioObra(obraDe(b.dataset.editarObra))));
   zona.querySelectorAll('[data-eliminar-obra]').forEach((b) => b.addEventListener('click', intentar(async () => {
     const obra = obraDe(b.dataset.eliminarObra);
-    if (!await confirmar('Eliminar obra', `¿Eliminar la obra «${esc(obra.nombre)}»? Esta acción no se puede deshacer.`, 'Eliminar', true)) return;
+    if (!await confirmar('Eliminar proyecto', `¿Eliminar el proyecto «${esc(obra.nombre)}»? Esta acción no se puede deshacer.`, 'Eliminar', true)) return;
     await Api.eliminarObra(obra.codigo);
-    await recargar('Obra eliminada.');
+    await recargar('Proyecto eliminado.');
   })));
   zona.querySelectorAll('[data-iniciar]').forEach((b) => b.addEventListener('click', intentar(async () => {
     const obra = obraDe(b.dataset.iniciar);
-    if (!await confirmar('Inicio de obra', `¿Registrar hoy el inicio de «${esc(obra.nombre)}»? Pasará a «En curso».`, 'Iniciar obra')) return;
+    if (!await confirmar('Inicio del proyecto', `¿Registrar hoy el inicio de «${esc(obra.nombre)}»? Pasará a «En curso».`, 'Iniciar proyecto')) return;
     await Api.iniciarObra(obra.codigo);
     await recargar(`«${obra.nombre}» está en curso.`);
   })));
   zona.querySelectorAll('[data-concluir]').forEach((b) => b.addEventListener('click', intentar(async () => {
     const obra = obraDe(b.dataset.concluir);
-    if (!await confirmar('Conclusión de la obra', `¿Registrar hoy la conclusión de «${esc(obra.nombre)}»? Ya no admitirá personal nuevo.`,
-      'Concluir obra')) return;
+    if (!await confirmar('Conclusión del proyecto', `¿Registrar hoy la conclusión de «${esc(obra.nombre)}»? Ya no admitirá personal nuevo.`,
+      'Concluir proyecto')) return;
     await Api.concluirObra(obra.codigo);
-    await recargar(`«${obra.nombre}» quedó concluida.`);
+    await recargar(`«${obra.nombre}» quedó concluido.`);
   })));
   zona.querySelectorAll('[data-retraso]').forEach((b) => b.addEventListener('click', () => formularioRetraso(obraDe(b.dataset.retraso))));
   zona.querySelectorAll('[data-revisar-retraso]').forEach((b) => b.addEventListener('click', intentar(async () => {
@@ -615,11 +609,11 @@ async function vistaObras() {
   zona.querySelectorAll('[data-sumar]').forEach((s) => s.addEventListener('change', intentar(async () => {
     if (!s.value) return;
     const persona = await Api.asignarObra(s.value, s.dataset.sumar);
-    await recargar(persona.nombre + ' ahora trabaja en esta obra.');
+    await recargar(persona.nombre + ' ahora trabaja en este proyecto.');
   })));
   zona.querySelectorAll('[data-quitar]').forEach((b) => b.addEventListener('click', intentar(async () => {
     const persona = await Api.asignarObra(b.dataset.quitar, '');
-    await recargar(persona.nombre + ' quedó sin obra asignada.');
+    await recargar(persona.nombre + ' quedó sin proyecto asignado.');
   })));
 }
 
@@ -650,7 +644,7 @@ function formularioRetraso(obra) {
 
 function formularioObra(obra) {
   const hoy = new Date().toISOString().slice(0, 10);
-  const modal = Modal.abrir(obra ? 'Editar obra' : 'Nueva obra', `<form novalidate>
+  const modal = Modal.abrir(obra ? 'Editar proyecto' : 'Nuevo proyecto', `<form novalidate>
     <div class="campo"><label for="o-nombre">Nombre *</label><input id="o-nombre" name="nombre" required value="${esc(obra ? obra.nombre : '')}" placeholder="Ej.: Edificio Las Acacias"></div>
     <div class="campo"><label for="o-ubicacion">Ubicación</label><input id="o-ubicacion" name="ubicacion" value="${esc(obra ? obra.ubicacion : '')}" placeholder="Ej.: Av. Libertador, Caracas"></div>
     <div class="fila">
@@ -659,7 +653,7 @@ function formularioObra(obra) {
     </div>
     <fieldset class="control-obra"><legend>Control de asistencia</legend>
       <label class="opcion-check"><input type="checkbox" name="exigeCodigo" value="true" ${obra && obra.exigeCodigo ? 'checked' : ''}>
-        Exigir el código QR de la obra al marcar</label>
+        Exigir el código QR del proyecto al marcar</label>
       <p class="ayuda">El supervisor muestra en su teléfono un QR que cambia cada 30 segundos. Quien marca sin él queda por confirmar.</p>
       <div class="fila">
         <div class="campo"><label for="o-lat">Latitud</label><input id="o-lat" name="latitud" inputmode="decimal" value="${obra && obra.latitud !== null ? obra.latitud : ''}" placeholder="10.4806"></div>
@@ -667,7 +661,7 @@ function formularioObra(obra) {
         <div class="campo"><label for="o-radio">Radio (m)</label><input id="o-radio" name="radio" type="number" min="20" max="2000" value="${obra && obra.radio ? obra.radio : 150}"></div>
       </div>
       <button type="button" class="btn btn-secundario btn-chico" id="o-mi-ubicacion">Usar mi ubicación actual</button>
-      <p class="ayuda">Con la ubicación, las marcas hechas lejos de la obra quedan por confirmar. Déjala vacía para no usarla.</p>
+      <p class="ayuda">Con la ubicación, las marcas hechas lejos del proyecto quedan por confirmar. Déjala vacía para no usarla.</p>
     </fieldset>
     <div class="mensaje mensaje-error oculto" role="alert"></div>
     <div class="acciones"><button type="button" class="btn btn-secundario" data-cerrar>Cancelar</button>
@@ -690,7 +684,7 @@ function formularioObra(obra) {
       const datos = datosFormulario(formulario);
       const guardada = obra ? await Api.editarObra(obra.codigo, datos) : await Api.crearObra(datos);
       Modal.cerrar();
-      aviso((obra ? 'Se actualizó la obra ' : 'Se creó la obra ') + guardada.nombre + '.');
+      aviso((obra ? 'Se actualizó el proyecto ' : 'Se creó el proyecto ') + guardada.nombre + '.');
       await vistaObras();
     } catch (e) {
       mostrarErrorFormulario(formulario, e.message);
@@ -703,38 +697,32 @@ async function vistaInvitaciones() {
   const [opciones, lista, config] = await Promise.all([Api.opcionesPersonal(), Api.invitaciones(), Api.configuracionInvitaciones()]);
   const catalogo = await Api.catalogo();
   if (!zona.isConnected) return;
-  zona.innerHTML = encabezado('', 'Invitaciones') + `
-    <p class="suave" style="margin-top:-8px">Cada código sirve una sola vez. Compártelo por WhatsApp o correo con la persona que quieres sumar.
-      Las invitaciones vencidas o canceladas se borran solas; las usadas se muestran 7 días.</p>
+  zona.innerHTML = encabezado('', 'Registro de personal') + `
+    <p class="suave" style="margin-top:-8px">Cada código de registro sirve una sola vez. Compártelo por WhatsApp o correo con la persona que quieres sumar.
+      Los códigos vencidos o cancelados se borran solos; los usados se muestran 7 días.</p>
     <div class="rejilla-formulario">
       <form class="tarjeta" id="form-invitacion" novalidate aria-labelledby="t-nueva">
-        <h2 id="t-nueva">Nueva invitación</h2>
+        <h2 id="t-nueva">Nuevo código de registro</h2>
         <div class="campo"><label for="i-rol">Rol</label><select id="i-rol" name="rol"><option>Empleado</option><option>Supervisor</option></select></div>
-        <div class="campo" id="i-campo-supervisor"><label for="i-supervisor">Supervisor</label><select id="i-supervisor" name="supervisor">
-          <option value="">— Sin supervisor —</option>${opciones.supervisores.map((s) => `<option value="${esc(s.cedula)}">${esc(s.nombre)}</option>`).join('')}</select></div>
-        <div class="fila">
-          <div class="campo"><label for="i-puesto">Puesto</label><select id="i-puesto" name="puesto">${opcionesLista(catalogo.puestos, null, '— Sin puesto —')}</select></div>
-          <div class="campo"><label for="i-area">Área</label><select id="i-area" name="area">${opcionesLista(catalogo.areas, null, '— Sin área —')}</select></div>
-        </div>
-        <div class="campo"><label for="i-obra">Obra</label><select id="i-obra" name="obra"><option value="">— Sin obra —</option>
+        <div class="campo"><label for="i-puesto">Puesto</label><select id="i-puesto" name="puesto">${opcionesLista(catalogo.puestos, null, '— Sin puesto —')}</select>
+          <span class="ayuda">El área se asigna cuando la persona ya está registrada, desde «Áreas».</span></div>
+        <div class="campo"><label for="i-obra">Proyecto</label><select id="i-obra" name="obra"><option value="">— Sin proyecto —</option>
           ${opciones.obras.filter((o) => o.admitePersonal).map((o) => `<option value="${esc(o.codigo)}">${esc(o.nombre)}</option>`).join('')}</select></div>
         <div class="campo"><label for="i-dias">Vigencia (días)</label><input id="i-dias" name="dias" type="number" min="1" max="30" value="7"></div>
         <div class="campo"><label for="i-correo">Correo de la persona (opcional)</label><input id="i-correo" name="correo" type="email" placeholder="nombre@correo.com">
-          <span class="ayuda">${config.correoReal ? '✉ Le llegará un correo con el código y un botón para unirse.'
+          <span class="ayuda">${config.correoReal ? '✉ Le llegará un correo con el código de registro y un botón para unirse.'
             : 'El envío de correos no está configurado: se registra, pero no llega. Comparte el código por WhatsApp.'}</span></div>
-        <button class="btn btn-primario btn-bloque" type="submit">Crear invitación</button>
+        <button class="btn btn-primario btn-bloque" type="submit">Generar código de registro</button>
         <div id="codigo-creado" class="oculto" style="margin-top:14px"></div>
       </form>
-      <section class="tarjeta" aria-labelledby="t-creadas"><h2 id="t-creadas">Invitaciones creadas</h2>
-        <div class="tabla-contenedor"><table><thead><tr><th>Código</th><th>Rol y puesto</th><th>Supervisor</th><th>Obra</th><th>Estado</th><th>Vence</th><th>Usada por</th><th></th></tr></thead>
-        <tbody>${lista.map((v) => `<tr><td><strong class="codigo">${esc(v.codigo)}</strong></td><td>${esc(v.rol)}${v.puesto ? `<br><span class="pequeno suave">${esc(v.puesto)}${v.area ? ' · ' + esc(v.area) : ''}</span>` : ''}</td><td>${esc(v.supervisor || '—')}</td>
-          <td>${esc(v.obra || '—')}</td><td>${chipEstado(v.estado)}</td><td>${fecha(v.vence)}</td><td>${esc(v.usadaPor || '—')}</td>
+      <section class="tarjeta" aria-labelledby="t-creadas"><h2 id="t-creadas">Códigos generados</h2>
+        <div class="tabla-contenedor"><table><thead><tr><th>Código</th><th>Rol y puesto</th><th>Proyecto</th><th>Estado</th><th>Vence</th><th><span class="solo-lector">Acciones</span></th></tr></thead>
+        <tbody>${lista.map((v) => `<tr><td><strong class="codigo">${esc(v.codigo)}</strong></td><td>${esc(v.rol)}${v.puesto ? `<br><span class="pequeno suave">${esc(v.puesto)}</span>` : ''}</td>
+          <td>${esc(v.obra || '—')}</td><td>${chipEstado(v.estado)}${v.usadaPor ? `<br><span class="pequeno suave">por ${esc(v.usadaPor)}</span>` : ''}</td><td>${fecha(v.vence)}</td>
           <td style="white-space:nowrap">${v.estado === 'Vigente' ? `<button class="btn btn-enlace btn-chico" data-enviar="${esc(v.codigo)}">Enviar por correo</button>
             <button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-cancelar="${esc(v.codigo)}">Cancelar</button>` : ''}</td></tr>`).join('')
-          || '<tr><td colspan="8" class="vacio">Aún no has creado invitaciones.</td></tr>'}</tbody></table></div></section>
+          || '<tr><td colspan="6" class="vacio">Aún no has generado códigos de registro.</td></tr>'}</tbody></table></div></section>
     </div>`;
-  const rol = $('#i-rol');
-  rol.addEventListener('change', () => $('#i-campo-supervisor').classList.toggle('oculto', rol.value !== 'Empleado'));
   $('#form-invitacion').addEventListener('submit', async (evento) => {
     evento.preventDefault();
     try {
@@ -742,7 +730,7 @@ async function vistaInvitaciones() {
       const v = creada.invitacion;
       await vistaInvitaciones();
       const enlace = location.href.split('#')[0] + '#registro';
-      const mensaje = `Te invito a ConstruTrack. Crea tu cuenta en ${enlace} y únete con el código ${v.codigo}`;
+      const mensaje = `Regístrate en ConstruTrack: crea tu cuenta en ${enlace} y escribe el código de registro ${v.codigo}`;
       const caja = $('#codigo-creado');
       caja.classList.remove('oculto');
       caja.innerHTML = `<div class="mensaje mensaje-info"><div class="codigo-grande">${esc(v.codigo)}</div>
@@ -754,7 +742,7 @@ async function vistaInvitaciones() {
       };
       $('#copiar-codigo').addEventListener('click', () => copiar(v.codigo, 'Código'));
       $('#copiar-mensaje').addEventListener('click', () => copiar(mensaje, 'Mensaje'));
-      aviso('Invitación ' + v.codigo + ' creada.');
+      aviso('Código de registro ' + v.codigo + ' generado.');
       if (creada.avisoCorreo) aviso(creada.avisoCorreo, creada.correoEnviado ? 'ok' : 'error');
     } catch (e) {
       aviso(e.message, 'error');
@@ -787,7 +775,7 @@ async function vistaInvitaciones() {
   zona.querySelectorAll('[data-cancelar]').forEach((b) => b.addEventListener('click', async () => {
     try {
       await Api.cancelarInvitacion(b.dataset.cancelar);
-      aviso('Invitación ' + b.dataset.cancelar + ' cancelada y borrada.');
+      aviso('Código ' + b.dataset.cancelar + ' cancelado y borrado.');
       await vistaInvitaciones();
     } catch (e) {
       aviso(e.message, 'error');

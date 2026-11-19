@@ -114,7 +114,7 @@ public class ServicioNovedades extends ServicioBase {
     public Novedad revisar(Usuario revisor, int id, EstadoNovedad nuevo, String nota) {
         return modificar(() -> {
             if (!(revisor instanceof RevisorNovedades r)) {
-                throw new PermisoDenegadoException("Solo el gerente aprueba o rechaza permisos, reposos y reportes en obra.");
+                throw new PermisoDenegadoException("Solo el gerente aprueba o rechaza permisos, reposos y reportes de proyecto.");
             }
             Novedad novedad = buscarNovedad(revisor, id);
             r.revisar(novedad, nuevo, nota, LocalDateTime.now(reloj));
@@ -124,7 +124,7 @@ public class ServicioNovedades extends ServicioBase {
 
     private static void verificarAcceso(Usuario actual, Categoria categoria) {
         if (actual instanceof Empleado && categoria != Categoria.LICENCIA) {
-            throw new PermisoDenegadoException("Los reportes en obra los gestionan el supervisor y el gerente.");
+            throw new PermisoDenegadoException("Los reportes de proyecto los gestionan el supervisor y el gerente.");
         }
     }
 

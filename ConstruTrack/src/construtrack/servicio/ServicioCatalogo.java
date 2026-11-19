@@ -12,16 +12,13 @@ import java.time.Clock;
 
 public class ServicioCatalogo extends ServicioBase {
     public enum Tipo {
-        PUESTOS, AREAS;
+        PUESTOS;
 
         public static Tipo desdeTexto(String texto) {
             if ("puestos".equalsIgnoreCase(texto)) {
                 return PUESTOS;
             }
-            if ("areas".equalsIgnoreCase(texto)) {
-                return AREAS;
-            }
-            throw new DatoInvalidoException("El catálogo debe ser «puestos» o «areas».");
+            throw new DatoInvalidoException("El catálogo es de puestos; las áreas se gestionan en «Áreas».");
         }
     }
 
@@ -35,25 +32,20 @@ public class ServicioCatalogo extends ServicioBase {
 
     public String agregar(Usuario actual, Tipo tipo, String nombre) {
         Empresa empresa = comoGerente(actual);
-        return modificar(() -> tipo == Tipo.PUESTOS ? empresa.getCatalogo().agregarPuesto(nombre)
-                : empresa.getCatalogo().agregarArea(nombre));
+        return modificar(() -> empresa.getCatalogo().agregarPuesto(nombre));
     }
 
     public void quitar(Usuario actual, Tipo tipo, String nombre) {
         Empresa empresa = comoGerente(actual);
         modificar(() -> {
-            if (tipo == Tipo.PUESTOS) {
-                empresa.quitarPuesto(nombre);
-            } else {
-                empresa.quitarArea(nombre);
-            }
+            empresa.quitarPuesto(nombre);
             return null;
         });
     }
 
     private Empresa comoGerente(Usuario actual) {
         if (!(actual instanceof Gerente)) {
-            throw new PermisoDenegadoException("Solo el gerente administra los puestos y las áreas.");
+            throw new PermisoDenegadoException("Solo el gerente administra el catálogo de puestos.");
         }
         return empresaDe(actual);
     }

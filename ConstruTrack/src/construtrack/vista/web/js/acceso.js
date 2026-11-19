@@ -233,13 +233,13 @@ function pantallaRegistro(parametros) {
       <fieldset class="opciones-rol">
         <legend class="solo-lector">¿Cómo usarás ConstruTrack?</legend>
         <label class="opcion-rol"><input type="radio" name="tipo" value="unirme" checked>
-          <span><strong>Me uno a una empresa</strong><span class="pequeno suave">Mi gerente me dará un código de invitación (empleado o supervisor).</span></span></label>
+          <span><strong>Me uno a una empresa</strong><span class="pequeno suave">Mi gerente me dará un código de registro (empleado o supervisor).</span></span></label>
         <label class="opcion-rol"><input type="radio" name="tipo" value="gerente">
           <span><strong>Soy gerente: crear mi empresa</strong><span class="pequeno suave">Creo la empresa e invito a mi personal.</span></span></label>
       </fieldset>
       <div class="campo oculto" id="campo-empresa"><label for="r-empresa">Nombre de la empresa *</label>
         <input id="r-empresa" name="empresa" autocomplete="organization" maxlength="60" placeholder="Ej.: Constructora Los Andes">
-        <span class="ayuda">Serás su Gerente: podrás crear obras e invitar a supervisores y empleados.</span></div>
+        <span class="ayuda">Serás su Gerente: podrás crear proyectos y registrar a supervisores y empleados.</span></div>
       <div class="campo"><label for="correo">Correo electrónico *</label>
         <input id="correo" name="correo" type="email" autocomplete="email" required>
         <span class="ayuda">Lo usarás para iniciar sesión.</span></div>
@@ -296,7 +296,7 @@ function pantallaRegistro(parametros) {
         location.hash = 'unirse';
       } else {
         aviso(`Tu empresa «${sesion.usuario.empresa}» está lista. Ahora invita a tu personal.`);
-        location.hash = 'invitaciones';
+        location.hash = 'registro-personal';
       }
       enrutar();
     } catch (e) {
@@ -339,7 +339,7 @@ function pantallaVerificarCorreo() {
       aviso(respuesta.mensaje);
       if (respuesta.usuario) {
         estado.usuario = respuesta.usuario;
-        location.hash = respuesta.usuario.rol === 'Gerente' ? 'invitaciones' : 'asistencia';
+        location.hash = respuesta.usuario.rol === 'Gerente' ? 'registro-personal' : 'asistencia';
       }
       enrutar();
     } catch (e) {
@@ -361,10 +361,10 @@ function pantallaVerificarCorreo() {
 function pantallaUnirse() {
   marcoAcceso(`
     <h1>¡Hola, ${esc(estado.cuenta.nombre)}! Únete a tu empresa</h1>
-    <p class="bajada">Tu cuenta ya está creada. Escribe el código de invitación que te dio tu gerente.
-      Al unirte tendrás el rol, el supervisor y la obra que él definió.</p>
+    <p class="bajada">Tu cuenta ya está creada. Escribe el código de registro que te dio tu gerente.
+      Al unirte tendrás el rol, el puesto y el proyecto que él definió.</p>
     <form id="form-unirse" novalidate>
-      <div class="campo"><label for="codigo">Código de invitación *</label>
+      <div class="campo"><label for="codigo">Código de registro *</label>
         <input id="codigo" name="codigo" class="codigo-grande" autocomplete="off" placeholder="CT-XXXX-XXXX" required>
         <span class="ayuda">Puedes escribirlo en minúsculas; los espacios se ignoran.</span></div>
       <div class="mensaje mensaje-error oculto" role="alert"></div>
@@ -389,7 +389,7 @@ function pantallaUnirse() {
       const respuesta = await Api.crearEmpresa($('#u-empresa').value);
       estado.usuario = respuesta.usuario;
       aviso(respuesta.mensaje);
-      location.hash = 'invitaciones';
+      location.hash = 'registro-personal';
       enrutar();
     } catch (e) {
       mostrarErrorFormulario(formEmpresa, e.message);

@@ -62,7 +62,7 @@ public final class ControladoraNovedades {
             vista.getCboPersona().addItem(new Opcion(u.getCedula(), u == usuario ? u.getNombre() + " (yo)"
                     : u.getNombre() + (u.getPuesto() == null ? "" : " · " + u.getPuesto())));
         }
-        vista.getCboObra().addItem(new Opcion("", "— La obra de la persona —"));
+        vista.getCboObra().addItem(new Opcion("", "— El proyecto de la persona —"));
         if (usuario.getEmpresa() != null) {
             for (Obra o : usuario.getEmpresa().listarObras()) {
                 vista.getCboObra().addItem(new Opcion(o.getNombre(), o.getNombre()));

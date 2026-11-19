@@ -121,7 +121,7 @@ public final class ControladoraInventario {
             persona.addItem(new Opcion(u.getCedula(), u.getNombre() + " · " + (u.getPuesto() == null ? u.getRol() : u.getPuesto())));
         }
         JComboBox<Opcion> obra = new JComboBox<>();
-        obra.addItem(new Opcion("", "— La obra de la persona —"));
+        obra.addItem(new Opcion("", "— El proyecto de la persona —"));
         for (Obra o : personal.listarObras(usuario)) {
             if (o.admitePersonal()) {
                 obra.addItem(new Opcion(o.getCodigo(), o.getNombre()));
@@ -136,7 +136,7 @@ public final class ControladoraInventario {
         panel.add(persona);
         panel.add(new JLabel("Cantidad:"));
         panel.add(cantidad);
-        panel.add(new JLabel("Obra:"));
+        panel.add(new JLabel("Proyecto:"));
         panel.add(obra);
         panel.add(new JLabel("Devolver el (AAAA-MM-DD, opcional):"));
         panel.add(prevista);

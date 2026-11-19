@@ -31,9 +31,10 @@ def entrar(pagina, identificador, clave):
     pagina.wait_for_selector(".lateral")
 
 
-TITULOS = {"asistencia": "Asistencia", "permisos": "Permisos y reposos", "reportes-obra": "Reportes en obra",
-           "tablero": "Tablero", "supervision": "Supervisión", "obras": "Obras", "personal": "Personal",
-           "talento": "Talento humano", "inventario": "Inventario", "catalogo": "Puestos y áreas", "invitaciones": "Invitaciones"}
+TITULOS = {"asistencia": "Asistencia", "permisos": "Permisos y reposos", "reportes-proyecto": "Reportes de proyecto",
+           "panel": "Panel de control", "supervision": "Supervisión", "proyectos": "Proyectos", "personal": "Personal",
+           "areas": "Áreas", "talento": "Talento humano", "inventario": "Inventario", "catalogo": "Puestos",
+           "registro-personal": "Registro de personal"}
 OBRA = {"latitude": 10.4969, "longitude": -66.8539, "accuracy": 15}
 
 
@@ -97,7 +98,7 @@ with sync_playwright() as p:
     pagina.fill("#n-matricula", "MPPS 45821")
     pagina.fill("#n-centro", "Clínica Santa Sofía")
     guardar(pagina, "web_18_registrar_reposo", completa=True)
-    vista(pagina, "reportes-obra", "web_21_reportes_obra")
+    vista(pagina, "reportes-proyecto", "web_21_reportes_proyecto")
     vista(pagina, "supervision", "web_08_supervision", completa=True)
     boton = pagina.locator("[aria-labelledby=t-ubicaciones] [data-mapa]").first
     if boton.count():
@@ -109,7 +110,7 @@ with sync_playwright() as p:
     pagina = nueva()
     entrar(pagina, "carlos.mendez@construtrack.demo", "gerente123")
     vista(pagina, "permisos", "web_06_permisos")
-    vista(pagina, "tablero", "web_07_tablero")
+    vista(pagina, "panel", "web_07_panel_control")
     vista(pagina, "talento", "web_19_talento", completa=True)
     pagina.locator("[data-egreso='30000004']").click()
     pagina.wait_for_selector("#e-voucher")
@@ -117,7 +118,8 @@ with sync_playwright() as p:
     guardar(pagina, "web_23_egreso")
     pagina.keyboard.press("Escape")
     vista(pagina, "inventario", "web_20_inventario", completa=True)
-    vista(pagina, "catalogo", "web_24_catalogo")
+    vista(pagina, "catalogo", "web_24_puestos")
+    vista(pagina, "areas", "web_25_areas", completa=True)
     vista(pagina, "personal", "web_09_personal")
     pagina.click("text=+ Registrar persona")
     pagina.wait_for_selector(".modal")
@@ -128,8 +130,8 @@ with sync_playwright() as p:
     pagina.click("[data-pestana=h-permisos]")
     guardar(pagina, "web_15_historial")
     pagina.keyboard.press("Escape")
-    vista(pagina, "obras", "web_16_obras", completa=True)
-    vista(pagina, "invitaciones", "web_11_invitaciones")
+    vista(pagina, "proyectos", "web_16_proyectos", completa=True)
+    vista(pagina, "registro-personal", "web_11_registro_personal")
     pagina.click(".chat-boton")
     pagina.fill(".chat-formulario input", "¿Quién llegó tarde hoy?")
     pagina.press(".chat-formulario input", "Enter")

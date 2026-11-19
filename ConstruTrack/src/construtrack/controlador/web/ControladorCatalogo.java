@@ -25,7 +25,6 @@ public class ControladorCatalogo implements ControladorWeb {
     }
 
     static String json(Catalogo c) {
-        return new JsonObjeto().crudo("puestos", Json.lista(c.getPuestos(), Json::texto))
-                .crudo("areas", Json.lista(c.getAreas(), Json::texto)).toString();
+        return new JsonObjeto().crudo("puestos", Json.lista(c.getPuestos(), Json::texto)).toString();
     }
 }

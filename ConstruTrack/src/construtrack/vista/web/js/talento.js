@@ -127,32 +127,31 @@ async function formularioEgreso(persona) {
 async function vistaCatalogo() {
   const zona = contenido();
   const catalogo = await Api.catalogo();
-  const bloque = (tipo, titulo, lista, ejemplo) => `<section class="tarjeta" aria-labelledby="t-${tipo}"><h2 id="t-${tipo}">${titulo}</h2>
-      <ul class="lista-simple">${lista.map((x) => `<li><span>${esc(x)}</span>
-        <button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-quitar="${esc(x)}" data-tipo="${tipo}" aria-label="Quitar ${esc(x)}">Quitar</button></li>`).join('')
-        || '<li class="suave">Vacío.</li>'}</ul>
-      <form class="fila-agregar" data-agregar="${tipo}" novalidate>
-        <label class="solo-lector" for="nuevo-${tipo}">Nuevo</label>
-        <input id="nuevo-${tipo}" name="nombre" placeholder="Ej.: ${ejemplo}" maxlength="60">
-        <button class="btn btn-primario" type="submit">Agregar</button></form></section>`;
   if (!zona.isConnected) return;
-  zona.innerHTML = encabezado('', 'Puestos y áreas') + `
-    <p class="suave" style="margin-top:-8px">El rol (empleado, supervisor o gerente) define los permisos en el sistema; el puesto y el área
-      describen el cargo y el departamento de cada persona. Se eligen al registrar o invitar a alguien.</p>
-    <div class="rejilla-2">${bloque('puestos', 'Puestos', catalogo.puestos, 'Soldador')}${bloque('areas', 'Áreas', catalogo.areas, 'Seguridad industrial')}</div>`;
-  zona.querySelectorAll('[data-agregar]').forEach((f) => f.addEventListener('submit', async (evento) => {
+  zona.innerHTML = encabezado('', 'Puestos') + `
+    <p class="suave" style="margin-top:-8px">El rol (empleado, supervisor o gerente) define los permisos en el sistema; el puesto describe
+      el cargo de cada persona. Las áreas, con su supervisor responsable, están en <a href="#areas">Áreas</a>.</p>
+    <section class="tarjeta tarjeta-angosta" aria-labelledby="t-puestos"><h2 id="t-puestos">Puestos</h2>
+      <ul class="lista-simple">${catalogo.puestos.map((x) => `<li><span>${esc(x)}</span>
+        <button class="btn btn-enlace btn-chico" style="color:var(--rojo)" data-quitar="${esc(x)}" aria-label="Quitar ${esc(x)}">Quitar</button></li>`).join('')
+        || '<li class="suave">Todavía no hay puestos.</li>'}</ul>
+      <form class="fila-agregar" id="form-puesto" novalidate>
+        <label class="solo-lector" for="nuevo-puesto">Nuevo puesto</label>
+        <input id="nuevo-puesto" name="nombre" placeholder="Ej.: Soldador" maxlength="60">
+        <button class="btn btn-primario" type="submit">Agregar</button></form></section>`;
+  zona.querySelector('#form-puesto').addEventListener('submit', async (evento) => {
     evento.preventDefault();
     try {
-      await Api.agregarCatalogo(f.dataset.agregar, f.querySelector('input').value);
-      aviso('Agregado al catálogo.');
+      await Api.agregarCatalogo('puestos', zona.querySelector('#nuevo-puesto').value);
+      aviso('Puesto agregado.');
       await vistaCatalogo();
     } catch (e) {
       aviso(e.message, 'error');
     }
-  }));
+  });
   zona.querySelectorAll('[data-quitar]').forEach((b) => b.addEventListener('click', async () => {
     try {
-      await Api.quitarCatalogo(b.dataset.tipo, b.dataset.quitar);
+      await Api.quitarCatalogo('puestos', b.dataset.quitar);
       aviso(`«${b.dataset.quitar}» se quitó del catálogo.`);
       await vistaCatalogo();
     } catch (e) {

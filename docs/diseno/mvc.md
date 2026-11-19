@@ -66,7 +66,7 @@ La vista (`PanelNovedades`) solo crea los componentes y ofrece *getters*; nunca 
 a una empresa). Un gerente crea su empresa al registrarse (`Plataforma.fundarEmpresa`) y sus empleados se unen con un
 código. El aislamiento se garantiza en dos capas:
 
-- **Servicios:** toda consulta o cambio se hace dentro de `empresaDe(actual)`: un gerente nunca recibe personas, obras,
+- **Servicios:** toda consulta o cambio se hace dentro de `empresaDe(actual)`: un gerente nunca recibe personas, proyectos,
   permisos, reportes o inventario de otra empresa; una cédula de otra empresa simplemente «no existe».
 - **Modelo:** los permisos del Gerente (`puedeRevisar`, `puedeAprobarHorasDe`, `puedeAsignarObraA`, `puedeReportarPara`)
   exigen además `mismaEmpresaQue(otro)`, por si algún día otro controlador llamara al modelo directamente.

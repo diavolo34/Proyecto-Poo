@@ -2,16 +2,12 @@ package construtrack.controlador.swing;
 
 import construtrack.modelo.Empleado;
 import construtrack.modelo.Horario;
-import construtrack.modelo.Supervisor;
 import construtrack.modelo.Usuario;
 import construtrack.modelo.excepciones.ConstruTrackException;
 import construtrack.servicio.ServicioPersonal;
 import construtrack.vista.swing.DialogoUsuario;
-import construtrack.vista.swing.Opcion;
 import construtrack.vista.swing.PanelPersonal;
 import java.awt.Frame;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.swing.RowFilter;
@@ -77,18 +73,13 @@ public final class ControladoraPersonal {
     private void abrirDialogo(String cedula) {
         Frame dueno = (Frame) SwingUtilities.getWindowAncestor(vista);
         DialogoUsuario dialogo = new DialogoUsuario(dueno, cedula != null);
-        List<Opcion> supervisores = new ArrayList<>();
-        for (Supervisor s : personal.listarSupervisores(usuario)) {
-            supervisores.add(new Opcion(s.getCedula(), s.getNombre()));
-        }
-        dialogo.cargarSupervisores(supervisores);
-        dialogo.cargarCatalogo(usuario.getEmpresa().getCatalogo().getPuestos(), usuario.getEmpresa().getCatalogo().getAreas());
+        dialogo.cargarCatalogo(usuario.getEmpresa().getCatalogo().getPuestos(),
+                usuario.getEmpresa().listarAreas().stream().map(construtrack.modelo.Area::getNombre).toList());
         if (cedula != null) {
             Usuario u = personal.ver(usuario, cedula);
             Horario h = u.getHorario();
-            String supervisor = u instanceof Empleado e && e.getSupervisor() != null ? e.getSupervisor().getCedula() : "";
             dialogo.cargar(u.getRol(), u.getCedula(), u.getNombre(), h.getDias(), h.getHoraEntrada().toString(),
-                    h.getHoraSalida().toString(), supervisor, u.estaPresente());
+                    h.getHoraSalida().toString(), u.estaPresente());
             dialogo.cargarPuesto(u.getPuesto(), u.getArea());
         }
         dialogo.getBtnCancelar().addActionListener(e -> dialogo.dispose());
@@ -115,7 +106,7 @@ public final class ControladoraPersonal {
             Horario h = u.getHorario();
             String supervisor = u instanceof Empleado e && e.getSupervisor() != null ? e.getSupervisor().getNombre() : "—";
             modelo.addRow(new Object[] {u.getCedula(), u.getNombre(), u.getRol(), u.getPuesto() == null ? "—" : u.getPuesto(),
-                u.getArea() == null ? "—" : u.getArea(), u.estaPresente() ? "En la obra" : "Fuera", h.getDias() + " · " + h.getHoraEntrada() + "–" + h.getHoraSalida(),
+                u.getArea() == null ? "—" : u.getArea(), u.estaPresente() ? "En el proyecto" : "Fuera", h.getDias() + " · " + h.getHoraEntrada() + "–" + h.getHoraSalida(),
                 supervisor, u.getObra() == null ? "—" : u.getObra().getNombre()});
         }
     }
